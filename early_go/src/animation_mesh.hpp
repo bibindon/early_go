@@ -13,8 +13,9 @@ class animation_mesh_allocator;
 class animation_mesh {
 public:
   animation_mesh(const std::shared_ptr<::IDirect3DDevice9>&,
-                 const std::string&);
-  void render(const ::LPD3DXMATRIX);
+                 const std::string&,
+                 const ::D3DXVECTOR3& = ::D3DVECTOR{});
+  void render();
   bool get_play_animation() const;
   void set_play_animation(const bool&);
   float get_animation_time() const;
@@ -41,7 +42,11 @@ private:
                   frame_root_deleter_object> up_d3dx_frame_root_;
   std::unique_ptr<::ID3DXAnimationController,
                   custom_deleter>            up_d3dx_animation_controller_;
+  ::D3DXVECTOR3                              vec_position_;
+  ::D3DXMATRIX                               mat_rotation_;
+  ::D3DXMATRIX                               mat_world_;
 
+  void update_direct3d_device();
   void update_frame_matrix(const ::LPD3DXFRAME, const ::LPD3DXMATRIX);
   void render_frame(const ::LPD3DXFRAME);
   void render_mesh_container(const ::LPD3DXMESHCONTAINER, const ::LPD3DXFRAME);

@@ -61,14 +61,18 @@ void animation_mesh::frame_root_deleter_object::release_mesh_allocator(
  */
 animation_mesh::animation_mesh(
     const std::shared_ptr<::IDirect3DDevice9>& a_krsp_direct3d_device9,
-    const std::string& a_krsz_xfile_name)
+    const std::string& a_krsz_xfile_name,
+    const ::D3DXVECTOR3& a_kp_vec_position)
     : b_play_animation_{true},
       f_animation_time_{},
       sp_direct3d_device9_{a_krsp_direct3d_device9},
       sp_animation_mesh_allocator_{new animation_mesh_allocator{}},
       up_d3dx_frame_root_{nullptr,
           frame_root_deleter_object{sp_animation_mesh_allocator_}},
-      up_d3dx_animation_controller_{nullptr, custom_deleter{}}
+      up_d3dx_animation_controller_{nullptr, custom_deleter{}},
+      vec_position_{a_kp_vec_position},
+      mat_rotation_{::D3DMATRIX{}},
+      mat_world_{::D3DMATRIX{}}
 {
   ::LPD3DXFRAME _p_temp_d3dx_frame_root{nullptr};
   ::LPD3DXANIMATIONCONTROLLER _p_temp_d3dx_animation_controller{nullptr};
@@ -91,14 +95,15 @@ animation_mesh::animation_mesh(
 }
 
 /* Renders its own animation mesh. */
-void animation_mesh::render(const ::LPD3DXMATRIX a_kr_mat_world)
+void animation_mesh::render()
 {
   if (this->b_play_animation_) {
     this->f_animation_time_ += constants::ANIMATION_SPEED;
     this->up_d3dx_animation_controller_->AdvanceTime(
         constants::ANIMATION_SPEED, nullptr);
   }
-  this->update_frame_matrix(this->up_d3dx_frame_root_.get(), a_kr_mat_world);
+  this->update_direct3d_device();
+  this->update_frame_matrix(this->up_d3dx_frame_root_.get(), &this->mat_world_);
   this->render_frame(this->up_d3dx_frame_root_.get());
 
   std::stringstream ss{};
@@ -120,6 +125,45 @@ void animation_mesh::set_play_animation(const bool& a_krb_play_animation)
 float animation_mesh::get_animation_time() const
 {
   return this->f_animation_time_;
+}
+
+void animation_mesh::update_direct3d_device()
+{
+  /* Set world transform matrix. */
+  {
+    ::D3DXMATRIXA16 _mat_world{};
+    ::D3DXMATRIXA16 _mat_position{};
+    ::D3DXMatrixIdentity(&_mat_world);
+    ::D3DXMatrixTranslation(&_mat_position,
+        this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
+
+    ::D3DXMatrixMultiply(&this->mat_world_, &_mat_world, &_mat_position);
+    this->sp_direct3d_device9_->SetTransform(D3DTS_WORLD, &this->mat_world_);
+  }
+  /* Set view transform matrix. */
+  {
+    ::D3DXVECTOR3 _vec_eye_position    { 4.0f, 4.0f, -2.5f};
+    ::D3DXVECTOR3 _vec_look_at_position{-1.0f, 0.0f,  1.0f};
+    ::D3DXVECTOR3 _vec_up_vector       { 0.0f, 1.0f,  0.0f};
+    ::D3DXMATRIXA16 _mat_view{};
+    ::D3DXMatrixLookAtLH(&_mat_view,
+        &_vec_eye_position, &_vec_look_at_position, &_vec_up_vector);
+
+    this->sp_direct3d_device9_->SetTransform(::D3DTS_VIEW, &_mat_view);
+  }
+  /* Set projection transform matrix. */
+  {
+    ::D3DXMATRIXA16 _mat_projection;
+    ::D3DXMatrixPerspectiveFovLH(
+        &_mat_projection,
+        D3DX_PI / 4,
+        static_cast<float>(constants::WINDOW_WIDTH) / constants::WINDOW_HEIGHT,
+        0.1f,
+        10.0f);
+
+    this->sp_direct3d_device9_->SetTransform(::D3DTS_PROJECTION,
+                                             &_mat_projection);
+  }
 }
 
 /*

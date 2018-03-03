@@ -4,9 +4,6 @@
 #include "exception.hpp"
 #include "inline_macro.hpp"
 
-/* TODO: remove */
-#define THING_AMOUNT 1
-
 namespace early_go {
 /*
  * A struct of for the argument of the 'lpfnWndProc' that is the member of
@@ -64,9 +61,7 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
       sp_direct3d_device9_{},
       sp_id3dx_font_{},
       sp_animation_mesh_{},
-      vec_position_{},
-      mat_rotation_{},
-      mat_world_{}
+      sp_animation_mesh2_{}
 {
   ::WNDCLASSEX _wndclassex{};
   _wndclassex.cbSize        = sizeof(_wndclassex);
@@ -168,6 +163,9 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
   this->sp_direct3d_device9_.reset(_p_direct3d_device9, custom_deleter{});
   this->sp_animation_mesh_.reset(new animation_mesh{this->sp_direct3d_device9_,
                                                     constants::MESH_FILE_PATH});
+  this->sp_animation_mesh2_.reset(new animation_mesh{this->sp_direct3d_device9_,
+                                                    constants::MESH_FILE_PATH,
+                                                    ::D3DXVECTOR3{1.0f, 1.0f, 1.0f}});
 
   /* Give a reference for using static function. */
   window_procedure_object::swp_animation_mesh_ = sp_animation_mesh_;
@@ -229,58 +227,18 @@ void basic_window::render()
                                     1.0f,
                                     0);
   if (SUCCEEDED(this->sp_direct3d_device9_->BeginScene())) {
-    this->update_direct3d_device();
     this->update_light();
-    for (int i{}; i < THING_AMOUNT; i++) {
-      this->sp_animation_mesh_->render(&this->mat_world_);
-    }
+    this->sp_animation_mesh_->render();
+    this->sp_animation_mesh2_->render();
+
     this->sp_direct3d_device9_->EndScene();
   }
   this->sp_direct3d_device9_->Present(nullptr, nullptr, nullptr, nullptr);
 }
 
-void basic_window::update_direct3d_device()
-{
-  /* Set world transform matrix. */
-  {
-    ::D3DXMATRIXA16 _mat_world{};
-    ::D3DXMATRIXA16 _mat_position{};
-    ::D3DXMatrixIdentity(&_mat_world);
-    ::D3DXMatrixTranslation(&_mat_position,
-        this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
-
-    ::D3DXMatrixMultiply(&this->mat_world_, &_mat_world, &_mat_position);
-    this->sp_direct3d_device9_->SetTransform(D3DTS_WORLD, &this->mat_world_);
-  }
-  /* Set view transform matrix. */
-  {
-    ::D3DXVECTOR3 _vec_eye_position    { 4.0f, 4.0f, -2.5f};
-    ::D3DXVECTOR3 _vec_look_at_position{-1.0f, 0.0f,  1.0f};
-    ::D3DXVECTOR3 _vec_up_vector       { 0.0f, 1.0f,  0.0f};
-    ::D3DXMATRIXA16 _mat_view{};
-    ::D3DXMatrixLookAtLH(&_mat_view,
-        &_vec_eye_position, &_vec_look_at_position, &_vec_up_vector);
-
-    this->sp_direct3d_device9_->SetTransform(::D3DTS_VIEW, &_mat_view);
-  }
-  /* Set projection transform matrix. */
-  {
-    ::D3DXMATRIXA16 _mat_projection;
-    ::D3DXMatrixPerspectiveFovLH(
-        &_mat_projection,
-        D3DX_PI / 4,
-        static_cast<float>(constants::WINDOW_WIDTH) / constants::WINDOW_HEIGHT,
-        0.1f,
-        10.0f);
-
-    this->sp_direct3d_device9_->SetTransform(::D3DTS_PROJECTION,
-                                             &_mat_projection);
-  }
-}
-
 void basic_window::update_light()
 {
-  /* Shed light. Sets white color and specular reflection. */
+  /* Shed light. Set white color and specular reflection. */
   ::D3DXVECTOR3 _vec_direction{ 1, -0.5, 1 };
   ::D3DLIGHT9 _light = {};
   _light.Type       = ::D3DLIGHT_DIRECTIONAL;

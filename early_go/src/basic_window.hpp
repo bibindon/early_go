@@ -36,13 +36,10 @@ private:
   std::shared_ptr<::IDirect3DDevice9>           sp_direct3d_device9_;
   std::shared_ptr<::ID3DXFont>                  sp_id3dx_font_;
   std::shared_ptr<animation_mesh>               sp_animation_mesh_;
-  ::D3DXVECTOR3                                 vec_position_;
-  ::D3DXMATRIX                                  mat_rotation_;
-  ::D3DXMATRIX                                  mat_world_;
+  std::shared_ptr<animation_mesh>               sp_animation_mesh2_;
 
   void initialize_direct3d(const ::HWND&);
   void render();
-  void update_direct3d_device();
   void update_light();
 };
 } /* namespace early_go */
