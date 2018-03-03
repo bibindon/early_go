@@ -44,11 +44,11 @@ animation_mesh_frame::animation_mesh_frame(const std::string& a_kr_name)
  *
  */
 animation_mesh_container::animation_mesh_container(
-    const std::string&    a_kr_name,
-    ::LPD3DXMESH          a_p_d3dx_mesh,
-    const ::D3DXMATERIAL* a_kp_materials,
-    const ::DWORD         a_k_materials_number,
-    const ::DWORD*        a_kp_adjacency)
+    const std::experimental::filesystem::path& a_kr_x_file_path_,
+    ::LPD3DXMESH                               a_p_d3dx_mesh,
+    const ::D3DXMATERIAL*                      a_kp_materials,
+    const ::DWORD                              a_k_materials_number,
+    const ::DWORD*                             a_kp_adjacency)
     : D3DXMESHCONTAINER{}, /* Initializes with zero. */
       vecup_texture_{}
 {
@@ -56,7 +56,7 @@ animation_mesh_container::animation_mesh_container(
    * The 'dup' of '::_strdup' is the abbreviation of 'duplicate', create new
    * string by the argument string.
    */
-  this->Name = ::_strdup(a_kr_name.c_str());
+  this->Name = ::_strdup(a_kr_x_file_path_.filename().string().c_str());
 
   ::LPDIRECT3DDEVICE9 _p_temp_direct3d_device9{nullptr};
   a_p_d3dx_mesh->GetDevice(&_p_temp_direct3d_device9);
@@ -109,10 +109,13 @@ animation_mesh_container::animation_mesh_container(
 
     for (unsigned int i{}; i < a_k_materials_number; ++i) {
       if (this->pMaterials[i].pTextureFilename != nullptr) {
+        std::experimental::filesystem::path _texture_path{
+            a_kr_x_file_path_.parent_path()};
+        _texture_path /= this->pMaterials[i].pTextureFilename;
         ::LPDIRECT3DTEXTURE9 _pp_temp_texture{};
         if (SUCCEEDED(
             ::D3DXCreateTextureFromFile(_p_temp_direct3d_device9,
-                                        this->pMaterials[i].pTextureFilename,
+                                        _texture_path.string().c_str(),
                                         &_pp_temp_texture))) {
           this->vecup_texture_.at(i).reset(_pp_temp_texture);
         } else {
@@ -125,6 +128,11 @@ animation_mesh_container::animation_mesh_container(
     this->pMaterials[0].MatD3D.Specular = this->pMaterials[0].MatD3D.Diffuse;
   }
 }
+
+animation_mesh_allocator::animation_mesh_allocator(
+    const std::string & a_krsz_xfile_path)
+    : ID3DXAllocateHierarchy{},
+      x_file_path_(a_krsz_xfile_path) {}
 
 /*
  * Alghough it's camel case and a strange type name, because this function is a
@@ -143,7 +151,7 @@ animation_mesh_container::animation_mesh_container(
  * pure virtual function of 'ID3DXAllocateHierarchy'.
  */
 ::STDMETHODIMP animation_mesh_allocator::CreateMeshContainer(
-    ::LPCSTR a_name,
+    ::LPCSTR,
     CONST ::D3DXMESHDATA* a_kp_mesh_data,
     CONST ::D3DXMATERIAL* a_kp_materials,
     CONST ::D3DXEFFECTINSTANCE*,
@@ -154,7 +162,7 @@ animation_mesh_container::animation_mesh_container(
 {
   try {
     *a_pp_mesh_container =
-        new_crt animation_mesh_container{a_name,
+        new_crt animation_mesh_container{this->x_file_path_,
                                          a_kp_mesh_data->pMesh,
                                          a_kp_materials,
                                          a_materials_number,

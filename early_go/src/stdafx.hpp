@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <cstring>
 #include <exception>
+#include <filesystem>
 #include <functional>
 #include <iostream>
 #include <memory>

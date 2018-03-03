@@ -61,12 +61,13 @@ void animation_mesh::frame_root_deleter_object::release_mesh_allocator(
  */
 animation_mesh::animation_mesh(
     const std::shared_ptr<::IDirect3DDevice9>& a_krsp_direct3d_device9,
-    const std::string& a_krsz_xfile_name,
+    const std::string& a_krsz_xfile_path,
     const ::D3DXVECTOR3& a_kp_vec_position)
     : b_play_animation_{true},
       f_animation_time_{},
       sp_direct3d_device9_{a_krsp_direct3d_device9},
-      sp_animation_mesh_allocator_{new_crt animation_mesh_allocator{}},
+      sp_animation_mesh_allocator_{
+          new_crt animation_mesh_allocator{a_krsz_xfile_path}},
       up_d3dx_frame_root_{nullptr,
           frame_root_deleter_object{sp_animation_mesh_allocator_}},
       up_d3dx_animation_controller_{nullptr, custom_deleter{}},
@@ -78,7 +79,7 @@ animation_mesh::animation_mesh(
   ::LPD3DXANIMATIONCONTROLLER _p_temp_d3dx_animation_controller{nullptr};
 
   if (FAILED(
-      ::D3DXLoadMeshHierarchyFromX(a_krsz_xfile_name.c_str(),
+      ::D3DXLoadMeshHierarchyFromX(a_krsz_xfile_path.c_str(),
                                    ::D3DXMESH_MANAGED,
                                    this->sp_direct3d_device9_.get(),
                                    this->sp_animation_mesh_allocator_.get(),
@@ -86,7 +87,7 @@ animation_mesh::animation_mesh(
                                    &_p_temp_d3dx_frame_root,
                                    &_p_temp_d3dx_animation_controller))) {
     ::MessageBox(nullptr, constants::FAILED_TO_READ_X_FILE_MESSAGE.c_str(),
-        a_krsz_xfile_name.c_str(), MB_OK);
+        a_krsz_xfile_path.c_str(), MB_OK);
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to load a x-file."});
   }
   /* lazy initialization */

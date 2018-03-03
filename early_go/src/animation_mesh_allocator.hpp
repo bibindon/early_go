@@ -24,7 +24,7 @@ struct animation_mesh_container : public ::D3DXMESHCONTAINER
           ::IDirect3DTexture9, custom_deleter
       >
   > vecup_texture_;
-  animation_mesh_container(const std::string&,
+  animation_mesh_container(const std::experimental::filesystem::path&,
                            ::LPD3DXMESH,
                            const ::D3DXMATERIAL*,
                            const ::DWORD,
@@ -38,6 +38,7 @@ struct animation_mesh_container : public ::D3DXMESHCONTAINER
 class animation_mesh_allocator : public ::ID3DXAllocateHierarchy
 {
 public:
+  animation_mesh_allocator(const std::string& a_krsz_xfile_path);
   /* A function which be must defined. ~ */
   STDMETHOD(CreateFrame)(THIS_ ::LPCTSTR, ::LPD3DXFRAME*);
   STDMETHOD(CreateMeshContainer)(THIS_ ::LPCSTR,
@@ -51,6 +52,8 @@ public:
   STDMETHOD(DestroyFrame)(THIS_ ::LPD3DXFRAME);
   STDMETHOD(DestroyMeshContainer)(THIS_ ::LPD3DXMESHCONTAINER);
   /* ~ A function which be must defined. */
+private:
+  std::experimental::filesystem::path x_file_path_;
 };
 } /* namespace early_go */
 #endif
