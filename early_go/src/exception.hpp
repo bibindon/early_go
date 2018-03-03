@@ -5,10 +5,10 @@
 
 namespace early_go {
 /*
- * A utilities of exception. 
+ * A utilities of exception.
  *
  * Usage
- *  
+ *
  *   void f()
  *   {
  *     BOOST_THROW_EXCEPTION(custom_exception{"hogehoge"});

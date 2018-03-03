@@ -23,7 +23,7 @@ animation_mesh_frame::animation_mesh_frame(const std::string& a_kr_name)
  * A constructor which only initializes member variables from the beginning to
  * the end.
  *
- * References: 
+ * References:
  *
  *  // d3dx9anim.h
  *  typedef struct _D3DXMESHCONTAINER
@@ -41,7 +41,7 @@ animation_mesh_frame::animation_mesh_frame(const std::string& a_kr_name)
  *
  *      struct _D3DXMESHCONTAINER *pNextMeshContainer;
  *  } D3DXMESHCONTAINER, *LPD3DXMESHCONTAINER;
- * 
+ *
  */
 animation_mesh_container::animation_mesh_container(
     const std::string&    a_kr_name,
@@ -85,14 +85,14 @@ animation_mesh_container::animation_mesh_container(
 
   /* This strange bracket is measures of being interpretered as WinAPI macro. */
   this->NumMaterials   = (std::max)(1UL, a_k_materials_number);
-  this->pMaterials     = new ::D3DXMATERIAL[this->NumMaterials]{};
+  this->pMaterials     = new_crt ::D3DXMATERIAL[this->NumMaterials]{};
   std::vector<std::unique_ptr<::IDirect3DTexture9, custom_deleter> >
       _temp_texture(this->NumMaterials);
   this->vecup_texture_.swap(_temp_texture);
 
   /* Initialize the 'pAdjacency' of a member variable. */
   unsigned int _ui_faces_amount{a_p_d3dx_mesh->GetNumFaces()};
-  this->pAdjacency = new ::DWORD[_ui_faces_amount * 3]{};
+  this->pAdjacency = new_crt ::DWORD[_ui_faces_amount * 3]{};
 
   for (unsigned int i{}; i < _ui_faces_amount * 3; ++i) {
     this->pAdjacency[i] = a_kp_adjacency[i];
@@ -133,7 +133,8 @@ animation_mesh_container::animation_mesh_container(
 ::STDMETHODIMP animation_mesh_allocator::CreateFrame(
     ::LPCTSTR a_name, ::LPD3DXFRAME *a_pp_new_frame)
 {
-  *a_pp_new_frame = new animation_mesh_frame{a_name};
+  void* p = _aligned_malloc_crt(sizeof(animation_mesh_frame), 16);
+  *a_pp_new_frame = new(p) animation_mesh_frame{a_name};
   return S_OK;
 }
 
@@ -152,11 +153,12 @@ animation_mesh_container::animation_mesh_container(
     ::LPD3DXMESHCONTAINER *a_pp_mesh_container)
 {
   try {
-    *a_pp_mesh_container = new animation_mesh_container{a_name,
-                                                        a_kp_mesh_data->pMesh,
-                                                        a_kp_materials,
-                                                        a_materials_number,
-                                                        a_kp_adjacency};
+    *a_pp_mesh_container =
+        new_crt animation_mesh_container{a_name,
+                                         a_kp_mesh_data->pMesh,
+                                         a_kp_materials,
+                                         a_materials_number,
+                                         a_kp_adjacency};
   } catch (const std::exception&) {
     return E_FAIL;
   }
@@ -171,7 +173,8 @@ animation_mesh_container::animation_mesh_container(
     ::LPD3DXFRAME a_p_frame_to_free)
 {
   safe_delete_array(a_p_frame_to_free->Name);
-  safe_delete(a_p_frame_to_free);
+  a_p_frame_to_free->~D3DXFRAME();
+  _aligned_free(a_p_frame_to_free);
   return S_OK;
 }
 

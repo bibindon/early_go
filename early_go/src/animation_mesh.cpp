@@ -66,7 +66,7 @@ animation_mesh::animation_mesh(
     : b_play_animation_{true},
       f_animation_time_{},
       sp_direct3d_device9_{a_krsp_direct3d_device9},
-      sp_animation_mesh_allocator_{new animation_mesh_allocator{}},
+      sp_animation_mesh_allocator_{new_crt animation_mesh_allocator{}},
       up_d3dx_frame_root_{nullptr,
           frame_root_deleter_object{sp_animation_mesh_allocator_}},
       up_d3dx_animation_controller_{nullptr, custom_deleter{}},

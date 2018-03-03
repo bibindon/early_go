@@ -30,7 +30,7 @@ private:
   /* prototype declaration */
   struct window_procedure_object;
 
-  ::MSG                                         msg_; 
+  ::MSG                                         msg_;
   std::unique_ptr<::IDirect3D9, custom_deleter> up_direct3d9_;
   ::D3DPRESENT_PARAMETERS                       d3d_present_parameters_;
   std::shared_ptr<::IDirect3DDevice9>           sp_direct3d_device9_;

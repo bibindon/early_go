@@ -36,8 +36,13 @@
  * the build error if this is at above include line of the specific header.
  */
 #if defined(DEBUG) || defined(_DEBUG)
-# define malloc(X) _malloc_dbg(X,_NORMAL_BLOCK,__FILE__,__LINE__) 
-# define new ::new(_NORMAL_BLOCK, __FILE__, __LINE__)
+# define malloc_crt(x) _malloc_dbg((x), _NORMAL_BLOCK, __FILE__, __LINE__)
+# define _aligned_malloc_crt(x, y) _aligned_malloc_dbg((x), (y), __FILE__, __LINE__)
+# define new_crt ::new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#else
+# define malloc_crt(x) _malloc((x))
+# define _aligned_malloc_crt(x, y) _aligned_malloc((x), (y))
+# define new_crt ::new
 #endif
 
 #endif

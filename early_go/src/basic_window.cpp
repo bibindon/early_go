@@ -161,11 +161,13 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
   }
   /* lazy initialization */
   this->sp_direct3d_device9_.reset(_p_direct3d_device9, custom_deleter{});
-  this->sp_animation_mesh_.reset(new animation_mesh{this->sp_direct3d_device9_,
-                                                    constants::MESH_FILE_PATH});
-  this->sp_animation_mesh2_.reset(new animation_mesh{this->sp_direct3d_device9_,
-                                                    constants::MESH_FILE_PATH,
-                                                    ::D3DXVECTOR3{1.0f, 1.0f, 1.0f}});
+  this->sp_animation_mesh_.reset(
+      new_crt animation_mesh{this->sp_direct3d_device9_,
+                             constants::MESH_FILE_PATH});
+  this->sp_animation_mesh2_.reset(
+      new_crt animation_mesh{this->sp_direct3d_device9_,
+                             constants::MESH_FILE_PATH,
+                             ::D3DXVECTOR3{1.0f, 1.0f, 1.0f}});
 
   /* Give a reference for using static function. */
   window_procedure_object::swp_animation_mesh_ = sp_animation_mesh_;

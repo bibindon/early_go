@@ -39,7 +39,7 @@ inline void safe_release(T*& p) {
 }
 /*
  * A custom deleter for smart-pointer. The reason why a function object not
- * a template function is because not to have to write a type. 
+ * a template function is because not to have to write a type.
  *
  * Usages:
  *
