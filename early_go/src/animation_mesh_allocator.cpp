@@ -1,5 +1,6 @@
 #include "animation_mesh_allocator.hpp"
 #include "inline_macro.hpp"
+#include "exception.hpp"
 
 namespace early_go {
 /* c'tor */
@@ -72,7 +73,7 @@ animation_mesh_container::animation_mesh_container(
                                     _p_temp_direct3d_device9,
                                     &this->MeshData.pMesh)};
     if (FAILED(_hresult)) {
-      throw std::logic_error{""};
+      BOOST_THROW_EXCEPTION(custom_exception{});
     }
     a_p_d3dx_mesh = this->MeshData.pMesh;
     ::D3DXComputeNormals(a_p_d3dx_mesh, nullptr);

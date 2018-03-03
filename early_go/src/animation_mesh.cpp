@@ -83,7 +83,7 @@ animation_mesh::animation_mesh(
                                    &_p_temp_d3dx_animation_controller))) {
     ::MessageBox(nullptr, constants::FAILED_TO_READ_X_FILE_MESSAGE.c_str(),
         a_krsz_xfile_name.c_str(), MB_OK);
-    throw_with_trace(std::logic_error{"hogehoge"});
+    BOOST_THROW_EXCEPTION(custom_exception{"Failed to load a x-file."});
   }
   /* lazy initialization */
   this->up_d3dx_frame_root_.reset(_p_temp_d3dx_frame_root);

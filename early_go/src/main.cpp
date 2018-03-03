@@ -12,19 +12,6 @@ try {
 
   return _basic_window();
 } catch (const std::exception& a_expception) {
-  early_go::log_liner{} << a_expception.what();
-  // TODO: The Boost.Stacktrace feature to show source file name and its line
-  // number is not supported on msvc. It's necessary to write fullscratch
-  // though ridiculous.
-//  std::unique_ptr<const boost::stacktrace::stacktrace> _up_stacktrace {
-//      boost::get_error_info<early_go::traced>(a_expception) };
-
-//  if (_up_stacktrace.get()) {
-//    early_go::log_liner{} << *_up_stacktrace;
-
-    // std::ostringstream _ostringstream;
-    // _ostringstream << *_up_stacktrace << std::endl;
-    // ::MessageBox(0, _ostringstream.str().c_str(), nullptr, MB_OK);
-//  }
+  early_go::log_liner{} << boost::diagnostic_information(a_expception);
   return EXIT_FAILURE;
 }

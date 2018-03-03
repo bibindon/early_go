@@ -107,10 +107,8 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
   ::LPDIRECT3D9 _p_direct3d9{::Direct3DCreate9(D3D_SDK_VERSION)};
 
   if (nullptr == _p_direct3d9) {
-    /* TODO: change message for user. */
     ::MessageBox(0, "Direct3D‚Ìì¬‚ÉŽ¸”s‚µ‚Ü‚µ‚½", "", MB_OK);
-    throw_with_trace(std::runtime_error{
-        constants::FAILED_TO_CREATE_WINDOW_MESSAGE.c_str() });
+    BOOST_THROW_EXCEPTION(custom_exception{"Failed to create 'Direct3D'."});
   }
   this->up_direct3d9_.reset(_p_direct3d9);
 
@@ -161,8 +159,8 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
             constants::FAILED_TO_CREATE_HARDWARE_MODE_MESSAGE.c_str(),
             nullptr, MB_OK);
       } else {
-        throw_with_trace(
-            std::runtime_error{constants::FAILED_TO_CREATE_WINDOW_MESSAGE});
+        BOOST_THROW_EXCEPTION(
+            custom_exception{"Failed to create 'Direct3D Device'."});
       }
     }
   }
@@ -201,7 +199,7 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
                               FIXED_PITCH | FF_MODERN,
                               "MeiryoKe_Gothic",
                               &_p_d3dx_font))) {
-    throw_with_trace(std::runtime_error{"Failed to create a window."});
+    BOOST_THROW_EXCEPTION(custom_exception{"Failed to create a font."});
   }
   this->sp_id3dx_font_.reset(_p_d3dx_font, custom_deleter{});
   render_string_object::swp_id3dx_font_ = this->sp_id3dx_font_;
