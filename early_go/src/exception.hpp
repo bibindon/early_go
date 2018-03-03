@@ -1,38 +1,59 @@
 #ifndef EXCEPTION_HPP
 #define EXCEPTION_HPP
 
-#define BOOST_STACKTRACE_LINK
-#define BOOST_STACKTRACE_USE_WINDBG
-#define BOOST_STACKTRACE_USE_ADDR2LINE
-
-#include <boost/stacktrace.hpp>
 #include <boost/exception/all.hpp>
-
-#pragma comment(lib, "libboost_stacktrace_windbg-vc141-mt-gd-x32-1_66.lib")
 
 namespace early_go {
 /*
+ * A utilities of exception. 
+ *
  * Usage
- *
- * try {
- *   throw_with_trace(std::logic_error("hogehoge"));
- * } catch (const std::exception& e) {
- *   std::cerr << e.what() << '\n';
- *   const boost::stacktrace::stacktrace* st =
- *       boost::get_error_info<traced>(e);
- *
- *   if (st) {
- *     std::cerr << *st << '\n';
+ *  
+ *   void f()
+ *   {
+ *     BOOST_THROW_EXCEPTION(custom_exception{"hogehoge"});
  *   }
- * }
+ *
+ *   void g()
+ *   {
+ *     try {
+ *       f();
+ *     } catch (boost::exception& e) {
+ *       e << additional_info("aiueo");
+ *       throw;
+ *     }
+ *   }
+ *
+ *   try {
+ *     void g();
+ *   } catch (const std::exception& e) {
+ *     early_go::log_liner{} << boost::diagnostic_information(e);
+ *   }
+ *
+ * The reason why not use the Stacktrace:
+ *   The MSVC cannot use the Boost.StackTrace to show a function name and line
+ *   number. Also, the combination of the 'Visual Studio 2017' and 'Windows 7'
+ *   cannot use the WinAPI for stack trace.
  */
-typedef boost::error_info<
-    struct tag_stacktrace, boost::stacktrace::stacktrace> traced;
 
-template <class E>
-void throw_with_trace(const E& e) {
-  throw boost::enable_error_info(e)
-      << traced(boost::stacktrace::stacktrace());
-}
+using additional_info = boost::error_info<struct tag_stacktrace, std::string>;
+
+class custom_exception :
+    virtual public boost::exception, virtual public std::exception
+{
+public:
+  custom_exception() : custom_exception("There is not any messages.") {}
+  custom_exception(const std::string& a_krsz)
+      : std::exception(), ksz_(a_krsz) {}
+
+  virtual const char* what() const noexcept
+  {
+    return this->ksz_.c_str();
+  }
+
+private:
+  const std::string ksz_;
+};
+
 } /* namespace early_go */
 #endif

@@ -4,8 +4,6 @@
 
 #define D3D_DEBUG_INFO
 #define BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
-/* TODO: delete */
-#define _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
 
 #include <crtdbg.h>
 #include <d3d9.h>
