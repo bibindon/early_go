@@ -1,5 +1,6 @@
+#include "stdafx.hpp"
+
 #include "basic_window.hpp"
-#include "exception.hpp"
 
 int WINAPI WinMain(_In_ ::HINSTANCE a_hinstance,
                    _In_opt_ ::HINSTANCE, _In_ ::LPSTR, _In_ ::INT)

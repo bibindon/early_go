@@ -24,6 +24,10 @@
 #include <type_traits>
 #include <vector>
 
+#include "constants.hpp"
+#include "exception.hpp"
+#include "inline_macro.hpp"
+
 #pragma comment(lib,"d3d9.lib")
 #if defined(DEBUG) || defined(_DEBUG)
 # pragma comment( lib, "d3dx9d.lib" )

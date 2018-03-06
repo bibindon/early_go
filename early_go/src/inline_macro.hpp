@@ -1,5 +1,6 @@
 #ifndef INLINE_MACRO_HPP
 #define INLINE_MACRO_HPP
+#include "stdafx.hpp"
 
 namespace early_go {
 /*

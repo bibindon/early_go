@@ -1,7 +1,6 @@
 #ifndef ANIMATION_MESH_HPP
 #define ANIMATION_MESH_HPP
-
-#include "inline_macro.hpp"
+#include "stdafx.hpp"
 
 namespace early_go {
 
