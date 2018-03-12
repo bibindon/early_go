@@ -102,7 +102,7 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
   ::LPDIRECT3D9 _p_direct3d9{::Direct3DCreate9(D3D_SDK_VERSION)};
 
   if (nullptr == _p_direct3d9) {
-    ::MessageBox(0, "Direct3D‚Ìì¬‚ÉŽ¸”s‚µ‚Ü‚µ‚½", "", MB_OK);
+    ::MessageBox(0, "Direct3D‚Ì‰Šú‰»", "", MB_OK);
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to create 'Direct3D'."});
   }
   this->up_direct3d9_.reset(_p_direct3d9);
@@ -217,7 +217,7 @@ int basic_window::operator()()
       this->render();
     }
   }
-  return this->msg_.wParam;
+  return static_cast<int>(this->msg_.wParam);
 }
 
 void basic_window::render()
