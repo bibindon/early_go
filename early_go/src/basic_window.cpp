@@ -1,8 +1,8 @@
+#include "stdafx.hpp"
+
 #include "animation_mesh.hpp"
 #include "basic_window.hpp"
-#include "constants.hpp"
-#include "exception.hpp"
-#include "inline_macro.hpp"
+#include "mesh.hpp"
 
 namespace early_go {
 /*
@@ -61,7 +61,9 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
       sp_direct3d_device9_{},
       sp_id3dx_font_{},
       sp_animation_mesh_{},
-      sp_animation_mesh2_{}
+      sp_animation_mesh2_{},
+      sp_mesh_{},
+      sp_mesh2_{}
 {
   ::WNDCLASSEX _wndclassex{};
   _wndclassex.cbSize        = sizeof(_wndclassex);
@@ -102,7 +104,7 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
   ::LPDIRECT3D9 _p_direct3d9{::Direct3DCreate9(D3D_SDK_VERSION)};
 
   if (nullptr == _p_direct3d9) {
-    ::MessageBox(0, "Direct3D‚Ì‰Šú‰»", "", MB_OK);
+    ::MessageBox(0, "Direct3D‚Ì‰Šú‰»‚ÉŽ¸”s‚µ‚Ü‚µ‚½", "", MB_OK);
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to create 'Direct3D'."});
   }
   this->up_direct3d9_.reset(_p_direct3d9);
@@ -163,11 +165,17 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
   this->sp_direct3d_device9_.reset(_p_direct3d_device9, custom_deleter{});
   this->sp_animation_mesh_.reset(
       new_crt animation_mesh{this->sp_direct3d_device9_,
-                             constants::MESH_FILE_PATH});
+                             constants::ANIMATION_MESH_FILE_PATH});
   this->sp_animation_mesh2_.reset(
       new_crt animation_mesh{this->sp_direct3d_device9_,
-                             constants::MESH_FILE_PATH,
+                             constants::ANIMATION_MESH_FILE_PATH,
                              ::D3DXVECTOR3{1.0f, 1.0f, 1.0f}});
+  this->sp_mesh_.reset(new_crt mesh{this->sp_direct3d_device9_,
+                                    constants::MESH_FILE_PATH,
+                                    ::D3DXVECTOR3{-0.5f, 0.0f, 3.0f}});
+  this->sp_mesh2_.reset(new_crt mesh{this->sp_direct3d_device9_,
+                                     constants::MESH_FILE_PATH2,
+                                     ::D3DXVECTOR3{ 0.5f, -1.0f, 3.0f}});
 
   /* Give a reference for using static function. */
   window_procedure_object::swp_animation_mesh_ = sp_animation_mesh_;
@@ -175,13 +183,13 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
   this->sp_direct3d_device9_->SetRenderState(::D3DRS_ZENABLE, TRUE);
   this->sp_direct3d_device9_->SetRenderState(::D3DRS_CULLMODE, ::D3DCULL_NONE);
   this->sp_direct3d_device9_->SetRenderState(::D3DRS_LIGHTING, TRUE);
-  this->sp_direct3d_device9_->SetRenderState(::D3DRS_AMBIENT, 0x00AAAAAA);
+  this->sp_direct3d_device9_->SetRenderState(::D3DRS_AMBIENT, 0x80808080);
   this->sp_direct3d_device9_->SetRenderState(::D3DRS_SPECULARENABLE, TRUE);
-  this->sp_direct3d_device9_->SetRenderState(::D3DRS_ALPHABLENDENABLE, TRUE);
-  this->sp_direct3d_device9_->SetRenderState(::D3DRS_SRCBLEND,
-                                             ::D3DBLEND_SRCALPHA);
-  this->sp_direct3d_device9_->SetRenderState(::D3DRS_DESTBLEND,
-                                             ::D3DBLEND_INVSRCALPHA);
+  //this->sp_direct3d_device9_->SetRenderState(::D3DRS_ALPHABLENDENABLE, TRUE);
+  //this->sp_direct3d_device9_->SetRenderState(::D3DRS_SRCBLEND,
+  //                                           ::D3DBLEND_SRCALPHA);
+  //this->sp_direct3d_device9_->SetRenderState(::D3DRS_DESTBLEND,
+  //                                           ::D3DBLEND_INVSRCALPHA);
   this->sp_direct3d_device9_->SetRenderState(::D3DRS_ALPHATESTENABLE, TRUE);
   /* ~ Create a Direct3D Device object. */
 
@@ -225,13 +233,15 @@ void basic_window::render()
   this->sp_direct3d_device9_->Clear(0,
                                     nullptr,
                                     D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-                                    D3DCOLOR_XRGB(0, 0, 0),
+                                    D3DCOLOR_XRGB(0x0f, 0x17, 0x1c),
                                     1.0f,
                                     0);
   if (SUCCEEDED(this->sp_direct3d_device9_->BeginScene())) {
     this->update_light();
     this->sp_animation_mesh_->render();
     this->sp_animation_mesh2_->render();
+    this->sp_mesh_->render();
+    this->sp_mesh2_->render();
 
     this->sp_direct3d_device9_->EndScene();
   }

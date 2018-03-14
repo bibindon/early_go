@@ -1,5 +1,6 @@
 #ifndef CONSTANTS_HPP
 #define CONSTANTS_HPP
+#include "stdafx.hpp"
 // TODO: if constants become large, make namespace more nest.
 namespace early_go {
 namespace constants {
@@ -13,7 +14,10 @@ namespace constants {
       "正常に起動できませんでした。動作が重くなる可能性があります。";
   const static std::string FAILED_TO_CREATE_WINDOW_MESSAGE =
       "Failed to create a window.";
-  const static std::string MESH_FILE_PATH = "../early_go/res/RobotArm.x";
+  const static std::string MESH_FILE_PATH = "../early_go/res/Tiger.x";
+  const static std::string MESH_FILE_PATH2 = "../early_go/res/Dwarf.x";
+  const static std::string ANIMATION_MESH_FILE_PATH =
+      "../early_go/res/RobotArm.x";
 } /* namespace constants */
 } /* namespace early_go */
 #endif

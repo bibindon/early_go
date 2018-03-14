@@ -1,10 +1,10 @@
 #ifndef BASIC_WINDOW_HPP
 #define BASIC_WINDOW_HPP
-
-#include "inline_macro.hpp"
+#include "stdafx.hpp"
 
 namespace early_go {
 
+class mesh;
 class animation_mesh;
 
 /*
@@ -37,6 +37,8 @@ private:
   std::shared_ptr<::ID3DXFont>                  sp_id3dx_font_;
   std::shared_ptr<animation_mesh>               sp_animation_mesh_;
   std::shared_ptr<animation_mesh>               sp_animation_mesh2_;
+  std::shared_ptr<mesh>                         sp_mesh_;
+  std::shared_ptr<mesh>                         sp_mesh2_;
 
   void initialize_direct3d(const ::HWND&);
   void render();

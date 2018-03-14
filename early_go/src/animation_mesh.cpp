@@ -1,9 +1,8 @@
+#include "stdafx.hpp"
+
 #include "animation_mesh.hpp"
 #include "animation_mesh_allocator.hpp"
 #include "basic_window.hpp"
-#include "constants.hpp"
-#include "exception.hpp"
-#include "inline_macro.hpp"
 
 namespace early_go {
 /* A custom deleter. */
@@ -19,10 +18,10 @@ void animation_mesh::frame_root_deleter_object::operator()(
  * inheriting '::D3DXFRAME'.
  */
 void animation_mesh::frame_root_deleter_object::release_mesh_allocator(
-  const ::LPD3DXFRAME a_kp_frame)
+    const ::LPD3DXFRAME a_kp_frame)
 {
   /*
-   * References:
+   * Hint:
    *
    * // d3dx9anim.h
    * typedef struct _D3DXFRAME
@@ -144,7 +143,7 @@ void animation_mesh::update_direct3d_device()
   /* Set view transform matrix. */
   {
     ::D3DXVECTOR3 _vec_eye_position    { 4.0f, 4.0f, -2.5f};
-    ::D3DXVECTOR3 _vec_look_at_position{-1.0f, 0.0f,  1.0f};
+    ::D3DXVECTOR3 _vec_look_at_position{ 0.0f, 0.0f,  0.0f};
     ::D3DXVECTOR3 _vec_up_vector       { 0.0f, 1.0f,  0.0f};
     ::D3DXMATRIXA16 _mat_view{};
     ::D3DXMatrixLookAtLH(&_mat_view,
@@ -160,7 +159,7 @@ void animation_mesh::update_direct3d_device()
         D3DX_PI / 4,
         static_cast<float>(constants::WINDOW_WIDTH) / constants::WINDOW_HEIGHT,
         0.1f,
-        10.0f);
+        100.0f);
 
     this->sp_direct3d_device9_->SetTransform(::D3DTS_PROJECTION,
                                              &_mat_projection);

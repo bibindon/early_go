@@ -1,6 +1,6 @@
+#include "stdafx.hpp"
+
 #include "animation_mesh_allocator.hpp"
-#include "inline_macro.hpp"
-#include "exception.hpp"
 
 namespace early_go {
 /* c'tor */
@@ -73,7 +73,8 @@ animation_mesh_container::animation_mesh_container(
                                     _p_temp_direct3d_device9,
                                     &this->MeshData.pMesh)};
     if (FAILED(_hresult)) {
-      BOOST_THROW_EXCEPTION(custom_exception{});
+      BOOST_THROW_EXCEPTION(
+          custom_exception{"Failed 'CloneMeshFVF' function."});
     }
     a_p_d3dx_mesh = this->MeshData.pMesh;
     ::D3DXComputeNormals(a_p_d3dx_mesh, nullptr);
@@ -108,23 +109,25 @@ animation_mesh_container::animation_mesh_container(
     }
 
     for (unsigned int i{}; i < a_k_materials_number; ++i) {
+      this->pMaterials[i].MatD3D.Ambient = ::D3DCOLORVALUE{0.2f, 0.2f, 0.2f, 0};
       if (this->pMaterials[i].pTextureFilename != nullptr) {
         std::experimental::filesystem::path _texture_path{
             a_kr_x_file_path_.parent_path()};
         _texture_path /= this->pMaterials[i].pTextureFilename;
         ::LPDIRECT3DTEXTURE9 _pp_temp_texture{};
-        if (SUCCEEDED(
+        if (FAILED(
             ::D3DXCreateTextureFromFile(_p_temp_direct3d_device9,
                                         _texture_path.string().c_str(),
                                         &_pp_temp_texture))) {
-          this->vecup_texture_.at(i).reset(_pp_temp_texture);
+          BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
         } else {
-          this->pMaterials[i].pTextureFilename = nullptr;
+          this->vecup_texture_.at(i).reset(_pp_temp_texture);
         }
       }
     }
   } else {
     this->pMaterials[0].MatD3D.Diffuse = ::D3DCOLORVALUE{0.5f, 0.5f, 0.5f, 0};
+    this->pMaterials[0].MatD3D.Ambient = ::D3DCOLORVALUE{0.5f, 0.5f, 0.5f, 0};
     this->pMaterials[0].MatD3D.Specular = this->pMaterials[0].MatD3D.Diffuse;
   }
 }
