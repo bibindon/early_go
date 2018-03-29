@@ -20,6 +20,7 @@ INCLUDEPATH += "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC
 INCLUDEPATH += "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include"
 
 INCLUDEPATH += "$$PWD/../packages/boost.1.66.0.0/lib/native/include"
+INCLUDEPATH += "$$PWD/../sqlite3"
 
 DEFINES = _MBCS
 DEFINES += DEBUG
@@ -32,4 +33,4 @@ LIBS += -L"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.16299.0\um\x64" -lgdi
 LIBS += -L"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.16299.0\ucrt\x64" -lucrtd
 LIBS += -L"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.13.26128\lib\x64" -lmsvcprtd
 LIBS += -L"C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x64" -ld3dx9d
-
+LIBS += -L"$$PWD\..\sqlite3" -lsqlite3

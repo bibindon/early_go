@@ -192,9 +192,9 @@ void mesh::render()
 
   this->up_d3dx_effect_->SetMatrix(this->d3dx_handle_world_view_proj_,
                                    &_matWorldViewProj);
+  ::D3DXVECTOR4 _light_position{ 1.0f, 1.0f, -1.0f, 1.0f };
   this->up_d3dx_effect_->SetVector(
-      this->d3dx_handle_light_position_,
-      &std::move(::D3DXVECTOR4{ 1.0f, 1.0f, -1.0f, 1.0f }));
+      this->d3dx_handle_light_position_, &_light_position);
   this->up_d3dx_effect_->SetFloat(this->d3dx_handle_brightness_, 150.0f);
   this->up_d3dx_effect_->SetFloat(this->d3dx_handle_scale_, 1.0f);
 

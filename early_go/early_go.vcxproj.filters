@@ -35,18 +35,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\RobotArm.x">
-      <Filter>リソース ファイル</Filter>
-    </None>
     <None Include="packages.config" />
-    <None Include="res\Dwarf.x">
-      <Filter>リソース ファイル</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="res\metal6.bmp">
-      <Filter>リソース ファイル</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\exception.hpp">
@@ -73,10 +62,5 @@
     <ClInclude Include="src\mesh.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="res\mesh_shader.fx">
-      <Filter>リソース ファイル</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>

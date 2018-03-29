@@ -34,6 +34,7 @@
 #else
 # pragma comment( lib, "d3dx9.lib" )
 #endif
+#pragma comment(lib, "sqlite3.lib")
 
 /*
  * This macro is for replacing 'malloc' and 'new' to detect memory leaks. This
