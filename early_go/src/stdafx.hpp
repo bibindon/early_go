@@ -10,6 +10,7 @@
 #include <d3dx9.h>
 #include <stdio.h>
 #include <string.h>
+#include <sqlite3.h>
 #include <windows.h>
 
 #include <algorithm>

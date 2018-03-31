@@ -44,11 +44,12 @@ animation_mesh_frame::animation_mesh_frame(const std::string& a_kr_name)
  *
  */
 animation_mesh_container::animation_mesh_container(
-    const std::experimental::filesystem::path& a_kr_x_file_path_,
-    ::LPD3DXMESH                               a_p_d3dx_mesh,
-    const ::D3DXMATERIAL*                      a_kp_materials,
-    const ::DWORD                              a_k_materials_number,
-    const ::DWORD*                             a_kp_adjacency)
+    const std::string&    a_krsz_x_filename,
+    const std::string&    a_krsz_meshname,
+    ::LPD3DXMESH          a_p_d3dx_mesh,
+    const ::D3DXMATERIAL* a_kp_materials,
+    const ::DWORD         a_k_materials_number,
+    const ::DWORD*        a_kp_adjacency)
     : D3DXMESHCONTAINER{}, /* Initializes with zero. */
       vecup_texture_{}
 {
@@ -56,7 +57,7 @@ animation_mesh_container::animation_mesh_container(
    * The 'dup' of '::_strdup' is the abbreviation of 'duplicate', create new
    * string by the argument string.
    */
-  this->Name = ::_strdup(a_kr_x_file_path_.filename().string().c_str());
+  this->Name = ::_strdup(a_krsz_meshname.c_str());
 
   ::LPDIRECT3DDEVICE9 _p_temp_direct3d_device9{nullptr};
   a_p_d3dx_mesh->GetDevice(&_p_temp_direct3d_device9);
@@ -111,14 +112,19 @@ animation_mesh_container::animation_mesh_container(
     for (unsigned int i{}; i < a_k_materials_number; ++i) {
       this->pMaterials[i].MatD3D.Ambient = ::D3DCOLORVALUE{0.2f, 0.2f, 0.2f, 0};
       if (this->pMaterials[i].pTextureFilename != nullptr) {
-        std::experimental::filesystem::path _texture_path{
-            a_kr_x_file_path_.parent_path()};
-        _texture_path /= this->pMaterials[i].pTextureFilename;
+        std::string _query;
+        _query = "select data from texture where filename = '";
+        _query += this->pMaterials[i].pTextureFilename;
+        _query += "' and x_filename = '";
+        _query += a_krsz_x_filename + "';";
+
+        std::vector<char> _data = get_resource(_query);
         ::LPDIRECT3DTEXTURE9 _pp_temp_texture{};
         if (FAILED(
-            ::D3DXCreateTextureFromFile(_p_temp_direct3d_device9,
-                                        _texture_path.string().c_str(),
-                                        &_pp_temp_texture))) {
+            ::D3DXCreateTextureFromFileInMemory(_p_temp_direct3d_device9,
+                                                &_data[0],
+                                                static_cast<UINT>(_data.size()),
+                                                &_pp_temp_texture))) {
           BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
         } else {
           this->vecup_texture_.at(i).reset(_pp_temp_texture);
@@ -133,9 +139,9 @@ animation_mesh_container::animation_mesh_container(
 }
 
 animation_mesh_allocator::animation_mesh_allocator(
-    const std::string & a_krsz_xfile_path)
+    const std::string & a_krsz_x_filename)
     : ID3DXAllocateHierarchy{},
-      x_file_path_(a_krsz_xfile_path) {}
+      x_filename_(a_krsz_x_filename) {}
 
 /*
  * Alghough it's camel case and a strange type name, because this function is a
@@ -154,7 +160,7 @@ animation_mesh_allocator::animation_mesh_allocator(
  * pure virtual function of 'ID3DXAllocateHierarchy'.
  */
 ::STDMETHODIMP animation_mesh_allocator::CreateMeshContainer(
-    ::LPCSTR,
+    ::LPCSTR a_kr_meshname,
     CONST ::D3DXMESHDATA* a_kp_mesh_data,
     CONST ::D3DXMATERIAL* a_kp_materials,
     CONST ::D3DXEFFECTINSTANCE*,
@@ -165,12 +171,14 @@ animation_mesh_allocator::animation_mesh_allocator(
 {
   try {
     *a_pp_mesh_container =
-        new_crt animation_mesh_container{this->x_file_path_,
+        new_crt animation_mesh_container{this->x_filename_,
+                                         a_kr_meshname,
                                          a_kp_mesh_data->pMesh,
                                          a_kp_materials,
                                          a_materials_number,
                                          a_kp_adjacency};
-  } catch (const std::exception&) {
+  } catch (const std::exception& a_kr_expception) {
+    early_go::log_liner{} << boost::diagnostic_information(a_kr_expception);
     return E_FAIL;
   }
   return S_OK;

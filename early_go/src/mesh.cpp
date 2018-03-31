@@ -4,13 +4,12 @@
 
 namespace early_go {
 
-const std::string mesh::MESH_HLSL_PATH = "../early_go/res/mesh_shader.fx";
+const std::string mesh::HLSL_FILENAME = "mesh_shader.fx";
 mesh::mesh(
     const std::shared_ptr<::IDirect3DDevice9>& a_krsp_direct3d_device9,
-    const std::string& a_krsz_xfile_path,
+    const std::string& a_krsz_xfile_name,
     const ::D3DXVECTOR3& a_kp_vec_position)
-    : x_file_path_{a_krsz_xfile_path},
-      vec_position_{a_kp_vec_position},
+    : vec_position_{a_kp_vec_position},
       up_d3dx_mesh_{nullptr, custom_deleter{}},
       dw_materials_number_{},
       up_d3dx_effect_{nullptr, custom_deleter{}},
@@ -25,15 +24,18 @@ mesh::mesh(
 {
   ::HRESULT _hresult{};
 
+  std::vector<char> _data = get_resource(
+      "select data from shader_file where filename = '" + HLSL_FILENAME + "';");
   ::LPD3DXEFFECT _temp_p_d3dx_effect{};
-  _hresult = ::D3DXCreateEffectFromFile(a_krsp_direct3d_device9.get(),
-                                        MESH_HLSL_PATH.c_str(),
-                                        nullptr,
-                                        nullptr,
-                                        0,
-                                        nullptr,
-                                        &_temp_p_d3dx_effect,
-                                        nullptr);
+  ::D3DXCreateEffect(a_krsp_direct3d_device9.get(),
+                     &_data[0],
+                     static_cast<::UINT>(_data.size()),
+                     nullptr,
+                     nullptr,
+                     0,
+                     nullptr,
+                     &_temp_p_d3dx_effect,
+                     nullptr);
   this->up_d3dx_effect_.reset(_temp_p_d3dx_effect);
   if (FAILED(_hresult)) {
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to create an effect file."});
@@ -62,14 +64,17 @@ mesh::mesh(
   ::LPD3DXBUFFER _p_d3dx_material_buffer{};
 
   ::LPD3DXMESH _temp_mesh{};
-  _hresult = ::D3DXLoadMeshFromX(this->x_file_path_.string().c_str(),
-                                 ::D3DXMESH_SYSTEMMEM,
-                                 a_krsp_direct3d_device9.get(),
-                                 &_p_d3dx_adjacency_buffer,
-                                 &_p_d3dx_material_buffer,
-                                 nullptr,
-                                 &this->dw_materials_number_,
-                                 &_temp_mesh);
+  _data = get_resource(
+      "select data from x_file where filename = '" + a_krsz_xfile_name + "';");
+  _hresult = ::D3DXLoadMeshFromXInMemory(&_data[0],
+                                         static_cast<DWORD>(_data.size()),
+                                         ::D3DXMESH_SYSTEMMEM,
+                                         a_krsp_direct3d_device9.get(),
+                                         &_p_d3dx_adjacency_buffer,
+                                         &_p_d3dx_material_buffer,
+                                         nullptr,
+                                         &this->dw_materials_number_,
+                                         &_temp_mesh);
   if (FAILED(_hresult)) {
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to load a x-file."});
   }
@@ -149,14 +154,19 @@ mesh::mesh(
   for (::DWORD i{}; i < this->dw_materials_number_; ++i) {
     this->vec_d3d_color_.at(i) = _p_d3dx_materials[i].MatD3D.Diffuse;
     if (_p_d3dx_materials[i].pTextureFilename != nullptr) {
-      std::experimental::filesystem::path _texture_path{
-          this->x_file_path_.parent_path()};
-      _texture_path /= _p_d3dx_materials[i].pTextureFilename;
+      std::string _query;
+      _query = "select data from texture where filename = '";
+      _query += _p_d3dx_materials[i].pTextureFilename;
+      _query += "' and x_filename = '";
+      _query += a_krsz_xfile_name + "';";
+
+      _data = get_resource(_query);
       ::LPDIRECT3DTEXTURE9 _pp_temp_texture{};
-      if (FAILED
-          (::D3DXCreateTextureFromFile(a_krsp_direct3d_device9.get(),
-                                       _texture_path.string().c_str(),
-                                       &_pp_temp_texture))) {
+      if (FAILED(
+          ::D3DXCreateTextureFromFileInMemory(a_krsp_direct3d_device9.get(),
+                                              &_data[0],
+                                              static_cast<UINT>(_data.size()),
+                                              &_pp_temp_texture))) {
         BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
       } else {
         this->vecup_mesh_texture_.at(i).reset(_pp_temp_texture);

@@ -171,10 +171,10 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
                              constants::ANIMATION_MESH_FILE_PATH,
                              ::D3DXVECTOR3{1.0f, 1.0f, 1.0f}});
   this->sp_mesh_.reset(new_crt mesh{this->sp_direct3d_device9_,
-                                    constants::MESH_FILE_PATH,
+                                    constants::MESH_FILE_NAME,
                                     ::D3DXVECTOR3{-0.5f, 0.0f, 3.0f}});
   this->sp_mesh2_.reset(new_crt mesh{this->sp_direct3d_device9_,
-                                     constants::MESH_FILE_PATH2,
+                                     constants::MESH_FILE_NAME2,
                                      ::D3DXVECTOR3{ 0.5f, -1.0f, 3.0f}});
 
   /* Give a reference for using static function. */

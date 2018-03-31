@@ -12,8 +12,7 @@ public:
   void render();
 
 private:
-  const static std::string MESH_HLSL_PATH;
-  std::experimental::filesystem::path            x_file_path_;
+  const static std::string HLSL_FILENAME;
   ::D3DXVECTOR3                                  vec_position_;
   std::unique_ptr<::ID3DXMesh, custom_deleter>   up_d3dx_mesh_;
   ::DWORD                                        dw_materials_number_;

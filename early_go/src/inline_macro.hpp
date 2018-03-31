@@ -65,6 +65,42 @@ struct custom_deleter
   }
 };
 
+// TODO Add test
+static std::vector<char> get_resource(const std::string& a_kr_query)
+{
+  std::vector<char> _ret;
+  ::sqlite3* db = nullptr;
+  if (::sqlite3_open(constants::DATABASE_NAME.c_str(), &db) != SQLITE_OK) {
+    ::sqlite3_close(db);
+    BOOST_THROW_EXCEPTION(custom_exception{"Failed to open a database."});
+  }
+  ::sqlite3_stmt* _statement = nullptr;
+  ::sqlite3_prepare_v2(db, a_kr_query.c_str(), -1, &_statement, nullptr);
+  bool _b_find{false};
+  while (::sqlite3_step(_statement) == SQLITE_ROW) {
+    if (!_b_find) {
+      _b_find = true;
+    } else {
+      ::sqlite3_finalize(_statement);
+      ::sqlite3_close(db);
+      BOOST_THROW_EXCEPTION(
+          custom_exception{"There are multiple specified resources.\n"
+                           " query: " + a_kr_query});
+    }
+    const char* _blob = (char*)sqlite3_column_blob(_statement, 0);
+    int _data_len = sqlite3_column_bytes(_statement, 0);
+    _ret.reserve(_data_len);
+    _ret.insert(_ret.begin(), _blob, _blob+_data_len);
+  }
+  ::sqlite3_finalize(_statement);
+  ::sqlite3_close(db);
+  if (!_b_find) {
+    BOOST_THROW_EXCEPTION(custom_exception{"Failed to find a resource.\n"
+                          " query: " + a_kr_query});
+  }
+  return _ret;
+}
+
 /*
  * A class making logging simple.
  *
