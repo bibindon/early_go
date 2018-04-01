@@ -72,12 +72,58 @@ animation_mesh::animation_mesh(
       up_d3dx_animation_controller_{nullptr, custom_deleter{}},
       vec_position_{a_kp_vec_position},
       mat_rotation_{::D3DMATRIX{}},
-      mat_world_{::D3DMATRIX{}}
+      mat_world_{::D3DMATRIX{}},
+      up_d3dx_effect_{nullptr, custom_deleter{}},
+      d3dx_handle_world_view_proj_{},
+      d3dx_handle_light_position_{},
+      d3dx_handle_brightness_{},
+      d3dx_handle_scale_{},
+      d3dx_handle_texture_{},
+      d3dx_handle_diffuse_{}
 {
+  ::HRESULT _hresult{};
+
+  std::vector<char> _data = get_resource(
+      "select data from shader_file where filename = '"
+      + constants::MESH_HLSL + "';");
+  ::LPD3DXEFFECT _temp_p_d3dx_effect{};
+  ::D3DXCreateEffect(a_krsp_direct3d_device9.get(),
+                     &_data[0],
+                     static_cast<::UINT>(_data.size()),
+                     nullptr,
+                     nullptr,
+                     0,
+                     nullptr,
+                     &_temp_p_d3dx_effect,
+                     nullptr);
+  this->up_d3dx_effect_.reset(_temp_p_d3dx_effect);
+  if (FAILED(_hresult)) {
+    BOOST_THROW_EXCEPTION(custom_exception{"Failed to create an effect file."});
+  }
+
+  this->d3dx_handle_world_view_proj_ =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "hlsl_world_view_projection");
+  this->d3dx_handle_light_position_ =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "hlsl_light_position");
+  this->d3dx_handle_brightness_ =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "hlsl_light_brightness");
+  this->d3dx_handle_scale_ =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "hlsl_model_scale");
+  this->d3dx_handle_texture_ =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "hlsl_texture");
+  this->d3dx_handle_diffuse_ =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "hlsl_diffuse");
+
   ::LPD3DXFRAME _p_temp_d3dx_frame_root{nullptr};
   ::LPD3DXANIMATIONCONTROLLER _p_temp_d3dx_animation_controller{nullptr};
 
-  std::vector<char> _data = get_resource(
+  _data = get_resource(
       "select data from x_file where filename = '" + a_krsz_xfile_name + "';");
   if (FAILED(::D3DXLoadMeshHierarchyFromXInMemory(
       &_data[0],
@@ -132,40 +178,65 @@ float animation_mesh::get_animation_time() const
 
 void animation_mesh::update_direct3d_device()
 {
+  ::D3DXMATRIX _matWorldViewProj{};
   /* Set world transform matrix. */
   {
-    ::D3DXMATRIXA16 _mat_world{};
-    ::D3DXMATRIXA16 _mat_position{};
+    ::D3DXMATRIX _mat_world{};
     ::D3DXMatrixIdentity(&_mat_world);
     ::D3DXMatrixTranslation(&_mat_position,
         this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
 
     ::D3DXMatrixMultiply(&this->mat_world_, &_mat_world, &_mat_position);
-    this->sp_direct3d_device9_->SetTransform(D3DTS_WORLD, &this->mat_world_);
   }
   /* Set view transform matrix. */
   {
-    ::D3DXVECTOR3 _vec_eye_position    { 4.0f, 4.0f, -2.5f};
-    ::D3DXVECTOR3 _vec_look_at_position{ 0.0f, 0.0f,  0.0f};
+
+    if (::GetAsyncKeyState('I') & 0x8000) {
+      _vec_eye_position.z += 0.02f;
+      _vec_look_at_position.z += 0.02f;
+    }
+    if (::GetAsyncKeyState('K') & 0x8000) {
+      _vec_eye_position.z -= 0.02f;
+      _vec_look_at_position.z -= 0.02f;
+    }
+    if (::GetAsyncKeyState('J') & 0x8000) {
+      _vec_eye_position.x -= 0.02f;
+      _vec_look_at_position.x -= 0.02f;
+    }
+    if (::GetAsyncKeyState('L') & 0x8000) {
+      _vec_eye_position.x += 0.02f;
+      _vec_look_at_position.x += 0.02f;
+    }
+    if (::GetAsyncKeyState('H') & 0x8000) {
+      _vec_eye_position.y += 0.02f;
+      _vec_look_at_position.y += 0.02f;
+    }
+    if (::GetAsyncKeyState('N') & 0x8000) {
+      _vec_eye_position.y -= 0.02f;
+      _vec_look_at_position.y -= 0.02f;
+    }
+
+//    ::D3DXVECTOR3 _vec_eye_position    { 4.0f, 4.0f, -2.5f};
+//    ::D3DXVECTOR3 _vec_look_at_position{ 0.0f, 0.0f,  0.0f};
     ::D3DXVECTOR3 _vec_up_vector       { 0.0f, 1.0f,  0.0f};
-    ::D3DXMATRIXA16 _mat_view{};
-    ::D3DXMatrixLookAtLH(&_mat_view,
+    //::D3DXMATRIXA16 _mat_view{};
+    ::D3DXMatrixLookAtLH(&this->mat_view_,
         &_vec_eye_position, &_vec_look_at_position, &_vec_up_vector);
 
-    this->sp_direct3d_device9_->SetTransform(::D3DTS_VIEW, &_mat_view);
+    //this->sp_direct3d_device9_->SetTransform(::D3DTS_VIEW, &_mat_view);
   }
   /* Set projection transform matrix. */
   {
-    ::D3DXMATRIXA16 _mat_projection;
+  //  ::D3DXMATRIXA16 _mat_projection;
     ::D3DXMatrixPerspectiveFovLH(
-        &_mat_projection,
+        &this->mat_projection_,
         D3DX_PI / 4,
         static_cast<float>(constants::WINDOW_WIDTH) / constants::WINDOW_HEIGHT,
         0.1f,
-        100.0f);
+        500.0f);
 
-    this->sp_direct3d_device9_->SetTransform(::D3DTS_PROJECTION,
-                                             &_mat_projection);
+//    this->sp_direct3d_device9_->SetTransform(::D3DTS_PROJECTION,
+//                                             &_mat_projection);
   }
 }
 
@@ -232,23 +303,44 @@ void animation_mesh::render_mesh_container(
   animation_mesh_frame *_p_frame{
       static_cast<animation_mesh_frame*>(a_kp_frame_base)};
 
-  this->sp_direct3d_device9_->SetTransform(
-      D3DTS_WORLD, &_p_frame->combined_transformation_matrix_);
+  ::D3DXMatrixIdentity(&this->matWorldViewProj_);
 
-  /* Cast for making child class' function callable. */
+  this->matWorldViewProj_ *= _p_frame->combined_transformation_matrix_;
+  this->matWorldViewProj_ *= this->mat_view_;
+  this->matWorldViewProj_ *= this->mat_projection_;
+
+  this->up_d3dx_effect_->SetMatrix(this->d3dx_handle_world_view_proj_,
+                                   &this->matWorldViewProj_);
+
+  ::D3DXVECTOR4 _light_position{ 1.0f, 1.0f, -1.0f, 1.0f };
+  this->up_d3dx_effect_->SetVector(
+      this->d3dx_handle_light_position_, &_light_position);
+  this->up_d3dx_effect_->SetFloat(this->d3dx_handle_brightness_, 10.0f);
+  this->up_d3dx_effect_->SetFloat(this->d3dx_handle_scale_, 1.0f);
+
+  this->up_d3dx_effect_->Begin(nullptr, 0);
+
+  if (FAILED(this->up_d3dx_effect_->BeginPass(0))) {
+    this->up_d3dx_effect_->End();
+    BOOST_THROW_EXCEPTION(custom_exception{"Failed 'BeginPass' function."});
+  }
+
   animation_mesh_container *_p_mesh_container_base{
       static_cast<animation_mesh_container*>(a_kp_mesh_container_base)};
-  /*
-   * Set materials and textures, and draw materials as many as
-   * '_p_mesh_container_base' has.
-   */
-  for (unsigned int i{}; i < _p_mesh_container_base->NumMaterials; ++i) {
-    this->sp_direct3d_device9_->SetMaterial(
-        &_p_mesh_container_base->pMaterials[i].MatD3D);
-    this->sp_direct3d_device9_->SetTexture(0,
-        _p_mesh_container_base->vecup_texture_.at(i).get());
 
+  for (::DWORD i{}; i < _p_mesh_container_base->NumMaterials; ++i) {
+    ::D3DXVECTOR4 _color{_p_mesh_container_base->pMaterials[i].MatD3D.Diffuse.r,
+                         _p_mesh_container_base->pMaterials[i].MatD3D.Diffuse.g,
+                         _p_mesh_container_base->pMaterials[i].MatD3D.Diffuse.b,
+                         1.0f };
+                         //this->vec_d3d_color_.at(i).a };
+    this->up_d3dx_effect_->SetVector(this->d3dx_handle_diffuse_, &_color);
+    this->up_d3dx_effect_->SetTexture(this->d3dx_handle_texture_,
+                                      _p_mesh_container_base->vecup_texture_.at(i).get());
+    this->up_d3dx_effect_->CommitChanges();
     _p_mesh_container_base->MeshData.pMesh->DrawSubset(i);
   }
+  this->up_d3dx_effect_->EndPass();
+  this->up_d3dx_effect_->End();
 }
 } /* namespace early_go */

@@ -44,6 +44,21 @@ private:
   ::D3DXVECTOR3                              vec_position_;
   ::D3DXMATRIX                               mat_rotation_;
   ::D3DXMATRIX                               mat_world_;
+  ::D3DXMATRIX                               mat_view_;
+  ::D3DXMATRIX                               mat_projection_;
+  ::D3DXMATRIX matWorldViewProj_;
+  ::D3DXMATRIX _mat_position{};
+
+  ::D3DXVECTOR3 _vec_eye_position    { 0.0f, 4.0f, -2.5f};
+  ::D3DXVECTOR3 _vec_look_at_position{ 0.0f, 0.0f,  0.0f};
+  // For effect.
+  std::unique_ptr<::ID3DXEffect, custom_deleter> up_d3dx_effect_;
+  ::D3DXHANDLE                                   d3dx_handle_world_view_proj_;
+  ::D3DXHANDLE                                   d3dx_handle_light_position_;
+  ::D3DXHANDLE                                   d3dx_handle_brightness_;
+  ::D3DXHANDLE                                   d3dx_handle_scale_;
+  ::D3DXHANDLE                                   d3dx_handle_texture_;
+  ::D3DXHANDLE                                   d3dx_handle_diffuse_;
 
   void update_direct3d_device();
   void update_frame_matrix(const ::LPD3DXFRAME, const ::LPD3DXMATRIX);

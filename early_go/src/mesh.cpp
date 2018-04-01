@@ -4,7 +4,6 @@
 
 namespace early_go {
 
-const std::string mesh::HLSL_FILENAME = "mesh_shader.fx";
 mesh::mesh(
     const std::shared_ptr<::IDirect3DDevice9>& a_krsp_direct3d_device9,
     const std::string& a_krsz_xfile_name,
@@ -25,7 +24,8 @@ mesh::mesh(
   ::HRESULT _hresult{};
 
   std::vector<char> _data = get_resource(
-      "select data from shader_file where filename = '" + HLSL_FILENAME + "';");
+      "select data from shader_file where filename = '"
+      + constants::MESH_HLSL + "';");
   ::LPD3DXEFFECT _temp_p_d3dx_effect{};
   ::D3DXCreateEffect(a_krsp_direct3d_device9.get(),
                      &_data[0],

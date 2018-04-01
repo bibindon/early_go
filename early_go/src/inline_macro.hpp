@@ -65,8 +65,7 @@ struct custom_deleter
   }
 };
 
-// TODO Add test
-static std::vector<char> get_resource(const std::string& a_kr_query)
+inline std::vector<char> get_resource(const std::string& a_kr_query)
 {
   std::vector<char> _ret;
   ::sqlite3* db = nullptr;

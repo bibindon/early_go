@@ -165,10 +165,10 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
   this->sp_direct3d_device9_.reset(_p_direct3d_device9, custom_deleter{});
   this->sp_animation_mesh_.reset(
       new_crt animation_mesh{this->sp_direct3d_device9_,
-                             constants::ANIMATION_MESH_FILE_PATH});
+                             constants::ANIMATION_MESH_FILE_NAME});
   this->sp_animation_mesh2_.reset(
       new_crt animation_mesh{this->sp_direct3d_device9_,
-                             constants::ANIMATION_MESH_FILE_PATH,
+                             constants::ANIMATION_MESH_FILE_NAME,
                              ::D3DXVECTOR3{1.0f, 1.0f, 1.0f}});
   this->sp_mesh_.reset(new_crt mesh{this->sp_direct3d_device9_,
                                     constants::MESH_FILE_NAME,

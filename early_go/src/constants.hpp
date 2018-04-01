@@ -17,7 +17,8 @@ namespace constants {
       "Failed to create a window.";
   const static std::string MESH_FILE_NAME = "tiger.x";
   const static std::string MESH_FILE_NAME2 = "Dwarf.x";
-  const static std::string ANIMATION_MESH_FILE_PATH = "RobotArm.x";
+  const static std::string ANIMATION_MESH_FILE_NAME = "RobotArm.x";
+  const static std::string MESH_HLSL = "mesh_shader.fx";
 } /* namespace constants */
 } /* namespace early_go */
 #endif
