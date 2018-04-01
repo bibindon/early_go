@@ -176,36 +176,30 @@ mesh::mesh(
   safe_release(_p_d3dx_material_buffer);
 }
 
-void mesh::render()
+void mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
+            const ::D3DXMATRIX& a_kr_mat_projection,
+            const ::D3DXVECTOR3& a_kr_light_position,
+            const float& a_kr_brightness)
 {
   ::D3DXMATRIX _matWorldViewProj{};
   {
-    ::D3DXMATRIXA16 _mat_world{};
-    ::D3DXMATRIXA16 _mat_position{};
+    ::D3DXMATRIX _mat_world{};
     ::D3DXMatrixIdentity(&_mat_world);
-    ::D3DXMatrixTranslation(&_mat_position,
+    ::D3DXMatrixTranslation(&_mat_world,
         this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
 
-    ::D3DXMatrixMultiply(&_matWorldViewProj, &_mat_world, &_mat_position);
+    _matWorldViewProj = _mat_world;
   }
-  // TODO Integrate the camera dealing.
-  {
-    ::D3DXMATRIXA16 _mat_projection{};
-    ::D3DXMatrixPerspectiveFovLH(
-        &_mat_projection,
-        D3DX_PI / 4,
-        static_cast<float>(constants::WINDOW_WIDTH) / constants::WINDOW_HEIGHT,
-        0.1f,
-        100.0f);
-    _matWorldViewProj *= _mat_projection;
-  }
+  _matWorldViewProj *= a_kr_mat_view;
+  _matWorldViewProj *= a_kr_mat_projection;
 
   this->up_d3dx_effect_->SetMatrix(this->d3dx_handle_world_view_proj_,
                                    &_matWorldViewProj);
-  ::D3DXVECTOR4 _light_position{ 1.0f, 1.0f, -1.0f, 1.0f };
+  ::D3DXVECTOR4 _light_position{a_kr_light_position, 1.0f};
   this->up_d3dx_effect_->SetVector(
       this->d3dx_handle_light_position_, &_light_position);
-  this->up_d3dx_effect_->SetFloat(this->d3dx_handle_brightness_, 150.0f);
+  this->up_d3dx_effect_->SetFloat(
+      this->d3dx_handle_brightness_, a_kr_brightness);
   this->up_d3dx_effect_->SetFloat(this->d3dx_handle_scale_, 1.0f);
 
   this->up_d3dx_effect_->Begin(nullptr, 0);

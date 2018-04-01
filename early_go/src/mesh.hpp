@@ -9,7 +9,9 @@ public:
   mesh(const std::shared_ptr<::IDirect3DDevice9>&,
        const std::string&,
        const ::D3DXVECTOR3& = ::D3DVECTOR{});
-  void render();
+
+  void render(const ::D3DXMATRIX&, const ::D3DXMATRIX&,
+              const ::D3DXVECTOR3& , const float&);
 
 private:
   ::D3DXVECTOR3                                  vec_position_;

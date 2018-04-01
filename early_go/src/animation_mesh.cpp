@@ -72,7 +72,6 @@ animation_mesh::animation_mesh(
       up_d3dx_animation_controller_{nullptr, custom_deleter{}},
       vec_position_{a_kp_vec_position},
       mat_rotation_{::D3DMATRIX{}},
-      mat_world_{::D3DMATRIX{}},
       up_d3dx_effect_{nullptr, custom_deleter{}},
       d3dx_handle_world_view_proj_{},
       d3dx_handle_light_position_{},
@@ -144,15 +143,31 @@ animation_mesh::animation_mesh(
 }
 
 /* Renders its own animation mesh. */
-void animation_mesh::render()
+void animation_mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
+                            const ::D3DXMATRIX& a_kr_mat_projection,
+                            const ::D3DXVECTOR3& a_kr_light_position,
+                            const float& a_kr_brightness)
 {
+  this->mat_view_ = a_kr_mat_view;
+  this->mat_projection_ = a_kr_mat_projection;
+
+  ::D3DXVECTOR4 _light_position{a_kr_light_position, 1.0f};
+  this->up_d3dx_effect_->SetVector(
+      this->d3dx_handle_light_position_, &_light_position);
+  this->up_d3dx_effect_->SetFloat(
+      this->d3dx_handle_brightness_, a_kr_brightness);
+
   if (this->b_play_animation_) {
     this->f_animation_time_ += constants::ANIMATION_SPEED;
     this->up_d3dx_animation_controller_->AdvanceTime(
         constants::ANIMATION_SPEED, nullptr);
   }
-  this->update_direct3d_device();
-  this->update_frame_matrix(this->up_d3dx_frame_root_.get(), &this->mat_world_);
+
+  ::D3DXMATRIX _mat_world{};
+  ::D3DXMatrixIdentity(&_mat_world);
+  ::D3DXMatrixTranslation(&_mat_world,
+      this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
+  this->update_frame_matrix(this->up_d3dx_frame_root_.get(), &_mat_world);
   this->render_frame(this->up_d3dx_frame_root_.get());
 
   std::stringstream ss{};
@@ -174,70 +189,6 @@ void animation_mesh::set_play_animation(const bool& a_krb_play_animation)
 float animation_mesh::get_animation_time() const
 {
   return this->f_animation_time_;
-}
-
-void animation_mesh::update_direct3d_device()
-{
-  ::D3DXMATRIX _matWorldViewProj{};
-  /* Set world transform matrix. */
-  {
-    ::D3DXMATRIX _mat_world{};
-    ::D3DXMatrixIdentity(&_mat_world);
-    ::D3DXMatrixTranslation(&_mat_position,
-        this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
-
-    ::D3DXMatrixMultiply(&this->mat_world_, &_mat_world, &_mat_position);
-  }
-  /* Set view transform matrix. */
-  {
-
-    if (::GetAsyncKeyState('I') & 0x8000) {
-      _vec_eye_position.z += 0.02f;
-      _vec_look_at_position.z += 0.02f;
-    }
-    if (::GetAsyncKeyState('K') & 0x8000) {
-      _vec_eye_position.z -= 0.02f;
-      _vec_look_at_position.z -= 0.02f;
-    }
-    if (::GetAsyncKeyState('J') & 0x8000) {
-      _vec_eye_position.x -= 0.02f;
-      _vec_look_at_position.x -= 0.02f;
-    }
-    if (::GetAsyncKeyState('L') & 0x8000) {
-      _vec_eye_position.x += 0.02f;
-      _vec_look_at_position.x += 0.02f;
-    }
-    if (::GetAsyncKeyState('H') & 0x8000) {
-      _vec_eye_position.y += 0.02f;
-      _vec_look_at_position.y += 0.02f;
-    }
-    if (::GetAsyncKeyState('N') & 0x8000) {
-      _vec_eye_position.y -= 0.02f;
-      _vec_look_at_position.y -= 0.02f;
-    }
-
-//    ::D3DXVECTOR3 _vec_eye_position    { 4.0f, 4.0f, -2.5f};
-//    ::D3DXVECTOR3 _vec_look_at_position{ 0.0f, 0.0f,  0.0f};
-    ::D3DXVECTOR3 _vec_up_vector       { 0.0f, 1.0f,  0.0f};
-    //::D3DXMATRIXA16 _mat_view{};
-    ::D3DXMatrixLookAtLH(&this->mat_view_,
-        &_vec_eye_position, &_vec_look_at_position, &_vec_up_vector);
-
-    //this->sp_direct3d_device9_->SetTransform(::D3DTS_VIEW, &_mat_view);
-  }
-  /* Set projection transform matrix. */
-  {
-  //  ::D3DXMATRIXA16 _mat_projection;
-    ::D3DXMatrixPerspectiveFovLH(
-        &this->mat_projection_,
-        D3DX_PI / 4,
-        static_cast<float>(constants::WINDOW_WIDTH) / constants::WINDOW_HEIGHT,
-        0.1f,
-        500.0f);
-
-//    this->sp_direct3d_device9_->SetTransform(::D3DTS_PROJECTION,
-//                                             &_mat_projection);
-  }
 }
 
 /*
@@ -303,19 +254,16 @@ void animation_mesh::render_mesh_container(
   animation_mesh_frame *_p_frame{
       static_cast<animation_mesh_frame*>(a_kp_frame_base)};
 
-  ::D3DXMatrixIdentity(&this->matWorldViewProj_);
+  ::D3DXMATRIX _matWorldViewProj;
+  ::D3DXMatrixIdentity(&_matWorldViewProj);
 
-  this->matWorldViewProj_ *= _p_frame->combined_transformation_matrix_;
-  this->matWorldViewProj_ *= this->mat_view_;
-  this->matWorldViewProj_ *= this->mat_projection_;
+  _matWorldViewProj *= _p_frame->combined_transformation_matrix_;
+  _matWorldViewProj *= this->mat_view_;
+  _matWorldViewProj *= this->mat_projection_;
 
   this->up_d3dx_effect_->SetMatrix(this->d3dx_handle_world_view_proj_,
-                                   &this->matWorldViewProj_);
+                                   &_matWorldViewProj);
 
-  ::D3DXVECTOR4 _light_position{ 1.0f, 1.0f, -1.0f, 1.0f };
-  this->up_d3dx_effect_->SetVector(
-      this->d3dx_handle_light_position_, &_light_position);
-  this->up_d3dx_effect_->SetFloat(this->d3dx_handle_brightness_, 10.0f);
   this->up_d3dx_effect_->SetFloat(this->d3dx_handle_scale_, 1.0f);
 
   this->up_d3dx_effect_->Begin(nullptr, 0);

@@ -27,8 +27,6 @@ public:
   int operator()();
 
 private:
-  /* prototype declaration */
-  struct window_procedure_object;
 
   ::MSG                                         msg_;
   std::unique_ptr<::IDirect3D9, custom_deleter> up_direct3d9_;
@@ -40,9 +38,15 @@ private:
   std::shared_ptr<mesh>                         sp_mesh_;
   std::shared_ptr<mesh>                         sp_mesh2_;
 
+  ::D3DXMATRIX                                  mat_view_;
+  ::D3DXMATRIX                                  mat_projection_;
+  ::D3DXVECTOR3                                 light_position_;
+  float                                         light_brightness_;
+  ::D3DXVECTOR3                                 vec_eye_position_;
+  ::D3DXVECTOR3                                 vec_look_at_position_;
+
   void initialize_direct3d(const ::HWND&);
   void render();
-  void update_light();
 };
 } /* namespace early_go */
 #endif

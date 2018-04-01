@@ -5,52 +5,6 @@
 #include "mesh.hpp"
 
 namespace early_go {
-/*
- * A struct of for the argument of the 'lpfnWndProc' that is the member of
- * '::RegisterClassEx'. It's necessary for creating a window to run previously
- * the '::RegisterClassEx' function, and that function needs an instance of
- * WNDCLASSEX as a argument. The 'lpfnWndProc', WNDCLASSEX's member variables,
- * requires a free function like 'C' language style. Consequently, defines a
- * static function and a static weak-pointer for a substitute of the free
- * function.
- */
-struct basic_window::window_procedure_object
-{
-  static std::weak_ptr<animation_mesh> swp_animation_mesh_;
-  /* TODO Use direct input */
-  static ::LRESULT CALLBACK window_procedure(::HWND a_hwnd,
-                                             ::UINT a_ui_message,
-                                             ::WPARAM a_wparam,
-                                             ::LPARAM a_lparam)
-  {
-    switch (a_ui_message) {
-    case WM_DESTROY:
-      ::PostQuitMessage(0);
-      break;
-    case WM_KEYDOWN:
-      switch (static_cast<char>(a_wparam)) {
-      case VK_ESCAPE:
-        ::PostQuitMessage(0);
-        break;
-      case VK_SPACE:
-        std::shared_ptr<animation_mesh> _shared_ptr{
-            window_procedure_object::swp_animation_mesh_.lock()};
-
-        if (_shared_ptr) {
-          _shared_ptr->set_play_animation(
-              _shared_ptr->get_play_animation() == false ? true : false);
-        }
-        break;
-      }
-      break;
-    }
-    return ::DefWindowProc(a_hwnd, a_ui_message, a_wparam, a_lparam);
-  }
-};
-
-/* A definition of the static member variable. */
-std::weak_ptr<animation_mesh>
-    basic_window::window_procedure_object::swp_animation_mesh_;
 /* A definition of the static member variable. */
 std::weak_ptr<::ID3DXFont> basic_window::render_string_object::swp_id3dx_font_;
 
@@ -63,12 +17,28 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
       sp_animation_mesh_{},
       sp_animation_mesh2_{},
       sp_mesh_{},
-      sp_mesh2_{}
+      sp_mesh2_{},
+      mat_view_{},
+      mat_projection_{},
+      light_position_{1.0f, 1.0f, -1.0f},
+      light_brightness_{100.0f},
+      vec_eye_position_{0.0f, 1.0f, -2.0f},
+      vec_look_at_position_{0.0f, 0.0f, 0.0f}
 {
   ::WNDCLASSEX _wndclassex{};
   _wndclassex.cbSize        = sizeof(_wndclassex);
   _wndclassex.style         = CS_HREDRAW | CS_VREDRAW;
-  _wndclassex.lpfnWndProc   = window_procedure_object::window_procedure;
+  _wndclassex.lpfnWndProc   = [](::HWND a_hwnd,
+                                 ::UINT a_ui_message,
+                                 ::WPARAM a_wparam,
+                                 ::LPARAM a_lparam) -> ::LRESULT {
+    if (a_ui_message == WM_CLOSE) {
+      ::PostQuitMessage(0);
+    } else {
+      return ::DefWindowProc(a_hwnd, a_ui_message, a_wparam, a_lparam);
+    }
+    return 0;
+  };
   _wndclassex.cbClsExtra    = 0;
   _wndclassex.cbWndExtra    = 0;
   _wndclassex.hInstance     = a_kr_hinstance;
@@ -177,9 +147,6 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
                                      constants::MESH_FILE_NAME2,
                                      ::D3DXVECTOR3{ 0.5f, -1.0f, 3.0f}});
 
-  /* Give a reference for using static function. */
-  window_procedure_object::swp_animation_mesh_ = sp_animation_mesh_;
-
   this->sp_direct3d_device9_->SetRenderState(::D3DRS_ZENABLE, TRUE);
   this->sp_direct3d_device9_->SetRenderState(::D3DRS_CULLMODE, ::D3DCULL_NONE);
   this->sp_direct3d_device9_->SetRenderState(::D3DRS_LIGHTING, TRUE);
@@ -230,6 +197,66 @@ int basic_window::operator()()
 
 void basic_window::render()
 {
+  static int _count_frames = 0;
+  static float _fps = 0;
+  static std::chrono::system_clock::time_point  start, end;
+  if (_count_frames == 100) {
+    _count_frames = 0;
+    end = std::chrono::system_clock::now();
+    int64_t elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+        end - start).count();
+    _fps = 100 * 1000 / static_cast<float>(elapsed);
+    start = std::chrono::system_clock::now();
+  }
+
+  if (_count_frames == 0) {
+    start = std::chrono::system_clock::now();
+  }
+  ++_count_frames;
+
+
+
+  {
+    if (::GetAsyncKeyState('I') & 0x8000) {
+      this->vec_eye_position_.z += 0.02f;
+      this->vec_look_at_position_.z += 0.02f;
+    }
+    if (::GetAsyncKeyState('K') & 0x8000) {
+      this->vec_eye_position_.z -= 0.02f;
+      this->vec_look_at_position_.z -= 0.02f;
+    }
+    if (::GetAsyncKeyState('J') & 0x8000) {
+      this->vec_eye_position_.x -= 0.02f;
+      this->vec_look_at_position_.x -= 0.02f;
+    }
+    if (::GetAsyncKeyState('L') & 0x8000) {
+      this->vec_eye_position_.x += 0.02f;
+      this->vec_look_at_position_.x += 0.02f;
+    }
+    if (::GetAsyncKeyState('H') & 0x8000) {
+      this->vec_eye_position_.y += 0.02f;
+      this->vec_look_at_position_.y += 0.02f;
+    }
+    if (::GetAsyncKeyState('N') & 0x8000) {
+      this->vec_eye_position_.y -= 0.02f;
+      this->vec_look_at_position_.y -= 0.02f;
+    }
+    ::D3DXVECTOR3 _vec_up_vector { 0.0f, 1.0f, 0.0f};
+    ::D3DXMatrixLookAtLH(&this->mat_view_,
+                         &this->vec_eye_position_,
+                         &this->vec_look_at_position_,
+                         &_vec_up_vector);
+  }
+  {
+    ::D3DXMatrixPerspectiveFovLH(
+        &this->mat_projection_,
+        D3DX_PI / 4,
+        static_cast<float>(constants::WINDOW_WIDTH) / constants::WINDOW_HEIGHT,
+        0.1f,
+        500.0f);
+  }
+
+
   this->sp_direct3d_device9_->Clear(0,
                                     nullptr,
                                     D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
@@ -237,35 +264,28 @@ void basic_window::render()
                                     1.0f,
                                     0);
   if (SUCCEEDED(this->sp_direct3d_device9_->BeginScene())) {
-    this->update_light();
-    this->sp_animation_mesh_->render();
-    this->sp_animation_mesh2_->render();
-    this->sp_mesh_->render();
-    this->sp_mesh2_->render();
+    this->sp_animation_mesh_->render(this->mat_view_,
+                                     this->mat_projection_,
+                                     this->light_position_,
+                                     this->light_brightness_);
+    this->sp_animation_mesh2_->render(this->mat_view_,
+                                      this->mat_projection_,
+                                      this->light_position_,
+                                      this->light_brightness_);
+    this->sp_mesh_->render(this->mat_view_,
+                           this->mat_projection_,
+                           this->light_position_,
+                           this->light_brightness_);
+    this->sp_mesh2_->render(this->mat_view_,
+                           this->mat_projection_,
+                           this->light_position_,
+                           this->light_brightness_);
+
+    render_string_object::render_string(std::to_string(_fps), 10, 30);
 
     this->sp_direct3d_device9_->EndScene();
   }
   this->sp_direct3d_device9_->Present(nullptr, nullptr, nullptr, nullptr);
-}
-
-void basic_window::update_light()
-{
-  /* Shed light. Set white color and specular reflection. */
-  ::D3DXVECTOR3 _vec_direction{ 1, -0.5, 1 };
-  ::D3DLIGHT9 _light = {};
-  _light.Type       = ::D3DLIGHT_DIRECTIONAL;
-  _light.Diffuse.r  = 1.0f;
-  _light.Diffuse.g  = 1.0f;
-  _light.Diffuse.b  = 1.0f;
-  _light.Specular.r = 1.0f;
-  _light.Specular.g = 1.0f;
-  _light.Specular.b = 1.0f;
-  ::D3DXVec3Normalize(static_cast<::D3DXVECTOR3*>(&_light.Direction),
-                      &_vec_direction);
-
-  _light.Range = 200.0f;
-  this->sp_direct3d_device9_->SetLight(0, &_light);
-  this->sp_direct3d_device9_->LightEnable(0, true);
 }
 
 void basic_window::render_string_object::render_string(
