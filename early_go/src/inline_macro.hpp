@@ -109,9 +109,8 @@ inline std::vector<char> get_resource(const std::string& a_kr_query)
  */
 struct log_liner
 {
-#if defined(DEBUG) || defined(_DEBUG)
-  std::ostringstream ostringstream_;
-
+//#if defined(DEBUG) || defined(_DEBUG)
+#if 1
   /* c'tor */
   log_liner() : ostringstream_{} {}
 
@@ -129,6 +128,8 @@ struct log_liner
     this->ostringstream_ << std::endl;
     ::OutputDebugString(this->ostringstream_.str().c_str());
   }
+private:
+  std::ostringstream ostringstream_;
 #else
   template <typename T>
   log_liner& operator<<(T)

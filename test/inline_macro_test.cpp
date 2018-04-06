@@ -161,17 +161,3 @@ TEST(inline_macro_test, custom_deleter_test2)
   }
   EXPECT_EQ(_is_called, 1);
 }
-
-TEST(inline_macro_test, log_liner_test1)
-{
-  early_go::log_liner liner;
-  liner << "hogehoge";
-  EXPECT_EQ(liner.ostringstream_.str(), "hogehoge");
-}
-
-TEST(inline_macro_test, log_liner_test2)
-{
-  early_go::log_liner liner;
-  liner << 123;
-  EXPECT_EQ(liner.ostringstream_.str(), "123");
-}

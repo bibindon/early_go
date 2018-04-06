@@ -205,9 +205,8 @@ void animation_mesh::update_frame_matrix(const ::LPD3DXFRAME a_kp_frame_base,
    * matrix.
    */
   if (a_kp_parent_matrix != nullptr) {
-    ::D3DXMatrixMultiply(
-        &_animation_mesh_frame->combined_transformation_matrix_,
-        &_animation_mesh_frame->TransformationMatrix, a_kp_parent_matrix);
+    _animation_mesh_frame->combined_transformation_matrix_ =
+        _animation_mesh_frame->TransformationMatrix * (*a_kp_parent_matrix);
   } else {
     _animation_mesh_frame->combined_transformation_matrix_ =
         _animation_mesh_frame->TransformationMatrix;
@@ -284,7 +283,7 @@ void animation_mesh::render_mesh_container(
                          //this->vec_d3d_color_.at(i).a };
     this->up_d3dx_effect_->SetVector(this->d3dx_handle_diffuse_, &_color);
     this->up_d3dx_effect_->SetTexture(this->d3dx_handle_texture_,
-                                      _p_mesh_container_base->vecup_texture_.at(i).get());
+        _p_mesh_container_base->vecup_texture_.at(i).get());
     this->up_d3dx_effect_->CommitChanges();
     _p_mesh_container_base->MeshData.pMesh->DrawSubset(i);
   }

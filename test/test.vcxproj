@@ -41,8 +41,12 @@
     <LibraryPath>$(DXSDK_DIR)Lib\x64;$(SolutionDir)sqlite3;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)sqlite3;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)sqlite3;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)..\sqlite3;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)..\sqlite3;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(DXSDK_DIR)Include;$(ProjectDir)..\sqlite3;$(IncludePath)</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(ProjectDir)..\sqlite3;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

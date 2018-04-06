@@ -1,6 +1,7 @@
 #include "stdafx.hpp"
 
 #include "animation_mesh.hpp"
+#include "skinned_animation_mesh.hpp"
 #include "basic_window.hpp"
 #include "mesh.hpp"
 
@@ -15,14 +16,14 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
       sp_direct3d_device9_{},
       sp_id3dx_font_{},
       sp_animation_mesh_{},
-      sp_animation_mesh2_{},
+      sp_skinned_animation_mesh_{},
       sp_mesh_{},
       sp_mesh2_{},
       mat_view_{},
       mat_projection_{},
-      light_position_{1.0f, 1.0f, -1.0f},
+      light_position_{5.0f, 1.0f, -1.0f},
       light_brightness_{100.0f},
-      vec_eye_position_{0.0f, 1.0f, -2.0f},
+      vec_eye_position_{0.0f, 2.0f, -4.0f},
       vec_look_at_position_{0.0f, 0.0f, 0.0f}
 {
   ::WNDCLASSEX _wndclassex{};
@@ -132,14 +133,14 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
     }
   }
   /* lazy initialization */
-  this->sp_direct3d_device9_.reset(_p_direct3d_device9, custom_deleter{});
+   this->sp_direct3d_device9_.reset(_p_direct3d_device9, custom_deleter{});
   this->sp_animation_mesh_.reset(
       new_crt animation_mesh{this->sp_direct3d_device9_,
                              constants::ANIMATION_MESH_FILE_NAME});
-  this->sp_animation_mesh2_.reset(
-      new_crt animation_mesh{this->sp_direct3d_device9_,
-                             constants::ANIMATION_MESH_FILE_NAME,
-                             ::D3DXVECTOR3{1.0f, 1.0f, 1.0f}});
+  this->sp_skinned_animation_mesh_.reset(
+      new_crt skinned_animation_mesh{this->sp_direct3d_device9_,
+                             constants::SKINNED_ANIMATION_MESH_FILE_NAME,
+                             ::D3DXVECTOR3{1.0f, 0.0f, 0.0f}});
   this->sp_mesh_.reset(new_crt mesh{this->sp_direct3d_device9_,
                                     constants::MESH_FILE_NAME,
                                     ::D3DXVECTOR3{-0.5f, 0.0f, 3.0f}});
@@ -147,17 +148,6 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
                                      constants::MESH_FILE_NAME2,
                                      ::D3DXVECTOR3{ 0.5f, -1.0f, 3.0f}});
 
-  this->sp_direct3d_device9_->SetRenderState(::D3DRS_ZENABLE, TRUE);
-  this->sp_direct3d_device9_->SetRenderState(::D3DRS_CULLMODE, ::D3DCULL_NONE);
-  this->sp_direct3d_device9_->SetRenderState(::D3DRS_LIGHTING, TRUE);
-  this->sp_direct3d_device9_->SetRenderState(::D3DRS_AMBIENT, 0x80808080);
-  this->sp_direct3d_device9_->SetRenderState(::D3DRS_SPECULARENABLE, TRUE);
-  //this->sp_direct3d_device9_->SetRenderState(::D3DRS_ALPHABLENDENABLE, TRUE);
-  //this->sp_direct3d_device9_->SetRenderState(::D3DRS_SRCBLEND,
-  //                                           ::D3DBLEND_SRCALPHA);
-  //this->sp_direct3d_device9_->SetRenderState(::D3DRS_DESTBLEND,
-  //                                           ::D3DBLEND_INVSRCALPHA);
-  this->sp_direct3d_device9_->SetRenderState(::D3DRS_ALPHATESTENABLE, TRUE);
   /* ~ Create a Direct3D Device object. */
 
   /* Create a font. ~ */
@@ -241,6 +231,28 @@ void basic_window::render()
       this->vec_eye_position_.y -= 0.02f;
       this->vec_look_at_position_.y -= 0.02f;
     }
+    if (::GetAsyncKeyState('Q') & 0x8000) {
+      ::PostQuitMessage(0);
+    }
+    if (::GetAsyncKeyState('F') & 0x8000) {
+      this->light_position_.x += 0.2f;
+    }
+    if (::GetAsyncKeyState('S') & 0x8000) {
+      this->light_position_.x -= 0.2f;
+    }
+    if (::GetAsyncKeyState('E') & 0x8000) {
+      this->light_position_.z += 0.2f;
+    }
+    if (::GetAsyncKeyState('D') & 0x8000) {
+      this->light_position_.z -= 0.2f;
+    }
+    if (::GetAsyncKeyState('T') & 0x8000) {
+      this->light_position_.y += 0.2f;
+    }
+    if (::GetAsyncKeyState('G') & 0x8000) {
+      this->light_position_.y -= 0.2f;
+    }
+
     ::D3DXVECTOR3 _vec_up_vector { 0.0f, 1.0f, 0.0f};
     ::D3DXMatrixLookAtLH(&this->mat_view_,
                          &this->vec_eye_position_,
@@ -253,7 +265,7 @@ void basic_window::render()
         D3DX_PI / 4,
         static_cast<float>(constants::WINDOW_WIDTH) / constants::WINDOW_HEIGHT,
         0.1f,
-        500.0f);
+        3000.0f);
   }
 
 
@@ -263,23 +275,23 @@ void basic_window::render()
                                     D3DCOLOR_XRGB(0x0f, 0x17, 0x1c),
                                     1.0f,
                                     0);
-  if (SUCCEEDED(this->sp_direct3d_device9_->BeginScene())) {
-    this->sp_animation_mesh_->render(this->mat_view_,
+   if (SUCCEEDED(this->sp_direct3d_device9_->BeginScene())) {
+     this->sp_animation_mesh_->render(this->mat_view_,
                                      this->mat_projection_,
                                      this->light_position_,
                                      this->light_brightness_);
-    this->sp_animation_mesh2_->render(this->mat_view_,
-                                      this->mat_projection_,
-                                      this->light_position_,
-                                      this->light_brightness_);
-    this->sp_mesh_->render(this->mat_view_,
-                           this->mat_projection_,
-                           this->light_position_,
-                           this->light_brightness_);
-    this->sp_mesh2_->render(this->mat_view_,
-                           this->mat_projection_,
-                           this->light_position_,
-                           this->light_brightness_);
+     this->sp_skinned_animation_mesh_->render(this->mat_view_,
+                                       this->mat_projection_,
+                                       this->light_position_,
+                                       this->light_brightness_);
+     this->sp_mesh_->render(this->mat_view_,
+                            this->mat_projection_,
+                            this->light_position_,
+                            this->light_brightness_);
+     this->sp_mesh2_->render(this->mat_view_,
+                            this->mat_projection_,
+                            this->light_position_,
+                            this->light_brightness_);
 
     render_string_object::render_string(std::to_string(_fps), 10, 30);
 
