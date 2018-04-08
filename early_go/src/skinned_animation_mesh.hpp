@@ -14,7 +14,7 @@ public:
   skinned_animation_mesh(const std::shared_ptr<::IDirect3DDevice9>&,
                          const std::string&,
                          const ::D3DXVECTOR3& = ::D3DVECTOR{});
-  void render(const ::D3DXMATRIX&, const ::D3DXMATRIX&,
+  void render(const ::D3DXMATRIXA16&, const ::D3DXMATRIXA16&,
               const ::D3DXVECTOR3& , const float&);
   bool get_play_animation() const;
   void set_play_animation(const bool&);
@@ -47,9 +47,9 @@ private:
   std::unique_ptr<::ID3DXAnimationController, custom_deleter>
       up_d3dx_animation_controller_;
   ::D3DXVECTOR3                              vec_position_;
-  ::D3DXMATRIX                               mat_rotation_;
-  ::D3DXMATRIX                               mat_view_;
-  std::vector<::D3DXMATRIX>                  vecmat_world_matrix_array;
+  ::D3DXMATRIXA16                            mat_rotation_;
+  ::D3DXMATRIXA16                            mat_view_;
+  std::vector<::D3DXMATRIXA16>               vecmat_world_matrix_array;
 
   // For effect.
   std::unique_ptr<::ID3DXEffect, custom_deleter> up_d3dx_effect_;
@@ -61,7 +61,7 @@ private:
   ::D3DXHANDLE                                   d3dx_handle_diffuse_;
 
 
-  void update_frame_matrix(const ::LPD3DXFRAME, const ::LPD3DXMATRIX);
+  void update_frame_matrix(const ::LPD3DXFRAME, const ::LPD3DXMATRIXA16);
   void render_frame(const ::LPD3DXFRAME);
   void render_mesh_container(const ::LPD3DXMESHCONTAINER);
 

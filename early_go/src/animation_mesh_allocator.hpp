@@ -9,7 +9,7 @@ namespace early_go {
  */
 struct animation_mesh_frame : public ::D3DXFRAME
 {
-  ::D3DXMATRIX combined_transformation_matrix_;
+  ::D3DXMATRIXA16 combined_transformation_matrix_;
   explicit animation_mesh_frame(const std::string&);
 };
 

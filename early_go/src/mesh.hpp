@@ -10,7 +10,7 @@ public:
        const std::string&,
        const ::D3DXVECTOR3& = ::D3DVECTOR{});
 
-  void render(const ::D3DXMATRIX&, const ::D3DXMATRIX&,
+  void render(const ::D3DXMATRIXA16&, const ::D3DXMATRIXA16&,
               const ::D3DXVECTOR3& , const float&);
 
 private:

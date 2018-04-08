@@ -176,15 +176,14 @@ mesh::mesh(
   safe_release(p_d3dx_material_buffer);
 }
 
-void mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
-            const ::D3DXMATRIX& a_kr_mat_projection,
-            const ::D3DXVECTOR3& a_kr_light_position,
-            const float& a_kr_brightness)
+void mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
+                  const ::D3DXMATRIXA16& a_kr_mat_projection,
+                  const ::D3DXVECTOR3& a_kr_light_position,
+                  const float& a_kr_brightness)
 {
-  ::D3DXMATRIX mat_world_view_projection{};
+  ::D3DXMATRIXA16 mat_world_view_projection{};
   {
-    ::D3DXMATRIX mat_world{};
-    ::D3DXMatrixIdentity(&mat_world);
+    ::D3DXMATRIXA16 mat_world{};
     ::D3DXMatrixTranslation(&mat_world,
         this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
 

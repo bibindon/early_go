@@ -169,8 +169,8 @@ skinned_animation_mesh::skinned_animation_mesh(
 }
 
 /* Renders its own animation mesh. */
-void skinned_animation_mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
-                                    const ::D3DXMATRIX& a_kr_mat_projection,
+void skinned_animation_mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
+                                    const ::D3DXMATRIXA16& a_kr_mat_projection,
                                     const ::D3DXVECTOR3& a_kr_light_position,
                                     const float& a_kr_brightness)
 {
@@ -191,7 +191,7 @@ void skinned_animation_mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
         constants::ANIMATION_SPEED, nullptr);
   }
 
-  ::D3DXMATRIX mat_world{};
+  ::D3DXMATRIXA16 mat_world{};
   ::D3DXMatrixTranslation(&mat_world,
       this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
   this->update_frame_matrix(this->up_d3dx_frame_root_.get(), &mat_world);
@@ -225,7 +225,7 @@ float skinned_animation_mesh::get_animation_time() const
  */
 void skinned_animation_mesh::update_frame_matrix(
     const ::LPD3DXFRAME a_kp_frame_base,
-    const ::LPD3DXMATRIX a_kp_parent_matrix)
+    const ::LPD3DXMATRIXA16 a_kp_parent_matrix)
 {
   skinned_animation_mesh_frame *p_skinned_animation_mesh_frame{
       static_cast<skinned_animation_mesh_frame*>(a_kp_frame_base)};
@@ -297,7 +297,7 @@ void skinned_animation_mesh::render_mesh_container(
       if (dw_bone_id == UINT_MAX) {
         continue;
       }
-      ::D3DXMATRIX mat =
+      ::D3DXMATRIXA16 mat =
           p_mesh_container->vec_bone_offset_matrices_[dw_bone_id]
               * (*p_mesh_container->vecp_frame_combined_matrix_[dw_bone_id]);
 
@@ -356,7 +356,7 @@ void skinned_animation_mesh::render_mesh_container(
     if (p_frame == nullptr) {
       return E_FAIL;
     }
-    LPD3DXMATRIX p_matrix = &p_frame->combined_transformation_matrix_;
+    LPD3DXMATRIXA16 p_matrix = &p_frame->combined_transformation_matrix_;
     p_mesh_container->vecp_frame_combined_matrix_.at(i) = p_matrix;
   }
   return S_OK;

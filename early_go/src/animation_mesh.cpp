@@ -126,7 +126,7 @@ animation_mesh::animation_mesh(
       "select data from x_file where filename = '" + a_krsz_xfile_name + "';");
   if (FAILED(::D3DXLoadMeshHierarchyFromXInMemory(
       &vecc_buffer[0],
-      static_cast<DWORD>(vecc_buffer.size()),
+      static_cast<::DWORD>(vecc_buffer.size()),
       ::D3DXMESH_MANAGED,
       this->sp_direct3d_device9_.get(),
       this->sp_animation_mesh_allocator_.get(),
@@ -143,8 +143,8 @@ animation_mesh::animation_mesh(
 }
 
 /* Renders its own animation mesh. */
-void animation_mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
-                            const ::D3DXMATRIX& a_kr_mat_projection,
+void animation_mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
+                            const ::D3DXMATRIXA16& a_kr_mat_projection,
                             const ::D3DXVECTOR3& a_kr_light_position,
                             const float& a_kr_brightness)
 {
@@ -163,7 +163,7 @@ void animation_mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
         constants::ANIMATION_SPEED, nullptr);
   }
 
-  ::D3DXMATRIX mat_world{};
+  ::D3DXMATRIXA16 mat_world{};
   ::D3DXMatrixIdentity(&mat_world);
   ::D3DXMatrixTranslation(&mat_world,
       this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
@@ -196,7 +196,7 @@ float animation_mesh::get_animation_time() const
  * is a recursive function.
  */
 void animation_mesh::update_frame_matrix(const ::LPD3DXFRAME a_kp_frame_base,
-    const ::LPD3DXMATRIX a_kp_parent_matrix)
+    const ::LPD3DXMATRIXA16 a_kp_parent_matrix)
 {
   animation_mesh_frame *p_animation_mesh_frame{
       static_cast<animation_mesh_frame*>(a_kp_frame_base)};
@@ -253,7 +253,7 @@ void animation_mesh::render_mesh_container(
   animation_mesh_frame *p_frame{
       static_cast<animation_mesh_frame*>(a_kp_frame_base)};
 
-  ::D3DXMATRIX mat_world_view_projection{
+  ::D3DXMATRIXA16 mat_world_view_projection{
       p_frame->combined_transformation_matrix_};
 
   mat_world_view_projection *= this->mat_view_;
