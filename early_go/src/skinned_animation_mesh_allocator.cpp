@@ -67,22 +67,22 @@ skinned_animation_mesh_container::skinned_animation_mesh_container(
    */
   this->Name = ::_strdup(a_krsz_meshname.c_str());
 
-  ::LPDIRECT3DDEVICE9 _p_temp_direct3d_device9{nullptr};
-  a_p_d3dx_mesh->GetDevice(&_p_temp_direct3d_device9);
+  ::LPDIRECT3DDEVICE9 p_temp_direct3d_device9{nullptr};
+  a_p_d3dx_mesh->GetDevice(&p_temp_direct3d_device9);
 
   /*
    * This IF sentence is just initializing the 'MeshData' of a member variable.
    * When this mesh doesn't have normal vector, add it.
    */
-  ::HRESULT _hresult{};
+  ::HRESULT hresult{};
   if (!(a_p_d3dx_mesh->GetFVF() & D3DFVF_NORMAL)) {
     this->MeshData.Type = ::D3DXMESHTYPE_MESH;
-    _hresult =
+    hresult =
         a_p_d3dx_mesh->CloneMeshFVF(a_p_d3dx_mesh->GetOptions(),
                                     a_p_d3dx_mesh->GetFVF() | D3DFVF_NORMAL,
-                                    _p_temp_direct3d_device9,
+                                    p_temp_direct3d_device9,
                                     &this->MeshData.pMesh);
-    if (FAILED(_hresult)) {
+    if (FAILED(hresult)) {
       BOOST_THROW_EXCEPTION(
           custom_exception{"Failed 'CloneMeshFVF' function."});
     }
@@ -105,9 +105,9 @@ skinned_animation_mesh_container::skinned_animation_mesh_container(
   this->initialize_materials(a_k_materials_number,
                              a_kp_materials,
                              a_krsz_x_filename,
-                             _p_temp_direct3d_device9);
+                             p_temp_direct3d_device9);
   this->initialize_bone(a_p_skin_info, a_p_d3dx_mesh);
-  this->initialize_FVF(_p_temp_direct3d_device9);
+  this->initialize_FVF(p_temp_direct3d_device9);
   this->initialize_vertex_element();
 }
 
@@ -121,8 +121,8 @@ void skinned_animation_mesh_container::initialize_materials(
   this->NumMaterials = (std::max)(1UL, a_k_materials_number);
   this->pMaterials = new_crt::D3DXMATERIAL[this->NumMaterials]{};
   std::vector<std::unique_ptr<::IDirect3DTexture9, custom_deleter> >
-      _temp_texture(this->NumMaterials);
-  this->vecup_texture_.swap(_temp_texture);
+      temp_texture(this->NumMaterials);
+  this->vecup_texture_.swap(temp_texture);
 
   /*
   * Initialize the 'pMaterials' and the 'vecup_texture_' of member variables
@@ -132,22 +132,22 @@ void skinned_animation_mesh_container::initialize_materials(
     for (::DWORD i{}; i < a_k_materials_number; ++i) {
       this->pMaterials[i] = a_kp_materials[i];
       if (this->pMaterials[i].pTextureFilename != nullptr) {
-        std::string _query;
-        _query = "select data from texture where filename = '";
-        _query += this->pMaterials[i].pTextureFilename;
-        _query += "' and x_filename = '";
-        _query += a_krsz_x_filename + "';";
-        std::vector<char> _data = get_resource(_query);
-        ::LPDIRECT3DTEXTURE9 _p_temp_texture{};
+        std::string sz_query;
+        sz_query = "select data from texture where filename = '";
+        sz_query += this->pMaterials[i].pTextureFilename;
+        sz_query += "' and x_filename = '";
+        sz_query += a_krsz_x_filename + "';";
+        std::vector<char> vecc_buffer = get_resource(sz_query);
+        ::LPDIRECT3DTEXTURE9 p_temp_texture{};
         if (FAILED(
-            ::D3DXCreateTextureFromFileInMemory(a_p_temp_direct3d_device9,
-                                                &_data[0],
-                                                static_cast<UINT>(_data.size()),
-                                                &_p_temp_texture))) {
+            ::D3DXCreateTextureFromFileInMemory(
+                a_p_temp_direct3d_device9,
+                &vecc_buffer[0],
+                static_cast<UINT>(vecc_buffer.size()),
+                &p_temp_texture))) {
           BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
-        }
-        else {
-          this->vecup_texture_.at(i).reset(_p_temp_texture);
+        } else {
+          this->vecup_texture_.at(i).reset(p_temp_texture);
         }
       }
     }
@@ -209,12 +209,12 @@ void skinned_animation_mesh_container::initialize_FVF(
 
   if (new_FVF != this->MeshData.pMesh->GetFVF()) {
     ::LPD3DXMESH p_mesh{};
-    ::HRESULT _hresult =
+    ::HRESULT hresult =
         this->MeshData.pMesh->CloneMeshFVF(this->MeshData.pMesh->GetOptions(),
                                            new_FVF,
                                            a_p_temp_direct3d_device9,
                                            &p_mesh);
-    if (SUCCEEDED(_hresult)) {
+    if (SUCCEEDED(hresult)) {
       this->MeshData.pMesh->Release();
       this->MeshData.pMesh = p_mesh;
       p_mesh = NULL;
@@ -226,8 +226,8 @@ void skinned_animation_mesh_container::initialize_vertex_element()
 {
   ::D3DVERTEXELEMENT9 decl[::MAX_FVF_DECL_SIZE];
   ::LPD3DVERTEXELEMENT9 p_current_decl;
-  ::HRESULT _hresult = this->MeshData.pMesh->GetDeclaration(decl);
-  if (FAILED(_hresult)) {
+  ::HRESULT hresult = this->MeshData.pMesh->GetDeclaration(decl);
+  if (FAILED(hresult)) {
     BOOST_THROW_EXCEPTION(custom_exception{ "Failed to get skin info." });
   }
 
@@ -240,8 +240,8 @@ void skinned_animation_mesh_container::initialize_vertex_element()
     p_current_decl++;
   }
 
-  _hresult = this->MeshData.pMesh->UpdateSemantics(decl);
-  if (FAILED(_hresult)) {
+  hresult = this->MeshData.pMesh->UpdateSemantics(decl);
+  if (FAILED(hresult)) {
     BOOST_THROW_EXCEPTION(custom_exception{ "Failed to get skin info." });
   }
 }

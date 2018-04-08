@@ -80,23 +80,23 @@ animation_mesh::animation_mesh(
       d3dx_handle_texture_{},
       d3dx_handle_diffuse_{}
 {
-  ::HRESULT _hresult{};
+  ::HRESULT hresult{};
 
-  std::vector<char> _data = get_resource(
+  std::vector<char> vecc_buffer = get_resource(
       "select data from shader_file where filename = '"
       + constants::MESH_HLSL + "';");
-  ::LPD3DXEFFECT _temp_p_d3dx_effect{};
+  ::LPD3DXEFFECT temp_p_d3dx_effect{};
   ::D3DXCreateEffect(a_krsp_direct3d_device9.get(),
-                     &_data[0],
-                     static_cast<::UINT>(_data.size()),
+                     &vecc_buffer[0],
+                     static_cast<::UINT>(vecc_buffer.size()),
                      nullptr,
                      nullptr,
                      0,
                      nullptr,
-                     &_temp_p_d3dx_effect,
+                     &temp_p_d3dx_effect,
                      nullptr);
-  this->up_d3dx_effect_.reset(_temp_p_d3dx_effect);
-  if (FAILED(_hresult)) {
+  this->up_d3dx_effect_.reset(temp_p_d3dx_effect);
+  if (FAILED(hresult)) {
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to create an effect file."});
   }
 
@@ -119,27 +119,27 @@ animation_mesh::animation_mesh(
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_diffuse");
 
-  ::LPD3DXFRAME _p_temp_d3dx_frame_root{nullptr};
-  ::LPD3DXANIMATIONCONTROLLER _p_temp_d3dx_animation_controller{nullptr};
+  ::LPD3DXFRAME p_temp_root_frame{nullptr};
+  ::LPD3DXANIMATIONCONTROLLER p_temp_d3dx_animation_controller{nullptr};
 
-  _data = get_resource(
+  vecc_buffer = get_resource(
       "select data from x_file where filename = '" + a_krsz_xfile_name + "';");
   if (FAILED(::D3DXLoadMeshHierarchyFromXInMemory(
-      &_data[0],
-      static_cast<DWORD>(_data.size()),
+      &vecc_buffer[0],
+      static_cast<DWORD>(vecc_buffer.size()),
       ::D3DXMESH_MANAGED,
       this->sp_direct3d_device9_.get(),
       this->sp_animation_mesh_allocator_.get(),
       nullptr,
-      &_p_temp_d3dx_frame_root,
-      &_p_temp_d3dx_animation_controller))) {
+      &p_temp_root_frame,
+      &p_temp_d3dx_animation_controller))) {
     ::MessageBox(nullptr, constants::FAILED_TO_READ_X_FILE_MESSAGE.c_str(),
         a_krsz_xfile_name.c_str(), MB_OK);
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to load a x-file."});
   }
   /* lazy initialization */
-  this->up_d3dx_frame_root_.reset(_p_temp_d3dx_frame_root);
-  this->up_d3dx_animation_controller_.reset(_p_temp_d3dx_animation_controller);
+  this->up_d3dx_frame_root_.reset(p_temp_root_frame);
+  this->up_d3dx_animation_controller_.reset(p_temp_d3dx_animation_controller);
 }
 
 /* Renders its own animation mesh. */
@@ -151,9 +151,9 @@ void animation_mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
   this->mat_view_ = a_kr_mat_view;
   this->mat_projection_ = a_kr_mat_projection;
 
-  ::D3DXVECTOR4 _light_position{a_kr_light_position, 1.0f};
+  ::D3DXVECTOR4 vec4_light_position{a_kr_light_position, 1.0f};
   this->up_d3dx_effect_->SetVector(
-      this->d3dx_handle_light_position_, &_light_position);
+      this->d3dx_handle_light_position_, &vec4_light_position);
   this->up_d3dx_effect_->SetFloat(
       this->d3dx_handle_brightness_, a_kr_brightness);
 
@@ -163,15 +163,15 @@ void animation_mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
         constants::ANIMATION_SPEED, nullptr);
   }
 
-  ::D3DXMATRIX _mat_world{};
-  ::D3DXMatrixIdentity(&_mat_world);
-  ::D3DXMatrixTranslation(&_mat_world,
+  ::D3DXMATRIX mat_world{};
+  ::D3DXMatrixIdentity(&mat_world);
+  ::D3DXMatrixTranslation(&mat_world,
       this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
-  this->update_frame_matrix(this->up_d3dx_frame_root_.get(), &_mat_world);
+  this->update_frame_matrix(this->up_d3dx_frame_root_.get(), &mat_world);
   this->render_frame(this->up_d3dx_frame_root_.get());
 
   std::stringstream ss{};
-  ss << std::fixed << std::setprecision(2)
+  ss  << std::fixed << std::setprecision(2)
       << "animation time: " << this->f_animation_time_ << std::endl;
   basic_window::render_string_object::render_string(ss.str(), 10, 10);
 }
@@ -198,29 +198,29 @@ float animation_mesh::get_animation_time() const
 void animation_mesh::update_frame_matrix(const ::LPD3DXFRAME a_kp_frame_base,
     const ::LPD3DXMATRIX a_kp_parent_matrix)
 {
-  animation_mesh_frame *_animation_mesh_frame{
+  animation_mesh_frame *p_animation_mesh_frame{
       static_cast<animation_mesh_frame*>(a_kp_frame_base)};
   /*
    * Multiply its own transformation matrix by the parent transformation
    * matrix.
    */
   if (a_kp_parent_matrix != nullptr) {
-    _animation_mesh_frame->combined_transformation_matrix_ =
-        _animation_mesh_frame->TransformationMatrix * (*a_kp_parent_matrix);
+    p_animation_mesh_frame->combined_transformation_matrix_ =
+        p_animation_mesh_frame->TransformationMatrix * (*a_kp_parent_matrix);
   } else {
-    _animation_mesh_frame->combined_transformation_matrix_ =
-        _animation_mesh_frame->TransformationMatrix;
+    p_animation_mesh_frame->combined_transformation_matrix_ =
+        p_animation_mesh_frame->TransformationMatrix;
   }
 
   /* Call oneself. */
-  if (_animation_mesh_frame->pFrameSibling != nullptr) {
-    this->update_frame_matrix(_animation_mesh_frame->pFrameSibling,
+  if (p_animation_mesh_frame->pFrameSibling != nullptr) {
+    this->update_frame_matrix(p_animation_mesh_frame->pFrameSibling,
         a_kp_parent_matrix);
   }
   /* Call oneself. */
-  if (_animation_mesh_frame->pFrameFirstChild != nullptr) {
-    this->update_frame_matrix(_animation_mesh_frame->pFrameFirstChild,
-        &_animation_mesh_frame->combined_transformation_matrix_);
+  if (p_animation_mesh_frame->pFrameFirstChild != nullptr) {
+    this->update_frame_matrix(p_animation_mesh_frame->pFrameFirstChild,
+        &p_animation_mesh_frame->combined_transformation_matrix_);
   }
 }
 
@@ -228,10 +228,10 @@ void animation_mesh::update_frame_matrix(const ::LPD3DXFRAME a_kp_frame_base,
 void animation_mesh::render_frame(const ::LPD3DXFRAME a_kp_frame)
 {
   {
-    ::LPD3DXMESHCONTAINER _p_d3dx_mesh_container{a_kp_frame->pMeshContainer};
-    while (_p_d3dx_mesh_container != nullptr) {
-      this->render_mesh_container(_p_d3dx_mesh_container, a_kp_frame);
-      _p_d3dx_mesh_container = _p_d3dx_mesh_container->pNextMeshContainer;
+    ::LPD3DXMESHCONTAINER p_mesh_container{a_kp_frame->pMeshContainer};
+    while (p_mesh_container != nullptr) {
+      this->render_mesh_container(p_mesh_container, a_kp_frame);
+      p_mesh_container = p_mesh_container->pNextMeshContainer;
     }
   }
 
@@ -250,18 +250,17 @@ void animation_mesh::render_mesh_container(
     const ::LPD3DXFRAME a_kp_frame_base)
 {
   /* Cast for making child class' function callable. */
-  animation_mesh_frame *_p_frame{
+  animation_mesh_frame *p_frame{
       static_cast<animation_mesh_frame*>(a_kp_frame_base)};
 
-  ::D3DXMATRIX _matWorldViewProj;
-  ::D3DXMatrixIdentity(&_matWorldViewProj);
+  ::D3DXMATRIX mat_world_view_projection{
+      p_frame->combined_transformation_matrix_};
 
-  _matWorldViewProj *= _p_frame->combined_transformation_matrix_;
-  _matWorldViewProj *= this->mat_view_;
-  _matWorldViewProj *= this->mat_projection_;
+  mat_world_view_projection *= this->mat_view_;
+  mat_world_view_projection *= this->mat_projection_;
 
   this->up_d3dx_effect_->SetMatrix(this->d3dx_handle_world_view_proj_,
-                                   &_matWorldViewProj);
+                                   &mat_world_view_projection);
 
   this->up_d3dx_effect_->SetFloat(this->d3dx_handle_scale_, 1.0f);
 
@@ -272,20 +271,19 @@ void animation_mesh::render_mesh_container(
     BOOST_THROW_EXCEPTION(custom_exception{"Failed 'BeginPass' function."});
   }
 
-  animation_mesh_container *_p_mesh_container_base{
+  animation_mesh_container *p_mesh_container{
       static_cast<animation_mesh_container*>(a_kp_mesh_container_base)};
 
-  for (::DWORD i{}; i < _p_mesh_container_base->NumMaterials; ++i) {
-    ::D3DXVECTOR4 _color{_p_mesh_container_base->pMaterials[i].MatD3D.Diffuse.r,
-                         _p_mesh_container_base->pMaterials[i].MatD3D.Diffuse.g,
-                         _p_mesh_container_base->pMaterials[i].MatD3D.Diffuse.b,
-                         1.0f };
-                         //this->vec_d3d_color_.at(i).a };
-    this->up_d3dx_effect_->SetVector(this->d3dx_handle_diffuse_, &_color);
+  for (::DWORD i{}; i < p_mesh_container->NumMaterials; ++i) {
+    ::D3DXVECTOR4 color{p_mesh_container->pMaterials[i].MatD3D.Diffuse.r,
+                        p_mesh_container->pMaterials[i].MatD3D.Diffuse.g,
+                        p_mesh_container->pMaterials[i].MatD3D.Diffuse.b,
+                        p_mesh_container->pMaterials[i].MatD3D.Diffuse.a};
+    this->up_d3dx_effect_->SetVector(this->d3dx_handle_diffuse_, &color);
     this->up_d3dx_effect_->SetTexture(this->d3dx_handle_texture_,
-        _p_mesh_container_base->vecup_texture_.at(i).get());
+        p_mesh_container->vecup_texture_.at(i).get());
     this->up_d3dx_effect_->CommitChanges();
-    _p_mesh_container_base->MeshData.pMesh->DrawSubset(i);
+    p_mesh_container->MeshData.pMesh->DrawSubset(i);
   }
   this->up_d3dx_effect_->EndPass();
   this->up_d3dx_effect_->End();

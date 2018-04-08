@@ -26,13 +26,13 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
       vec_eye_position_{0.0f, 2.0f, -4.0f},
       vec_look_at_position_{0.0f, 0.0f, 0.0f}
 {
-  ::WNDCLASSEX _wndclassex{};
-  _wndclassex.cbSize        = sizeof(_wndclassex);
-  _wndclassex.style         = CS_HREDRAW | CS_VREDRAW;
-  _wndclassex.lpfnWndProc   = [](::HWND a_hwnd,
-                                 ::UINT a_ui_message,
-                                 ::WPARAM a_wparam,
-                                 ::LPARAM a_lparam) -> ::LRESULT {
+  ::WNDCLASSEX wndclassex{};
+  wndclassex.cbSize        = sizeof(wndclassex);
+  wndclassex.style         = CS_HREDRAW | CS_VREDRAW;
+  wndclassex.lpfnWndProc   = [](::HWND a_hwnd,
+                                ::UINT a_ui_message,
+                                ::WPARAM a_wparam,
+                                ::LPARAM a_lparam) -> ::LRESULT {
     if (a_ui_message == WM_CLOSE) {
       ::PostQuitMessage(0);
     } else {
@@ -40,20 +40,20 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
     }
     return 0;
   };
-  _wndclassex.cbClsExtra    = 0;
-  _wndclassex.cbWndExtra    = 0;
-  _wndclassex.hInstance     = a_kr_hinstance;
-  _wndclassex.hIcon         = ::LoadIcon(nullptr, IDI_APPLICATION);
-  _wndclassex.hCursor       = ::LoadCursor(nullptr, IDC_ARROW);
-  _wndclassex.hbrBackground =
+  wndclassex.cbClsExtra    = 0;
+  wndclassex.cbWndExtra    = 0;
+  wndclassex.hInstance     = a_kr_hinstance;
+  wndclassex.hIcon         = ::LoadIcon(nullptr, IDI_APPLICATION);
+  wndclassex.hCursor       = ::LoadCursor(nullptr, IDC_ARROW);
+  wndclassex.hbrBackground =
       static_cast<::HBRUSH>(::GetStockObject(BLACK_BRUSH));
-  _wndclassex.lpszMenuName  = nullptr;
-  _wndclassex.lpszClassName = constants::APP_NAME.c_str();
-  _wndclassex.hIconSm       = ::LoadIcon(nullptr, IDI_APPLICATION);
+  wndclassex.lpszMenuName  = nullptr;
+  wndclassex.lpszClassName = constants::APP_NAME.c_str();
+  wndclassex.hIconSm       = ::LoadIcon(nullptr, IDI_APPLICATION);
 
-  ::RegisterClassEx(&_wndclassex);
+  ::RegisterClassEx(&wndclassex);
 
-  ::HWND _hwnd{::CreateWindow(constants::APP_NAME.c_str(),
+  ::HWND hwnd{::CreateWindow(constants::APP_NAME.c_str(),
                               constants::APP_NAME.c_str(),
                               WS_OVERLAPPEDWINDOW,
                               0,
@@ -64,21 +64,21 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
                               nullptr,
                               a_kr_hinstance,
                               nullptr)};
-  ::ShowWindow(_hwnd, SW_SHOW);
-  ::UpdateWindow(_hwnd);
-  this->initialize_direct3d(_hwnd);
+  ::ShowWindow(hwnd, SW_SHOW);
+  ::UpdateWindow(hwnd);
+  this->initialize_direct3d(hwnd);
 }
 
 void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
 {
   /* Create a Direct3D object. */
-  ::LPDIRECT3D9 _p_direct3d9{::Direct3DCreate9(D3D_SDK_VERSION)};
+  ::LPDIRECT3D9 p_direct3d9{::Direct3DCreate9(D3D_SDK_VERSION)};
 
-  if (nullptr == _p_direct3d9) {
+  if (nullptr == p_direct3d9) {
     ::MessageBox(0, "Direct3D‚Ì‰Šú‰»‚ÉŽ¸”s‚µ‚Ü‚µ‚½", "", MB_OK);
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to create 'Direct3D'."});
   }
-  this->up_direct3d9_.reset(_p_direct3d9);
+  this->up_direct3d9_.reset(p_direct3d9);
 
   /* Create a Direct3D Device object. ~ */
   this->d3d_present_parameters_.BackBufferFormat       = ::D3DFMT_UNKNOWN;
@@ -90,7 +90,7 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
   this->d3d_present_parameters_.AutoDepthStencilFormat = ::D3DFMT_D16;
 
   /* for receiving */
-  ::LPDIRECT3DDEVICE9 _p_direct3d_device9{};
+  ::LPDIRECT3DDEVICE9 p_direct3d_device9{};
 
   if (FAILED(
       this->up_direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
@@ -98,21 +98,21 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
                                         a_kr_hwnd,
                                         D3DCREATE_HARDWARE_VERTEXPROCESSING,
                                         &this->d3d_present_parameters_,
-                                        &_p_direct3d_device9))) {
+                                        &p_direct3d_device9))) {
     if (FAILED(
         this->up_direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
                                           ::D3DDEVTYPE_HAL,
                                           a_kr_hwnd,
                                           D3DCREATE_SOFTWARE_VERTEXPROCESSING,
                                           &this->d3d_present_parameters_,
-                                          &_p_direct3d_device9))) {
+                                          &p_direct3d_device9))) {
       if (SUCCEEDED(
           this->up_direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
                                             ::D3DDEVTYPE_REF,
                                             a_kr_hwnd,
                                             D3DCREATE_HARDWARE_VERTEXPROCESSING,
                                             &this->d3d_present_parameters_,
-                                            &_p_direct3d_device9))) {
+                                            &p_direct3d_device9))) {
         ::MessageBox(0,
             constants::FAILED_TO_CREATE_HARDWARE_MODE_MESSAGE.c_str(),
             nullptr, MB_OK);
@@ -122,7 +122,7 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
                                             a_kr_hwnd,
                                             D3DCREATE_SOFTWARE_VERTEXPROCESSING,
                                             &this->d3d_present_parameters_,
-                                            &_p_direct3d_device9))) {
+                                            &p_direct3d_device9))) {
         ::MessageBox(0,
             constants::FAILED_TO_CREATE_HARDWARE_MODE_MESSAGE.c_str(),
             nullptr, MB_OK);
@@ -133,7 +133,7 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
     }
   }
   /* lazy initialization */
-   this->sp_direct3d_device9_.reset(_p_direct3d_device9, custom_deleter{});
+   this->sp_direct3d_device9_.reset(p_direct3d_device9, custom_deleter{});
   this->sp_animation_mesh_.reset(
       new_crt animation_mesh{this->sp_direct3d_device9_,
                              constants::ANIMATION_MESH_FILE_NAME});
@@ -151,7 +151,7 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
   /* ~ Create a Direct3D Device object. */
 
   /* Create a font. ~ */
-  ::LPD3DXFONT _p_d3dx_font{};
+  ::LPD3DXFONT p_d3dx_font{};
   if (FAILED(::D3DXCreateFont(this->sp_direct3d_device9_.get(),
                               0,
                               10,
@@ -163,10 +163,10 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
                               PROOF_QUALITY,
                               FIXED_PITCH | FF_MODERN,
                               "MeiryoKe_Gothic",
-                              &_p_d3dx_font))) {
+                              &p_d3dx_font))) {
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to create a font."});
   }
-  this->sp_id3dx_font_.reset(_p_d3dx_font, custom_deleter{});
+  this->sp_id3dx_font_.reset(p_d3dx_font, custom_deleter{});
   render_string_object::swp_id3dx_font_ = this->sp_id3dx_font_;
   /* ~ Creates a font. */
 }
@@ -187,22 +187,22 @@ int basic_window::operator()()
 
 void basic_window::render()
 {
-  static int _count_frames = 0;
-  static float _fps = 0;
+  static int count_frames = 0;
+  static float f_fps = 0;
   static std::chrono::system_clock::time_point  start, end;
-  if (_count_frames == 100) {
-    _count_frames = 0;
+  if (count_frames == 100) {
+    count_frames = 0;
     end = std::chrono::system_clock::now();
     int64_t elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
         end - start).count();
-    _fps = 100 * 1000 / static_cast<float>(elapsed);
+    f_fps = 100 * 1000 / static_cast<float>(elapsed);
     start = std::chrono::system_clock::now();
   }
 
-  if (_count_frames == 0) {
+  if (count_frames == 0) {
     start = std::chrono::system_clock::now();
   }
-  ++_count_frames;
+  ++count_frames;
 
 
 
@@ -253,11 +253,11 @@ void basic_window::render()
       this->light_position_.y -= 0.2f;
     }
 
-    ::D3DXVECTOR3 _vec_up_vector { 0.0f, 1.0f, 0.0f};
+    ::D3DXVECTOR3 vec_up_vector { 0.0f, 1.0f, 0.0f};
     ::D3DXMatrixLookAtLH(&this->mat_view_,
                          &this->vec_eye_position_,
                          &this->vec_look_at_position_,
-                         &_vec_up_vector);
+                         &vec_up_vector);
   }
   {
     ::D3DXMatrixPerspectiveFovLH(
@@ -293,7 +293,7 @@ void basic_window::render()
                             this->light_position_,
                             this->light_brightness_);
 
-    render_string_object::render_string(std::to_string(_fps), 10, 30);
+    render_string_object::render_string(std::to_string(f_fps), 10, 30);
 
     this->sp_direct3d_device9_->EndScene();
   }
@@ -305,25 +305,25 @@ void basic_window::render_string_object::render_string(
     const int& a_kr_i_x,
     const int& a_kr_i_y)
 {
-  std::shared_ptr<::ID3DXFont> _sp_d3dx_font{
+  std::shared_ptr<::ID3DXFont> sp_d3dx_font{
       render_string_object::swp_id3dx_font_.lock()};
 
-  if (_sp_d3dx_font) {
-    ::RECT _rect{ a_kr_i_x, a_kr_i_y, 0, 0 };
+  if (sp_d3dx_font) {
+    ::RECT rect{ a_kr_i_x, a_kr_i_y, 0, 0 };
     /* Calcurate size of character string. */
-    _sp_d3dx_font->DrawText(NULL,
-                            a_sz_target.c_str(),
-                            -1,
-                            &_rect,
-                            DT_CALCRECT,
-                            NULL);
+    sp_d3dx_font->DrawText(NULL,
+                           a_sz_target.c_str(),
+                           -1,
+                           &rect,
+                           DT_CALCRECT,
+                           NULL);
     /* Draw with its size. */
-    _sp_d3dx_font->DrawText(nullptr,
-                            a_sz_target.c_str(),
-                            -1,
-                            &_rect,
-                            DT_LEFT | DT_BOTTOM,
-                            0xff00ff00);
+    sp_d3dx_font->DrawText(nullptr,
+                           a_sz_target.c_str(),
+                           -1,
+                           &rect,
+                           DT_LEFT | DT_BOTTOM,
+                           0xff00ff00);
   }
 }
 } /* namespace early_go */

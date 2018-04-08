@@ -59,8 +59,8 @@ animation_mesh_container::animation_mesh_container(
    */
   this->Name = ::_strdup(a_krsz_meshname.c_str());
 
-  ::LPDIRECT3DDEVICE9 _p_temp_direct3d_device9{nullptr};
-  a_p_d3dx_mesh->GetDevice(&_p_temp_direct3d_device9);
+  ::LPDIRECT3DDEVICE9 p_temp_direct3d_device9{nullptr};
+  a_p_d3dx_mesh->GetDevice(&p_temp_direct3d_device9);
 
   /*
    * This IF sentence is just initializing the 'MeshData' of a member variable.
@@ -68,12 +68,12 @@ animation_mesh_container::animation_mesh_container(
    */
   if (!(a_p_d3dx_mesh->GetFVF() & D3DFVF_NORMAL)) {
     this->MeshData.Type = ::D3DXMESHTYPE_MESH;
-    ::HRESULT _hresult{
+    ::HRESULT hresult{
         a_p_d3dx_mesh->CloneMeshFVF(a_p_d3dx_mesh->GetOptions(),
                                     a_p_d3dx_mesh->GetFVF() | D3DFVF_NORMAL,
-                                    _p_temp_direct3d_device9,
+                                    p_temp_direct3d_device9,
                                     &this->MeshData.pMesh)};
-    if (FAILED(_hresult)) {
+    if (FAILED(hresult)) {
       BOOST_THROW_EXCEPTION(
           custom_exception{"Failed 'CloneMeshFVF' function."});
     }
@@ -86,17 +86,17 @@ animation_mesh_container::animation_mesh_container(
   }
 
   /* This strange bracket is measures of being interpretered as WinAPI macro. */
-  this->NumMaterials   = (std::max)(1UL, a_k_materials_number);
-  this->pMaterials     = new_crt ::D3DXMATERIAL[this->NumMaterials]{};
+  this->NumMaterials = (std::max)(1UL, a_k_materials_number);
+  this->pMaterials   = new_crt ::D3DXMATERIAL[this->NumMaterials]{};
   std::vector<std::unique_ptr<::IDirect3DTexture9, custom_deleter> >
-      _temp_texture(this->NumMaterials);
-  this->vecup_texture_.swap(_temp_texture);
+      temp_texture(this->NumMaterials);
+  this->vecup_texture_.swap(temp_texture);
 
   /* Initialize the 'pAdjacency' of a member variable. */
-  unsigned int _ui_faces_amount{a_p_d3dx_mesh->GetNumFaces()};
-  this->pAdjacency = new_crt ::DWORD[_ui_faces_amount * 3]{};
+  ::DWORD dw_faces_amount{a_p_d3dx_mesh->GetNumFaces()};
+  this->pAdjacency = new_crt ::DWORD[dw_faces_amount * 3]{};
 
-  for (unsigned int i{}; i < _ui_faces_amount * 3; ++i) {
+  for (::DWORD i{}; i < dw_faces_amount * 3; ++i) {
     this->pAdjacency[i] = a_kp_adjacency[i];
   }
 
@@ -105,29 +105,29 @@ animation_mesh_container::animation_mesh_container(
    * if there are.
    */
   if (a_k_materials_number > 0) {
-    for (unsigned int i{}; i < a_k_materials_number; ++i) {
+    for (::DWORD i{}; i < a_k_materials_number; ++i) {
       this->pMaterials[i] = a_kp_materials[i];
     }
 
-    for (unsigned int i{}; i < a_k_materials_number; ++i) {
+    for (::DWORD i{}; i < a_k_materials_number; ++i) {
       this->pMaterials[i].MatD3D.Ambient = ::D3DCOLORVALUE{0.2f, 0.2f, 0.2f, 0};
       if (this->pMaterials[i].pTextureFilename != nullptr) {
-        std::string _query;
-        _query = "select data from texture where filename = '";
-        _query += this->pMaterials[i].pTextureFilename;
-        _query += "' and x_filename = '";
-        _query += a_krsz_x_filename + "';";
+        std::string sz_query;
+        sz_query = "select data from texture where filename = '";
+        sz_query += this->pMaterials[i].pTextureFilename;
+        sz_query += "' and x_filename = '";
+        sz_query += a_krsz_x_filename + "';";
 
-        std::vector<char> _data = get_resource(_query);
-        ::LPDIRECT3DTEXTURE9 _pp_temp_texture{};
-        if (FAILED(
-            ::D3DXCreateTextureFromFileInMemory(_p_temp_direct3d_device9,
-                                                &_data[0],
-                                                static_cast<UINT>(_data.size()),
-                                                &_pp_temp_texture))) {
+        std::vector<char> vecc_buffer = get_resource(sz_query);
+        ::LPDIRECT3DTEXTURE9 p_temp_texture{};
+        if (FAILED(::D3DXCreateTextureFromFileInMemory(
+            p_temp_direct3d_device9,
+            &vecc_buffer[0],
+            static_cast<::UINT>(vecc_buffer.size()),
+            &p_temp_texture))) {
           BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
         } else {
-          this->vecup_texture_.at(i).reset(_pp_temp_texture);
+          this->vecup_texture_.at(i).reset(p_temp_texture);
         }
       }
     }

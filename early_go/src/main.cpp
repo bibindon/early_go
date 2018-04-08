@@ -11,9 +11,9 @@ try {
                  _CRTDBG_CHECK_ALWAYS_DF   |
                  _CRTDBG_LEAK_CHECK_DF);
 #endif
-  early_go::basic_window _basic_window{a_hinstance};
+  early_go::basic_window window{a_hinstance};
 
-  return _basic_window();
+  return window();
 } catch (const std::exception& a_expception) {
   early_go::log_liner{} << boost::diagnostic_information(a_expception);
   return EXIT_FAILURE;

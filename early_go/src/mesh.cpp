@@ -21,23 +21,23 @@ mesh::mesh(
       vec_d3d_color_{},
       vecup_mesh_texture_{}
 {
-  ::HRESULT _hresult{};
+  ::HRESULT hresult{};
 
-  std::vector<char> _data = get_resource(
+  std::vector<char> vecc_buffer = get_resource(
       "select data from shader_file where filename = '"
       + constants::MESH_HLSL + "';");
-  ::LPD3DXEFFECT _temp_p_d3dx_effect{};
+  ::LPD3DXEFFECT p_d3dx_temp_effect{};
   ::D3DXCreateEffect(a_krsp_direct3d_device9.get(),
-                     &_data[0],
-                     static_cast<::UINT>(_data.size()),
+                     &vecc_buffer[0],
+                     static_cast<::UINT>(vecc_buffer.size()),
                      nullptr,
                      nullptr,
                      0,
                      nullptr,
-                     &_temp_p_d3dx_effect,
+                     &p_d3dx_temp_effect,
                      nullptr);
-  this->up_d3dx_effect_.reset(_temp_p_d3dx_effect);
-  if (FAILED(_hresult)) {
+  this->up_d3dx_effect_.reset(p_d3dx_temp_effect);
+  if (FAILED(hresult)) {
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to create an effect file."});
   }
 
@@ -60,27 +60,27 @@ mesh::mesh(
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_diffuse");
 
-  ::LPD3DXBUFFER _p_d3dx_adjacency_buffer{};
-  ::LPD3DXBUFFER _p_d3dx_material_buffer{};
+  ::LPD3DXBUFFER p_d3dx_adjacency_buffer{};
+  ::LPD3DXBUFFER p_d3dx_material_buffer{};
 
-  ::LPD3DXMESH _temp_mesh{};
-  _data = get_resource(
+  ::LPD3DXMESH temp_mesh{};
+  vecc_buffer = get_resource(
       "select data from x_file where filename = '" + a_krsz_xfile_name + "';");
-  _hresult = ::D3DXLoadMeshFromXInMemory(&_data[0],
-                                         static_cast<DWORD>(_data.size()),
+  hresult = ::D3DXLoadMeshFromXInMemory(&vecc_buffer[0],
+                                         static_cast<DWORD>(vecc_buffer.size()),
                                          ::D3DXMESH_SYSTEMMEM,
                                          a_krsp_direct3d_device9.get(),
-                                         &_p_d3dx_adjacency_buffer,
-                                         &_p_d3dx_material_buffer,
+                                         &p_d3dx_adjacency_buffer,
+                                         &p_d3dx_material_buffer,
                                          nullptr,
                                          &this->dw_materials_number_,
-                                         &_temp_mesh);
-  if (FAILED(_hresult)) {
+                                         &temp_mesh);
+  if (FAILED(hresult)) {
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to load a x-file."});
   }
-  this->up_d3dx_mesh_.reset(_temp_mesh);
+  this->up_d3dx_mesh_.reset(temp_mesh);
 
-  ::D3DVERTEXELEMENT9 _d3d_vertex_element9[] = {
+  ::D3DVERTEXELEMENT9 decl[] = {
       {
           0,
           0,
@@ -108,35 +108,35 @@ mesh::mesh(
       D3DDECL_END(),
   };
 
-  _hresult = this->up_d3dx_mesh_->CloneMesh(::D3DXMESH_MANAGED,
-                                            _d3d_vertex_element9,
+  hresult = this->up_d3dx_mesh_->CloneMesh(::D3DXMESH_MANAGED,
+                                            decl,
                                             a_krsp_direct3d_device9.get(),
-                                            &_temp_mesh);
-  if (FAILED(_hresult)) {
+                                            &temp_mesh);
+  if (FAILED(hresult)) {
     BOOST_THROW_EXCEPTION(custom_exception{"Failed 'CloneMesh' function."});
   }
-  this->up_d3dx_mesh_.reset(_temp_mesh);
-  DWORD* _buffer = static_cast<DWORD*>(
-      _p_d3dx_adjacency_buffer->GetBufferPointer());
+  this->up_d3dx_mesh_.reset(temp_mesh);
+  DWORD* pdw_buffer = static_cast<DWORD*>(
+      p_d3dx_adjacency_buffer->GetBufferPointer());
 
-  _hresult = ::D3DXComputeNormals(this->up_d3dx_mesh_.get(), _buffer);
+  hresult = ::D3DXComputeNormals(this->up_d3dx_mesh_.get(), pdw_buffer);
 
-  if (FAILED(_hresult)) {
+  if (FAILED(hresult)) {
     BOOST_THROW_EXCEPTION(
         custom_exception{"Failed 'D3DXComputeNormals' function."});
   }
 
-  _hresult = this->up_d3dx_mesh_->OptimizeInplace(
+  hresult = this->up_d3dx_mesh_->OptimizeInplace(
       ::D3DXMESHOPT_COMPACT
           | ::D3DXMESHOPT_ATTRSORT
           | ::D3DXMESHOPT_VERTEXCACHE,
-      _buffer,
+      pdw_buffer,
       nullptr,
       nullptr,
       nullptr);
-  safe_release(_p_d3dx_adjacency_buffer);
+  safe_release(p_d3dx_adjacency_buffer);
 
-  if (FAILED(_hresult)) {
+  if (FAILED(hresult)) {
     BOOST_THROW_EXCEPTION(
         custom_exception{"Failed 'OptimizeInplace' function."});
   }
@@ -145,35 +145,35 @@ mesh::mesh(
                               this->dw_materials_number_,
                               ::D3DCOLORVALUE{});
   std::vector<std::unique_ptr<::IDirect3DTexture9, custom_deleter> >
-      _temp_texture(this->dw_materials_number_);
-  this->vecup_mesh_texture_.swap(_temp_texture);
+      temp_texture(this->dw_materials_number_);
+  this->vecup_mesh_texture_.swap(temp_texture);
 
-  ::D3DXMATERIAL* _p_d3dx_materials =
-      static_cast<::D3DXMATERIAL*>(_p_d3dx_material_buffer->GetBufferPointer());
+  ::D3DXMATERIAL* p_d3dx_materials =
+      static_cast<::D3DXMATERIAL*>(p_d3dx_material_buffer->GetBufferPointer());
 
   for (::DWORD i{}; i < this->dw_materials_number_; ++i) {
-    this->vec_d3d_color_.at(i) = _p_d3dx_materials[i].MatD3D.Diffuse;
-    if (_p_d3dx_materials[i].pTextureFilename != nullptr) {
-      std::string _query;
-      _query = "select data from texture where filename = '";
-      _query += _p_d3dx_materials[i].pTextureFilename;
-      _query += "' and x_filename = '";
-      _query += a_krsz_xfile_name + "';";
+    this->vec_d3d_color_.at(i) = p_d3dx_materials[i].MatD3D.Diffuse;
+    if (p_d3dx_materials[i].pTextureFilename != nullptr) {
+      std::string sz_query;
+      sz_query = "select data from texture where filename = '";
+      sz_query += p_d3dx_materials[i].pTextureFilename;
+      sz_query += "' and x_filename = '";
+      sz_query += a_krsz_xfile_name + "';";
 
-      _data = get_resource(_query);
-      ::LPDIRECT3DTEXTURE9 _pp_temp_texture{};
+      vecc_buffer = get_resource(sz_query);
+      ::LPDIRECT3DTEXTURE9 p_temp_texture{};
       if (FAILED(
           ::D3DXCreateTextureFromFileInMemory(a_krsp_direct3d_device9.get(),
-                                              &_data[0],
-                                              static_cast<UINT>(_data.size()),
-                                              &_pp_temp_texture))) {
+                                              &vecc_buffer[0],
+                                              static_cast<UINT>(vecc_buffer.size()),
+                                              &p_temp_texture))) {
         BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
       } else {
-        this->vecup_mesh_texture_.at(i).reset(_pp_temp_texture);
+        this->vecup_mesh_texture_.at(i).reset(p_temp_texture);
       }
     }
   }
-  safe_release(_p_d3dx_material_buffer);
+  safe_release(p_d3dx_material_buffer);
 }
 
 void mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
@@ -181,23 +181,23 @@ void mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
             const ::D3DXVECTOR3& a_kr_light_position,
             const float& a_kr_brightness)
 {
-  ::D3DXMATRIX _matWorldViewProj{};
+  ::D3DXMATRIX mat_world_view_projection{};
   {
-    ::D3DXMATRIX _mat_world{};
-    ::D3DXMatrixIdentity(&_mat_world);
-    ::D3DXMatrixTranslation(&_mat_world,
+    ::D3DXMATRIX mat_world{};
+    ::D3DXMatrixIdentity(&mat_world);
+    ::D3DXMatrixTranslation(&mat_world,
         this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
 
-    _matWorldViewProj = _mat_world;
+    mat_world_view_projection = mat_world;
   }
-  _matWorldViewProj *= a_kr_mat_view;
-  _matWorldViewProj *= a_kr_mat_projection;
+  mat_world_view_projection *= a_kr_mat_view;
+  mat_world_view_projection *= a_kr_mat_projection;
 
   this->up_d3dx_effect_->SetMatrix(this->d3dx_handle_world_view_proj_,
-                                   &_matWorldViewProj);
-  ::D3DXVECTOR4 _light_position{a_kr_light_position, 1.0f};
+                                   &mat_world_view_projection);
+  ::D3DXVECTOR4 vec4_light_position{a_kr_light_position, 1.0f};
   this->up_d3dx_effect_->SetVector(
-      this->d3dx_handle_light_position_, &_light_position);
+      this->d3dx_handle_light_position_, &vec4_light_position);
   this->up_d3dx_effect_->SetFloat(
       this->d3dx_handle_brightness_, a_kr_brightness);
   this->up_d3dx_effect_->SetFloat(this->d3dx_handle_scale_, 1.0f);
@@ -209,12 +209,11 @@ void mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
     BOOST_THROW_EXCEPTION(custom_exception{"Failed 'BeginPass' function."});
   }
   for (::DWORD i{}; i < this->dw_materials_number_; ++i) {
-    ::D3DXVECTOR4 _color{this->vec_d3d_color_.at(i).r,
-                         this->vec_d3d_color_.at(i).g,
-                         this->vec_d3d_color_.at(i).b,
-                         1.0f };
-                         //this->vec_d3d_color_.at(i).a };
-    this->up_d3dx_effect_->SetVector(this->d3dx_handle_diffuse_, &_color);
+    ::D3DXVECTOR4 vec4_color{this->vec_d3d_color_.at(i).r,
+                             this->vec_d3d_color_.at(i).g,
+                             this->vec_d3d_color_.at(i).b,
+                             this->vec_d3d_color_.at(i).a};
+    this->up_d3dx_effect_->SetVector(this->d3dx_handle_diffuse_, &vec4_color);
     this->up_d3dx_effect_->SetTexture(this->d3dx_handle_texture_,
                                       this->vecup_mesh_texture_.at(i).get());
     this->up_d3dx_effect_->CommitChanges();
