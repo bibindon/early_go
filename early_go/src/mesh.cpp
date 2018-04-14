@@ -9,7 +9,8 @@ const std::string mesh::SHADER_FILENAME = "mesh_shader.fx";
 mesh::mesh(
     const std::shared_ptr<::IDirect3DDevice9>& a_krsp_direct3d_device9,
     const std::string& a_krsz_xfile_name,
-    const ::D3DXVECTOR3& a_kp_vec_position)
+    const ::D3DXVECTOR3& a_kp_vec_position,
+    const float& a_krf_size)
     : vec3_position_{a_kp_vec_position},
       up_d3dx_mesh_{nullptr, custom_deleter{}},
       dw_materials_number_{},
@@ -17,11 +18,13 @@ mesh::mesh(
       d3dx_handle_world_view_proj_{},
       d3dx_handle_light_normal_{},
       d3dx_handle_brightness_{},
-      d3dx_handle_scale_{},
       d3dx_handle_texture_{},
       d3dx_handle_diffuse_{},
       vec_d3d_color_{},
-      vecup_mesh_texture_{}
+      vecup_mesh_texture_{},
+      vec3_center_coodinate_{},
+      f_radius_{},
+      f_scale_{}
 {
   ::HRESULT hresult{};
 
@@ -49,13 +52,9 @@ mesh::mesh(
   this->d3dx_handle_light_normal_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_light_normal");
-
   this->d3dx_handle_brightness_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_light_brightness");
-  this->d3dx_handle_scale_ =
-      this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_model_scale");
   this->d3dx_handle_texture_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_texture");
@@ -178,6 +177,18 @@ mesh::mesh(
     }
   }
   safe_release(p_d3dx_material_buffer);
+
+  /* Calculate model size.  */
+  ::LPVOID pv_buffer{};
+  this->up_d3dx_mesh_->LockVertexBuffer(D3DLOCK_READONLY, &pv_buffer);
+  ::D3DXComputeBoundingSphere(static_cast<::D3DXVECTOR3 *>(pv_buffer),
+      this->up_d3dx_mesh_->GetNumVertices(),
+      this->up_d3dx_mesh_->GetNumBytesPerVertex(),
+      &this->vec3_center_coodinate_,
+      &this->f_radius_);
+  this->up_d3dx_mesh_->UnlockVertexBuffer();
+
+  this->f_scale_ = a_krf_size / this->f_radius_;
 }
 
 void mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
@@ -186,12 +197,23 @@ void mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
                   const float& a_kr_brightness)
 {
   ::D3DXMATRIXA16 mat_world_view_projection{};
+  ::D3DXMatrixIdentity(&mat_world_view_projection);
   {
-    ::D3DXMATRIXA16 mat_world{};
-    ::D3DXMatrixTranslation(&mat_world,
-        this->vec3_position_.x, this->vec3_position_.y, this->vec3_position_.z);
+    ::D3DXMATRIXA16 mat{};
 
-    mat_world_view_projection = mat_world;
+    ::D3DXMatrixTranslation(&mat,
+                            -this->vec3_center_coodinate_.x,
+                            -this->vec3_center_coodinate_.y,
+                            -this->vec3_center_coodinate_.z);
+    mat_world_view_projection *= mat;
+
+    ::D3DXMatrixScaling(&mat,
+        this->f_scale_, this->f_scale_, this->f_scale_);
+    mat_world_view_projection *= mat;
+
+    ::D3DXMatrixTranslation(&mat,
+        this->vec3_position_.x, this->vec3_position_.y, this->vec3_position_.z);
+    mat_world_view_projection *= mat;
   }
   mat_world_view_projection *= a_kr_mat_view;
   mat_world_view_projection *= a_kr_mat_projection;
@@ -202,8 +224,6 @@ void mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
                                    &a_kr_normal_light);
   this->up_d3dx_effect_->SetFloat(this->d3dx_handle_brightness_,
                                   a_kr_brightness);
-  this->up_d3dx_effect_->SetFloat(this->d3dx_handle_scale_, 1.0f);
-
   this->up_d3dx_effect_->Begin(nullptr, 0);
 
   if (FAILED(this->up_d3dx_effect_->BeginPass(0))) {

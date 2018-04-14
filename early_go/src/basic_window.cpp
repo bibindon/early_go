@@ -17,6 +17,7 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
       sp_id3dx_font_{},
       sp_animation_mesh_{},
       sp_skinned_animation_mesh_{},
+      sp_skinned_animation_mesh2_{},
       sp_mesh_{},
       sp_mesh2_{},
       mat_view_{},
@@ -136,17 +137,27 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
    this->sp_direct3d_device9_.reset(p_direct3d_device9, custom_deleter{});
   this->sp_animation_mesh_.reset(
       new_crt animation_mesh{this->sp_direct3d_device9_,
-                             constants::ANIMATION_MESH_FILE_NAME});
+                             constants::ANIMATION_MESH_FILE_NAME,
+                             ::D3DXVECTOR3{0.0f, 0.0f, 0.0f},
+                             1.0f});
   this->sp_skinned_animation_mesh_.reset(
       new_crt skinned_animation_mesh{this->sp_direct3d_device9_,
                              constants::SKINNED_ANIMATION_MESH_FILE_NAME,
-                             ::D3DXVECTOR3{1.0f, 0.0f, 0.0f}});
+                             ::D3DXVECTOR3{1.0f, 0.0f, 0.0f},
+                             1.0f});
+  this->sp_skinned_animation_mesh2_.reset(
+      new_crt skinned_animation_mesh{this->sp_direct3d_device9_,
+                             constants::SKINNED_ANIMATION_MESH_FILE_NAME2,
+                             ::D3DXVECTOR3{-1.0f, 0.0f, 0.0f},
+                             1.0f});
   this->sp_mesh_.reset(new_crt mesh{this->sp_direct3d_device9_,
                                     constants::MESH_FILE_NAME,
-                                    ::D3DXVECTOR3{-0.5f, 0.0f, 3.0f}});
+                                    ::D3DXVECTOR3{-0.5f, 0.0f, 3.0f},
+                                    1.0f});
   this->sp_mesh2_.reset(new_crt mesh{this->sp_direct3d_device9_,
                                      constants::MESH_FILE_NAME2,
-                                     ::D3DXVECTOR3{ 0.5f, -1.0f, 3.0f}});
+                                     ::D3DXVECTOR3{ 0.5f, 0.0f, 3.0f},
+                                     1.0f});
 
   /* ~ Create a Direct3D Device object. */
 
@@ -284,13 +295,17 @@ void basic_window::render()
                                     0);
    if (SUCCEEDED(this->sp_direct3d_device9_->BeginScene())) {
      this->sp_animation_mesh_->render(this->mat_view_,
-                                     this->mat_projection_,
-                                     vec4_light_direction,
-                                     this->light_brightness_);
+                                      this->mat_projection_,
+                                      vec4_light_direction,
+                                      this->light_brightness_);
      this->sp_skinned_animation_mesh_->render(this->mat_view_,
-                                       this->mat_projection_,
-                                       vec4_light_direction,
-                                       this->light_brightness_);
+                                              this->mat_projection_,
+                                              vec4_light_direction,
+                                              this->light_brightness_);
+     this->sp_skinned_animation_mesh2_->render(this->mat_view_,
+                                               this->mat_projection_,
+                                               vec4_light_direction,
+                                               this->light_brightness_);
      this->sp_mesh_->render(this->mat_view_,
                             this->mat_projection_,
                             vec4_light_direction,

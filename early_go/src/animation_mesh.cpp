@@ -62,7 +62,8 @@ void animation_mesh::frame_root_deleter_object::release_mesh_allocator(
 animation_mesh::animation_mesh(
     const std::shared_ptr<::IDirect3DDevice9>& a_krsp_direct3d_device9,
     const std::string& a_krsz_xfile_name,
-    const ::D3DXVECTOR3& a_kp_vec_position)
+    const ::D3DXVECTOR3& a_kp_vec_position,
+    const float& a_krf_size)
     : b_play_animation_{true},
       f_animation_time_{},
       sp_direct3d_device9_{a_krsp_direct3d_device9},
@@ -78,7 +79,6 @@ animation_mesh::animation_mesh(
       d3dx_handle_world_view_proj_{},
       d3dx_handle_light_normal_{},
       d3dx_handle_brightness_{},
-      d3dx_handle_scale_{},
       d3dx_handle_texture_{},
       d3dx_handle_diffuse_{}
 {
@@ -114,9 +114,6 @@ animation_mesh::animation_mesh(
   this->d3dx_handle_brightness_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_light_brightness");
-  this->d3dx_handle_scale_ =
-      this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_model_scale");
   this->d3dx_handle_texture_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_texture");
@@ -145,6 +142,11 @@ animation_mesh::animation_mesh(
   /* lazy initialization */
   this->up_d3dx_frame_root_.reset(p_temp_root_frame);
   this->up_d3dx_animation_controller_.reset(p_temp_d3dx_animation_controller);
+
+  ::D3DXFrameCalculateBoundingSphere(this->up_d3dx_frame_root_.get(),
+                                     &this->vec3_center_coodinate_,
+                                     &this->f_radius_);
+  this->f_scale_ = a_krf_size / this->f_radius_;
 }
 
 /* Renders its own animation mesh. */
@@ -169,8 +171,24 @@ void animation_mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
 
   ::D3DXMATRIXA16 mat_world{};
   ::D3DXMatrixIdentity(&mat_world);
-  ::D3DXMatrixTranslation(&mat_world,
-      this->vec3_position_.x, this->vec3_position_.y, this->vec3_position_.z);
+  {
+    ::D3DXMATRIXA16 mat{};
+    ::D3DXMatrixTranslation(&mat,
+                            -this->vec3_center_coodinate_.x,
+                            -this->vec3_center_coodinate_.y,
+                            -this->vec3_center_coodinate_.z);
+    mat_world *= mat;
+
+    ::D3DXMatrixScaling(&mat, this->f_scale_, this->f_scale_, this->f_scale_);
+    mat_world *= mat;
+
+    ::D3DXMatrixTranslation(&mat,
+                            this->vec3_position_.x,
+                            this->vec3_position_.y,
+                            this->vec3_position_.z);
+    mat_world *= mat;
+  }
+
   this->update_frame_matrix(this->up_d3dx_frame_root_.get(), &mat_world);
   this->render_frame(this->up_d3dx_frame_root_.get());
 
@@ -268,8 +286,6 @@ void animation_mesh::render_mesh_container(
 
   this->up_d3dx_effect_->SetMatrix(this->d3dx_handle_world_view_proj_,
                                    &mat_world_view_projection);
-
-  this->up_d3dx_effect_->SetFloat(this->d3dx_handle_scale_, 1.0f);
 
   this->up_d3dx_effect_->Begin(nullptr, 0);
 

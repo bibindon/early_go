@@ -8,7 +8,8 @@ class mesh
 public:
   mesh(const std::shared_ptr<::IDirect3DDevice9>&,
        const std::string&,
-       const ::D3DXVECTOR3& = ::D3DVECTOR{});
+       const ::D3DXVECTOR3&,
+       const float& a_krf_size);
 
   void render(const ::D3DXMATRIXA16&,
  const ::D3DXMATRIXA16&, const::D3DXVECTOR4&, const float&);
@@ -22,7 +23,6 @@ private:
   ::D3DXHANDLE                                   d3dx_handle_world_view_proj_;
   ::D3DXHANDLE                                   d3dx_handle_light_normal_;
   ::D3DXHANDLE                                   d3dx_handle_brightness_;
-  ::D3DXHANDLE                                   d3dx_handle_scale_;
   ::D3DXHANDLE                                   d3dx_handle_texture_;
   ::D3DXHANDLE                                   d3dx_handle_diffuse_;
   std::vector<::D3DCOLORVALUE>                   vec_d3d_color_;
@@ -31,6 +31,9 @@ private:
           ::IDirect3DTexture9, custom_deleter
       >
   > vecup_mesh_texture_;
+  ::D3DXVECTOR3 vec3_center_coodinate_;
+  float         f_radius_;
+  float         f_scale_;
 };
 } /* namespace early_go */
 #endif

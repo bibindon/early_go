@@ -13,7 +13,8 @@ class skinned_animation_mesh {
 public:
   skinned_animation_mesh(const std::shared_ptr<::IDirect3DDevice9>&,
                          const std::string&,
-                         const ::D3DXVECTOR3& = ::D3DVECTOR{});
+                         const ::D3DXVECTOR3&,
+                         const float&);
   void render(const ::D3DXMATRIXA16&,
  const ::D3DXMATRIXA16&, const::D3DXVECTOR4&, const float&);
   bool get_play_animation() const;
@@ -47,7 +48,11 @@ private:
       up_d3dx_animation_controller_;
   ::D3DXVECTOR3                              vec3_position_;
   ::D3DXMATRIXA16                            mat_rotation_;
-  std::vector<::D3DXMATRIXA16>               vecmat_world_matrix_array;
+  std::vector<::D3DXMATRIXA16>               vecmat_world_matrix_array_;
+
+  ::D3DXVECTOR3 vec3_center_coodinate_{};
+  float         f_radius_{};
+  float         f_scale_{};
 
   // For effect.
   std::unique_ptr<::ID3DXEffect, custom_deleter> up_d3dx_effect_;

@@ -66,7 +66,8 @@ void skinned_animation_mesh::frame_root_deleter_object::release_mesh_allocator(
 skinned_animation_mesh::skinned_animation_mesh(
     const std::shared_ptr<::IDirect3DDevice9>& a_krsp_direct3d_device9,
     const std::string& a_krsz_xfile_name,
-    const ::D3DXVECTOR3& a_kp_vec_position)
+    const ::D3DXVECTOR3& a_kp_vec_position,
+    const float& a_krf_size)
     : b_play_animation_{true},
       f_animation_time_{},
       sp_direct3d_device9_{a_krsp_direct3d_device9},
@@ -115,10 +116,6 @@ skinned_animation_mesh::skinned_animation_mesh(
   this->d3dx_handle_brightness_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_light_brightness");
-// TODO Improve
-//  this->d3dx_handle_scale_ =
-//      this->up_d3dx_effect_->GetParameterByName(nullptr,
-//                                                "hlsl_model_scale");
   this->d3dx_handle_texture_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_texture");
@@ -167,6 +164,11 @@ skinned_animation_mesh::skinned_animation_mesh(
   // up_d3dx_animation_controller_->SetTrackAnimationSet(
   //     0, vecp_animation_set.at(3));
   /* ~ TODO Improve */
+
+  ::D3DXFrameCalculateBoundingSphere(this->up_d3dx_frame_root_.get(),
+                                     &this->vec3_center_coodinate_,
+                                     &this->f_radius_);
+  this->f_scale_ = a_krf_size / this->f_radius_;
 }
 
 /* Renders its own animation mesh. */
@@ -193,8 +195,25 @@ void skinned_animation_mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
   }
 
   ::D3DXMATRIXA16 mat_world{};
-  ::D3DXMatrixTranslation(&mat_world,
-      this->vec3_position_.x, this->vec3_position_.y, this->vec3_position_.z);
+  ::D3DXMatrixIdentity(&mat_world);
+  {
+    ::D3DXMATRIXA16 mat{};
+    ::D3DXMatrixTranslation(&mat,
+                            -this->vec3_center_coodinate_.x,
+                            -this->vec3_center_coodinate_.y,
+                            -this->vec3_center_coodinate_.z);
+    mat_world *= mat;
+
+    ::D3DXMatrixScaling(&mat, this->f_scale_, this->f_scale_, this->f_scale_);
+    mat_world *= mat;
+
+    ::D3DXMatrixTranslation(&mat,
+                            this->vec3_position_.x,
+                            this->vec3_position_.y,
+                            this->vec3_position_.z);
+    mat_world *= mat;
+  }
+
   this->update_frame_matrix(this->up_d3dx_frame_root_.get(), &mat_world);
   this->render_frame(this->up_d3dx_frame_root_.get());
 
@@ -292,18 +311,18 @@ void skinned_animation_mesh::render_mesh_container(
 
   const ::DWORD dw_palette_size = p_mesh_container->dw_palette_size_;
 
-  for (::DWORD i{}; i < p_mesh_container->dw_bone_amount_; i++) {
+  for (::DWORD i{}; i < p_mesh_container->dw_bone_amount_; ++i) {
     for (::DWORD k{}; k < dw_palette_size; ++k) {
       ::DWORD dw_bone_id = p_bone_combination[i].BoneId[k];
       if (dw_bone_id == UINT_MAX) {
         continue;
       }
-      vecmat_world_matrix_array[k] =
+      vecmat_world_matrix_array_[k] =
           p_mesh_container->vec_bone_offset_matrices_[dw_bone_id]
               * (*p_mesh_container->vecp_frame_combined_matrix_[dw_bone_id]);
     }
     this->up_d3dx_effect_->SetMatrixArray("hlsl_world_matrix_array",
-        &vecmat_world_matrix_array[0], dw_palette_size);
+        &vecmat_world_matrix_array_[0], dw_palette_size);
 
     ::DWORD bone_id = p_bone_combination[i].AttribId;
     ::D3DXVECTOR4 vec4_color{
@@ -341,7 +360,7 @@ void skinned_animation_mesh::render_mesh_container(
 
   // TODO Improve.
   ::UINT MAX_MATRICES = 26;
-  this->vecmat_world_matrix_array.resize(min(MAX_MATRICES, dw_bone_amount));
+  this->vecmat_world_matrix_array_.resize(min(MAX_MATRICES, dw_bone_amount));
 
   this->up_d3dx_effect_->SetInt("current_bone_numbers",
       p_mesh_container->dw_influence_number_ - 1);

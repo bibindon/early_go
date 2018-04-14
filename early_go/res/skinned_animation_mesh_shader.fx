@@ -1,7 +1,6 @@
 float4 hlsl_light_normal;
 float  hlsl_light_brightness;
 float4 hlsl_light_diffuse = { 1.0f, 0.0f, 0.0f, 1.0f }; // TODO
-float  hlsl_model_scale; // TODO
 float4 hlsl_diffuse;
 float4 hlsl_ambient = { 0.3f, 0.3f, 0.3f, 0.0f };
 

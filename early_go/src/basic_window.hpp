@@ -36,6 +36,7 @@ private:
   std::shared_ptr<::ID3DXFont>                  sp_id3dx_font_;
   std::shared_ptr<animation_mesh>               sp_animation_mesh_;
   std::shared_ptr<skinned_animation_mesh>       sp_skinned_animation_mesh_;
+  std::shared_ptr<skinned_animation_mesh>       sp_skinned_animation_mesh2_;
   std::shared_ptr<mesh>                         sp_mesh_;
   std::shared_ptr<mesh>                         sp_mesh2_;
 

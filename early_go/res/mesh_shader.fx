@@ -2,7 +2,6 @@ float4x4 hlsl_world;
 float4x4 hlsl_world_view_projection;
 float4   hlsl_light_normal;
 float    hlsl_light_brightness;
-float    hlsl_model_scale;
 float4   hlsl_diffuse;
 float4   hlsl_ambient = { 0.3f, 0.3f, 0.3f, 0.0f };
 

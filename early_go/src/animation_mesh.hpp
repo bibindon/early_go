@@ -13,9 +13,10 @@ class animation_mesh {
 public:
   animation_mesh(const std::shared_ptr<::IDirect3DDevice9>&,
                  const std::string&,
-                 const ::D3DXVECTOR3& = ::D3DVECTOR{});
+                 const ::D3DXVECTOR3&,
+                 const float&);
   void render(const ::D3DXMATRIXA16&,
- const ::D3DXMATRIXA16&, const::D3DXVECTOR4&, const float&);
+  const ::D3DXMATRIXA16&, const::D3DXVECTOR4&, const float&);
   bool get_play_animation() const;
   void set_play_animation(const bool&);
   float get_animation_time() const;
@@ -48,13 +49,16 @@ private:
   ::D3DXMATRIXA16                            mat_view_;
   ::D3DXMATRIXA16                            mat_projection_;
 
+  ::D3DXVECTOR3 vec3_center_coodinate_{};
+  float         f_radius_{};
+  float         f_scale_{};
+
   // For effect.
   std::unique_ptr<::ID3DXEffect, custom_deleter> up_d3dx_effect_;
   ::D3DXHANDLE                                   d3dx_handle_world_;
   ::D3DXHANDLE                                   d3dx_handle_world_view_proj_;
   ::D3DXHANDLE                                   d3dx_handle_light_normal_;
   ::D3DXHANDLE                                   d3dx_handle_brightness_;
-  ::D3DXHANDLE                                   d3dx_handle_scale_;
   ::D3DXHANDLE                                   d3dx_handle_texture_;
   ::D3DXHANDLE                                   d3dx_handle_diffuse_;
 
