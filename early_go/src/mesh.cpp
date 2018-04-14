@@ -4,16 +4,18 @@
 
 namespace early_go {
 
+const std::string mesh::SHADER_FILENAME = "mesh_shader.fx";
+
 mesh::mesh(
     const std::shared_ptr<::IDirect3DDevice9>& a_krsp_direct3d_device9,
     const std::string& a_krsz_xfile_name,
     const ::D3DXVECTOR3& a_kp_vec_position)
-    : vec_position_{a_kp_vec_position},
+    : vec3_position_{a_kp_vec_position},
       up_d3dx_mesh_{nullptr, custom_deleter{}},
       dw_materials_number_{},
       up_d3dx_effect_{nullptr, custom_deleter{}},
       d3dx_handle_world_view_proj_{},
-      d3dx_handle_light_position_{},
+      d3dx_handle_light_normal_{},
       d3dx_handle_brightness_{},
       d3dx_handle_scale_{},
       d3dx_handle_texture_{},
@@ -25,7 +27,7 @@ mesh::mesh(
 
   std::vector<char> vecc_buffer = get_resource(
       "select data from shader_file where filename = '"
-      + constants::MESH_HLSL + "';");
+      + this->SHADER_FILENAME + "';");
   ::LPD3DXEFFECT p_d3dx_temp_effect{};
   ::D3DXCreateEffect(a_krsp_direct3d_device9.get(),
                      &vecc_buffer[0],
@@ -44,9 +46,10 @@ mesh::mesh(
   this->d3dx_handle_world_view_proj_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_world_view_projection");
-  this->d3dx_handle_light_position_ =
+  this->d3dx_handle_light_normal_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_light_position");
+                                                "hlsl_light_normal");
+
   this->d3dx_handle_brightness_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_light_brightness");
@@ -66,15 +69,16 @@ mesh::mesh(
   ::LPD3DXMESH temp_mesh{};
   vecc_buffer = get_resource(
       "select data from x_file where filename = '" + a_krsz_xfile_name + "';");
-  hresult = ::D3DXLoadMeshFromXInMemory(&vecc_buffer[0],
-                                         static_cast<DWORD>(vecc_buffer.size()),
-                                         ::D3DXMESH_SYSTEMMEM,
-                                         a_krsp_direct3d_device9.get(),
-                                         &p_d3dx_adjacency_buffer,
-                                         &p_d3dx_material_buffer,
-                                         nullptr,
-                                         &this->dw_materials_number_,
-                                         &temp_mesh);
+  hresult = ::D3DXLoadMeshFromXInMemory(
+      &vecc_buffer[0],
+      static_cast<::DWORD>(vecc_buffer.size()),
+      ::D3DXMESH_SYSTEMMEM,
+      a_krsp_direct3d_device9.get(),
+      &p_d3dx_adjacency_buffer,
+      &p_d3dx_material_buffer,
+      nullptr,
+      &this->dw_materials_number_,
+      &temp_mesh);
   if (FAILED(hresult)) {
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to load a x-file."});
   }
@@ -178,14 +182,14 @@ mesh::mesh(
 
 void mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
                   const ::D3DXMATRIXA16& a_kr_mat_projection,
-                  const ::D3DXVECTOR3& a_kr_light_position,
+                  const::D3DXVECTOR4 & a_kr_normal_light,
                   const float& a_kr_brightness)
 {
   ::D3DXMATRIXA16 mat_world_view_projection{};
   {
     ::D3DXMATRIXA16 mat_world{};
     ::D3DXMatrixTranslation(&mat_world,
-        this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
+        this->vec3_position_.x, this->vec3_position_.y, this->vec3_position_.z);
 
     mat_world_view_projection = mat_world;
   }
@@ -194,11 +198,10 @@ void mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
 
   this->up_d3dx_effect_->SetMatrix(this->d3dx_handle_world_view_proj_,
                                    &mat_world_view_projection);
-  ::D3DXVECTOR4 vec4_light_position{a_kr_light_position, 1.0f};
-  this->up_d3dx_effect_->SetVector(
-      this->d3dx_handle_light_position_, &vec4_light_position);
-  this->up_d3dx_effect_->SetFloat(
-      this->d3dx_handle_brightness_, a_kr_brightness);
+  this->up_d3dx_effect_->SetVector(this->d3dx_handle_light_normal_,
+                                   &a_kr_normal_light);
+  this->up_d3dx_effect_->SetFloat(this->d3dx_handle_brightness_,
+                                  a_kr_brightness);
   this->up_d3dx_effect_->SetFloat(this->d3dx_handle_scale_, 1.0f);
 
   this->up_d3dx_effect_->Begin(nullptr, 0);

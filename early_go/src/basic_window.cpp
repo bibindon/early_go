@@ -21,8 +21,8 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
       sp_mesh2_{},
       mat_view_{},
       mat_projection_{},
-      light_position_{5.0f, 1.0f, -1.0f},
-      light_brightness_{100.0f},
+      light_direction_{-1.0f, 0.0f, 0.0f},
+      light_brightness_{1.0f},
       vec_eye_position_{0.0f, 2.0f, -4.0f},
       vec_look_at_position_{0.0f, 0.0f, 0.0f}
 {
@@ -206,6 +206,7 @@ void basic_window::render()
 
 
 
+  ::D3DXVECTOR4 vec4_light_direction{};
   {
     if (::GetAsyncKeyState('I') & 0x8000) {
       this->vec_eye_position_.z += 0.02f;
@@ -235,23 +236,29 @@ void basic_window::render()
       ::PostQuitMessage(0);
     }
     if (::GetAsyncKeyState('F') & 0x8000) {
-      this->light_position_.x += 0.2f;
+      this->light_direction_.x += 0.2f;
     }
     if (::GetAsyncKeyState('S') & 0x8000) {
-      this->light_position_.x -= 0.2f;
+      this->light_direction_.x -= 0.2f;
     }
     if (::GetAsyncKeyState('E') & 0x8000) {
-      this->light_position_.z += 0.2f;
+      this->light_direction_.z += 0.2f;
     }
     if (::GetAsyncKeyState('D') & 0x8000) {
-      this->light_position_.z -= 0.2f;
+      this->light_direction_.z -= 0.2f;
     }
     if (::GetAsyncKeyState('T') & 0x8000) {
-      this->light_position_.y += 0.2f;
+      this->light_direction_.y += 0.2f;
     }
     if (::GetAsyncKeyState('G') & 0x8000) {
-      this->light_position_.y -= 0.2f;
+      this->light_direction_.y -= 0.2f;
     }
+    vec4_light_direction.x = this->light_direction_.x;
+    vec4_light_direction.y = this->light_direction_.y;
+    vec4_light_direction.z = this->light_direction_.z;
+    vec4_light_direction.w = 1.0f;
+    ::D3DXVec4Normalize(&vec4_light_direction, &vec4_light_direction);
+
 
     ::D3DXVECTOR3 vec_up_vector { 0.0f, 1.0f, 0.0f};
     ::D3DXMatrixLookAtLH(&this->mat_view_,
@@ -278,22 +285,26 @@ void basic_window::render()
    if (SUCCEEDED(this->sp_direct3d_device9_->BeginScene())) {
      this->sp_animation_mesh_->render(this->mat_view_,
                                      this->mat_projection_,
-                                     this->light_position_,
+                                     vec4_light_direction,
                                      this->light_brightness_);
      this->sp_skinned_animation_mesh_->render(this->mat_view_,
                                        this->mat_projection_,
-                                       this->light_position_,
+                                       vec4_light_direction,
                                        this->light_brightness_);
      this->sp_mesh_->render(this->mat_view_,
                             this->mat_projection_,
-                            this->light_position_,
+                            vec4_light_direction,
                             this->light_brightness_);
      this->sp_mesh2_->render(this->mat_view_,
                             this->mat_projection_,
-                            this->light_position_,
+                            vec4_light_direction,
                             this->light_brightness_);
 
     render_string_object::render_string(std::to_string(f_fps), 10, 30);
+    render_string_object::render_string(std::to_string(vec4_light_direction.x), 10, 50);
+    render_string_object::render_string(std::to_string(vec4_light_direction.y), 10, 70);
+    render_string_object::render_string(std::to_string(vec4_light_direction.z), 10, 90);
+    render_string_object::render_string(std::to_string(vec4_light_direction.w), 10, 110);
 
     this->sp_direct3d_device9_->EndScene();
   }

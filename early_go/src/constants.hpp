@@ -19,7 +19,7 @@ namespace constants {
   const static std::string MESH_FILE_NAME2 = "Dwarf.x";
   const static std::string ANIMATION_MESH_FILE_NAME = "RobotArm.x";
   const static std::string SKINNED_ANIMATION_MESH_FILE_NAME = "wolf.x";
-  const static std::string MESH_HLSL = "mesh_shader.fx";
+  // const static std::string SKINNED_ANIMATION_MESH_FILE_NAME = "tiny.x";
 } /* namespace constants */
 } /* namespace early_go */
 #endif

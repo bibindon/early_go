@@ -5,6 +5,7 @@
 #include "basic_window.hpp"
 
 namespace early_go {
+const std::string animation_mesh::SHADER_FILENAME = "animation_mesh_shader.fx";
 /* A custom deleter. */
 void animation_mesh::frame_root_deleter_object::operator()(
     const ::LPD3DXFRAME a_kp_d3dx_frame_root_)
@@ -70,11 +71,12 @@ animation_mesh::animation_mesh(
       up_d3dx_frame_root_{nullptr,
           frame_root_deleter_object{sp_animation_mesh_allocator_}},
       up_d3dx_animation_controller_{nullptr, custom_deleter{}},
-      vec_position_{a_kp_vec_position},
+      vec3_position_{a_kp_vec_position},
       mat_rotation_{::D3DMATRIX{}},
       up_d3dx_effect_{nullptr, custom_deleter{}},
+      d3dx_handle_world_{},
       d3dx_handle_world_view_proj_{},
-      d3dx_handle_light_position_{},
+      d3dx_handle_light_normal_{},
       d3dx_handle_brightness_{},
       d3dx_handle_scale_{},
       d3dx_handle_texture_{},
@@ -84,7 +86,7 @@ animation_mesh::animation_mesh(
 
   std::vector<char> vecc_buffer = get_resource(
       "select data from shader_file where filename = '"
-      + constants::MESH_HLSL + "';");
+      + this->SHADER_FILENAME + "';");
   ::LPD3DXEFFECT temp_p_d3dx_effect{};
   ::D3DXCreateEffect(a_krsp_direct3d_device9.get(),
                      &vecc_buffer[0],
@@ -100,12 +102,15 @@ animation_mesh::animation_mesh(
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to create an effect file."});
   }
 
+  this->d3dx_handle_world_ =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "hlsl_world");
   this->d3dx_handle_world_view_proj_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_world_view_projection");
-  this->d3dx_handle_light_position_ =
+  this->d3dx_handle_light_normal_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_light_position");
+                                                "hlsl_light_normal");
   this->d3dx_handle_brightness_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_light_brightness");
@@ -145,15 +150,14 @@ animation_mesh::animation_mesh(
 /* Renders its own animation mesh. */
 void animation_mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
                             const ::D3DXMATRIXA16& a_kr_mat_projection,
-                            const ::D3DXVECTOR3& a_kr_light_position,
+                            const::D3DXVECTOR4 & a_kr_normal_light,
                             const float& a_kr_brightness)
 {
   this->mat_view_ = a_kr_mat_view;
   this->mat_projection_ = a_kr_mat_projection;
 
-  ::D3DXVECTOR4 vec4_light_position{a_kr_light_position, 1.0f};
   this->up_d3dx_effect_->SetVector(
-      this->d3dx_handle_light_position_, &vec4_light_position);
+      this->d3dx_handle_light_normal_, &a_kr_normal_light);
   this->up_d3dx_effect_->SetFloat(
       this->d3dx_handle_brightness_, a_kr_brightness);
 
@@ -166,7 +170,7 @@ void animation_mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
   ::D3DXMATRIXA16 mat_world{};
   ::D3DXMatrixIdentity(&mat_world);
   ::D3DXMatrixTranslation(&mat_world,
-      this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
+      this->vec3_position_.x, this->vec3_position_.y, this->vec3_position_.z);
   this->update_frame_matrix(this->up_d3dx_frame_root_.get(), &mat_world);
   this->render_frame(this->up_d3dx_frame_root_.get());
 
@@ -255,6 +259,9 @@ void animation_mesh::render_mesh_container(
 
   ::D3DXMATRIXA16 mat_world_view_projection{
       p_frame->combined_transformation_matrix_};
+
+  this->up_d3dx_effect_->SetMatrix(this->d3dx_handle_world_,
+                                   &mat_world_view_projection);
 
   mat_world_view_projection *= this->mat_view_;
   mat_world_view_projection *= this->mat_projection_;

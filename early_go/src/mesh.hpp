@@ -10,16 +10,17 @@ public:
        const std::string&,
        const ::D3DXVECTOR3& = ::D3DVECTOR{});
 
-  void render(const ::D3DXMATRIXA16&, const ::D3DXMATRIXA16&,
-              const ::D3DXVECTOR3& , const float&);
+  void render(const ::D3DXMATRIXA16&,
+ const ::D3DXMATRIXA16&, const::D3DXVECTOR4&, const float&);
 
 private:
-  ::D3DXVECTOR3                                  vec_position_;
+  const static std::string                       SHADER_FILENAME;
+  ::D3DXVECTOR3                                  vec3_position_;
   std::unique_ptr<::ID3DXMesh, custom_deleter>   up_d3dx_mesh_;
   ::DWORD                                        dw_materials_number_;
   std::unique_ptr<::ID3DXEffect, custom_deleter> up_d3dx_effect_;
   ::D3DXHANDLE                                   d3dx_handle_world_view_proj_;
-  ::D3DXHANDLE                                   d3dx_handle_light_position_;
+  ::D3DXHANDLE                                   d3dx_handle_light_normal_;
   ::D3DXHANDLE                                   d3dx_handle_brightness_;
   ::D3DXHANDLE                                   d3dx_handle_scale_;
   ::D3DXHANDLE                                   d3dx_handle_texture_;

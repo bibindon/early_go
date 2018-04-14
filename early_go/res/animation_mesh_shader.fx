@@ -15,6 +15,8 @@ void vertex_shader(
     out float4 out_diffuse  : COLOR0,
     out float4 out_texture  : TEXCOORD0) {
     out_position  = mul(in_position, hlsl_world_view_projection);
+    in_normal = mul(in_normal, hlsl_world);
+    in_normal = normalize(in_normal);
 
     float light_intensity = hlsl_light_brightness
         * dot(in_normal, hlsl_light_normal);

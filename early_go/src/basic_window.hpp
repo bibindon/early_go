@@ -41,7 +41,7 @@ private:
 
   ::D3DXMATRIXA16                               mat_view_;
   ::D3DXMATRIXA16                               mat_projection_;
-  ::D3DXVECTOR3                                 light_position_;
+  ::D3DXVECTOR3                                 light_direction_;
   float                                         light_brightness_;
   ::D3DXVECTOR3                                 vec_eye_position_;
   ::D3DXVECTOR3                                 vec_look_at_position_;

@@ -76,10 +76,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="res\skinned_mesh_shader.fx">
+    <FxCompile Include="res\mesh_shader.fx">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
-    <FxCompile Include="res\mesh_shader.fx">
+    <FxCompile Include="res\animation_mesh_shader.fx">
+      <Filter>リソース ファイル</Filter>
+    </FxCompile>
+    <FxCompile Include="res\skinned_animation_mesh_shader.fx">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
   </ItemGroup>

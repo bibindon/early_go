@@ -7,8 +7,8 @@
 namespace early_go {
 // TODO Improve. attention to memory leak.
   std::vector<::LPD3DXANIMATIONSET> vecp_animation_set;
-  const std::string skinned_animation_mesh::SKINNED_MESH_HLSL =
-      "skinned_mesh_shader.fx";
+  const std::string skinned_animation_mesh::SHADER_FILENAME =
+      "skinned_animation_mesh_shader.fx";
 
 /* A custom deleter. */
 void skinned_animation_mesh::frame_root_deleter_object::operator()(
@@ -75,11 +75,11 @@ skinned_animation_mesh::skinned_animation_mesh(
       up_d3dx_frame_root_{nullptr,
           frame_root_deleter_object{sp_skinned_animation_mesh_allocator_}},
       up_d3dx_animation_controller_{nullptr, custom_deleter{}},
-      vec_position_{a_kp_vec_position},
+      vec3_position_{a_kp_vec_position},
       mat_rotation_{::D3DMATRIX{}},
       up_d3dx_effect_{nullptr, custom_deleter{}},
-      d3dx_handle_projection_{},
-      d3dx_handle_light_position_{},
+      d3dx_handle_view_projection_{},
+      d3dx_handle_light_normal_{},
       d3dx_handle_brightness_{},
       d3dx_handle_scale_{},
       d3dx_handle_texture_{},
@@ -89,7 +89,7 @@ skinned_animation_mesh::skinned_animation_mesh(
 
   std::vector<char> vecc_buffer = get_resource(
       "select data from shader_file where filename = '"
-      + this->SKINNED_MESH_HLSL + "';");
+      + this->SHADER_FILENAME + "';");
   ::LPD3DXEFFECT temp_p_d3dx_effect{};
   ::D3DXCreateEffect(a_krsp_direct3d_device9.get(),
                      &vecc_buffer[0],
@@ -105,12 +105,13 @@ skinned_animation_mesh::skinned_animation_mesh(
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to create an effect file."});
   }
 
-  this->d3dx_handle_projection_ =
+  this->d3dx_handle_view_projection_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_projection");
-  this->d3dx_handle_light_position_ =
+                                                "hlsl_view_projection");
+  this->d3dx_handle_light_normal_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_light_position");
+                                                "hlsl_light_normal");
+
   this->d3dx_handle_brightness_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "hlsl_light_brightness");
@@ -157,31 +158,31 @@ skinned_animation_mesh::skinned_animation_mesh(
         i, &vecp_animation_set.at(i));
   }
 
-  D3DXTRACK_DESC track_desc{};
+  // D3DXTRACK_DESC track_desc{};
 
-  track_desc.Weight = 1;
-  track_desc.Speed  = 1;
-  track_desc.Enable = 1;
-  up_d3dx_animation_controller_->SetTrackDesc(3, &track_desc);
-  up_d3dx_animation_controller_->SetTrackAnimationSet(
-      0, vecp_animation_set.at(3));
+  // track_desc.Weight = 1;
+  // track_desc.Speed  = 1;
+  // track_desc.Enable = 1;
+  // up_d3dx_animation_controller_->SetTrackDesc(3, &track_desc);
+  // up_d3dx_animation_controller_->SetTrackAnimationSet(
+  //     0, vecp_animation_set.at(3));
   /* ~ TODO Improve */
 }
 
 /* Renders its own animation mesh. */
 void skinned_animation_mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
                                     const ::D3DXMATRIXA16& a_kr_mat_projection,
-                                    const ::D3DXVECTOR3& a_kr_light_position,
+                                    const ::D3DXVECTOR4 & a_kr_normal_light,
                                     const float& a_kr_brightness)
 {
-  this->mat_view_ = a_kr_mat_view;
+  ::D3DXMATRIXA16 mat_view_projection{a_kr_mat_view * a_kr_mat_projection};
 
-  this->up_d3dx_effect_->SetMatrix(this->d3dx_handle_projection_,
-                                   &a_kr_mat_projection);
+  this->up_d3dx_effect_->SetMatrix(
+      this->d3dx_handle_view_projection_, &mat_view_projection);
 
-  ::D3DXVECTOR4 vec4_light_position{a_kr_light_position, 1.0f};
   this->up_d3dx_effect_->SetVector(
-      this->d3dx_handle_light_position_, &vec4_light_position);
+      this->d3dx_handle_light_normal_, &a_kr_normal_light);
+
   this->up_d3dx_effect_->SetFloat(
       this->d3dx_handle_brightness_, a_kr_brightness);
 
@@ -193,7 +194,7 @@ void skinned_animation_mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
 
   ::D3DXMATRIXA16 mat_world{};
   ::D3DXMatrixTranslation(&mat_world,
-      this->vec_position_.x, this->vec_position_.y, this->vec_position_.z);
+      this->vec3_position_.x, this->vec3_position_.y, this->vec3_position_.z);
   this->update_frame_matrix(this->up_d3dx_frame_root_.get(), &mat_world);
   this->render_frame(this->up_d3dx_frame_root_.get());
 
@@ -297,11 +298,9 @@ void skinned_animation_mesh::render_mesh_container(
       if (dw_bone_id == UINT_MAX) {
         continue;
       }
-      ::D3DXMATRIXA16 mat =
+      vecmat_world_matrix_array[k] =
           p_mesh_container->vec_bone_offset_matrices_[dw_bone_id]
               * (*p_mesh_container->vecp_frame_combined_matrix_[dw_bone_id]);
-
-      vecmat_world_matrix_array[k] = mat * this->mat_view_;
     }
     this->up_d3dx_effect_->SetMatrixArray("hlsl_world_matrix_array",
         &vecmat_world_matrix_array[0], dw_palette_size);

@@ -14,8 +14,8 @@ public:
   skinned_animation_mesh(const std::shared_ptr<::IDirect3DDevice9>&,
                          const std::string&,
                          const ::D3DXVECTOR3& = ::D3DVECTOR{});
-  void render(const ::D3DXMATRIXA16&, const ::D3DXMATRIXA16&,
-              const ::D3DXVECTOR3& , const float&);
+  void render(const ::D3DXMATRIXA16&,
+ const ::D3DXMATRIXA16&, const::D3DXVECTOR4&, const float&);
   bool get_play_animation() const;
   void set_play_animation(const bool&);
   float get_animation_time() const;
@@ -35,8 +35,7 @@ private:
     void release_mesh_allocator(const ::LPD3DXFRAME);
   };
 
-  const static std::string                   SKINNED_MESH_HLSL;
-
+  const static std::string                   SHADER_FILENAME;
   bool                                       b_play_animation_;
   float                                      f_animation_time_;
   std::shared_ptr<::IDirect3DDevice9>        sp_direct3d_device9_;
@@ -46,15 +45,14 @@ private:
       up_d3dx_frame_root_;
   std::unique_ptr<::ID3DXAnimationController, custom_deleter>
       up_d3dx_animation_controller_;
-  ::D3DXVECTOR3                              vec_position_;
+  ::D3DXVECTOR3                              vec3_position_;
   ::D3DXMATRIXA16                            mat_rotation_;
-  ::D3DXMATRIXA16                            mat_view_;
   std::vector<::D3DXMATRIXA16>               vecmat_world_matrix_array;
 
   // For effect.
   std::unique_ptr<::ID3DXEffect, custom_deleter> up_d3dx_effect_;
-  ::D3DXHANDLE                                   d3dx_handle_projection_;
-  ::D3DXHANDLE                                   d3dx_handle_light_position_;
+  ::D3DXHANDLE                                   d3dx_handle_view_projection_;
+  ::D3DXHANDLE                                   d3dx_handle_light_normal_;
   ::D3DXHANDLE                                   d3dx_handle_brightness_;
   ::D3DXHANDLE                                   d3dx_handle_scale_;
   ::D3DXHANDLE                                   d3dx_handle_texture_;
