@@ -11,8 +11,10 @@ public:
        const ::D3DXVECTOR3&,
        const float& a_krf_size);
 
-  void render(const ::D3DXMATRIXA16&,
- const ::D3DXMATRIXA16&, const::D3DXVECTOR4&, const float&);
+  void render(const ::D3DXMATRIX&,
+              const ::D3DXMATRIX&,
+              const::D3DXVECTOR4&,
+              const float&);
 
 private:
   const static std::string                       SHADER_FILENAME;

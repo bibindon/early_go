@@ -15,8 +15,12 @@ public:
                  const std::string&,
                  const ::D3DXVECTOR3&,
                  const float&);
-  void render(const ::D3DXMATRIXA16&,
-  const ::D3DXMATRIXA16&, const::D3DXVECTOR4&, const float&);
+  void play_animation_set(const std::size_t&);
+  void play_animation_set(const std::string&);
+  void render(const ::D3DXMATRIX&,
+              const ::D3DXMATRIX&,
+              const::D3DXVECTOR4&,
+              const float&);
   bool get_play_animation() const;
   void set_play_animation(const bool&);
   float get_animation_time() const;
@@ -36,6 +40,11 @@ private:
   };
 
   const static std::string                   SHADER_FILENAME;
+  std::vector<
+      std::unique_ptr<
+          ::ID3DXAnimationSet, custom_deleter
+      >
+  > vecup_animation_set_;
   bool                                       b_play_animation_;
   float                                      f_animation_time_;
   std::shared_ptr<::IDirect3DDevice9>        sp_direct3d_device9_;
@@ -45,9 +54,9 @@ private:
   std::unique_ptr<::ID3DXAnimationController,
                   custom_deleter>            up_d3dx_animation_controller_;
   ::D3DXVECTOR3                              vec3_position_;
-  ::D3DXMATRIXA16                            mat_rotation_;
-  ::D3DXMATRIXA16                            mat_view_;
-  ::D3DXMATRIXA16                            mat_projection_;
+  ::D3DXMATRIX                               mat_rotation_;
+  ::D3DXMATRIX                               mat_view_;
+  ::D3DXMATRIX                               mat_projection_;
 
   ::D3DXVECTOR3 vec3_center_coodinate_{};
   float         f_radius_{};
@@ -62,7 +71,7 @@ private:
   ::D3DXHANDLE                                   d3dx_handle_texture_;
   ::D3DXHANDLE                                   d3dx_handle_diffuse_;
 
-  void update_frame_matrix(const ::LPD3DXFRAME, const ::LPD3DXMATRIXA16);
+  void update_frame_matrix(const ::LPD3DXFRAME, const ::LPD3DXMATRIX);
   void render_frame(const ::LPD3DXFRAME);
   void render_mesh_container(const ::LPD3DXMESHCONTAINER, const ::LPD3DXFRAME);
 };

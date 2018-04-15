@@ -40,8 +40,8 @@ private:
   std::shared_ptr<mesh>                         sp_mesh_;
   std::shared_ptr<mesh>                         sp_mesh2_;
 
-  ::D3DXMATRIXA16                               mat_view_;
-  ::D3DXMATRIXA16                               mat_projection_;
+  ::D3DXMATRIX                                  mat_view_;
+  ::D3DXMATRIX                                  mat_projection_;
   ::D3DXVECTOR3                                 light_direction_;
   float                                         light_brightness_;
   ::D3DXVECTOR3                                 vec_eye_position_;

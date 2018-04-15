@@ -5,8 +5,6 @@
 #include "basic_window.hpp"
 
 namespace early_go {
-// TODO Improve. attention to memory leak.
-  std::vector<::LPD3DXANIMATIONSET> vecp_animation_set;
   const std::string skinned_animation_mesh::SHADER_FILENAME =
       "skinned_animation_mesh_shader.fx";
 
@@ -68,7 +66,8 @@ skinned_animation_mesh::skinned_animation_mesh(
     const std::string& a_krsz_xfile_name,
     const ::D3DXVECTOR3& a_kp_vec_position,
     const float& a_krf_size)
-    : b_play_animation_{true},
+    : vecup_animation_set_{},
+      b_play_animation_{true},
       f_animation_time_{},
       sp_direct3d_device9_{a_krsp_direct3d_device9},
       sp_skinned_animation_mesh_allocator_{
@@ -146,24 +145,19 @@ skinned_animation_mesh::skinned_animation_mesh(
   this->up_d3dx_animation_controller_.reset(p_temp_d3dx_animation_controller);
   this->allocate_all_bone_matrices(this->up_d3dx_frame_root_.get());
 
-  /* TODO Improve ~ */
-  vecp_animation_set.resize(
-      this->up_d3dx_animation_controller_->GetNumAnimationSets());
-  for (::DWORD i{};
-      i < this->up_d3dx_animation_controller_->GetNumAnimationSets(); ++i) {
-    up_d3dx_animation_controller_->GetAnimationSet(
-        i, &vecp_animation_set.at(i));
+  ::DWORD dw_animation_number{
+      this->up_d3dx_animation_controller_->GetNumAnimationSets()};
+
+  std::vector<std::unique_ptr<::ID3DXAnimationSet, custom_deleter> >
+      temp_vecup(dw_animation_number);
+
+  this->vecup_animation_set_.swap(temp_vecup);
+
+  for (::DWORD i{}; i < dw_animation_number; ++i) {
+    ::LPD3DXANIMATIONSET p_temp{};
+    this->up_d3dx_animation_controller_->GetAnimationSet(i, &p_temp);
+    this->vecup_animation_set_.at(i).reset(p_temp);
   }
-
-  // D3DXTRACK_DESC track_desc{};
-
-  // track_desc.Weight = 1;
-  // track_desc.Speed  = 1;
-  // track_desc.Enable = 1;
-  // up_d3dx_animation_controller_->SetTrackDesc(3, &track_desc);
-  // up_d3dx_animation_controller_->SetTrackAnimationSet(
-  //     0, vecp_animation_set.at(3));
-  /* ~ TODO Improve */
 
   ::D3DXFrameCalculateBoundingSphere(this->up_d3dx_frame_root_.get(),
                                      &this->vec3_center_coodinate_,
@@ -171,13 +165,48 @@ skinned_animation_mesh::skinned_animation_mesh(
   this->f_scale_ = a_krf_size / this->f_radius_;
 }
 
+void skinned_animation_mesh::play_animation_set(
+    const std::size_t& a_kr_animation_set)
+{
+  if (a_kr_animation_set >= this->vecup_animation_set_.size()) {
+    BOOST_THROW_EXCEPTION(
+        custom_exception{"An illegal animation set was sent."});
+  }
+  this->up_d3dx_animation_controller_->SetTrackAnimationSet(
+      0, this->vecup_animation_set_.at(a_kr_animation_set).get());
+}
+
+void skinned_animation_mesh::play_animation_set(
+    const std::string& a_kr_animation_set)
+{
+  std::vector<
+      std::unique_ptr<
+          ::ID3DXAnimationSet, custom_deleter
+      >
+  >::const_iterator kit;
+
+  kit = std::find_if(
+      this->vecup_animation_set_.cbegin(),
+      this->vecup_animation_set_.cend(),
+      [&](const std::unique_ptr<::ID3DXAnimationSet, custom_deleter>& a){
+        return a_kr_animation_set == a->GetName();
+  });
+
+  if (this->vecup_animation_set_.cend() == kit) {
+    BOOST_THROW_EXCEPTION(
+        custom_exception{"An illegal animation set was sent."});
+  }
+
+  this->up_d3dx_animation_controller_->SetTrackAnimationSet(0, kit->get());
+}
+
 /* Renders its own animation mesh. */
-void skinned_animation_mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
-                                    const ::D3DXMATRIXA16& a_kr_mat_projection,
+void skinned_animation_mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
+                                    const ::D3DXMATRIX& a_kr_mat_projection,
                                     const ::D3DXVECTOR4 & a_kr_normal_light,
                                     const float& a_kr_brightness)
 {
-  ::D3DXMATRIXA16 mat_view_projection{a_kr_mat_view * a_kr_mat_projection};
+  ::D3DXMATRIX mat_view_projection{a_kr_mat_view * a_kr_mat_projection};
 
   this->up_d3dx_effect_->SetMatrix(
       this->d3dx_handle_view_projection_, &mat_view_projection);
@@ -194,10 +223,10 @@ void skinned_animation_mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
         constants::ANIMATION_SPEED, nullptr);
   }
 
-  ::D3DXMATRIXA16 mat_world{};
+  ::D3DXMATRIX mat_world{};
   ::D3DXMatrixIdentity(&mat_world);
   {
-    ::D3DXMATRIXA16 mat{};
+    ::D3DXMATRIX mat{};
     ::D3DXMatrixTranslation(&mat,
                             -this->vec3_center_coodinate_.x,
                             -this->vec3_center_coodinate_.y,
@@ -245,7 +274,7 @@ float skinned_animation_mesh::get_animation_time() const
  */
 void skinned_animation_mesh::update_frame_matrix(
     const ::LPD3DXFRAME a_kp_frame_base,
-    const ::LPD3DXMATRIXA16 a_kp_parent_matrix)
+    const ::LPD3DXMATRIX a_kp_parent_matrix)
 {
   skinned_animation_mesh_frame *p_skinned_animation_mesh_frame{
       static_cast<skinned_animation_mesh_frame*>(a_kp_frame_base)};
@@ -374,7 +403,7 @@ void skinned_animation_mesh::render_mesh_container(
     if (p_frame == nullptr) {
       return E_FAIL;
     }
-    LPD3DXMATRIXA16 p_matrix = &p_frame->combined_transformation_matrix_;
+    LPD3DXMATRIX p_matrix = &p_frame->combined_transformation_matrix_;
     p_mesh_container->vecp_frame_combined_matrix_.at(i) = p_matrix;
   }
   return S_OK;

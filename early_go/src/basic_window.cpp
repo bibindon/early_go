@@ -264,6 +264,21 @@ void basic_window::render()
     if (::GetAsyncKeyState('G') & 0x8000) {
       this->light_direction_.y -= 0.2f;
     }
+    if (::GetAsyncKeyState('1') & 0x8000) {
+      this->sp_skinned_animation_mesh_->play_animation_set(1);
+    }
+    if (::GetAsyncKeyState('2') & 0x8000) {
+      this->sp_skinned_animation_mesh_->play_animation_set(2);
+    }
+    if (::GetAsyncKeyState('3') & 0x8000) {
+      this->sp_skinned_animation_mesh_->play_animation_set(3);
+    }
+    if (::GetAsyncKeyState('4') & 0x8000) {
+      this->sp_skinned_animation_mesh_->play_animation_set(4);
+    }
+    if (::GetAsyncKeyState('5') & 0x8000) {
+      this->sp_skinned_animation_mesh_->play_animation_set("Wolf_Idle_");
+    }
     vec4_light_direction.x = this->light_direction_.x;
     vec4_light_direction.y = this->light_direction_.y;
     vec4_light_direction.z = this->light_direction_.z;

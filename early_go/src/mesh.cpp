@@ -191,15 +191,15 @@ mesh::mesh(
   this->f_scale_ = a_krf_size / this->f_radius_;
 }
 
-void mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
-                  const ::D3DXMATRIXA16& a_kr_mat_projection,
+void mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
+                  const ::D3DXMATRIX& a_kr_mat_projection,
                   const::D3DXVECTOR4 & a_kr_normal_light,
                   const float& a_kr_brightness)
 {
-  ::D3DXMATRIXA16 mat_world_view_projection{};
+  ::D3DXMATRIX mat_world_view_projection{};
   ::D3DXMatrixIdentity(&mat_world_view_projection);
   {
-    ::D3DXMATRIXA16 mat{};
+    ::D3DXMATRIX mat{};
 
     ::D3DXMatrixTranslation(&mat,
                             -this->vec3_center_coodinate_.x,

@@ -64,7 +64,8 @@ animation_mesh::animation_mesh(
     const std::string& a_krsz_xfile_name,
     const ::D3DXVECTOR3& a_kp_vec_position,
     const float& a_krf_size)
-    : b_play_animation_{true},
+    : vecup_animation_set_{},
+      b_play_animation_{true},
       f_animation_time_{},
       sp_direct3d_device9_{a_krsp_direct3d_device9},
       sp_animation_mesh_allocator_{
@@ -143,15 +144,64 @@ animation_mesh::animation_mesh(
   this->up_d3dx_frame_root_.reset(p_temp_root_frame);
   this->up_d3dx_animation_controller_.reset(p_temp_d3dx_animation_controller);
 
+  ::DWORD dw_animation_number =
+      this->up_d3dx_animation_controller_->GetNumAnimationSets();
+
+  std::vector<std::unique_ptr<::ID3DXAnimationSet, custom_deleter> >
+      temp_vecup(dw_animation_number);
+
+  this->vecup_animation_set_.swap(temp_vecup);
+
+  for (::DWORD i{}; i < dw_animation_number; ++i) {
+    ::LPD3DXANIMATIONSET p_temp{};
+    this->up_d3dx_animation_controller_->GetAnimationSet(i, &p_temp);
+    this->vecup_animation_set_.at(i).reset(p_temp);
+  }
+
   ::D3DXFrameCalculateBoundingSphere(this->up_d3dx_frame_root_.get(),
                                      &this->vec3_center_coodinate_,
                                      &this->f_radius_);
   this->f_scale_ = a_krf_size / this->f_radius_;
 }
 
+void animation_mesh::play_animation_set(
+    const std::size_t& a_kr_animation_set)
+{
+  if (a_kr_animation_set >= this->vecup_animation_set_.size()) {
+    BOOST_THROW_EXCEPTION(
+        custom_exception{"An illegal animation set was sent."});
+  }
+  this->up_d3dx_animation_controller_->SetTrackAnimationSet(
+      0, this->vecup_animation_set_.at(a_kr_animation_set).get());
+}
+
+void animation_mesh::play_animation_set(
+    const std::string& a_kr_animation_set)
+{
+  std::vector<
+      std::unique_ptr<
+          ::ID3DXAnimationSet, custom_deleter
+      >
+  >::const_iterator kit;
+
+  kit = std::find_if(
+      this->vecup_animation_set_.cbegin(),
+      this->vecup_animation_set_.cend(),
+      [&](const std::unique_ptr<::ID3DXAnimationSet, custom_deleter>& a){
+        return a_kr_animation_set == a->GetName();
+  });
+
+  if (this->vecup_animation_set_.cend() == kit) {
+    BOOST_THROW_EXCEPTION(
+        custom_exception{"An illegal animation set was sent."});
+  }
+
+  this->up_d3dx_animation_controller_->SetTrackAnimationSet(0, kit->get());
+}
+
 /* Renders its own animation mesh. */
-void animation_mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
-                            const ::D3DXMATRIXA16& a_kr_mat_projection,
+void animation_mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
+                            const ::D3DXMATRIX& a_kr_mat_projection,
                             const::D3DXVECTOR4 & a_kr_normal_light,
                             const float& a_kr_brightness)
 {
@@ -169,10 +219,10 @@ void animation_mesh::render(const ::D3DXMATRIXA16& a_kr_mat_view,
         constants::ANIMATION_SPEED, nullptr);
   }
 
-  ::D3DXMATRIXA16 mat_world{};
+  ::D3DXMATRIX mat_world{};
   ::D3DXMatrixIdentity(&mat_world);
   {
-    ::D3DXMATRIXA16 mat{};
+    ::D3DXMATRIX mat{};
     ::D3DXMatrixTranslation(&mat,
                             -this->vec3_center_coodinate_.x,
                             -this->vec3_center_coodinate_.y,
@@ -218,7 +268,7 @@ float animation_mesh::get_animation_time() const
  * is a recursive function.
  */
 void animation_mesh::update_frame_matrix(const ::LPD3DXFRAME a_kp_frame_base,
-    const ::LPD3DXMATRIXA16 a_kp_parent_matrix)
+    const ::LPD3DXMATRIX a_kp_parent_matrix)
 {
   animation_mesh_frame *p_animation_mesh_frame{
       static_cast<animation_mesh_frame*>(a_kp_frame_base)};
@@ -275,7 +325,7 @@ void animation_mesh::render_mesh_container(
   animation_mesh_frame *p_frame{
       static_cast<animation_mesh_frame*>(a_kp_frame_base)};
 
-  ::D3DXMATRIXA16 mat_world_view_projection{
+  ::D3DXMATRIX mat_world_view_projection{
       p_frame->combined_transformation_matrix_};
 
   this->up_d3dx_effect_->SetMatrix(this->d3dx_handle_world_,

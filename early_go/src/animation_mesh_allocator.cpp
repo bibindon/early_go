@@ -150,8 +150,7 @@ animation_mesh_allocator::animation_mesh_allocator(
 ::STDMETHODIMP animation_mesh_allocator::CreateFrame(
     ::LPCTSTR a_name, ::LPD3DXFRAME *a_pp_new_frame)
 {
-  void* p = _aligned_malloc_crt(sizeof(animation_mesh_frame), 16);
-  *a_pp_new_frame = new(p) animation_mesh_frame{a_name};
+  *a_pp_new_frame = new_crt animation_mesh_frame{a_name};
   return S_OK;
 }
 
@@ -193,7 +192,7 @@ animation_mesh_allocator::animation_mesh_allocator(
 {
   safe_delete_array(a_p_frame_to_free->Name);
   a_p_frame_to_free->~D3DXFRAME();
-  _aligned_free(a_p_frame_to_free);
+  safe_delete(a_p_frame_to_free);
   return S_OK;
 }
 
