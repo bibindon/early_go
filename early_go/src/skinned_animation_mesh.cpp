@@ -107,20 +107,20 @@ skinned_animation_mesh::skinned_animation_mesh(
 
   this->d3dx_handle_view_projection_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_view_projection");
+                                                "g_view_projection");
   this->d3dx_handle_light_normal_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_light_normal");
+                                                "g_light_normal");
 
   this->d3dx_handle_brightness_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_light_brightness");
+                                                "g_light_brightness");
   this->d3dx_handle_texture_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_texture");
+                                                "g_texture");
   this->d3dx_handle_diffuse_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_diffuse");
+                                                "g_diffuse");
 
   ::LPD3DXFRAME p_temp_d3dx_frame_root{nullptr};
   ::LPD3DXANIMATIONCONTROLLER p_temp_d3dx_animation_controller{nullptr};
@@ -350,7 +350,7 @@ void skinned_animation_mesh::render_mesh_container(
           p_mesh_container->vec_bone_offset_matrices_[dw_bone_id]
               * (*p_mesh_container->vecp_frame_combined_matrix_[dw_bone_id]);
     }
-    this->up_d3dx_effect_->SetMatrixArray("hlsl_world_matrix_array",
+    this->up_d3dx_effect_->SetMatrixArray("g_world_matrix_array",
         &vecmat_world_matrix_array_[0], dw_palette_size);
 
     ::DWORD bone_id = p_bone_combination[i].AttribId;

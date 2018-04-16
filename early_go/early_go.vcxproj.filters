@@ -42,6 +42,27 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="res\RobotArm.x">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="res\tiger.x">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="res\tiny.x">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="res\wolf.x">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="res\Cylinder_MultiTrack.x">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="res\Cylinder_SingleTrack.x">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="res\Dwarf.x">
+      <Filter>リソース ファイル</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\exception.hpp">
@@ -76,13 +97,60 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\Headgear.dds">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\metal6.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\Pack.dds">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\tiger.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\Tiny_skin.dds">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\Weapons.dds">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\Wolf_Body.jpg">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\Wolf_Eyes_1.jpg">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\Wolf_Eyes_2.jpg">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\Wolf_Fur.jpg">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\Armor.dds">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\board.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\board2.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\Body.dds">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\DwarfHead.dds">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
     <FxCompile Include="res\mesh_shader.fx">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
-    <FxCompile Include="res\animation_mesh_shader.fx">
+    <FxCompile Include="res\skinned_animation_mesh_shader.fx">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
-    <FxCompile Include="res\skinned_animation_mesh_shader.fx">
+    <FxCompile Include="res\animation_mesh_shader.fx">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
   </ItemGroup>

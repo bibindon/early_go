@@ -105,22 +105,22 @@ animation_mesh::animation_mesh(
 
   this->d3dx_handle_world_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_world");
+                                                "g_world");
   this->d3dx_handle_world_view_proj_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_world_view_projection");
+                                                "g_world_view_projection");
   this->d3dx_handle_light_normal_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_light_normal");
+                                                "g_light_normal");
   this->d3dx_handle_brightness_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_light_brightness");
+                                                "g_light_brightness");
   this->d3dx_handle_texture_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_texture");
+                                                "g_texture");
   this->d3dx_handle_diffuse_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_diffuse");
+                                                "g_diffuse");
 
   ::LPD3DXFRAME p_temp_root_frame{nullptr};
   ::LPD3DXANIMATIONCONTROLLER p_temp_d3dx_animation_controller{nullptr};
@@ -355,6 +355,7 @@ void animation_mesh::render_mesh_container(
     this->up_d3dx_effect_->SetVector(this->d3dx_handle_diffuse_, &color);
     this->up_d3dx_effect_->SetTexture(this->d3dx_handle_texture_,
         p_mesh_container->vecup_texture_.at(i).get());
+
     this->up_d3dx_effect_->CommitChanges();
     p_mesh_container->MeshData.pMesh->DrawSubset(i);
   }

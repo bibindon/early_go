@@ -1,6 +1,7 @@
 #ifndef INLINE_MACRO_HPP
 #define INLINE_MACRO_HPP
 #include "stdafx.hpp"
+#include <fstream>
 
 namespace early_go {
 /*
@@ -67,6 +68,20 @@ struct custom_deleter
 
 inline std::vector<char> get_resource(const std::string& a_kr_query)
 {
+#if 1
+
+  std::size_t begin = a_kr_query.find_first_of("'")+1;
+  std::size_t end = a_kr_query.find_first_of("'", begin);
+  std::string filename{a_kr_query.substr(begin, end-begin)};
+
+  std::string path{"res/" + filename};
+  std::ifstream file(path, std::ios::binary);
+  std::ostringstream ss;
+  ss << file.rdbuf();
+  const std::string& s = ss.str();
+  return std::vector<char>(s.begin(), s.end());
+
+#else
   std::vector<char> _ret;
   ::sqlite3* db = nullptr;
   if (::sqlite3_open(constants::DATABASE_NAME.c_str(), &db) != SQLITE_OK) {
@@ -98,6 +113,7 @@ inline std::vector<char> get_resource(const std::string& a_kr_query)
                           " query: " + a_kr_query});
   }
   return _ret;
+#endif
 }
 
 /*

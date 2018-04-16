@@ -18,13 +18,13 @@ mesh::mesh(
       d3dx_handle_world_view_proj_{},
       d3dx_handle_light_normal_{},
       d3dx_handle_brightness_{},
-      d3dx_handle_texture_{},
       d3dx_handle_diffuse_{},
       vec_d3d_color_{},
       vecup_mesh_texture_{},
       vec3_center_coodinate_{},
       f_radius_{},
-      f_scale_{}
+      f_scale_{},
+      dynamic_texture_{}
 {
   ::HRESULT hresult{};
 
@@ -48,19 +48,47 @@ mesh::mesh(
 
   this->d3dx_handle_world_view_proj_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_world_view_projection");
+                                                "g_world_view_projection");
   this->d3dx_handle_light_normal_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_light_normal");
+                                                "g_light_normal");
   this->d3dx_handle_brightness_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_light_brightness");
-  this->d3dx_handle_texture_ =
+                                                "g_light_brightness");
+  this->d3dx_handle_mesh_texture_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_texture");
+                                                "g_mesh_texture");
+  this->ar_d3dx_handle_texture_[0] =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "g_texture_0");
+  this->ar_d3dx_handle_texture_[1] =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "g_texture_1");
+  this->ar_d3dx_handle_texture_[2] =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "g_texture_2");
+  this->ar_d3dx_handle_texture_[3] =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "g_texture_3");
+  this->ar_d3dx_handle_texture_[4] =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "g_texture_4");
+  this->ar_d3dx_handle_texture_[5] =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "g_texture_5");
+  this->ar_d3dx_handle_texture_[6] =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "g_texture_6");
+  this->ar_d3dx_handle_texture_[7] =
+      this->up_d3dx_effect_->GetParameterByName(nullptr,
+                                                "g_texture_7");
   this->d3dx_handle_diffuse_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "hlsl_diffuse");
+                                                "g_diffuse");
+  this->d3dx_handle_texture_position_ =
+      this->up_d3dx_effect_->GetParameterByName(nullptr, "g_position");
+  this->d3dx_handle_texture_opacity_ =
+      this->up_d3dx_effect_->GetParameterByName(nullptr, "g_opacity");
 
   ::LPD3DXBUFFER p_d3dx_adjacency_buffer{};
   ::LPD3DXBUFFER p_d3dx_material_buffer{};
@@ -164,12 +192,13 @@ mesh::mesh(
       sz_query += a_krsz_xfile_name + "';";
 
       vecc_buffer = get_resource(sz_query);
-      ::LPDIRECT3DTEXTURE9 p_temp_texture{};
-      if (FAILED(
-          ::D3DXCreateTextureFromFileInMemory(a_krsp_direct3d_device9.get(),
-                                              &vecc_buffer[0],
-                                              static_cast<UINT>(vecc_buffer.size()),
-                                              &p_temp_texture))) {
+      
+      if (::LPDIRECT3DTEXTURE9 p_temp_texture{};
+          FAILED(::D3DXCreateTextureFromFileInMemory(
+              a_krsp_direct3d_device9.get(),
+              &vecc_buffer[0],
+              static_cast<::UINT>(vecc_buffer.size()),
+              &p_temp_texture))) {
         BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
       } else {
         this->vecup_mesh_texture_.at(i).reset(p_temp_texture);
@@ -177,6 +206,35 @@ mesh::mesh(
     }
   }
   safe_release(p_d3dx_material_buffer);
+
+  for (int i{}; i < 8; ++i){
+    if (::LPDIRECT3DTEXTURE9 p_temp_texture{};
+        FAILED(::D3DXCreateTexture(a_krsp_direct3d_device9.get(),
+                                   512,
+                                   512,
+                                   1,
+                                   D3DUSAGE_DYNAMIC,
+                                   ::D3DFMT_A8B8G8R8,
+                                   ::D3DPOOL_DEFAULT,
+                                   &p_temp_texture))) {
+      BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
+    } else {
+      ::D3DLOCKED_RECT locked_rect{};
+      p_temp_texture->LockRect(0, &locked_rect, nullptr, D3DLOCK_DISCARD);
+
+      std::fill(static_cast<int*>(locked_rect.pBits),
+                static_cast<int*>(locked_rect.pBits)
+                    + locked_rect.Pitch*512/sizeof(int),
+                0x00000000);
+
+      p_temp_texture->UnlockRect(0);
+
+      this->dynamic_texture_.arup_texture_.at(i).reset(p_temp_texture);
+      this->up_d3dx_effect_->SetTexture(
+          this->ar_d3dx_handle_texture_.at(i),
+          this->dynamic_texture_.arup_texture_.at(i).get());
+    }
+  }
 
   /* Calculate model size.  */
   ::LPVOID pv_buffer{};
@@ -189,6 +247,49 @@ mesh::mesh(
   this->up_d3dx_mesh_->UnlockVertexBuffer();
 
   this->f_scale_ = a_krf_size / this->f_radius_;
+}
+
+void mesh::set_dynamic_texture(const std::string& akrsz_filename,
+                               const int& akri_layer_number,
+                               const combine_type& /* akri_combine_type */)
+{
+  std::string sz_query{};
+  sz_query = "select data from texture where filename = '";
+  sz_query += akrsz_filename;
+  sz_query += "';";
+
+  ::LPDIRECT3DDEVICE9 p_temp_direct3d_device9{nullptr};
+  this->up_d3dx_mesh_->GetDevice(&p_temp_direct3d_device9);
+  std::vector<char> vecc_buffer = get_resource(sz_query);
+  if (::LPDIRECT3DTEXTURE9 p_temp_texture{};
+      FAILED(::D3DXCreateTextureFromFileInMemory(
+          p_temp_direct3d_device9,
+          &vecc_buffer[0],
+          static_cast<::UINT>(vecc_buffer.size()),
+          &p_temp_texture))) {
+    BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
+  } else {
+    this->up_d3dx_effect_->SetTexture(
+        this->ar_d3dx_handle_texture_.at(akri_layer_number), p_temp_texture);
+
+    this->dynamic_texture_.arup_texture_.at(akri_layer_number).reset(p_temp_texture);
+    this->dynamic_texture_.arf_opacity_.at(akri_layer_number) = 1.0f;
+  }
+}
+
+void mesh::set_dynamic_texture_position(const int& akri_layer_number,
+                                        const ::D3DXVECTOR2& akrvec2_position)
+{
+  this->dynamic_texture_.arvec2_position_.at(akri_layer_number).x =
+      akrvec2_position.x;
+  this->dynamic_texture_.arvec2_position_.at(akri_layer_number).y =
+      akrvec2_position.y;
+}
+
+void mesh::set_dynamic_texture_opacity(const int& akri_layer_number,
+                                       const float& akrf_opacity)
+{
+  this->dynamic_texture_.arf_opacity_.at(akri_layer_number) = akrf_opacity;
 }
 
 void mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
@@ -224,9 +325,14 @@ void mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
                                    &a_kr_normal_light);
   this->up_d3dx_effect_->SetFloat(this->d3dx_handle_brightness_,
                                   a_kr_brightness);
+
+  // dynamic texture
+  this->update_texture();
+
   this->up_d3dx_effect_->Begin(nullptr, 0);
 
-  if (FAILED(this->up_d3dx_effect_->BeginPass(0))) {
+  ::HRESULT h{};
+  if (FAILED(h = this->up_d3dx_effect_->BeginPass(0))) {
     this->up_d3dx_effect_->End();
     BOOST_THROW_EXCEPTION(custom_exception{"Failed 'BeginPass' function."});
   }
@@ -236,12 +342,25 @@ void mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
                              this->vec_d3d_color_.at(i).b,
                              this->vec_d3d_color_.at(i).a};
     this->up_d3dx_effect_->SetVector(this->d3dx_handle_diffuse_, &vec4_color);
-    this->up_d3dx_effect_->SetTexture(this->d3dx_handle_texture_,
+    this->up_d3dx_effect_->SetTexture(this->d3dx_handle_mesh_texture_,
                                       this->vecup_mesh_texture_.at(i).get());
     this->up_d3dx_effect_->CommitChanges();
     this->up_d3dx_mesh_->DrawSubset(i);
   }
   this->up_d3dx_effect_->EndPass();
   this->up_d3dx_effect_->End();
+}
+
+void mesh::update_texture()
+{
+  this->up_d3dx_effect_->SetVectorArray(
+      this->d3dx_handle_texture_position_,
+      &this->dynamic_texture_.arvec2_position_[0], 8);
+
+  this->up_d3dx_effect_->SetFloatArray(
+      this->d3dx_handle_texture_opacity_,
+      &this->dynamic_texture_.arf_opacity_[0], 8);
+
+  return;
 }
 } /* namespace early_go */

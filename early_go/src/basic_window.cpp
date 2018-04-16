@@ -152,11 +152,11 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
                              1.0f});
   this->sp_mesh_.reset(new_crt mesh{this->sp_direct3d_device9_,
                                     constants::MESH_FILE_NAME,
-                                    ::D3DXVECTOR3{-0.5f, 0.0f, 3.0f},
+                                    ::D3DXVECTOR3{-0.5f, 0.0f, -1.0f},
                                     1.0f});
   this->sp_mesh2_.reset(new_crt mesh{this->sp_direct3d_device9_,
                                      constants::MESH_FILE_NAME2,
-                                     ::D3DXVECTOR3{ 0.5f, 0.0f, 3.0f},
+                                     ::D3DXVECTOR3{ 0.5f, 0.0f, 2.0f},
                                      1.0f});
 
   /* ~ Create a Direct3D Device object. */
@@ -248,21 +248,44 @@ void basic_window::render()
     }
     if (::GetAsyncKeyState('F') & 0x8000) {
       this->light_direction_.x += 0.2f;
+      if (this->light_direction_.x >= 1.0f) {
+        this->light_direction_.x = 1.0f;
+      }
     }
     if (::GetAsyncKeyState('S') & 0x8000) {
       this->light_direction_.x -= 0.2f;
+      if (this->light_direction_.x <= -1.0f) {
+        this->light_direction_.x = -1.0f;
+      }
     }
     if (::GetAsyncKeyState('E') & 0x8000) {
       this->light_direction_.z += 0.2f;
+      if (this->light_direction_.z >= 1.0f) {
+        this->light_direction_.z = 1.0f;
+      }
     }
     if (::GetAsyncKeyState('D') & 0x8000) {
       this->light_direction_.z -= 0.2f;
+      if (this->light_direction_.z <= -1.0f) {
+        this->light_direction_.z = -1.0f;
+      }
     }
     if (::GetAsyncKeyState('T') & 0x8000) {
       this->light_direction_.y += 0.2f;
+      if (this->light_direction_.y >= 1.0f) {
+        this->light_direction_.y = 1.0f;
+      }
     }
     if (::GetAsyncKeyState('G') & 0x8000) {
       this->light_direction_.y -= 0.2f;
+      if (this->light_direction_.y <= -1.0f) {
+        this->light_direction_.y = -1.0f;
+      }
+    }
+    if (::GetAsyncKeyState('R') & 0x8000) {
+      this->light_direction_.x = 0.0f;
+      this->light_direction_.y = 0.0f;
+      this->light_direction_.z = 0.0f;
     }
     if (::GetAsyncKeyState('1') & 0x8000) {
       this->sp_skinned_animation_mesh_->play_animation_set(1);
@@ -277,7 +300,25 @@ void basic_window::render()
       this->sp_skinned_animation_mesh_->play_animation_set(4);
     }
     if (::GetAsyncKeyState('5') & 0x8000) {
-      this->sp_skinned_animation_mesh_->play_animation_set("Wolf_Idle_");
+      this->sp_skinned_animation_mesh_->play_animation_set("Wolf_Walk_cycle_");
+    }
+    if (::GetAsyncKeyState('Z') & 0x8000) {
+      this->sp_mesh_->set_dynamic_texture(
+          "board.png", 0, mesh::combine_type::NORMAL);
+    }
+    if (::GetAsyncKeyState('X') & 0x8000) {
+      this->sp_mesh_->set_dynamic_texture(
+          "board2.png", 1, mesh::combine_type::NORMAL);
+    }
+    if (::GetAsyncKeyState('C') & 0x8000) {
+      static float f = 0.0f;
+      f += 0.01f;
+      this->sp_mesh_->set_dynamic_texture_position(0, {f, f} );
+    }
+    if (::GetAsyncKeyState('V') & 0x8000) {
+      static float f = 0.0f;
+      f += 0.1f;
+      this->sp_mesh_->set_dynamic_texture_opacity(1, std::sin(f)/2+0.5f);
     }
     vec4_light_direction.x = this->light_direction_.x;
     vec4_light_direction.y = this->light_direction_.y;
@@ -286,7 +327,7 @@ void basic_window::render()
     ::D3DXVec4Normalize(&vec4_light_direction, &vec4_light_direction);
 
 
-    ::D3DXVECTOR3 vec_up_vector { 0.0f, 1.0f, 0.0f};
+    ::D3DXVECTOR3 vec_up_vector{ 0.0f, 1.0f, 0.0f};
     ::D3DXMatrixLookAtLH(&this->mat_view_,
                          &this->vec_eye_position_,
                          &this->vec_look_at_position_,

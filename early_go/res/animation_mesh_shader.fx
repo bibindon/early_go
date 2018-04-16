@@ -1,32 +1,33 @@
-float4x4 hlsl_world;
-float4x4 hlsl_world_view_projection;
-float4   hlsl_light_normal;
-float    hlsl_light_brightness;
-float4   hlsl_diffuse;
-float4   hlsl_ambient = { 0.3f, 0.3f, 0.3f, 0.0f };
+float4x4 g_world;
+float4x4 g_world_view_projection;
+float4   g_light_normal;
+float    g_light_brightness;
+float4   g_diffuse;
+float4   g_ambient = { 0.3f, 0.3f, 0.3f, 0.0f };
 
 void vertex_shader(
     in  float4 in_position  : POSITION,
     in  float4 in_normal    : NORMAL0,
-    in  float4 in_texture   : TEXCOORD0,
+    in  float4 in_texcood   : TEXCOORD0,
 
     out float4 out_position : POSITION,
     out float4 out_diffuse  : COLOR0,
     out float4 out_texture  : TEXCOORD0) {
-    out_position  = mul(in_position, hlsl_world_view_projection);
-    in_normal = mul(in_normal, hlsl_world);
+    out_position  = mul(in_position, g_world_view_projection);
+    in_normal = mul(in_normal, g_world);
     in_normal = normalize(in_normal);
 
-    float light_intensity = hlsl_light_brightness
-        * dot(in_normal, hlsl_light_normal);
-    out_diffuse = hlsl_diffuse * max(0, light_intensity) + hlsl_ambient;
+    float light_intensity = g_light_brightness
+        * dot(in_normal, g_light_normal);
+    out_diffuse = g_diffuse * max(0, light_intensity) + g_ambient;
+    out_diffuse.a = 1.0f;
 
-    out_texture  = in_texture;
+    out_texture  = in_texcood;
 }
 
-texture hlsl_texture;
+texture g_texture;
 sampler texture_sampler = sampler_state {
-    Texture   = (hlsl_texture);
+    Texture   = (g_texture);
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
@@ -34,9 +35,9 @@ sampler texture_sampler = sampler_state {
 
 void pixel_shader(
     in  float4 in_diffuse     : COLOR0,
-    in  float2 in_texture     : TEXCOORD0,
+    in  float2 in_texcood     : TEXCOORD0,
     out float4 out_diffuse    : COLOR0) {
-    out_diffuse = in_diffuse*0.8 * tex2D(texture_sampler, in_texture) + in_diffuse*0.2;
+    out_diffuse = in_diffuse*0.8 * tex2D(texture_sampler, in_texcood) + in_diffuse*0.2;
 }
 
 technique technique_ {

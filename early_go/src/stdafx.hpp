@@ -5,7 +5,9 @@
 #define D3D_DEBUG_INFO
 #define BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
 
+#if defined(DEBUG) || defined(_DEBUG)
 #include <crtdbg.h>
+#endif
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <stdio.h>
@@ -14,6 +16,7 @@
 #include <windows.h>
 
 #include <algorithm>
+#include <array>
 #include <cstring>
 #include <exception>
 #include <filesystem>
