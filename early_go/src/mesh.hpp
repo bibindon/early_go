@@ -17,11 +17,24 @@ public:
        const ::D3DXVECTOR3&,
        const float&);
 
+  ~mesh();
+
   void set_dynamic_texture(const std::string&, const int&, const combine_type&);
   void set_dynamic_texture_position(const int&,
                                     const ::D3DXVECTOR2&);
   void set_dynamic_texture_opacity(const int&,
                                    const float&);
+
+  void set_dynamic_message(const int&,
+                           const std::string&,
+                           const ::RECT& = {0, 0, 511, 511},
+                           const int& = RGB(0xff, 0xff, 0xff),
+                           const std::string& = "‚l‚r ‚oƒSƒVƒbƒN",
+                           const int& = 40,
+                           const int& = 0,
+                           const bool& = false);
+
+  void set_dynamic_message_color(const int&, const ::D3DXVECTOR4&);
 
   void render(const ::D3DXMATRIX&,
               const ::D3DXMATRIX&,
@@ -30,6 +43,7 @@ public:
 
 private:
   const static std::string                       SHADER_FILENAME;
+  std::shared_ptr<::IDirect3DDevice9>            sp_direct3d_device9_;
   ::D3DXVECTOR3                                  vec3_position_;
   std::unique_ptr<::ID3DXMesh, custom_deleter>   up_d3dx_mesh_;
   ::DWORD                                        dw_materials_number_;
@@ -59,8 +73,11 @@ private:
       >, 8> arup_texture_;
     std::array<::D3DXVECTOR4, 8> arvec2_position_;
     std::array<float, 8> arf_opacity_;
+    std::array<::D3DXVECTOR4, 8> arvec4_color_;
   } dynamic_texture_;
   void update_texture();
+  ::HDC hdc_;
+  ::HFONT hfont_;
 };
 } /* namespace early_go */
 #endif

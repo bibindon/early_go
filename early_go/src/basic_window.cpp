@@ -173,7 +173,7 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
                               OUT_DEFAULT_PRECIS,
                               PROOF_QUALITY,
                               FIXED_PITCH | FF_MODERN,
-                              "MeiryoKe_Gothic",
+                              "MS_Gothic",
                               &p_d3dx_font))) {
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to create a font."});
   }
@@ -308,17 +308,25 @@ void basic_window::render()
     }
     if (::GetAsyncKeyState('X') & 0x8000) {
       this->sp_mesh_->set_dynamic_texture(
-          "board2.png", 1, mesh::combine_type::NORMAL);
+          "board2.png", 0, mesh::combine_type::NORMAL);
     }
     if (::GetAsyncKeyState('C') & 0x8000) {
       static float f = 0.0f;
       f += 0.01f;
-      this->sp_mesh_->set_dynamic_texture_position(0, {f, f} );
+      this->sp_mesh_->set_dynamic_texture_position(0, {0.5f, f} );
     }
     if (::GetAsyncKeyState('V') & 0x8000) {
-      static float f = 0.0f;
+      static float f = 3.1415926535f/2;
       f += 0.1f;
-      this->sp_mesh_->set_dynamic_texture_opacity(1, std::sin(f)/2+0.5f);
+      this->sp_mesh_->set_dynamic_texture_opacity(0, std::sin(f)/2+0.5f);
+    }
+    if (::GetAsyncKeyState('B') & 0x8000) {
+<<<<<<< HEAD
+      this->sp_mesh_->set_dynamic_message(0, "abcijijihoge\na‚ ‚ ", {50, 50, 150, 150});
+=======
+      this->sp_mesh_->set_dynamic_message(0, "abcijjij\n1234");
+>>>>>>> b178c1b... half-way
+//      this->sp_mesh_->set_dynamic_message(0, "‚P‚Q‚R‚S‚T‚U‚V‚W‚X");
     }
     vec4_light_direction.x = this->light_direction_.x;
     vec4_light_direction.y = this->light_direction_.y;

@@ -11,7 +11,8 @@ mesh::mesh(
     const std::string& a_krsz_xfile_name,
     const ::D3DXVECTOR3& a_kp_vec_position,
     const float& a_krf_size)
-    : vec3_position_{a_kp_vec_position},
+    : sp_direct3d_device9_{a_krsp_direct3d_device9},
+      vec3_position_{a_kp_vec_position},
       up_d3dx_mesh_{nullptr, custom_deleter{}},
       dw_materials_number_{},
       up_d3dx_effect_{nullptr, custom_deleter{}},
@@ -32,7 +33,7 @@ mesh::mesh(
       "select data from shader_file where filename = '"
       + this->SHADER_FILENAME + "';");
   ::LPD3DXEFFECT p_d3dx_temp_effect{};
-  ::D3DXCreateEffect(a_krsp_direct3d_device9.get(),
+  ::D3DXCreateEffect(this->sp_direct3d_device9_.get(),
                      &vecc_buffer[0],
                      static_cast<::UINT>(vecc_buffer.size()),
                      nullptr,
@@ -100,7 +101,7 @@ mesh::mesh(
       &vecc_buffer[0],
       static_cast<::DWORD>(vecc_buffer.size()),
       ::D3DXMESH_SYSTEMMEM,
-      a_krsp_direct3d_device9.get(),
+      this->sp_direct3d_device9_.get(),
       &p_d3dx_adjacency_buffer,
       &p_d3dx_material_buffer,
       nullptr,
@@ -141,7 +142,7 @@ mesh::mesh(
 
   hresult = this->up_d3dx_mesh_->CloneMesh(::D3DXMESH_MANAGED,
                                             decl,
-                                            a_krsp_direct3d_device9.get(),
+                                            this->sp_direct3d_device9_.get(),
                                             &temp_mesh);
   if (FAILED(hresult)) {
     BOOST_THROW_EXCEPTION(custom_exception{"Failed 'CloneMesh' function."});
@@ -195,7 +196,7 @@ mesh::mesh(
       
       if (::LPDIRECT3DTEXTURE9 p_temp_texture{};
           FAILED(::D3DXCreateTextureFromFileInMemory(
-              a_krsp_direct3d_device9.get(),
+              this->sp_direct3d_device9_.get(),
               &vecc_buffer[0],
               static_cast<::UINT>(vecc_buffer.size()),
               &p_temp_texture))) {
@@ -209,7 +210,7 @@ mesh::mesh(
 
   for (int i{}; i < 8; ++i){
     if (::LPDIRECT3DTEXTURE9 p_temp_texture{};
-        FAILED(::D3DXCreateTexture(a_krsp_direct3d_device9.get(),
+        FAILED(::D3DXCreateTexture(this->sp_direct3d_device9_.get(),
                                    512,
                                    512,
                                    1,
@@ -248,6 +249,11 @@ mesh::mesh(
 
   this->f_scale_ = a_krf_size / this->f_radius_;
 }
+mesh::~mesh()
+{
+  ::SelectObject(this->hdc_, this->hfont_);
+  ::ReleaseDC(nullptr, this->hdc_);
+}
 
 void mesh::set_dynamic_texture(const std::string& akrsz_filename,
                                const int& akri_layer_number,
@@ -269,11 +275,12 @@ void mesh::set_dynamic_texture(const std::string& akrsz_filename,
           &p_temp_texture))) {
     BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
   } else {
-    this->up_d3dx_effect_->SetTexture(
-        this->ar_d3dx_handle_texture_.at(akri_layer_number), p_temp_texture);
-
     this->dynamic_texture_.arup_texture_.at(akri_layer_number).reset(p_temp_texture);
     this->dynamic_texture_.arf_opacity_.at(akri_layer_number) = 1.0f;
+
+    this->up_d3dx_effect_->SetTexture(
+        this->ar_d3dx_handle_texture_.at(akri_layer_number),
+        this->dynamic_texture_.arup_texture_.at(akri_layer_number).get());
   }
 }
 
@@ -290,6 +297,200 @@ void mesh::set_dynamic_texture_opacity(const int& akri_layer_number,
                                        const float& akrf_opacity)
 {
   this->dynamic_texture_.arf_opacity_.at(akri_layer_number) = akrf_opacity;
+}
+
+void mesh::set_dynamic_message(const int& akri_layer_number,
+                               const std::string& akrsz_message,
+                               const ::RECT& akr_rect,
+                               const int& akri_color,
+                               const std::string& akrsz_fontname,
+                               const int& akri_size,
+                               const int& akri_weight,
+                               const bool& akrf_animation)
+{
+  ::LPDIRECT3DTEXTURE9 p_temp_texture{};
+  if (FAILED(::D3DXCreateTexture(this->sp_direct3d_device9_.get(),
+                                 512,
+                                 512,
+                                 1,
+                                 D3DUSAGE_DYNAMIC,
+                                 ::D3DFMT_A8B8G8R8,
+                                 ::D3DPOOL_DEFAULT,
+                                 &p_temp_texture))) {
+    BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
+  }
+  ::LOGFONT logfont = {akri_size,
+                       0,
+                       0,
+                       0,
+                       akri_weight,
+                       0,
+                       0,
+                       0,
+                       SHIFTJIS_CHARSET,
+                       OUT_TT_ONLY_PRECIS,
+                       CLIP_DEFAULT_PRECIS,
+                       PROOF_QUALITY,
+                       DEFAULT_PITCH | FF_MODERN};
+  ::strcpy_s(logfont.lfFaceName, akrsz_fontname.c_str());
+  this->hfont_= ::CreateFontIndirect(&logfont);
+  if (this->hfont_ == nullptr) {
+    BOOST_THROW_EXCEPTION(custom_exception{"Failed to create font."});
+  }
+
+  this->hdc_ = ::GetDC(nullptr);
+  this->hfont_ = static_cast<::HFONT>(::SelectObject(this->hdc_, this->hfont_));
+
+  ::TEXTMETRIC text_metric{};
+  ::GetTextMetrics(this->hdc_, &text_metric);
+
+  ::D3DLOCKED_RECT locked_rect{};
+  p_temp_texture->LockRect(0, &locked_rect, nullptr, 0);
+  std::fill(static_cast<int*>(locked_rect.pBits),
+            static_cast<int*>(locked_rect.pBits)
+                + locked_rect.Pitch*512/sizeof(int),
+            0x00000000);
+
+  ::DWORD *pTexBuf = (::DWORD*)locked_rect.pBits;   // テクスチャメモリへのポインタ
+  std::vector<std::vector<::DWORD*> > vvw_tex_buffer(
+      512, std::vector<::DWORD*>(512));
+  for (std::size_t y{}; y < vvw_tex_buffer.size(); ++y) {
+    for (std::size_t x{}; x < vvw_tex_buffer.at(y).size(); ++x) {
+      vvw_tex_buffer.at(y).at(x) = &pTexBuf[y*512 + x];
+    }
+  }
+
+  int font_width_sum{};
+  int font_height_sum{};
+<<<<<<< HEAD
+  for (std::size_t i{}; i < akrsz_message.length(); ++i) {
+=======
+  for (int i{}; i < akrsz_message.length(); ++i) {
+>>>>>>> b178c1b... half-way
+    unsigned char c[2]{};
+    if (akrsz_message.begin()+i+1 != akrsz_message.end()) {
+      c[0] = (unsigned char)akrsz_message.at(i);
+      c[1] = (unsigned char)akrsz_message.at(i+1); 
+    } else {
+      c[0] = (unsigned char)akrsz_message.at(i);
+    }
+
+    ::UINT char_code{};
+    if (   0x81 <= c[0] && c[0] <= 0x9f
+        || 0xe0 <= c[0] && c[0] <= 0xef) {
+      char_code = (c[0] << 8) + c[1];
+      ++i;
+    } else if (c[0] == '\n') {
+      font_height_sum+=text_metric.tmHeight;
+      font_width_sum = 0;
+      continue;
+    } else {
+      char_code = c[0];
+    }
+
+    const ::UINT GGO_FLAG{GGO_GRAY4_BITMAP};
+    const ::DWORD GGO_LEVEL{16};
+
+    ::GLYPHMETRICS glyph_metrics{};
+<<<<<<< HEAD
+    const ::MAT2 mat{{0, 1}, {0, 0}, {0, 0}, {0, 1}};
+=======
+    const ::MAT2 mat = {{0, 1}, {0, 0}, {0, 0}, {0, 1}};
+>>>>>>> b178c1b... half-way
+    ::DWORD mono_font_data_size = ::GetGlyphOutline(this->hdc_,
+                                                    char_code,
+                                                    GGO_FLAG,
+                                                    &glyph_metrics,
+                                                    0,
+                                                    nullptr,
+                                                    &mat);
+    std::unique_ptr<::BYTE[]> up_mono{new_crt ::BYTE[mono_font_data_size]};
+    ::GetGlyphOutline(this->hdc_,
+                      char_code,
+                      GGO_FLAG,
+                      &glyph_metrics,
+                      mono_font_data_size,
+                      up_mono.get(),
+                      &mat);
+
+    const ::UINT font_width = (glyph_metrics.gmBlackBoxX + 3) / 4 * 4;
+    const ::UINT font_height = glyph_metrics.gmBlackBoxY;
+
+<<<<<<< HEAD
+    if (static_cast<::UINT>(akr_rect.right - akr_rect.left)
+        < font_width_sum + font_width) {
+      font_height_sum += text_metric.tmHeight;
+      font_width_sum = 0;
+      --i;
+      continue;
+    } else if (static_cast<::UINT>(akr_rect.bottom - akr_rect.top)
+        < font_height_sum + font_height) {
+      // TODO
+    }
+
+=======
+>>>>>>> b178c1b... half-way
+    std::vector<std::vector<::BYTE> > vvc_tex_buffer(
+        font_height, std::vector<::BYTE>(font_width));
+    for (std::size_t y{}; y < vvc_tex_buffer.size(); ++y) {
+      for (std::size_t x{}; x < vvc_tex_buffer.at(y).size(); ++x) {
+<<<<<<< HEAD
+        vvc_tex_buffer.at(y).at(x) = up_mono[y*font_width + x];
+=======
+        vvc_tex_buffer.at(y).at(x) = up_mono[y*font_height + x];
+>>>>>>> b178c1b... half-way
+      }
+    }
+
+    font_width_sum += glyph_metrics.gmptGlyphOrigin.x;
+    int offset{font_height_sum};
+    offset += text_metric.tmAscent - glyph_metrics.gmptGlyphOrigin.y;
+    for (::UINT y{}; y < font_height; y++) {
+      for (::UINT x{}; x < font_width; x++) {
+        ::DWORD new_alpha{ vvc_tex_buffer[y][x] * 255 / GGO_LEVEL };
+
+        ::DWORD* texture_pixel = vvw_tex_buffer[y + offset][x + font_width_sum];
+
+        ::DWORD current_alpha{ *texture_pixel & 0xff000000UL };
+        current_alpha >>= 24;
+        ::DWORD sum_alpha = std::clamp(current_alpha+new_alpha, 0UL, 255UL);
+
+        *texture_pixel = (sum_alpha << 24) | akri_color;
+      }
+    }
+    font_width_sum += glyph_metrics.gmBlackBoxX;
+<<<<<<< HEAD
+=======
+
+//    font_width_sum += glyph_metrics.gmptGlyphOrigin.x;
+//    for (int y = 0; y < font_height; y++) {
+//      for (int x = 0; x < font_width; x++) {
+//        DWORD alpha = up_mono[y * font_width + x] * 255 / GGO_LEVEL;
+//        DWORD sum_alpha = pTexBuf[(y+text_metric.tmAscent-glyph_metrics.gmptGlyphOrigin.y) * 512 + x + font_width_sum] & 0xff000000;
+//        sum_alpha >>= 24;
+//        sum_alpha += alpha;
+//        if (sum_alpha >= 256) {sum_alpha = 255;}
+
+//        pTexBuf[(y+text_metric.tmAscent-glyph_metrics.gmptGlyphOrigin.y + font_height_sum) * 512 + x + font_width_sum] = (sum_alpha << 24) | akri_color;
+//      }
+//    }
+//    font_width_sum += glyph_metrics.gmBlackBoxX;
+>>>>>>> b178c1b... half-way
+  }
+
+  p_temp_texture->UnlockRect(0);
+  this->dynamic_texture_.arup_texture_.at(akri_layer_number).reset(p_temp_texture);
+  this->dynamic_texture_.arf_opacity_.at(akri_layer_number) = 1.0f;
+
+  this->up_d3dx_effect_->SetTexture(
+      this->ar_d3dx_handle_texture_.at(akri_layer_number), 
+      this->dynamic_texture_.arup_texture_.at(akri_layer_number).get());
+}
+
+void mesh::set_dynamic_message_color(const int& akri_layer_number,
+                                    const ::D3DXVECTOR4& akrvec4_color)
+{
+  this->dynamic_texture_.arvec4_color_.at(akri_layer_number) = akrvec4_color;
 }
 
 void mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
