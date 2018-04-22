@@ -362,11 +362,7 @@ void mesh::set_dynamic_message(const int& akri_layer_number,
 
   int font_width_sum{};
   int font_height_sum{};
-<<<<<<< HEAD
   for (std::size_t i{}; i < akrsz_message.length(); ++i) {
-=======
-  for (int i{}; i < akrsz_message.length(); ++i) {
->>>>>>> b178c1b... half-way
     unsigned char c[2]{};
     if (akrsz_message.begin()+i+1 != akrsz_message.end()) {
       c[0] = (unsigned char)akrsz_message.at(i);
@@ -392,11 +388,7 @@ void mesh::set_dynamic_message(const int& akri_layer_number,
     const ::DWORD GGO_LEVEL{16};
 
     ::GLYPHMETRICS glyph_metrics{};
-<<<<<<< HEAD
     const ::MAT2 mat{{0, 1}, {0, 0}, {0, 0}, {0, 1}};
-=======
-    const ::MAT2 mat = {{0, 1}, {0, 0}, {0, 0}, {0, 1}};
->>>>>>> b178c1b... half-way
     ::DWORD mono_font_data_size = ::GetGlyphOutline(this->hdc_,
                                                     char_code,
                                                     GGO_FLAG,
@@ -416,7 +408,6 @@ void mesh::set_dynamic_message(const int& akri_layer_number,
     const ::UINT font_width = (glyph_metrics.gmBlackBoxX + 3) / 4 * 4;
     const ::UINT font_height = glyph_metrics.gmBlackBoxY;
 
-<<<<<<< HEAD
     if (static_cast<::UINT>(akr_rect.right - akr_rect.left)
         < font_width_sum + font_width) {
       font_height_sum += text_metric.tmHeight;
@@ -428,17 +419,11 @@ void mesh::set_dynamic_message(const int& akri_layer_number,
       // TODO
     }
 
-=======
->>>>>>> b178c1b... half-way
     std::vector<std::vector<::BYTE> > vvc_tex_buffer(
         font_height, std::vector<::BYTE>(font_width));
     for (std::size_t y{}; y < vvc_tex_buffer.size(); ++y) {
       for (std::size_t x{}; x < vvc_tex_buffer.at(y).size(); ++x) {
-<<<<<<< HEAD
         vvc_tex_buffer.at(y).at(x) = up_mono[y*font_width + x];
-=======
-        vvc_tex_buffer.at(y).at(x) = up_mono[y*font_height + x];
->>>>>>> b178c1b... half-way
       }
     }
 
@@ -459,23 +444,6 @@ void mesh::set_dynamic_message(const int& akri_layer_number,
       }
     }
     font_width_sum += glyph_metrics.gmBlackBoxX;
-<<<<<<< HEAD
-=======
-
-//    font_width_sum += glyph_metrics.gmptGlyphOrigin.x;
-//    for (int y = 0; y < font_height; y++) {
-//      for (int x = 0; x < font_width; x++) {
-//        DWORD alpha = up_mono[y * font_width + x] * 255 / GGO_LEVEL;
-//        DWORD sum_alpha = pTexBuf[(y+text_metric.tmAscent-glyph_metrics.gmptGlyphOrigin.y) * 512 + x + font_width_sum] & 0xff000000;
-//        sum_alpha >>= 24;
-//        sum_alpha += alpha;
-//        if (sum_alpha >= 256) {sum_alpha = 255;}
-
-//        pTexBuf[(y+text_metric.tmAscent-glyph_metrics.gmptGlyphOrigin.y + font_height_sum) * 512 + x + font_width_sum] = (sum_alpha << 24) | akri_color;
-//      }
-//    }
-//    font_width_sum += glyph_metrics.gmBlackBoxX;
->>>>>>> b178c1b... half-way
   }
 
   p_temp_texture->UnlockRect(0);

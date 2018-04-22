@@ -313,7 +313,7 @@ void basic_window::render()
     if (::GetAsyncKeyState('C') & 0x8000) {
       static float f = 0.0f;
       f += 0.01f;
-      this->sp_mesh_->set_dynamic_texture_position(0, {0.5f, f} );
+      this->sp_mesh_->set_dynamic_texture_position(0, {f, f} );
     }
     if (::GetAsyncKeyState('V') & 0x8000) {
       static float f = 3.1415926535f/2;
@@ -321,11 +321,7 @@ void basic_window::render()
       this->sp_mesh_->set_dynamic_texture_opacity(0, std::sin(f)/2+0.5f);
     }
     if (::GetAsyncKeyState('B') & 0x8000) {
-<<<<<<< HEAD
       this->sp_mesh_->set_dynamic_message(0, "abcijijihoge\na‚ ‚ ", {50, 50, 150, 150});
-=======
-      this->sp_mesh_->set_dynamic_message(0, "abcijjij\n1234");
->>>>>>> b178c1b... half-way
 //      this->sp_mesh_->set_dynamic_message(0, "‚P‚Q‚R‚S‚T‚U‚V‚W‚X");
     }
     vec4_light_direction.x = this->light_direction_.x;
