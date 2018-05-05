@@ -326,9 +326,6 @@ void skinned_animation_mesh::render_frame(const ::LPD3DXFRAME a_kp_frame)
 void skinned_animation_mesh::render_mesh_container(
     const ::LPD3DXMESHCONTAINER a_kp_mesh_container_base)
 {
-// TODO later.
-//  this->up_d3dx_effect_->SetFloat(this->d3dx_handle_scale_, 1.0f);
-
   skinned_animation_mesh_container *p_mesh_container{
       static_cast<skinned_animation_mesh_container*>(a_kp_mesh_container_base)};
 

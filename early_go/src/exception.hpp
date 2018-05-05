@@ -46,6 +46,13 @@ public:
   custom_exception() : custom_exception("There is not any messages.") {}
   custom_exception(const std::string& a_krsz)
       : std::exception(), ksz_(a_krsz) {}
+  custom_exception& operator=(const custom_exception& rhs) {
+    if (this != &rhs) {
+      std::string* sz = const_cast<std::string*>(&this->ksz_);
+      *sz = rhs.ksz_;
+    }
+    return *this;
+  }
 
   virtual const char* what() const noexcept
   {

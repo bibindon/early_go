@@ -141,7 +141,7 @@ struct log_liner
   /* d'tor */
   ~log_liner()
   {
-//    this->ostringstream_ << std::endl;
+    this->ostringstream_ << std::endl;
     ::OutputDebugString(this->ostringstream_.str().c_str());
   }
 private:

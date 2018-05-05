@@ -6,7 +6,11 @@ namespace early_go {
 namespace constants {
   const static int WINDOW_WIDTH = 800;
   const static int WINDOW_HEIGHT = 600;
+#if defined(_WIN64) && defined(_WIN32)
+  const static float ANIMATION_SPEED = 0.02f/120;
+#elif !defined(_WIN64) && defined(_WIN32)
   const static float ANIMATION_SPEED = 0.02f;
+#endif
   const static std::string APP_NAME = "early_go";
   const static std::string DATABASE_NAME = ".res";
   const static std::string FAILED_TO_READ_X_FILE_MESSAGE =

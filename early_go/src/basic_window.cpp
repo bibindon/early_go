@@ -24,8 +24,8 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
       mat_projection_{},
       light_direction_{-1.0f, 0.0f, 0.0f},
       light_brightness_{1.0f},
-      vec_eye_position_{0.0f, 2.0f, -4.0f},
-      vec_look_at_position_{0.0f, 0.0f, 0.0f}
+      vec3_eye_position_{0.0f, 2.0f, -4.0f},
+      vec3_look_at_position_{0.0f, 0.0f, 0.0f}
 {
   ::WNDCLASSEX wndclassex{};
   wndclassex.cbSize        = sizeof(wndclassex);
@@ -36,7 +36,7 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
                                 ::LPARAM a_lparam) -> ::LRESULT {
     if (a_ui_message == WM_CLOSE) {
       ::PostQuitMessage(0);
-    } else {
+	} else {
       return ::DefWindowProc(a_hwnd, a_ui_message, a_wparam, a_lparam);
     }
     return 0;
@@ -65,8 +65,10 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
                               nullptr,
                               a_kr_hinstance,
                               nullptr)};
+
   ::ShowWindow(hwnd, SW_SHOW);
   ::UpdateWindow(hwnd);
+
   this->initialize_direct3d(hwnd);
 }
 
@@ -97,21 +99,24 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
       this->up_direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
                                         ::D3DDEVTYPE_HAL,
                                         a_kr_hwnd,
-                                        D3DCREATE_HARDWARE_VERTEXPROCESSING,
+                                        D3DCREATE_HARDWARE_VERTEXPROCESSING
+                                            | D3DCREATE_MULTITHREADED,
                                         &this->d3d_present_parameters_,
                                         &p_direct3d_device9))) {
     if (FAILED(
         this->up_direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
                                           ::D3DDEVTYPE_HAL,
                                           a_kr_hwnd,
-                                          D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+                                          D3DCREATE_SOFTWARE_VERTEXPROCESSING
+                                              | D3DCREATE_MULTITHREADED,
                                           &this->d3d_present_parameters_,
                                           &p_direct3d_device9))) {
       if (SUCCEEDED(
           this->up_direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
                                             ::D3DDEVTYPE_REF,
                                             a_kr_hwnd,
-                                            D3DCREATE_HARDWARE_VERTEXPROCESSING,
+                                            D3DCREATE_HARDWARE_VERTEXPROCESSING
+                                                | D3DCREATE_MULTITHREADED,
                                             &this->d3d_present_parameters_,
                                             &p_direct3d_device9))) {
         ::MessageBox(0,
@@ -121,7 +126,8 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
           this->up_direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
                                             ::D3DDEVTYPE_REF,
                                             a_kr_hwnd,
-                                            D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+                                            D3DCREATE_SOFTWARE_VERTEXPROCESSING
+                                                | D3DCREATE_MULTITHREADED,
                                             &this->d3d_present_parameters_,
                                             &p_direct3d_device9))) {
         ::MessageBox(0,
@@ -220,28 +226,28 @@ void basic_window::render()
   ::D3DXVECTOR4 vec4_light_direction{};
   {
     if (::GetAsyncKeyState('I') & 0x8000) {
-      this->vec_eye_position_.z += 0.02f;
-      this->vec_look_at_position_.z += 0.02f;
+      this->vec3_eye_position_.z += 0.02f;
+      this->vec3_look_at_position_.z += 0.02f;
     }
     if (::GetAsyncKeyState('K') & 0x8000) {
-      this->vec_eye_position_.z -= 0.02f;
-      this->vec_look_at_position_.z -= 0.02f;
+      this->vec3_eye_position_.z -= 0.02f;
+      this->vec3_look_at_position_.z -= 0.02f;
     }
     if (::GetAsyncKeyState('J') & 0x8000) {
-      this->vec_eye_position_.x -= 0.02f;
-      this->vec_look_at_position_.x -= 0.02f;
+      this->vec3_eye_position_.x -= 0.02f;
+      this->vec3_look_at_position_.x -= 0.02f;
     }
     if (::GetAsyncKeyState('L') & 0x8000) {
-      this->vec_eye_position_.x += 0.02f;
-      this->vec_look_at_position_.x += 0.02f;
+      this->vec3_eye_position_.x += 0.02f;
+      this->vec3_look_at_position_.x += 0.02f;
     }
     if (::GetAsyncKeyState('H') & 0x8000) {
-      this->vec_eye_position_.y += 0.02f;
-      this->vec_look_at_position_.y += 0.02f;
+      this->vec3_eye_position_.y += 0.02f;
+      this->vec3_look_at_position_.y += 0.02f;
     }
     if (::GetAsyncKeyState('N') & 0x8000) {
-      this->vec_eye_position_.y -= 0.02f;
-      this->vec_look_at_position_.y -= 0.02f;
+      this->vec3_eye_position_.y -= 0.02f;
+      this->vec3_look_at_position_.y -= 0.02f;
     }
     if (::GetAsyncKeyState('Q') & 0x8000) {
       ::PostQuitMessage(0);
@@ -308,21 +314,25 @@ void basic_window::render()
     }
     if (::GetAsyncKeyState('X') & 0x8000) {
       this->sp_mesh_->set_dynamic_texture(
-          "board2.png", 0, mesh::combine_type::NORMAL);
+          "board2.png", 1, mesh::combine_type::NORMAL);
     }
     if (::GetAsyncKeyState('C') & 0x8000) {
       static float f = 0.0f;
       f += 0.01f;
-      this->sp_mesh_->set_dynamic_texture_position(0, {f, f} );
+      this->sp_mesh_->set_dynamic_texture_position(2, {f, f} );
     }
     if (::GetAsyncKeyState('V') & 0x8000) {
       static float f = 3.1415926535f/2;
       f += 0.1f;
-      this->sp_mesh_->set_dynamic_texture_opacity(0, std::sin(f)/2+0.5f);
+      this->sp_mesh_->set_dynamic_texture_opacity(2, std::sin(f)/2+0.5f);
     }
     if (::GetAsyncKeyState('B') & 0x8000) {
-      this->sp_mesh_->set_dynamic_message(0, "abcijijihoge\na‚ ‚ ", {50, 50, 150, 150});
-//      this->sp_mesh_->set_dynamic_message(0, "‚P‚Q‚R‚S‚T‚U‚V‚W‚X");
+      this->sp_mesh_->set_dynamic_message(0,
+          "ccccccccccccccccccccc", false, { 210, 270, 511, 511 });
+    }
+    if (::GetAsyncKeyState('W') & 0x8000) {
+      this->sp_mesh_->set_dynamic_message(2,
+          "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
     }
     vec4_light_direction.x = this->light_direction_.x;
     vec4_light_direction.y = this->light_direction_.y;
@@ -330,12 +340,11 @@ void basic_window::render()
     vec4_light_direction.w = 1.0f;
     ::D3DXVec4Normalize(&vec4_light_direction, &vec4_light_direction);
 
-
-    ::D3DXVECTOR3 vec_up_vector{ 0.0f, 1.0f, 0.0f};
+    ::D3DXVECTOR3 vec3_up_vector{ 0.0f, 1.0f, 0.0f};
     ::D3DXMatrixLookAtLH(&this->mat_view_,
-                         &this->vec_eye_position_,
-                         &this->vec_look_at_position_,
-                         &vec_up_vector);
+                         &this->vec3_eye_position_,
+                         &this->vec3_look_at_position_,
+                         &vec3_up_vector);
   }
   {
     ::D3DXMatrixPerspectiveFovLH(
@@ -376,10 +385,14 @@ void basic_window::render()
                             this->light_brightness_);
 
     render_string_object::render_string(std::to_string(f_fps), 10, 30);
-    render_string_object::render_string(std::to_string(vec4_light_direction.x), 10, 50);
-    render_string_object::render_string(std::to_string(vec4_light_direction.y), 10, 70);
-    render_string_object::render_string(std::to_string(vec4_light_direction.z), 10, 90);
-    render_string_object::render_string(std::to_string(vec4_light_direction.w), 10, 110);
+    render_string_object::render_string(
+        std::to_string(vec4_light_direction.x), 10, 50);
+    render_string_object::render_string(
+        std::to_string(vec4_light_direction.y), 10, 70);
+    render_string_object::render_string(
+        std::to_string(vec4_light_direction.z), 10, 90);
+    render_string_object::render_string(
+        std::to_string(vec4_light_direction.w), 10, 110);
 
     this->sp_direct3d_device9_->EndScene();
   }

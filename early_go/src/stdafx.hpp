@@ -4,8 +4,9 @@
 
 #define D3D_DEBUG_INFO
 #define BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
+// #define MEMORY_LEAKS
 
-#if defined(DEBUG) || defined(_DEBUG)
+#if (defined(DEBUG) || defined(_DEBUG)) && defined(MEMORY_LEAKS)
 #include <crtdbg.h>
 #endif
 #include <d3d9.h>
@@ -38,14 +39,19 @@
 #else
 # pragma comment( lib, "d3dx9.lib" )
 #endif
-#pragma comment(lib, "sqlite3.lib")
+
+#if defined(_WIN64) && defined(_WIN32)
+# pragma comment(lib, "sqlite3x64.lib")
+#elif !defined(_WIN64) && defined(_WIN32)
+# pragma comment(lib, "sqlite3.lib")
+#endif
 
 /*
  * This macro is for replacing 'malloc' and 'new' to detect memory leaks. This
  * must be at the buttom of a header file like a here because this macro causes
  * the build error if this is at above include line of the specific header.
  */
-#if defined(DEBUG) || defined(_DEBUG)
+#if (defined(DEBUG) || defined(_DEBUG)) && defined(MEMORY_LEAKS)
 # define malloc_crt(x) ::_malloc_dbg((x), _NORMAL_BLOCK, __FILE__, __LINE__)
 # define _aligned_malloc_crt(x, y) \
     ::_aligned_malloc_dbg((x), (y), __FILE__, __LINE__)
