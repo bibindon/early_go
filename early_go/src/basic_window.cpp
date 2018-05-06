@@ -54,11 +54,14 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
 
   ::RegisterClassEx(&wndclassex);
 
+  ::RECT rc{};
+  ::SystemParametersInfo(SPI_GETWORKAREA, 0, &rc, 0);
+
   ::HWND hwnd{::CreateWindow(constants::APP_NAME.c_str(),
                               constants::APP_NAME.c_str(),
                               WS_OVERLAPPEDWINDOW,
-                              0,
-                              0,
+                              rc.right/2 - constants::WINDOW_WIDTH/2,
+                              rc.bottom/2 - constants::WINDOW_HEIGHT/2,
                               constants::WINDOW_WIDTH,
                               constants::WINDOW_HEIGHT,
                               nullptr,
