@@ -309,29 +309,35 @@ void basic_window::render()
       this->sp_skinned_animation_mesh_->play_animation_set("Wolf_Walk_cycle_");
     }
     if (::GetAsyncKeyState('Z') & 0x8000) {
-      this->sp_mesh_->set_dynamic_texture(
+      //this->sp_mesh_->set_dynamic_texture(
+      this->sp_skinned_animation_mesh_->set_dynamic_texture(
           "board.png", 0, mesh::combine_type::NORMAL);
     }
     if (::GetAsyncKeyState('X') & 0x8000) {
-      this->sp_mesh_->set_dynamic_texture(
+      //this->sp_mesh_->set_dynamic_texture(
+      this->sp_skinned_animation_mesh_->set_dynamic_texture(
           "board2.png", 1, mesh::combine_type::NORMAL);
     }
     if (::GetAsyncKeyState('C') & 0x8000) {
       static float f = 0.0f;
       f += 0.01f;
-      this->sp_mesh_->set_dynamic_texture_position(2, {f, f} );
+//      this->sp_mesh_->set_dynamic_texture_position(2, {f, f} );
+      this->sp_skinned_animation_mesh_->set_dynamic_texture_position(2, {f, f} );
     }
     if (::GetAsyncKeyState('V') & 0x8000) {
       static float f = 3.1415926535f/2;
       f += 0.1f;
-      this->sp_mesh_->set_dynamic_texture_opacity(2, std::sin(f)/2+0.5f);
+//      this->sp_mesh_->set_dynamic_texture_opacity(2, std::sin(f)/2+0.5f);
+      this->sp_skinned_animation_mesh_->set_dynamic_texture_opacity(2, std::sin(f)/2+0.5f);
     }
     if (::GetAsyncKeyState('B') & 0x8000) {
-      this->sp_mesh_->set_dynamic_message(0,
+     // this->sp_mesh_->set_dynamic_message(0,
+      this->sp_skinned_animation_mesh_->set_dynamic_message(0,
           "ccccccccccccccccccccc", false, { 210, 270, 511, 511 });
     }
     if (::GetAsyncKeyState('W') & 0x8000) {
-      this->sp_mesh_->set_dynamic_message(2,
+//      this->sp_mesh_->set_dynamic_message(2,
+      this->sp_skinned_animation_mesh_->set_dynamic_message(2,
           "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
     }
     vec4_light_direction.x = this->light_direction_.x;

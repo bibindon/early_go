@@ -3,6 +3,7 @@
 #include "skinned_animation_mesh.hpp"
 #include "skinned_animation_mesh_allocator.hpp"
 #include "basic_window.hpp"
+#include "animation_strategy.hpp"
 
 namespace early_go {
   const std::string skinned_animation_mesh::SHADER_FILENAME =
@@ -66,7 +67,7 @@ skinned_animation_mesh::skinned_animation_mesh(
     const std::string& a_krsz_xfile_name,
     const ::D3DXVECTOR3& a_kp_vec_position,
     const float& a_krf_size)
-    : vecup_animation_set_{},
+    : base_mesh{a_krsp_direct3d_device9, SHADER_FILENAME},
       b_play_animation_{true},
       f_animation_time_{},
       sp_direct3d_device9_{a_krsp_direct3d_device9},
@@ -74,58 +75,18 @@ skinned_animation_mesh::skinned_animation_mesh(
           new_crt skinned_animation_mesh_allocator{a_krsz_xfile_name}},
       up_d3dx_frame_root_{nullptr,
           frame_root_deleter_object{sp_skinned_animation_mesh_allocator_}},
-      up_d3dx_animation_controller_{nullptr, custom_deleter{}},
       vec3_position_{a_kp_vec_position},
       mat_rotation_{::D3DMATRIX{}},
-      up_d3dx_effect_{nullptr, custom_deleter{}},
       d3dx_handle_view_projection_{},
-      d3dx_handle_light_normal_{},
-      d3dx_handle_brightness_{},
-      d3dx_handle_scale_{},
-      d3dx_handle_texture_{},
-      d3dx_handle_diffuse_{}
+      d3dx_handle_scale_{}
 {
-  ::HRESULT hresult{};
-
-  std::vector<char> vecc_buffer = get_resource(
-      "select data from shader_file where filename = '"
-      + this->SHADER_FILENAME + "';");
-  ::LPD3DXEFFECT temp_p_d3dx_effect{};
-  ::D3DXCreateEffect(a_krsp_direct3d_device9.get(),
-                     &vecc_buffer[0],
-                     static_cast<::UINT>(vecc_buffer.size()),
-                     nullptr,
-                     nullptr,
-                     0,
-                     nullptr,
-                     &temp_p_d3dx_effect,
-                     nullptr);
-  this->up_d3dx_effect_.reset(temp_p_d3dx_effect);
-  if (FAILED(hresult)) {
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed to create an effect file."});
-  }
-
   this->d3dx_handle_view_projection_ =
       this->up_d3dx_effect_->GetParameterByName(nullptr,
                                                 "g_view_projection");
-  this->d3dx_handle_light_normal_ =
-      this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "g_light_normal");
-
-  this->d3dx_handle_brightness_ =
-      this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "g_light_brightness");
-  this->d3dx_handle_texture_ =
-      this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "g_texture");
-  this->d3dx_handle_diffuse_ =
-      this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "g_diffuse");
-
   ::LPD3DXFRAME p_temp_d3dx_frame_root{nullptr};
   ::LPD3DXANIMATIONCONTROLLER p_temp_d3dx_animation_controller{nullptr};
 
-  vecc_buffer = get_resource(
+  std::vector<char> vecc_buffer = get_resource(
       "select data from x_file where filename = '" + a_krsz_xfile_name + "';");
   if (FAILED(::D3DXLoadMeshHierarchyFromXInMemory(
       &vecc_buffer[0],
@@ -142,22 +103,10 @@ skinned_animation_mesh::skinned_animation_mesh(
   }
   /* lazy initialization */
   this->up_d3dx_frame_root_.reset(p_temp_d3dx_frame_root);
-  this->up_d3dx_animation_controller_.reset(p_temp_d3dx_animation_controller);
+  this->up_animation_strategy_.reset(
+      new_crt normal_animation{p_temp_d3dx_animation_controller});
+
   this->allocate_all_bone_matrices(this->up_d3dx_frame_root_.get());
-
-  ::DWORD dw_animation_number{
-      this->up_d3dx_animation_controller_->GetNumAnimationSets()};
-
-  std::vector<std::unique_ptr<::ID3DXAnimationSet, custom_deleter> >
-      temp_vecup(dw_animation_number);
-
-  this->vecup_animation_set_.swap(temp_vecup);
-
-  for (::DWORD i{}; i < dw_animation_number; ++i) {
-    ::LPD3DXANIMATIONSET p_temp{};
-    this->up_d3dx_animation_controller_->GetAnimationSet(i, &p_temp);
-    this->vecup_animation_set_.at(i).reset(p_temp);
-  }
 
   ::D3DXFrameCalculateBoundingSphere(this->up_d3dx_frame_root_.get(),
                                      &this->vec3_center_coodinate_,
@@ -165,61 +114,18 @@ skinned_animation_mesh::skinned_animation_mesh(
   this->f_scale_ = a_krf_size / this->f_radius_;
 }
 
-void skinned_animation_mesh::play_animation_set(
-    const std::size_t& a_kr_animation_set)
-{
-  if (a_kr_animation_set >= this->vecup_animation_set_.size()) {
-    BOOST_THROW_EXCEPTION(
-        custom_exception{"An illegal animation set was sent."});
-  }
-  this->up_d3dx_animation_controller_->SetTrackAnimationSet(
-      0, this->vecup_animation_set_.at(a_kr_animation_set).get());
-}
-
-void skinned_animation_mesh::play_animation_set(
-    const std::string& a_kr_animation_set)
-{
-  std::vector<
-      std::unique_ptr<
-          ::ID3DXAnimationSet, custom_deleter
-      >
-  >::const_iterator kit;
-
-  kit = std::find_if(
-      this->vecup_animation_set_.cbegin(),
-      this->vecup_animation_set_.cend(),
-      [&](const std::unique_ptr<::ID3DXAnimationSet, custom_deleter>& a){
-        return a_kr_animation_set == a->GetName();
-  });
-
-  if (this->vecup_animation_set_.cend() == kit) {
-    BOOST_THROW_EXCEPTION(
-        custom_exception{"An illegal animation set was sent."});
-  }
-
-  this->up_d3dx_animation_controller_->SetTrackAnimationSet(0, kit->get());
-}
-
 /* Renders its own animation mesh. */
-void skinned_animation_mesh::render(const ::D3DXMATRIX& a_kr_mat_view,
-                                    const ::D3DXMATRIX& a_kr_mat_projection,
-                                    const ::D3DXVECTOR4 & a_kr_normal_light,
-                                    const float& a_kr_brightness)
+void skinned_animation_mesh::do_render(const ::D3DXMATRIX& a_kr_mat_view,
+                                       const ::D3DXMATRIX& a_kr_mat_projection)
 {
   ::D3DXMATRIX mat_view_projection{a_kr_mat_view * a_kr_mat_projection};
 
   this->up_d3dx_effect_->SetMatrix(
       this->d3dx_handle_view_projection_, &mat_view_projection);
 
-  this->up_d3dx_effect_->SetVector(
-      this->d3dx_handle_light_normal_, &a_kr_normal_light);
-
-  this->up_d3dx_effect_->SetFloat(
-      this->d3dx_handle_brightness_, a_kr_brightness);
-
   if (this->b_play_animation_) {
     this->f_animation_time_ += constants::ANIMATION_SPEED;
-    this->up_d3dx_animation_controller_->AdvanceTime(
+    this->up_animation_strategy_->up_d3dx_animation_controller_->AdvanceTime(
         constants::ANIMATION_SPEED, nullptr);
   }
 
@@ -358,7 +264,7 @@ void skinned_animation_mesh::render_mesh_container(
         p_mesh_container->pMaterials[bone_id].MatD3D.Diffuse.a
     };
     this->up_d3dx_effect_->SetVector(this->d3dx_handle_diffuse_, &vec4_color);
-    this->up_d3dx_effect_->SetTexture(this->d3dx_handle_texture_,
+    this->up_d3dx_effect_->SetTexture(this->d3dx_handle_mesh_texture_,
         p_mesh_container->vecup_texture_.at(bone_id).get());
 
     this->up_d3dx_effect_->Begin(nullptr, D3DXFX_DONOTSAVESTATE);

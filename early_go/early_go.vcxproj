@@ -87,7 +87,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
@@ -141,7 +141,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -196,6 +196,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\animation_mesh.cpp" />
+    <ClCompile Include="src\base_mesh.cpp" />
     <ClCompile Include="src\basic_window.cpp" />
     <ClCompile Include="src\animation_mesh_allocator.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -220,6 +221,8 @@
   <ItemGroup>
     <ClInclude Include="src\animation_mesh.hpp" />
     <ClInclude Include="src\animation_mesh_allocator.hpp" />
+    <ClInclude Include="src\animation_strategy.hpp" />
+    <ClInclude Include="src\base_mesh.hpp" />
     <ClInclude Include="src\basic_window.hpp" />
     <ClInclude Include="src\constants.hpp" />
     <ClInclude Include="src\exception.hpp" />

@@ -39,6 +39,9 @@
     <ClCompile Include="src\skinned_animation_mesh_allocator.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="src\base_mesh.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -96,6 +99,12 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="src\resource.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base_mesh.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\animation_strategy.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
