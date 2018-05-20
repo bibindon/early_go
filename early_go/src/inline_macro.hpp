@@ -68,7 +68,7 @@ struct custom_deleter
 
 inline std::vector<char> get_resource(const std::string& a_kr_query)
 {
-#if 1
+#if 0
 
   std::size_t begin = a_kr_query.find_first_of("'")+1;
   std::size_t end = a_kr_query.find_first_of("'", begin);
@@ -128,7 +128,7 @@ struct log_liner
 //#if defined(DEBUG) || defined(_DEBUG)
 #if 1
   /* c'tor */
-  log_liner() : ostringstream_{} {}
+  log_liner(const std::string& op = "") : ostringstream_{}, option_{op} {}
 
   /* A definition of the "<<" operator. */
   template <typename T>
@@ -141,11 +141,14 @@ struct log_liner
   /* d'tor */
   ~log_liner()
   {
-    this->ostringstream_ << std::endl;
+    if (this->option_ != "-n") {
+      this->ostringstream_ << std::endl;
+    }
     ::OutputDebugString(this->ostringstream_.str().c_str());
   }
 private:
   std::ostringstream ostringstream_;
+  const std::string option_;
 #else
   template <typename T>
   log_liner& operator<<(T)

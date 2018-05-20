@@ -119,7 +119,7 @@ void skinned_animation_mesh_container::initialize_materials(
 {
   /* This strange bracket is measures of being interpretered as WinAPI macro. */
   this->NumMaterials = (std::max)(1UL, a_k_materials_number);
-  this->pMaterials = new_crt::D3DXMATERIAL[this->NumMaterials]{};
+  this->pMaterials = new_crt ::D3DXMATERIAL[this->NumMaterials]{};
   std::vector<std::unique_ptr<::IDirect3DTexture9, custom_deleter> >
       temp_texture(this->NumMaterials);
   this->vecup_texture_.swap(temp_texture);

@@ -1,4 +1,5 @@
 #include "constants.hpp"
+#include "stdafx.hpp"
 
 namespace early_go {
 const int constants::WINDOW_WIDTH = 800;
