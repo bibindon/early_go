@@ -1,6 +1,5 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ で生成されたインクルード ファイル。
-// C:\Users\McGriddles\source\repos\early_go\early_go\res\early_go.rc で使用
 //
 #define IDD_DIALOG1                     101
 #define IDC_EDIT1                       1001

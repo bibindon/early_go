@@ -89,7 +89,8 @@ animation_mesh::animation_mesh(
 
   std::vector<char> vecc_buffer = get_resource(
       "select data from x_file where filename = '" + a_krsz_xfile_name + "';");
-  if (FAILED(::D3DXLoadMeshHierarchyFromXInMemory(
+
+  HRESULT hresult{::D3DXLoadMeshHierarchyFromXInMemory(
       &vecc_buffer[0],
       static_cast<::DWORD>(vecc_buffer.size()),
       ::D3DXMESH_MANAGED,
@@ -97,9 +98,13 @@ animation_mesh::animation_mesh(
       this->sp_animation_mesh_allocator_.get(),
       nullptr,
       &p_temp_root_frame,
-      &p_temp_d3dx_animation_controller))) {
-    ::MessageBox(nullptr, constants::FAILED_TO_READ_X_FILE_MESSAGE.c_str(),
-        a_krsz_xfile_name.c_str(), MB_OK);
+      &p_temp_d3dx_animation_controller)};
+
+  if (FAILED(hresult)) {
+    std::string error_msg{
+        constants::FAILED_TO_READ_X_FILE_MESSAGE
+            + ": " + ::DXGetErrorString(hresult)};
+    ::MessageBox(nullptr, error_msg.c_str(), a_krsz_xfile_name.c_str(), MB_OK);
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to load a x-file."});
   }
   /* lazy initialization */
@@ -107,10 +112,7 @@ animation_mesh::animation_mesh(
   this->up_animation_strategy_.reset(
       new_crt normal_animation{p_temp_d3dx_animation_controller});
 
-  ::D3DXFrameCalculateBoundingSphere(this->up_d3dx_frame_root_.get(),
-                                     &this->vec3_center_coodinate_,
-                                     &this->f_radius_);
-  this->f_scale_ = a_krf_size / this->f_radius_;
+  this->f_scale_ = a_krf_size;
 }
 
 /* Renders its own animation mesh. */

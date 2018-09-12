@@ -49,7 +49,6 @@ private:
   std::vector<::D3DXMATRIX>               vecmat_world_matrix_array_;
 
   ::D3DXVECTOR3 vec3_center_coodinate_{};
-  float         f_radius_{};
   float         f_scale_{};
 
   // For effect.
