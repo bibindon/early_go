@@ -48,7 +48,6 @@ private:
   ::D3DXMATRIX                               mat_projection_;
 
   ::D3DXVECTOR3                              vec3_center_coodinate_{};
-  float                                      f_radius_{};
   float                                      f_scale_{};
 
   // For effect.

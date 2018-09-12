@@ -41,6 +41,11 @@ private:
   std::shared_ptr<base_mesh>                    sp_mesh_;
   std::shared_ptr<base_mesh>                    sp_mesh2_;
 
+  std::shared_ptr<base_mesh>                    sp_early_body_;
+  std::shared_ptr<base_mesh>                    sp_early_armor_;
+  std::shared_ptr<base_mesh>                    sp_early_lance_;
+  std::shared_ptr<base_mesh>                    sp_early_saber_;
+
   ::D3DXMATRIX                                  mat_view_;
   ::D3DXMATRIX                                  mat_projection_;
   ::D3DXVECTOR3                                 light_direction_;

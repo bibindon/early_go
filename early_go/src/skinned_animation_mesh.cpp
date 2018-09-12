@@ -108,10 +108,7 @@ skinned_animation_mesh::skinned_animation_mesh(
 
   this->allocate_all_bone_matrices(this->up_d3dx_frame_root_.get());
 
-  ::D3DXFrameCalculateBoundingSphere(this->up_d3dx_frame_root_.get(),
-                                     &this->vec3_center_coodinate_,
-                                     &this->f_radius_);
-  this->f_scale_ = a_krf_size / this->f_radius_;
+  this->f_scale_ = a_krf_size;
 }
 
 /* Renders its own animation mesh. */
