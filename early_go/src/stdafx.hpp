@@ -11,7 +11,6 @@
 #endif
 #include <d3d9.h>
 #include <d3dx9.h>
-#include <DXErr.h>
 #include <stdio.h>
 #include <string.h>
 #include <sqlite3.h>
@@ -46,8 +45,6 @@
 #elif !defined(_WIN64) && defined(_WIN32)
 # pragma comment(lib, "sqlite3.lib")
 #endif
-
-#pragma comment(lib, "DXErr.lib")
 
 /*
  * This macro is for replacing 'malloc' and 'new' to detect memory leaks. This

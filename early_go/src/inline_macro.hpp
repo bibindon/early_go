@@ -82,7 +82,7 @@ inline std::vector<char> get_resource(const std::string& a_kr_query)
   return std::vector<char>(s.begin(), s.end());
 
 #else
-  std::vector<char> ret;
+  std::vector<char> _ret;
   ::sqlite3* db = nullptr;
   if (::sqlite3_open(constants::DATABASE_NAME.c_str(), &db) != SQLITE_OK) {
     ::sqlite3_close(db);
@@ -101,10 +101,10 @@ inline std::vector<char> get_resource(const std::string& a_kr_query)
           custom_exception{"There are multiple specified resources.\n"
                            " query: " + a_kr_query});
     }
-    const char* blob = (char*)sqlite3_column_blob(_statement, 0);
-    int data_len = sqlite3_column_bytes(_statement, 0);
-    ret.reserve(data_len);
-    ret.insert(ret.begin(), blob, blob+data_len);
+    const char* _blob = (char*)sqlite3_column_blob(_statement, 0);
+    int _data_len = sqlite3_column_bytes(_statement, 0);
+    _ret.reserve(_data_len);
+    _ret.insert(_ret.begin(), _blob, _blob+_data_len);
   }
   ::sqlite3_finalize(_statement);
   ::sqlite3_close(db);
@@ -112,7 +112,7 @@ inline std::vector<char> get_resource(const std::string& a_kr_query)
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to find a resource.\n"
                           " query: " + a_kr_query});
   }
-  return ret;
+  return _ret;
 #endif
 }
 
