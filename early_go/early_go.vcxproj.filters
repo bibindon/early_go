@@ -47,7 +47,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="res\RobotArm.x">
       <Filter>リソース ファイル</Filter>
     </None>
@@ -69,6 +68,7 @@
     <None Include="res\Dwarf.x">
       <Filter>リソース ファイル</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\exception.hpp">

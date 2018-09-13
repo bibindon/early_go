@@ -41,12 +41,7 @@
 # pragma comment( lib, "d3dx9.lib" )
 #endif
 
-#if defined(_WIN64) && defined(_WIN32)
-# pragma comment(lib, "sqlite3x64.lib")
-#elif !defined(_WIN64) && defined(_WIN32)
-# pragma comment(lib, "sqlite3.lib")
-#endif
-
+#pragma comment(lib, "sqlite3.lib")
 #pragma comment(lib, "DXErr.lib")
 
 /*
