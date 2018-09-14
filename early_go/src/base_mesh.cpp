@@ -12,7 +12,7 @@ base_mesh::base_mesh(
 {
   ::HRESULT hresult{};
   std::vector<char> vecc_buffer = get_resource(
-      "select data from shader_file where filename = '"
+      "select data from shader where filename = 'shader/"
       + akrsz_shader_filename + "';");
   ::LPD3DXEFFECT p_d3dx_temp_effect{};
   ::D3DXCreateEffect(this->sp_direct3d_device9_.get(),

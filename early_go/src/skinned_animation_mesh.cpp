@@ -87,7 +87,7 @@ skinned_animation_mesh::skinned_animation_mesh(
   ::LPD3DXANIMATIONCONTROLLER p_temp_d3dx_animation_controller{nullptr};
 
   std::vector<char> vecc_buffer = get_resource(
-      "select data from x_file where filename = '" + a_krsz_xfile_name + "';");
+      "select data from model where filename = '" + a_krsz_xfile_name + "';");
   if (FAILED(::D3DXLoadMeshHierarchyFromXInMemory(
       &vecc_buffer[0],
       static_cast<DWORD>(vecc_buffer.size()),

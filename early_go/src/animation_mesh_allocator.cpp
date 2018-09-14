@@ -112,11 +112,12 @@ animation_mesh_container::animation_mesh_container(
     for (::DWORD i{}; i < a_k_materials_number; ++i) {
       this->pMaterials[i].MatD3D.Ambient = ::D3DCOLORVALUE{0.2f, 0.2f, 0.2f, 0};
       if (this->pMaterials[i].pTextureFilename != nullptr) {
-        std::string sz_query;
-        sz_query = "select data from texture where filename = '";
+        std::string sz_query{};
+        sz_query = "select data from model where filename = '";
+        sz_query += a_krsz_x_filename;
+        sz_query = sz_query.erase(sz_query.find_last_of('/')+1);
         sz_query += this->pMaterials[i].pTextureFilename;
-        sz_query += "' and x_filename = '";
-        sz_query += a_krsz_x_filename + "';";
+        sz_query += "';";
 
         std::vector<char> vecc_buffer = get_resource(sz_query);
         ::LPDIRECT3DTEXTURE9 p_temp_texture{};

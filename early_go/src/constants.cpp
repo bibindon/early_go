@@ -1,5 +1,5 @@
-#include "constants.hpp"
 #include "stdafx.hpp"
+#include "constants.hpp"
 
 namespace early_go {
 const int constants::WINDOW_WIDTH = 1600;
@@ -17,14 +17,17 @@ const std::string constants::FAILED_TO_CREATE_HARDWARE_MODE_MESSAGE =
     "正常に起動できませんでした。動作が重くなる可能性があります。";
 const std::string constants::FAILED_TO_CREATE_WINDOW_MESSAGE =
     "Failed to create a window.";
-const std::string constants::MESH_FILE_NAME = "tiger.x";
-const std::string constants::MESH_FILE_NAME2 = "Dwarf.x";
-const std::string constants::ANIMATION_MESH_FILE_NAME = "RobotArm.x";
-const std::string constants::SKINNED_ANIMATION_MESH_FILE_NAME = "wolf.x";
-const std::string constants::SKINNED_ANIMATION_MESH_FILE_NAME2 = "tiny.x";
+const std::string constants::MESH_FILE_NAME = "model/tiger/tiger.x";
+const std::string constants::MESH_FILE_NAME2 = "model/Dwarf/Dwarf.x";
+const std::string constants::ANIMATION_MESH_FILE_NAME =
+    "model/RobotArm/RobotArm.x";
+const std::string constants::SKINNED_ANIMATION_MESH_FILE_NAME =
+    "model/wolf/wolf.x";
+const std::string constants::SKINNED_ANIMATION_MESH_FILE_NAME2 =
+    "model/tiny/tiny.x";
 
-const std::string constants::EARLY_BODY = "early_tentative_body.x";
-const std::string constants::EARLY_ARMOR = "early_tentative_armor.x";
-const std::string constants::EARLY_LANCE = "early_tentative_lance.x";
-const std::string constants::EARLY_SABER = "early_tentative_saber.x";
+const std::string constants::EARLY_BODY = "model/early_tentative/body.x";
+const std::string constants::EARLY_ARMOR = "model/early_tentative/armor.x";
+const std::string constants::EARLY_LANCE = "model/early_tentative/lance.x";
+const std::string constants::EARLY_SABER = "model/early_tentative/saber.x";
 }

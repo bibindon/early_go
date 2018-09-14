@@ -339,12 +339,12 @@ void basic_window::render()
     if (::GetAsyncKeyState('Z') & 0x8000) {
       //this->sp_mesh_->set_dynamic_texture(
       this->sp_skinned_animation_mesh_->set_dynamic_texture(
-          "board.png", 0, mesh::combine_type::NORMAL);
+          "image/board.png", 0, mesh::combine_type::NORMAL);
     }
     if (::GetAsyncKeyState('X') & 0x8000) {
       //this->sp_mesh_->set_dynamic_texture(
       this->sp_skinned_animation_mesh_->set_dynamic_texture(
-          "board2.png", 1, mesh::combine_type::NORMAL);
+          "image/board2.png", 1, mesh::combine_type::NORMAL);
     }
     if (::GetAsyncKeyState('C') & 0x8000) {
       static float f = 0.0f;

@@ -88,7 +88,7 @@ animation_mesh::animation_mesh(
   ::LPD3DXANIMATIONCONTROLLER p_temp_d3dx_animation_controller{nullptr};
 
   std::vector<char> vecc_buffer = get_resource(
-      "select data from x_file where filename = '" + a_krsz_xfile_name + "';");
+      "select data from model where filename = '" + a_krsz_xfile_name + "';");
 
   HRESULT hresult{::D3DXLoadMeshHierarchyFromXInMemory(
       &vecc_buffer[0],

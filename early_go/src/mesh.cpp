@@ -35,7 +35,7 @@ mesh::mesh(
   ::LPD3DXMESH   p_temp_mesh{};
 
   std::vector<char> vecc_buffer = get_resource(
-      "select data from x_file where filename = '" + a_krsz_xfile_name + "';");
+      "select data from model where filename = '" + a_krsz_xfile_name + "';");
   hresult = ::D3DXLoadMeshFromXInMemory(
       &vecc_buffer[0],
       static_cast<::DWORD>(vecc_buffer.size()),
@@ -126,10 +126,11 @@ mesh::mesh(
     this->vec_d3d_color_.at(i) = p_d3dx_materials[i].MatD3D.Diffuse;
     if (p_d3dx_materials[i].pTextureFilename != nullptr) {
       std::string sz_query{};
-      sz_query = "select data from texture where filename = '";
+      sz_query = "select data from model where filename = '";
+      sz_query += a_krsz_xfile_name;
+      sz_query = sz_query.erase(sz_query.find_last_of('/')+1);
       sz_query += p_d3dx_materials[i].pTextureFilename;
-      sz_query += "' and x_filename = '";
-      sz_query += a_krsz_xfile_name + "';";
+      sz_query += "';";
 
       vecc_buffer = get_resource(sz_query);
       
