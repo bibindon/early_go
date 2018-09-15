@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{9B3402A2-6FCE-4E52-BE5E-74D595294C64}</ProjectGuid>
     <RootNamespace>earlygo</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -112,8 +112,12 @@
       <ShaderType>Effect</ShaderType>
     </FxCompile>
     <PostBuildEvent>
-      <Command>copy /y sqlite3$(PlatformTarget).dll sqlite3.dll</Command>
+      <Command>tools\post-build_event.bat $(PlatformTarget)</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -144,8 +148,12 @@
       <ShaderModel>2.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
-      <Command>copy /y sqlite3$(PlatformTarget).dll sqlite3.dll</Command>
+      <Command>tools\post-build_event.bat $(PlatformTarget)</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -175,8 +183,12 @@
       <ShaderModel>2.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
-      <Command>copy /y sqlite3$(PlatformTarget).dll sqlite3.dll</Command>
+      <Command>tools\post-build_event.bat $(PlatformTarget)</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -206,14 +218,19 @@
       <ShaderModel>2.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
-      <Command>copy /y sqlite3$(PlatformTarget).dll sqlite3.dll</Command>
+      <Command>tools\post-build_event.bat $(PlatformTarget)</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\animation_mesh.cpp" />
     <ClCompile Include="src\base_mesh.cpp" />
     <ClCompile Include="src\basic_window.cpp" />
     <ClCompile Include="src\animation_mesh_allocator.cpp" />
+    <ClCompile Include="src\character.cpp" />
     <ClCompile Include="src\constants.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.hpp</PrecompiledHeaderFile>
     </ClCompile>
@@ -236,6 +253,7 @@
     <ClInclude Include="src\animation_strategy.hpp" />
     <ClInclude Include="src\base_mesh.hpp" />
     <ClInclude Include="src\basic_window.hpp" />
+    <ClInclude Include="src\character.hpp" />
     <ClInclude Include="src\constants.hpp" />
     <ClInclude Include="src\exception.hpp" />
     <ClInclude Include="src\inline_macro.hpp" />

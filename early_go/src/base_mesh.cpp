@@ -103,6 +103,7 @@ base_mesh::base_mesh(
     }
   }
 }
+
 void base_mesh::set_dynamic_texture(const std::string& akrsz_filename,
                                const int&         akri_layer_number,
                                const combine_type& /* akri_combine_type */)
@@ -131,8 +132,9 @@ void base_mesh::set_dynamic_texture(const std::string& akrsz_filename,
   }
 }
 
-void base_mesh::set_dynamic_texture_position(const int&           akri_layer_number,
-                                        const ::D3DXVECTOR2& akrvec2_position)
+void base_mesh::set_dynamic_texture_position(
+    const int&           akri_layer_number,
+    const ::D3DXVECTOR2& akrvec2_position)
 {
   this->dynamic_texture_.arvec2_position_.at(akri_layer_number).x =
       akrvec2_position.x;
@@ -141,7 +143,7 @@ void base_mesh::set_dynamic_texture_position(const int&           akri_layer_num
 }
 
 void base_mesh::set_dynamic_texture_opacity(const int&   akri_layer_number,
-                                       const float& akrf_opacity)
+                                            const float& akrf_opacity)
 {
   this->dynamic_texture_.arf_opacity_.at(akri_layer_number) = akrf_opacity;
 }
@@ -345,13 +347,13 @@ base_mesh::dynamic_texture::text_message_writer::text_message_writer(
 }
 
 void base_mesh::set_dynamic_message(const int&         akri_layer_number,
-                               const std::string& akrsz_message,
-                               const bool&        akrf_animation,
-                               const ::RECT&      akr_rect,
-                               const int&         akri_color,
-                               const std::string& akrsz_fontname,
-                               const int&         akri_size,
-                               const int&         akri_weight)
+                                    const std::string& akrsz_message,
+                                    const bool&        akrf_animation,
+                                    const ::RECT&      akr_rect,
+                                    const int&         akri_color,
+                                    const std::string& akrsz_fontname,
+                                    const int&         akri_size,
+                                    const int&         akri_weight)
 {
   this->dynamic_texture_.arf_opacity_.at(akri_layer_number) = 1.0f;
   dynamic_texture::text_message_writer* sp_writer{
