@@ -14,7 +14,6 @@ public:
 
 private:
   const static std::string                       SHADER_FILENAME;
-  ::D3DXVECTOR3                                  vec3_position_;
   std::unique_ptr<::ID3DXMesh, custom_deleter>   up_d3dx_mesh_;
   ::DWORD                                        dw_materials_number_;
   ::D3DXHANDLE                                   d3dx_handle_world_view_proj_;

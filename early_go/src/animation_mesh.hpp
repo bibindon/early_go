@@ -42,7 +42,6 @@ private:
   std::shared_ptr<animation_mesh_allocator>  sp_animation_mesh_allocator_;
   std::unique_ptr<::D3DXFRAME,
                   frame_root_deleter_object> up_d3dx_frame_root_;
-  ::D3DXVECTOR3                              vec3_position_;
   ::D3DXMATRIX                               mat_rotation_;
   ::D3DXMATRIX                               mat_view_;
   ::D3DXMATRIX                               mat_projection_;

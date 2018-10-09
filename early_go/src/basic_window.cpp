@@ -4,6 +4,8 @@
 #include "skinned_animation_mesh.hpp"
 #include "basic_window.hpp"
 #include "mesh.hpp"
+#include "character.hpp"
+#include "base_mesh.hpp"
 
 namespace early_go {
 /* A definition of the static member variable. */
@@ -20,10 +22,8 @@ basic_window::basic_window(const ::HINSTANCE& a_kr_hinstance)
       sp_skinned_animation_mesh2_{},
       sp_mesh_{},
       sp_mesh2_{},
-      sp_early_body_{},
-      sp_early_armor_{},
-      sp_early_lance_{},
-      sp_early_saber_{},
+      early_{new character{sp_direct3d_device9_,
+          {0.0f, 0.0f, 0.0f}, 1.0f}},
       mat_view_{},
       mat_projection_{},
       light_direction_{-1.0f, 0.0f, 0.0f},
@@ -147,7 +147,7 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
     }
   }
   /* lazy initialization */
-   this->sp_direct3d_device9_.reset(p_direct3d_device9, custom_deleter{});
+  this->sp_direct3d_device9_.reset(p_direct3d_device9, custom_deleter{});
   this->sp_animation_mesh_.reset(
       new_crt animation_mesh{this->sp_direct3d_device9_,
                              constants::ANIMATION_MESH_FILE_NAME,
@@ -172,27 +172,11 @@ void basic_window::initialize_direct3d(const ::HWND& a_kr_hwnd)
                                      ::D3DXVECTOR3{ 0.5f, 0.0f, 2.0f},
                                      1.0f});
 
-  this->sp_early_body_.reset(new_crt skinned_animation_mesh{
-      this->sp_direct3d_device9_,
-      constants::EARLY_BODY,
-      ::D3DXVECTOR3{ 0.0f, 0.0f, -1.0f},
-      1.0f});
-  this->sp_early_armor_.reset(new_crt animation_mesh{
-      this->sp_direct3d_device9_,
-      constants::EARLY_ARMOR,
-      ::D3DXVECTOR3{ 0.0f, 0.0f, -1.0f},
-      1.0f});
-  this->sp_early_lance_.reset(new_crt animation_mesh{
-      this->sp_direct3d_device9_,
-      constants::EARLY_LANCE,
-      ::D3DXVECTOR3{ 0.0f, 0.0f, -1.0f},
-      1.0f});
-  this->sp_early_saber_.reset(new_crt animation_mesh{
-      this->sp_direct3d_device9_,
-      constants::EARLY_SABER,
-      ::D3DXVECTOR3{ 0.0f, 0.0f, -1.0f},
-      1.0f});
-
+  early_->set_position({0.0f, 0.0f, -1.0f});
+  early_->add_mesh<skinned_animation_mesh>(constants::EARLY_BODY);
+  early_->add_mesh<animation_mesh>(constants::EARLY_ARMOR);
+  early_->add_mesh<animation_mesh>(constants::EARLY_LANCE);
+  early_->add_mesh<animation_mesh>(constants::EARLY_SABER);
   /* ~ Create a Direct3D Device object. */
 
   /* Create a font. ~ */
@@ -322,6 +306,7 @@ void basic_window::render()
       this->light_direction_.z = 0.0f;
     }
     if (::GetAsyncKeyState('1') & 0x8000) {
+      //early_->play_animation_set(constants::SKINNED_ANIMATION_MESH_FILE_NAME, 1);
       this->sp_skinned_animation_mesh_->play_animation_set(1);
     }
     if (::GetAsyncKeyState('2') & 0x8000) {
@@ -337,37 +322,44 @@ void basic_window::render()
       this->sp_skinned_animation_mesh_->play_animation_set("Wolf_Walk_cycle_");
     }
     if (::GetAsyncKeyState('Z') & 0x8000) {
-      //this->sp_mesh_->set_dynamic_texture(
-      this->sp_skinned_animation_mesh_->set_dynamic_texture(
-          "image/board.png", 0, mesh::combine_type::NORMAL);
+      early_->set_dynamic_texture(constants::EARLY_BODY,
+          "image/board2.png", 0, base_mesh::combine_type::NORMAL);
     }
     if (::GetAsyncKeyState('X') & 0x8000) {
-      //this->sp_mesh_->set_dynamic_texture(
-      this->sp_skinned_animation_mesh_->set_dynamic_texture(
-          "image/board2.png", 1, mesh::combine_type::NORMAL);
+      early_->set_dynamic_texture(constants::EARLY_BODY,
+          "image/board.png", 1, base_mesh::combine_type::NORMAL);
     }
     if (::GetAsyncKeyState('C') & 0x8000) {
       static float f = 0.0f;
       f += 0.01f;
-//      this->sp_mesh_->set_dynamic_texture_position(2, {f, f} );
-      this->sp_skinned_animation_mesh_->set_dynamic_texture_position(2, {f, f} );
+      early_->set_dynamic_texture_position(
+          constants::EARLY_BODY, 1, {f, f} );
     }
     if (::GetAsyncKeyState('V') & 0x8000) {
       static float f = 3.1415926535f/2;
       f += 0.1f;
-//      this->sp_mesh_->set_dynamic_texture_opacity(2, std::sin(f)/2+0.5f);
-      this->sp_skinned_animation_mesh_->set_dynamic_texture_opacity(2, std::sin(f)/2+0.5f);
+      early_->set_dynamic_texture_opacity(
+          constants::EARLY_BODY, 1, std::sin(f)/2+0.5f);
     }
     if (::GetAsyncKeyState('B') & 0x8000) {
-     // this->sp_mesh_->set_dynamic_message(0,
-      this->sp_skinned_animation_mesh_->set_dynamic_message(0,
+      early_->set_dynamic_message(constants::EARLY_BODY, 1,
           "ccccccccccccccccccccc", false, { 210, 270, 511, 511 });
     }
     if (::GetAsyncKeyState('W') & 0x8000) {
-//      this->sp_mesh_->set_dynamic_message(2,
-      this->sp_skinned_animation_mesh_->set_dynamic_message(2,
+      early_->set_dynamic_message(constants::EARLY_BODY, 1,
           "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
     }
+
+    static float pos = -1.0f;
+    if (::GetAsyncKeyState(VK_UP) & 0x8000) {
+      pos += 0.02f;
+      early_->set_position({0.0f, 0.0f, pos});
+    }
+    if (::GetAsyncKeyState(VK_DOWN) & 0x8000) {
+      pos -= 0.02f;
+      early_->set_position({0.0f, 0.0f, pos});
+    }
+
     vec4_light_direction.x = this->light_direction_.x;
     vec4_light_direction.y = this->light_direction_.y;
     vec4_light_direction.z = this->light_direction_.z;
@@ -418,23 +410,8 @@ void basic_window::render()
                             vec4_light_direction,
                             this->light_brightness_);
 
-     this->sp_early_body_->render(this->mat_view_,
-                                  this->mat_projection_,
-                                  vec4_light_direction,
-                                  this->light_brightness_);
-     this->sp_early_armor_->render(this->mat_view_,
-                                   this->mat_projection_,
-                                   vec4_light_direction,
-                                   this->light_brightness_);
-     this->sp_early_lance_->render(this->mat_view_,
-                                   this->mat_projection_,
-                                   vec4_light_direction,
-                                   this->light_brightness_);
-     this->sp_early_saber_->render(this->mat_view_,
-                                   this->mat_projection_,
-                                   vec4_light_direction,
-                                   this->light_brightness_);
-
+     early_->render(mat_view_, mat_projection_, vec4_light_direction,
+       light_brightness_);
 
     render_string_object::render_string(std::to_string(f_fps), 10, 30);
     render_string_object::render_string(

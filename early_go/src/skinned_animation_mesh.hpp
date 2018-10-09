@@ -44,7 +44,6 @@ private:
       sp_skinned_animation_mesh_allocator_;
   std::unique_ptr<::D3DXFRAME, frame_root_deleter_object>
       up_d3dx_frame_root_;
-  ::D3DXVECTOR3                              vec3_position_;
   ::D3DXMATRIX                            mat_rotation_;
   std::vector<::D3DXMATRIX>               vecmat_world_matrix_array_;
 

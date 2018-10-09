@@ -11,14 +11,16 @@ class base_mesh {
 public:
   base_mesh(
       const std::shared_ptr<::IDirect3DDevice9>&,
-      const std::string&);
+      const std::string&,
+      const ::D3DXVECTOR3&);
   enum class combine_type{
     NORMAL,
 //    ADDITION,
 //    MULTIPLICATION,
   };
   template <typename T>
-  void play_animation_set(const T& akr_animation_set) {
+  void play_animation_set(const T& akr_animation_set)
+  {
     (*this->up_animation_strategy_)(akr_animation_set);
   }
   void render(const ::D3DXMATRIX&,
@@ -32,27 +34,31 @@ public:
   void set_dynamic_texture_opacity(const int&,
                                    const float&);
 
+  static const int     TEXTURE_PIXEL_SIZE;
   void set_dynamic_message(const int&,
                            const std::string&,
                            const bool& = false,
                            const ::RECT& = {
                                0,
                                0,
-                               dynamic_texture::PIXEL_NUMBER - 1,
-                               dynamic_texture::PIXEL_NUMBER - 1},
+                               TEXTURE_PIXEL_SIZE - 1,
+                               TEXTURE_PIXEL_SIZE - 1},
                            const int& = RGB(0xff, 0xff, 0xff),
                            const std::string& = "‚l‚r ‚oƒSƒVƒbƒN",
                            const int& = 40,
                            const int& = 0);
 
   void set_dynamic_message_color(const int&, const ::D3DXVECTOR4&);
+  void set_position(const ::D3DXVECTOR3& position)
+  {
+    position_ = position;
+  }
 protected:
   std::shared_ptr<::IDirect3DDevice9>            sp_direct3d_device9_;
   std::unique_ptr<::ID3DXEffect, custom_deleter> up_d3dx_effect_;
   std::unique_ptr<animation_strategy> up_animation_strategy_;
   struct dynamic_texture {
     static constexpr int LAYER_NUMBER = 8;
-    static const int     PIXEL_NUMBER;
     std::array<
         std::shared_ptr<::IDirect3DTexture9>,
         LAYER_NUMBER
@@ -104,7 +110,7 @@ protected:
   std::array<
       ::D3DXHANDLE, dynamic_texture::LAYER_NUMBER
   > ar_d3dx_handle_texture_;
-
+  ::D3DXVECTOR3                                  position_;
 private:
   virtual void do_render(const ::D3DXMATRIX&, const ::D3DXMATRIX&) = 0;
 };

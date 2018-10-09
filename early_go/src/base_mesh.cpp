@@ -3,12 +3,17 @@
 #include "base_mesh.hpp"
 
 namespace early_go {
+
+const int base_mesh::TEXTURE_PIXEL_SIZE = 512;
+
 base_mesh::base_mesh(
     const std::shared_ptr<::IDirect3DDevice9>& a_krsp_direct3d_device9,
-    const std::string& akrsz_shader_filename)
+    const std::string& akrsz_shader_filename,
+    const ::D3DXVECTOR3& position)
     : sp_direct3d_device9_{a_krsp_direct3d_device9},
       up_d3dx_effect_{nullptr, custom_deleter{}},
-      dynamic_texture_{}
+      dynamic_texture_{},
+      position_{position}
 {
   ::HRESULT hresult{};
   std::vector<char> vecc_buffer = get_resource(
@@ -75,8 +80,8 @@ base_mesh::base_mesh(
   for (int i{}; i < dynamic_texture::LAYER_NUMBER; ++i){
     if (::LPDIRECT3DTEXTURE9 p_temp_texture{};
         FAILED(::D3DXCreateTexture(this->sp_direct3d_device9_.get(),
-                                   dynamic_texture::PIXEL_NUMBER,
-                                   dynamic_texture::PIXEL_NUMBER,
+                                   TEXTURE_PIXEL_SIZE,
+                                   TEXTURE_PIXEL_SIZE,
                                    1,
                                    D3DUSAGE_DYNAMIC,
                                    ::D3DFMT_A8B8G8R8,
@@ -89,7 +94,7 @@ base_mesh::base_mesh(
 
       std::fill(static_cast<int*>(locked_rect.pBits),
                 static_cast<int*>(locked_rect.pBits) + locked_rect.Pitch
-                    * dynamic_texture::PIXEL_NUMBER / sizeof(int),
+                    * TEXTURE_PIXEL_SIZE / sizeof(int),
                 0x00000000);
 
       p_temp_texture->UnlockRect(0);
@@ -109,7 +114,7 @@ void base_mesh::set_dynamic_texture(const std::string& akrsz_filename,
                                const combine_type& /* akri_combine_type */)
 {
   std::string sz_query{};
-  sz_query = "select data from texture where filename = '";
+  sz_query = "select data from image where filename = '";
   sz_query += akrsz_filename;
   sz_query += "';";
 
@@ -288,12 +293,12 @@ base_mesh::dynamic_texture::text_message_writer::text_message_writer(
       hdc_{},
       hfont_{},
       character_index_{},
-      vpw_tex_buffer_{dynamic_texture::PIXEL_NUMBER}
+      vpw_tex_buffer_{TEXTURE_PIXEL_SIZE}
 {
   ::LPDIRECT3DTEXTURE9 p_temp_texture{};
   if (FAILED(::D3DXCreateTexture(asp_direct3d_device9_.get(),
-                                 dynamic_texture::PIXEL_NUMBER,
-                                 dynamic_texture::PIXEL_NUMBER,
+                                 TEXTURE_PIXEL_SIZE,
+                                 TEXTURE_PIXEL_SIZE,
                                  1,
                                  D3DUSAGE_DYNAMIC,
                                  ::D3DFMT_A8B8G8R8,
@@ -337,10 +342,10 @@ base_mesh::dynamic_texture::text_message_writer::text_message_writer(
   }
   std::fill(pTexBuf,
             pTexBuf + locked_rect.Pitch
-                * dynamic_texture::PIXEL_NUMBER / sizeof(int),
+                * TEXTURE_PIXEL_SIZE / sizeof(int),
             0x00000000);
-  for (int y{}; y < dynamic_texture::PIXEL_NUMBER; ++y) {
-    this->vpw_tex_buffer_.at(y) = &pTexBuf[y * dynamic_texture::PIXEL_NUMBER];
+  for (int y{}; y < TEXTURE_PIXEL_SIZE; ++y) {
+    this->vpw_tex_buffer_.at(y) = &pTexBuf[y * TEXTURE_PIXEL_SIZE];
   }
 
   this->sp_texture_->UnlockRect(0);

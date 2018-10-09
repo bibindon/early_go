@@ -67,7 +67,7 @@ skinned_animation_mesh::skinned_animation_mesh(
     const std::string& a_krsz_xfile_name,
     const ::D3DXVECTOR3& a_kp_vec_position,
     const float& a_krf_size)
-    : base_mesh{a_krsp_direct3d_device9, SHADER_FILENAME},
+    : base_mesh{a_krsp_direct3d_device9, SHADER_FILENAME, a_kp_vec_position},
       b_play_animation_{true},
       f_animation_time_{},
       sp_direct3d_device9_{a_krsp_direct3d_device9},
@@ -75,7 +75,6 @@ skinned_animation_mesh::skinned_animation_mesh(
           new_crt skinned_animation_mesh_allocator{a_krsz_xfile_name}},
       up_d3dx_frame_root_{nullptr,
           frame_root_deleter_object{sp_skinned_animation_mesh_allocator_}},
-      vec3_position_{a_kp_vec_position},
       mat_rotation_{::D3DMATRIX{}},
       d3dx_handle_view_projection_{},
       d3dx_handle_scale_{}
@@ -139,10 +138,7 @@ void skinned_animation_mesh::do_render(const ::D3DXMATRIX& a_kr_mat_view,
     ::D3DXMatrixScaling(&mat, this->f_scale_, this->f_scale_, this->f_scale_);
     mat_world *= mat;
 
-    ::D3DXMatrixTranslation(&mat,
-                            this->vec3_position_.x,
-                            this->vec3_position_.y,
-                            this->vec3_position_.z);
+    ::D3DXMatrixTranslation(&mat, position_.x, position_.y, position_.z);
     mat_world *= mat;
   }
 

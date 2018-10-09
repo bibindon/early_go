@@ -64,7 +64,7 @@ animation_mesh::animation_mesh(
     const std::string& a_krsz_xfile_name,
     const ::D3DXVECTOR3& a_kp_vec_position,
     const float& a_krf_size)
-    : base_mesh{a_krsp_direct3d_device9, SHADER_FILENAME},
+    : base_mesh{a_krsp_direct3d_device9, SHADER_FILENAME, a_kp_vec_position},
       b_play_animation_{true},
       f_animation_time_{},
       sp_direct3d_device9_{a_krsp_direct3d_device9},
@@ -72,7 +72,6 @@ animation_mesh::animation_mesh(
           new_crt animation_mesh_allocator{a_krsz_xfile_name}},
       up_d3dx_frame_root_{nullptr,
           frame_root_deleter_object{sp_animation_mesh_allocator_}},
-      vec3_position_{a_kp_vec_position},
       mat_rotation_{::D3DMATRIX{}},
       d3dx_handle_world_{},
       d3dx_handle_world_view_proj_{}
@@ -142,9 +141,9 @@ void animation_mesh::do_render(const ::D3DXMATRIX& a_kr_mat_view,
     mat_world *= mat;
 
     ::D3DXMatrixTranslation(&mat,
-                            this->vec3_position_.x,
-                            this->vec3_position_.y,
-                            this->vec3_position_.z);
+                            this->position_.x,
+                            this->position_.y,
+                            this->position_.z);
     mat_world *= mat;
   }
 

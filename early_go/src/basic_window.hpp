@@ -1,13 +1,14 @@
 #ifndef BASIC_WINDOW_HPP
 #define BASIC_WINDOW_HPP
 #include "stdafx.hpp"
-#include "base_mesh.hpp"
 
 namespace early_go {
 
 class mesh;
 class animation_mesh;
 class skinned_animation_mesh;
+class character;
+class base_mesh;
 
 /*
  * A class that handles basic window processings.
@@ -41,10 +42,7 @@ private:
   std::shared_ptr<base_mesh>                    sp_mesh_;
   std::shared_ptr<base_mesh>                    sp_mesh2_;
 
-  std::shared_ptr<base_mesh>                    sp_early_body_;
-  std::shared_ptr<base_mesh>                    sp_early_armor_;
-  std::shared_ptr<base_mesh>                    sp_early_lance_;
-  std::shared_ptr<base_mesh>                    sp_early_saber_;
+  std::shared_ptr<character>                    early_;
 
   ::D3DXMATRIX                                  mat_view_;
   ::D3DXMATRIX                                  mat_projection_;

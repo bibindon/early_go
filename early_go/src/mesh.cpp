@@ -5,15 +5,13 @@
 namespace early_go {
 
 const std::string mesh::SHADER_FILENAME = "mesh_shader.fx";
-const int mesh::dynamic_texture::PIXEL_NUMBER = 512;
 
 mesh::mesh(
     const std::shared_ptr<::IDirect3DDevice9>& a_krsp_direct3d_device9,
     const std::string& a_krsz_xfile_name,
     const ::D3DXVECTOR3& a_kp_vec_position,
     const float& a_krf_size)
-    : base_mesh{a_krsp_direct3d_device9, SHADER_FILENAME},
-      vec3_position_{a_kp_vec_position},
+    : base_mesh{a_krsp_direct3d_device9, SHADER_FILENAME, a_kp_vec_position},
       up_d3dx_mesh_{nullptr, custom_deleter{}},
       dw_materials_number_{},
       d3dx_handle_world_view_proj_{},
@@ -148,7 +146,7 @@ mesh::mesh(
   }
   safe_release(p_d3dx_material_buffer);
 
-  /* Calculate model size.  */
+  /* Calculate model size. */
   ::LPVOID pv_buffer{};
   this->up_d3dx_mesh_->LockVertexBuffer(D3DLOCK_READONLY, &pv_buffer);
   ::D3DXComputeBoundingSphere(static_cast<::D3DXVECTOR3 *>(pv_buffer),
@@ -180,7 +178,7 @@ void mesh::do_render(const ::D3DXMATRIX&  a_kr_mat_view,
     mat_world_view_projection *= mat;
 
     ::D3DXMatrixTranslation(&mat,
-        this->vec3_position_.x, this->vec3_position_.y, this->vec3_position_.z);
+        this->position_.x, this->position_.y, this->position_.z);
     mat_world_view_projection *= mat;
   }
   mat_world_view_projection *= a_kr_mat_view;
