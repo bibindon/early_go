@@ -9,7 +9,7 @@ namespace early_go {
  */
 struct animation_mesh_frame : public ::D3DXFRAME
 {
-  ::D3DXMATRIX combined_transformation_matrix_;
+  ::D3DXMATRIX combined_matrix_;
   explicit animation_mesh_frame(const std::string&);
 };
 
@@ -22,7 +22,7 @@ struct animation_mesh_container : public ::D3DXMESHCONTAINER
       std::unique_ptr<
           ::IDirect3DTexture9, custom_deleter
       >
-  > vecup_texture_;
+  > texture_;
   animation_mesh_container(const std::string&,
                            const std::string&,
                            ::LPD3DXMESH,

@@ -22,7 +22,7 @@ public:
    * the 'render_string' function.
    */
   struct render_string_object {
-    static std::weak_ptr<::ID3DXFont> swp_id3dx_font_;
+    static std::weak_ptr<::ID3DXFont> weak_font_;
     static void render_string(const std::string&, const int&, const int&);
   };
 
@@ -32,24 +32,24 @@ public:
 private:
 
   ::MSG                                         msg_;
-  std::unique_ptr<::IDirect3D9, custom_deleter> up_direct3d9_;
+  std::unique_ptr<::IDirect3D9, custom_deleter> direct3d9_;
   ::D3DPRESENT_PARAMETERS                       d3d_present_parameters_;
-  std::shared_ptr<::IDirect3DDevice9>           sp_direct3d_device9_;
-  std::shared_ptr<::ID3DXFont>                  sp_id3dx_font_;
-  std::shared_ptr<base_mesh>                    sp_animation_mesh_;
-  std::shared_ptr<base_mesh>                    sp_skinned_animation_mesh_;
-  std::shared_ptr<base_mesh>                    sp_skinned_animation_mesh2_;
-  std::shared_ptr<base_mesh>                    sp_mesh_;
-  std::shared_ptr<base_mesh>                    sp_mesh2_;
+  std::shared_ptr<::IDirect3DDevice9>           d3d_device_;
+  std::shared_ptr<::ID3DXFont>                  font_;
+  std::shared_ptr<base_mesh>                    animation_mesh_;
+  std::shared_ptr<base_mesh>                    skinned_animation_mesh_;
+  std::shared_ptr<base_mesh>                    skinned_animation_mesh2_;
+  std::shared_ptr<base_mesh>                    mesh_;
+  std::shared_ptr<base_mesh>                    mesh2_;
 
   std::shared_ptr<character>                    early_;
 
-  ::D3DXMATRIX                                  mat_view_;
-  ::D3DXMATRIX                                  mat_projection_;
+  ::D3DXMATRIX                                  view_matrix_;
+  ::D3DXMATRIX                                  projection_matrix_;
   ::D3DXVECTOR3                                 light_direction_;
   float                                         light_brightness_;
-  ::D3DXVECTOR3                                 vec3_eye_position_;
-  ::D3DXVECTOR3                                 vec3_look_at_position_;
+  ::D3DXVECTOR3                                 eye_position_;
+  ::D3DXVECTOR3                                 look_at_position_;
 
   void initialize_direct3d(const ::HWND&);
   void render();

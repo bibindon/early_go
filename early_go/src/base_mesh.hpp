@@ -19,9 +19,9 @@ public:
 //    MULTIPLICATION,
   };
   template <typename T>
-  void play_animation_set(const T& akr_animation_set)
+  void play_animation_set(const T& animation_set)
   {
-    (*this->up_animation_strategy_)(akr_animation_set);
+    (*animation_strategy_)(animation_set);
   }
   void render(const ::D3DXMATRIX&,
               const ::D3DXMATRIX&,
@@ -34,7 +34,7 @@ public:
   void set_dynamic_texture_opacity(const int&,
                                    const float&);
 
-  static const int     TEXTURE_PIXEL_SIZE;
+  static const int TEXTURE_PIXEL_SIZE;
   void set_dynamic_message(const int&,
                            const std::string&,
                            const bool& = false,
@@ -54,18 +54,18 @@ public:
     position_ = position;
   }
 protected:
-  std::shared_ptr<::IDirect3DDevice9>            sp_direct3d_device9_;
-  std::unique_ptr<::ID3DXEffect, custom_deleter> up_d3dx_effect_;
-  std::unique_ptr<animation_strategy> up_animation_strategy_;
+  std::shared_ptr<::IDirect3DDevice9>            d3d_device_;
+  std::unique_ptr<::ID3DXEffect, custom_deleter> effect_;
+  std::unique_ptr<animation_strategy>            animation_strategy_;
   struct dynamic_texture {
     static constexpr int LAYER_NUMBER = 8;
     std::array<
         std::shared_ptr<::IDirect3DTexture9>,
         LAYER_NUMBER
-    > arsp_texture_;
-    std::array<::D3DXVECTOR4, LAYER_NUMBER> arvec2_position_;
-    std::array<float, LAYER_NUMBER>         arf_opacity_;
-    std::array<::D3DXVECTOR4, LAYER_NUMBER> arvec4_color_;
+    > textures_;
+    std::array<::D3DXVECTOR4, LAYER_NUMBER> positions_;
+    std::array<float, LAYER_NUMBER>         opacities_;
+    std::array<::D3DXVECTOR4, LAYER_NUMBER> colors_;
 
     struct text_message_writer {
       text_message_writer(std::shared_ptr<::IDirect3DDevice9>,
@@ -83,33 +83,31 @@ protected:
       void operator()();
       bool write_character();
 
-      std::shared_ptr<::IDirect3DTexture9>& sp_texture_;
-      const std::string                     krsz_message_;
-      const bool                            krb_animation_;
-      const ::RECT                          kr_rect_;
-      const int                             kri_color_;
+      std::shared_ptr<::IDirect3DTexture9>& texture_;
+      const std::string                     message_;
+      const bool                            is_animated;
+      const ::RECT                          rect_;
+      const int                             color_;
       int                                   font_width_sum_;
       int                                   font_height_sum_;
       ::TEXTMETRIC                          text_metric_;
       ::HDC                                 hdc_;
       ::HFONT                               hfont_;
       std::size_t                           character_index_;
-      std::vector<::DWORD*>                 vpw_tex_buffer_;
+      std::vector<::DWORD*>                 texture_buffer_;
     };
     std::array<
         std::shared_ptr<text_message_writer>,
         LAYER_NUMBER
-    > arsp_writer;
+    > writer_;
   } dynamic_texture_;
-  ::D3DXHANDLE                                   d3dx_handle_texture_position_;
-  ::D3DXHANDLE                                   d3dx_handle_texture_opacity_;
-  ::D3DXHANDLE                                   d3dx_handle_light_normal_;
-  ::D3DXHANDLE                                   d3dx_handle_brightness_;
-  ::D3DXHANDLE                                   d3dx_handle_mesh_texture_;
-  ::D3DXHANDLE                                   d3dx_handle_diffuse_;
-  std::array<
-      ::D3DXHANDLE, dynamic_texture::LAYER_NUMBER
-  > ar_d3dx_handle_texture_;
+  ::D3DXHANDLE                                   texture_position_handle_;
+  ::D3DXHANDLE                                   texture_opacity_handle_;
+  ::D3DXHANDLE                                   light_normal_handle_;
+  ::D3DXHANDLE                                   brightness_handle_;
+  ::D3DXHANDLE                                   mesh_texture_handle_;
+  ::D3DXHANDLE                                   diffuse_handle_;
+  std::array<::D3DXHANDLE, dynamic_texture::LAYER_NUMBER> texture_handle_;
   ::D3DXVECTOR3                                  position_;
 private:
   virtual void do_render(const ::D3DXMATRIX&, const ::D3DXMATRIX&) = 0;

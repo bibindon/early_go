@@ -29,29 +29,29 @@ private:
    */
   struct frame_root_deleter_object
   {
-    std::shared_ptr<animation_mesh_allocator> sp_animation_mesh_allocator_;
+    std::shared_ptr<animation_mesh_allocator> allocator_;
 
     void operator()(const ::LPD3DXFRAME);
     void release_mesh_allocator(const ::LPD3DXFRAME);
   };
 
   const static std::string                   SHADER_FILENAME;
-  bool                                       b_play_animation_;
-  float                                      f_animation_time_;
-  std::shared_ptr<::IDirect3DDevice9>        sp_direct3d_device9_;
-  std::shared_ptr<animation_mesh_allocator>  sp_animation_mesh_allocator_;
+  bool                                       is_animated_;
+  float                                      animation_time_;
+  std::shared_ptr<::IDirect3DDevice9>        d3d_device_;
+  std::shared_ptr<animation_mesh_allocator>  allocator_;
   std::unique_ptr<::D3DXFRAME,
-                  frame_root_deleter_object> up_d3dx_frame_root_;
-  ::D3DXMATRIX                               mat_rotation_;
-  ::D3DXMATRIX                               mat_view_;
-  ::D3DXMATRIX                               mat_projection_;
+                  frame_root_deleter_object> frame_root_;
+  ::D3DXMATRIX                               rotation_matrix_;
+  ::D3DXMATRIX                               view_matrix_;
+  ::D3DXMATRIX                               projection_matrix_;
 
-  ::D3DXVECTOR3                              vec3_center_coodinate_{};
-  float                                      f_scale_{};
+  ::D3DXVECTOR3                              center_coodinate_;
+  float                                      scale_;
 
   // For effect.
-  ::D3DXHANDLE                                   d3dx_handle_world_;
-  ::D3DXHANDLE                                   d3dx_handle_world_view_proj_;
+  ::D3DXHANDLE                               world_handle_;
+  ::D3DXHANDLE                               world_view_proj_handle_;
 
   void update_frame_matrix(const ::LPD3DXFRAME, const ::LPD3DXMATRIX);
   void render_frame(const ::LPD3DXFRAME);

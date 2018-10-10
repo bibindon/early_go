@@ -14,18 +14,18 @@ public:
 
 private:
   const static std::string                       SHADER_FILENAME;
-  std::unique_ptr<::ID3DXMesh, custom_deleter>   up_d3dx_mesh_;
-  ::DWORD                                        dw_materials_number_;
-  ::D3DXHANDLE                                   d3dx_handle_world_view_proj_;
-  std::vector<::D3DCOLORVALUE>                   vec_d3d_color_;
+  std::unique_ptr<::ID3DXMesh, custom_deleter>   d3dx_mesh_;
+  ::DWORD                                        materials_count;
+  ::D3DXHANDLE                                   world_view_proj_handle_;
+  std::vector<::D3DCOLORVALUE>                   colors_;
   std::vector<
       std::unique_ptr<
           ::IDirect3DTexture9, custom_deleter
       >
-  > vecup_mesh_texture_;
-  ::D3DXVECTOR3                                  vec3_center_coodinate_;
-  float                                          f_radius_;
-  float                                          f_scale_;
+  > textures_;
+  ::D3DXVECTOR3                                  center_coodinate_;
+  float                                          radius_;
+  float                                          scale_;
 
   void do_render(const ::D3DXMATRIX&, const ::D3DXMATRIX&) override;
 };

@@ -66,13 +66,13 @@ struct custom_deleter
   }
 };
 
-inline std::vector<char> get_resource(const std::string& a_kr_query)
+inline std::vector<char> get_resource(const std::string& query)
 {
 #if 0
 
-  std::size_t begin = a_kr_query.find_first_of("'")+1;
-  std::size_t end = a_kr_query.find_first_of("'", begin);
-  std::string filename{a_kr_query.substr(begin, end-begin)};
+  std::size_t begin = query.find_first_of("'")+1;
+  std::size_t end = query.find_first_of("'", begin);
+  std::string filename{query.substr(begin, end-begin)};
 
   std::string path{"res/" + filename};
   std::ifstream file(path, std::ios::binary);
@@ -89,28 +89,28 @@ inline std::vector<char> get_resource(const std::string& a_kr_query)
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to open a database."});
   }
   ::sqlite3_stmt* _statement = nullptr;
-  ::sqlite3_prepare_v2(db, a_kr_query.c_str(), -1, &_statement, nullptr);
-  bool _b_find{false};
+  ::sqlite3_prepare_v2(db, query.c_str(), -1, &_statement, nullptr);
+  bool is_found{false};
   while (::sqlite3_step(_statement) == SQLITE_ROW) {
-    if (!_b_find) {
-      _b_find = true;
+    if (!is_found) {
+      is_found = true;
     } else {
       ::sqlite3_finalize(_statement);
       ::sqlite3_close(db);
       BOOST_THROW_EXCEPTION(
           custom_exception{"There are multiple specified resources.\n"
-                           " query: " + a_kr_query});
+                           " query: " + query});
     }
     const char* blob = (char*)sqlite3_column_blob(_statement, 0);
-    int data_len = sqlite3_column_bytes(_statement, 0);
-    ret.reserve(data_len);
-    ret.insert(ret.begin(), blob, blob+data_len);
+    int data_count = sqlite3_column_bytes(_statement, 0);
+    ret.reserve(data_count);
+    ret.insert(ret.begin(), blob, blob+data_count);
   }
   ::sqlite3_finalize(_statement);
   ::sqlite3_close(db);
-  if (!_b_find) {
+  if (!is_found) {
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to find a resource.\n"
-                          " query: " + a_kr_query});
+                          " query: " + query});
   }
   return ret;
 #endif
@@ -134,17 +134,17 @@ struct log_liner
   template <typename T>
   log_liner& operator<<(T a)
   {
-    this->ostringstream_ << a;
+    ostringstream_ << a;
     return *this;
   }
 
   /* d'tor */
   ~log_liner()
   {
-    if (this->option_ != "-n") {
-      this->ostringstream_ << std::endl;
+    if (option_ != "-n") {
+      ostringstream_ << std::endl;
     }
-    ::OutputDebugString(this->ostringstream_.str().c_str());
+    ::OutputDebugString(ostringstream_.str().c_str());
   }
 private:
   std::ostringstream ostringstream_;

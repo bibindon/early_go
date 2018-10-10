@@ -8,7 +8,7 @@ namespace early_go {
  */
 struct skinned_animation_mesh_frame : public ::D3DXFRAME
 {
-  ::D3DXMATRIX combined_transformation_matrix_;
+  ::D3DXMATRIX combined_matrix_;
   explicit skinned_animation_mesh_frame(const std::string&);
 };
 
@@ -21,14 +21,14 @@ struct skinned_animation_mesh_container : public ::D3DXMESHCONTAINER
       std::unique_ptr<
           ::IDirect3DTexture9, custom_deleter
       >
-  > vecup_texture_;
+  > texture_;
 
-  ::DWORD                                        dw_palette_size_;
-  ::DWORD                                        dw_influence_number_;
-  ::DWORD                                        dw_bone_amount_;
-  std::unique_ptr<::ID3DXBuffer, custom_deleter> up_bone_buffer_;
-  std::vector<::LPD3DXMATRIX>                    vecp_frame_combined_matrix_;
-  std::vector<::D3DXMATRIX>                      vec_bone_offset_matrices_;
+  ::DWORD                                        palette_size_;
+  ::DWORD                                        influence_count_;
+  ::DWORD                                        bone_count_;
+  std::unique_ptr<::ID3DXBuffer, custom_deleter> bone_buffer_;
+  std::vector<::LPD3DXMATRIX>                    frame_combined_matrix_;
+  std::vector<::D3DXMATRIX>                      bone_offset_matrices_;
 
   skinned_animation_mesh_container(const std::string&,
                                    const std::string&,

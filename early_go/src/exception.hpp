@@ -44,23 +44,23 @@ class custom_exception :
 {
 public:
   custom_exception() : custom_exception("There is not any messages.") {}
-  custom_exception(const std::string& a_krsz)
-      : std::exception(), ksz_(a_krsz) {}
+  custom_exception(const std::string& message)
+      : std::exception(), message_(message) {}
   custom_exception& operator=(const custom_exception& rhs) {
     if (this != &rhs) {
-      std::string* sz = const_cast<std::string*>(&this->ksz_);
-      *sz = rhs.ksz_;
+      std::string* sz = const_cast<std::string*>(&message_);
+      *sz = rhs.message_;
     }
     return *this;
   }
 
   virtual const char* what() const noexcept
   {
-    return this->ksz_.c_str();
+    return message_.c_str();
   }
 
 private:
-  const std::string ksz_;
+  const std::string message_;
 };
 
 } /* namespace early_go */

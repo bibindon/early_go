@@ -4,19 +4,19 @@
 
 namespace early_go {
 /* c'tor */
-animation_mesh_frame::animation_mesh_frame(const std::string& a_kr_name)
+animation_mesh_frame::animation_mesh_frame(const std::string& name)
     : D3DXFRAME{}, /* Initializes member with zero. */
-      combined_transformation_matrix_{}
+      combined_matrix_{}
 {
   /*
    * The 'dup' of the '::_strdup' is the abbreviation of 'duplicate', create
    * the new string by the argument string.
    */
-  this->Name = ::_strdup(a_kr_name.c_str());
+  Name = ::_strdup(name.c_str());
 
   /* Make an argument an identity matrix. */
-  ::D3DXMatrixIdentity(&this->TransformationMatrix);
-  ::D3DXMatrixIdentity(&this->combined_transformation_matrix_);
+  ::D3DXMatrixIdentity(&TransformationMatrix);
+  ::D3DXMatrixIdentity(&combined_matrix_);
 }
 
 /*
@@ -44,114 +44,113 @@ animation_mesh_frame::animation_mesh_frame(const std::string& a_kr_name)
  *
  */
 animation_mesh_container::animation_mesh_container(
-    const std::string&    a_krsz_x_filename,
-    const std::string&    a_krsz_meshname,
-    ::LPD3DXMESH          a_p_d3dx_mesh,
-    const ::D3DXMATERIAL* a_kp_materials,
-    const ::DWORD         a_k_materials_number,
-    const ::DWORD*        a_kp_adjacency)
+    const std::string&    x_filename,
+    const std::string&    mesh_name,
+    ::LPD3DXMESH          mesh,
+    const ::D3DXMATERIAL* materials,
+    const ::DWORD         materials_count,
+    const ::DWORD*        adjacency)
     : D3DXMESHCONTAINER{}, /* Initializes with zero. */
-      vecup_texture_{}
+      texture_{}
 {
   /*
    * The 'dup' of '::_strdup' is the abbreviation of 'duplicate', create new
    * string by the argument string.
    */
-  this->Name = ::_strdup(a_krsz_meshname.c_str());
+  Name = ::_strdup(mesh_name.c_str());
 
-  ::LPDIRECT3DDEVICE9 p_temp_direct3d_device9{nullptr};
-  a_p_d3dx_mesh->GetDevice(&p_temp_direct3d_device9);
+  ::LPDIRECT3DDEVICE9 temp_d3d_device{nullptr};
+  mesh->GetDevice(&temp_d3d_device);
 
   /*
    * This IF sentence is just initializing the 'MeshData' of a member variable.
    * When this mesh doesn't have normal vector, add it.
    */
-  if (!(a_p_d3dx_mesh->GetFVF() & D3DFVF_NORMAL)) {
-    this->MeshData.Type = ::D3DXMESHTYPE_MESH;
-    ::HRESULT hresult{
-        a_p_d3dx_mesh->CloneMeshFVF(a_p_d3dx_mesh->GetOptions(),
-                                    a_p_d3dx_mesh->GetFVF() | D3DFVF_NORMAL,
-                                    p_temp_direct3d_device9,
-                                    &this->MeshData.pMesh)};
-    if (FAILED(hresult)) {
+  if (!(mesh->GetFVF() & D3DFVF_NORMAL)) {
+    MeshData.Type = ::D3DXMESHTYPE_MESH;
+    ::HRESULT result{mesh->CloneMeshFVF(mesh->GetOptions(),
+                                        mesh->GetFVF() | D3DFVF_NORMAL,
+                                        temp_d3d_device,
+                                        &MeshData.pMesh)};
+    if (FAILED(result)) {
       BOOST_THROW_EXCEPTION(
           custom_exception{"Failed 'CloneMeshFVF' function."});
     }
-    a_p_d3dx_mesh = this->MeshData.pMesh;
-    ::D3DXComputeNormals(a_p_d3dx_mesh, nullptr);
+    mesh = MeshData.pMesh;
+    ::D3DXComputeNormals(mesh, nullptr);
   } else {
-    this->MeshData.pMesh = a_p_d3dx_mesh;
-    this->MeshData.Type = ::D3DXMESHTYPE_MESH;
-    a_p_d3dx_mesh->AddRef();
+    MeshData.pMesh = mesh;
+    MeshData.Type = ::D3DXMESHTYPE_MESH;
+    mesh->AddRef();
   }
 
   /* This strange bracket is measures of being interpretered as WinAPI macro. */
-  this->NumMaterials = (std::max)(1UL, a_k_materials_number);
-  this->pMaterials   = new_crt ::D3DXMATERIAL[this->NumMaterials]{};
+  NumMaterials = (std::max)(1UL, materials_count);
+  pMaterials   = new_crt ::D3DXMATERIAL[NumMaterials]{};
   std::vector<std::unique_ptr<::IDirect3DTexture9, custom_deleter> >
-      temp_texture(this->NumMaterials);
-  this->vecup_texture_.swap(temp_texture);
+      temp_texture(NumMaterials);
+  texture_.swap(temp_texture);
 
   /* Initialize the 'pAdjacency' of a member variable. */
-  ::DWORD dw_faces_amount{a_p_d3dx_mesh->GetNumFaces()};
-  this->pAdjacency = new_crt ::DWORD[dw_faces_amount * 3]{};
+  ::DWORD faces_count{mesh->GetNumFaces()};
+  pAdjacency = new_crt ::DWORD[faces_count * 3]{};
 
-  for (::DWORD i{}; i < dw_faces_amount * 3; ++i) {
-    this->pAdjacency[i] = a_kp_adjacency[i];
+  for (::DWORD i{}; i < faces_count * 3; ++i) {
+    pAdjacency[i] = adjacency[i];
   }
 
   /*
-   * Initialize the 'pMaterials' and the 'vecup_texture_' of member variables
+   * Initialize the 'pMaterials' and the 'texture_' of member variables
    * if there are.
    */
-  if (a_k_materials_number > 0) {
-    for (::DWORD i{}; i < a_k_materials_number; ++i) {
-      this->pMaterials[i] = a_kp_materials[i];
+  if (materials_count > 0) {
+    for (::DWORD i{}; i < materials_count; ++i) {
+      pMaterials[i] = materials[i];
     }
 
-    for (::DWORD i{}; i < a_k_materials_number; ++i) {
-      this->pMaterials[i].MatD3D.Ambient = ::D3DCOLORVALUE{0.2f, 0.2f, 0.2f, 0};
-      if (this->pMaterials[i].pTextureFilename != nullptr) {
-        std::string sz_query{};
-        sz_query = "select data from model where filename = '";
-        sz_query += a_krsz_x_filename;
-        sz_query = sz_query.erase(sz_query.find_last_of('/')+1);
-        sz_query += this->pMaterials[i].pTextureFilename;
-        sz_query += "';";
+    for (::DWORD i{}; i < materials_count; ++i) {
+      pMaterials[i].MatD3D.Ambient = ::D3DCOLORVALUE{0.2f, 0.2f, 0.2f, 0};
+      if (pMaterials[i].pTextureFilename != nullptr) {
+        std::string query{};
+        query = "SELECT DATA FROM MODEL WHERE FILENAME = '";
+        query += x_filename;
+        query = query.erase(query.find_last_of('/')+1);
+        query += pMaterials[i].pTextureFilename;
+        query += "';";
 
-        std::vector<char> vecc_buffer = get_resource(sz_query);
-        ::LPDIRECT3DTEXTURE9 p_temp_texture{};
+        std::vector<char> buffer = get_resource(query);
+        ::LPDIRECT3DTEXTURE9 temp_texture{};
         if (FAILED(::D3DXCreateTextureFromFileInMemory(
-            p_temp_direct3d_device9,
-            &vecc_buffer[0],
-            static_cast<::UINT>(vecc_buffer.size()),
-            &p_temp_texture))) {
+            temp_d3d_device,
+            &buffer[0],
+            static_cast<::UINT>(buffer.size()),
+            &temp_texture))) {
           BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
         } else {
-          this->vecup_texture_.at(i).reset(p_temp_texture);
+          texture_.at(i).reset(temp_texture);
         }
       }
     }
   } else {
-    this->pMaterials[0].MatD3D.Diffuse = ::D3DCOLORVALUE{0.5f, 0.5f, 0.5f, 0};
-    this->pMaterials[0].MatD3D.Ambient = ::D3DCOLORVALUE{0.5f, 0.5f, 0.5f, 0};
-    this->pMaterials[0].MatD3D.Specular = this->pMaterials[0].MatD3D.Diffuse;
+    pMaterials[0].MatD3D.Diffuse = ::D3DCOLORVALUE{0.5f, 0.5f, 0.5f, 0};
+    pMaterials[0].MatD3D.Ambient = ::D3DCOLORVALUE{0.5f, 0.5f, 0.5f, 0};
+    pMaterials[0].MatD3D.Specular = pMaterials[0].MatD3D.Diffuse;
   }
 }
 
 animation_mesh_allocator::animation_mesh_allocator(
-    const std::string & a_krsz_x_filename)
+    const std::string& x_filename)
     : ID3DXAllocateHierarchy{},
-      x_filename_(a_krsz_x_filename) {}
+      x_filename_(x_filename) {}
 
 /*
  * Alghough it's camel case and a strange type name, because this function is a
  * pure virtual function of 'ID3DXAllocateHierarchy'.
  */
 ::STDMETHODIMP animation_mesh_allocator::CreateFrame(
-    ::LPCTSTR a_name, ::LPD3DXFRAME *a_pp_new_frame)
+    ::LPCTSTR name, ::LPD3DXFRAME *new_frame)
 {
-  *a_pp_new_frame = new_crt animation_mesh_frame{a_name};
+  *new_frame = new_crt animation_mesh_frame{name};
   return S_OK;
 }
 
@@ -160,25 +159,24 @@ animation_mesh_allocator::animation_mesh_allocator(
  * pure virtual function of 'ID3DXAllocateHierarchy'.
  */
 ::STDMETHODIMP animation_mesh_allocator::CreateMeshContainer(
-    ::LPCSTR a_kr_meshname,
-    CONST ::D3DXMESHDATA* a_kp_mesh_data,
-    CONST ::D3DXMATERIAL* a_kp_materials,
+    ::LPCSTR                    mesh_name,
+    CONST ::D3DXMESHDATA*       mesh_data,
+    CONST ::D3DXMATERIAL*       materials,
     CONST ::D3DXEFFECTINSTANCE*,
-    ::DWORD a_materials_number,
-    CONST ::DWORD *a_kp_adjacency,
+    ::DWORD                     materials_count,
+    CONST ::DWORD*              adjacency,
     ::LPD3DXSKININFO,
-    ::LPD3DXMESHCONTAINER *a_pp_mesh_container)
+    ::LPD3DXMESHCONTAINER*      mesh_container)
 {
   try {
-    *a_pp_mesh_container =
-        new_crt animation_mesh_container{this->x_filename_,
-                                         a_kr_meshname,
-                                         a_kp_mesh_data->pMesh,
-                                         a_kp_materials,
-                                         a_materials_number,
-                                         a_kp_adjacency};
-  } catch (const std::exception& a_kr_expception) {
-    early_go::log_liner{} << boost::diagnostic_information(a_kr_expception);
+    *mesh_container = new_crt animation_mesh_container{x_filename_,
+                                                       mesh_name,
+                                                       mesh_data->pMesh,
+                                                       materials,
+                                                       materials_count,
+                                                       adjacency};
+  } catch (const std::exception& expception) {
+    early_go::log_liner{} << boost::diagnostic_information(expception);
     return E_FAIL;
   }
   return S_OK;
@@ -188,12 +186,11 @@ animation_mesh_allocator::animation_mesh_allocator(
  * Alghough it's camel case and a strange type name, because this function is a
  * pure virtual function of 'ID3DXAllocateHierarchy'.
  */
-::STDMETHODIMP animation_mesh_allocator::DestroyFrame(
-    ::LPD3DXFRAME a_p_frame_to_free)
+::STDMETHODIMP animation_mesh_allocator::DestroyFrame(::LPD3DXFRAME frame)
 {
-  safe_delete_array(a_p_frame_to_free->Name);
-  a_p_frame_to_free->~D3DXFRAME();
-  safe_delete(a_p_frame_to_free);
+  safe_delete_array(frame->Name);
+  frame->~D3DXFRAME();
+  safe_delete(frame);
   return S_OK;
 }
 
@@ -202,17 +199,17 @@ animation_mesh_allocator::animation_mesh_allocator(
  * pure virtual function of 'ID3DXAllocateHierarchy'.
  */
 ::STDMETHODIMP animation_mesh_allocator::DestroyMeshContainer(
-    ::LPD3DXMESHCONTAINER a_p_mesh_container_base)
+    ::LPD3DXMESHCONTAINER mesh_container_base)
 {
-  animation_mesh_container *_p_mesh_container{
-      static_cast<animation_mesh_container*>(a_p_mesh_container_base)};
+  animation_mesh_container *mesh_container{
+      static_cast<animation_mesh_container*>(mesh_container_base)};
 
-  safe_release(_p_mesh_container->pSkinInfo);
-  safe_delete_array(_p_mesh_container->Name);
-  safe_delete_array(_p_mesh_container->pAdjacency);
-  safe_delete_array(_p_mesh_container->pMaterials);
-  safe_release(_p_mesh_container->MeshData.pMesh);
-  safe_delete(_p_mesh_container);
+  safe_release(mesh_container->pSkinInfo);
+  safe_delete_array(mesh_container->Name);
+  safe_delete_array(mesh_container->pAdjacency);
+  safe_delete_array(mesh_container->pMaterials);
+  safe_release(mesh_container->MeshData.pMesh);
+  safe_delete(mesh_container);
 
   return S_OK;
 }

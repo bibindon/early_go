@@ -11,10 +11,10 @@ namespace early_go {
 
 /* A custom deleter. */
 void skinned_animation_mesh::frame_root_deleter_object::operator()(
-    const ::LPD3DXFRAME a_kp_d3dx_frame_root_)
+    const ::LPD3DXFRAME frame_root)
 {
   /* Call the recursive release function. */
-  this->release_mesh_allocator(a_kp_d3dx_frame_root_);
+  release_mesh_allocator(frame_root);
 }
 
 /*
@@ -22,7 +22,7 @@ void skinned_animation_mesh::frame_root_deleter_object::operator()(
  * 'skinned_animation_mesh_frame' inheriting '::D3DXFRAME'.
  */
 void skinned_animation_mesh::frame_root_deleter_object::release_mesh_allocator(
-    const ::LPD3DXFRAME a_kp_frame)
+    const ::LPD3DXFRAME frame)
 {
   /*
    * Hint:
@@ -42,20 +42,19 @@ void skinned_animation_mesh::frame_root_deleter_object::release_mesh_allocator(
    */
 
   /* Release the 'pMeshContainer' of the member variable. */
-  if (a_kp_frame->pMeshContainer != nullptr) {
-    this->sp_skinned_animation_mesh_allocator_->
-        DestroyMeshContainer(a_kp_frame->pMeshContainer);
+  if (frame->pMeshContainer != nullptr) {
+    allocator_->DestroyMeshContainer(frame->pMeshContainer);
   }
   /* Call oneself. */
-  if (a_kp_frame->pFrameSibling != nullptr) {
-    this->release_mesh_allocator(a_kp_frame->pFrameSibling);
+  if (frame->pFrameSibling != nullptr) {
+    release_mesh_allocator(frame->pFrameSibling);
   }
   /* Call oneself. */
-  if (a_kp_frame->pFrameFirstChild != nullptr) {
-    this->release_mesh_allocator(a_kp_frame->pFrameFirstChild);
+  if (frame->pFrameFirstChild != nullptr) {
+    release_mesh_allocator(frame->pFrameFirstChild);
   }
   /* Release oneself. */
-  this->sp_skinned_animation_mesh_allocator_->DestroyFrame(a_kp_frame);
+  allocator_->DestroyFrame(frame);
 }
 
 /*
@@ -63,108 +62,103 @@ void skinned_animation_mesh::frame_root_deleter_object::release_mesh_allocator(
  * member variables.
  */
 skinned_animation_mesh::skinned_animation_mesh(
-    const std::shared_ptr<::IDirect3DDevice9>& a_krsp_direct3d_device9,
-    const std::string& a_krsz_xfile_name,
-    const ::D3DXVECTOR3& a_kp_vec_position,
-    const float& a_krf_size)
-    : base_mesh{a_krsp_direct3d_device9, SHADER_FILENAME, a_kp_vec_position},
-      b_play_animation_{true},
-      f_animation_time_{},
-      sp_direct3d_device9_{a_krsp_direct3d_device9},
-      sp_skinned_animation_mesh_allocator_{
-          new_crt skinned_animation_mesh_allocator{a_krsz_xfile_name}},
-      up_d3dx_frame_root_{nullptr,
-          frame_root_deleter_object{sp_skinned_animation_mesh_allocator_}},
-      mat_rotation_{::D3DMATRIX{}},
-      d3dx_handle_view_projection_{},
-      d3dx_handle_scale_{}
+    const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
+    const std::string& x_filename,
+    const ::D3DXVECTOR3& position,
+    const float& size)
+    : base_mesh{d3d_device, SHADER_FILENAME, position},
+      is_animated_{true},
+      animation_time_{},
+      d3d_device_{d3d_device},
+      allocator_{new_crt skinned_animation_mesh_allocator{x_filename}},
+      frame_root_{nullptr, frame_root_deleter_object{allocator_}},
+      rotation_matrix_{::D3DMATRIX{}},
+      view_projection_handle_{},
+      scale_handle_{}
 {
-  this->d3dx_handle_view_projection_ =
-      this->up_d3dx_effect_->GetParameterByName(nullptr,
-                                                "g_view_projection");
-  ::LPD3DXFRAME p_temp_d3dx_frame_root{nullptr};
-  ::LPD3DXANIMATIONCONTROLLER p_temp_d3dx_animation_controller{nullptr};
+  view_projection_handle_ =
+      effect_->GetParameterByName(nullptr, "g_view_projection");
+  ::LPD3DXFRAME temp_frame_root{nullptr};
+  ::LPD3DXANIMATIONCONTROLLER temp_animation_controller{nullptr};
 
-  std::vector<char> vecc_buffer = get_resource(
-      "select data from model where filename = '" + a_krsz_xfile_name + "';");
+  std::vector<char> buffer = get_resource(
+      "SELECT DATA FROM MODEL WHERE FILENAME = '" + x_filename + "';");
   if (FAILED(::D3DXLoadMeshHierarchyFromXInMemory(
-      &vecc_buffer[0],
-      static_cast<DWORD>(vecc_buffer.size()),
+      &buffer[0],
+      static_cast<DWORD>(buffer.size()),
       ::D3DXMESH_MANAGED,
-      this->sp_direct3d_device9_.get(),
-      this->sp_skinned_animation_mesh_allocator_.get(),
+      d3d_device_.get(),
+      allocator_.get(),
       nullptr,
-      &p_temp_d3dx_frame_root,
-      &p_temp_d3dx_animation_controller))) {
+      &temp_frame_root,
+      &temp_animation_controller))) {
     ::MessageBox(nullptr, constants::FAILED_TO_READ_X_FILE_MESSAGE.c_str(),
-        a_krsz_xfile_name.c_str(), MB_OK);
+        x_filename.c_str(), MB_OK);
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to load a x-file."});
   }
   /* lazy initialization */
-  this->up_d3dx_frame_root_.reset(p_temp_d3dx_frame_root);
-  this->up_animation_strategy_.reset(
-      new_crt normal_animation{p_temp_d3dx_animation_controller});
+  frame_root_.reset(temp_frame_root);
+  animation_strategy_.reset(
+      new_crt normal_animation{temp_animation_controller});
 
-  this->allocate_all_bone_matrices(this->up_d3dx_frame_root_.get());
+  allocate_all_bone_matrices(frame_root_.get());
 
-  this->f_scale_ = a_krf_size;
+  scale_ = size;
 }
 
 /* Renders its own animation mesh. */
-void skinned_animation_mesh::do_render(const ::D3DXMATRIX& a_kr_mat_view,
-                                       const ::D3DXMATRIX& a_kr_mat_projection)
+void skinned_animation_mesh::do_render(const ::D3DXMATRIX& view_matrix,
+                                       const ::D3DXMATRIX& projection_matrix)
 {
-  ::D3DXMATRIX mat_view_projection{a_kr_mat_view * a_kr_mat_projection};
+  ::D3DXMATRIX view_projection_matrix{view_matrix * projection_matrix};
 
-  this->up_d3dx_effect_->SetMatrix(
-      this->d3dx_handle_view_projection_, &mat_view_projection);
+  effect_->SetMatrix(view_projection_handle_, &view_projection_matrix);
 
-  if (this->b_play_animation_) {
-    this->f_animation_time_ += constants::ANIMATION_SPEED;
-    this->up_animation_strategy_->up_d3dx_animation_controller_->AdvanceTime(
+  if (is_animated_) {
+    animation_time_ += constants::ANIMATION_SPEED;
+    animation_strategy_->animation_controller_->AdvanceTime(
         constants::ANIMATION_SPEED, nullptr);
   }
 
-  ::D3DXMATRIX mat_world{};
-  ::D3DXMatrixIdentity(&mat_world);
+  ::D3DXMATRIX world_matrix{};
+  ::D3DXMatrixIdentity(&world_matrix);
   {
     ::D3DXMATRIX mat{};
     ::D3DXMatrixTranslation(&mat,
-                            -this->vec3_center_coodinate_.x,
-                            -this->vec3_center_coodinate_.y,
-                            -this->vec3_center_coodinate_.z);
-    mat_world *= mat;
+                            -center_coodinate_.x,
+                            -center_coodinate_.y,
+                            -center_coodinate_.z);
+    world_matrix *= mat;
 
-    ::D3DXMatrixScaling(&mat, this->f_scale_, this->f_scale_, this->f_scale_);
-    mat_world *= mat;
+    ::D3DXMatrixScaling(&mat, scale_, scale_, scale_);
+    world_matrix *= mat;
 
     ::D3DXMatrixTranslation(&mat, position_.x, position_.y, position_.z);
-    mat_world *= mat;
+    world_matrix *= mat;
   }
 
-  this->update_frame_matrix(this->up_d3dx_frame_root_.get(), &mat_world);
-  this->render_frame(this->up_d3dx_frame_root_.get());
+  update_frame_matrix(frame_root_.get(), &world_matrix);
+  render_frame(frame_root_.get());
 
   std::stringstream ss{};
   ss << std::fixed << std::setprecision(2)
-      << "animation time: " << this->f_animation_time_ << std::endl;
+      << "animation time: " << animation_time_ << std::endl;
   basic_window::render_string_object::render_string(ss.str(), 10, 10);
 }
 
 bool skinned_animation_mesh::get_play_animation() const
 {
-  return this->b_play_animation_;
+  return is_animated_;
 }
 
-void skinned_animation_mesh::set_play_animation(
-    const bool& a_krb_play_animation)
+void skinned_animation_mesh::set_play_animation(const bool& is_animated)
 {
-  this->b_play_animation_ = a_krb_play_animation;
+  is_animated_ = is_animated;
 }
 
 float skinned_animation_mesh::get_animation_time() const
 {
-  return this->f_animation_time_;
+  return animation_time_;
 }
 
 /*
@@ -172,154 +166,148 @@ float skinned_animation_mesh::get_animation_time() const
  * is a recursive function.
  */
 void skinned_animation_mesh::update_frame_matrix(
-    const ::LPD3DXFRAME a_kp_frame_base,
-    const ::LPD3DXMATRIX a_kp_parent_matrix)
+    const ::LPD3DXFRAME  frame_base,
+    const ::LPD3DXMATRIX parent_matrix)
 {
-  skinned_animation_mesh_frame *p_skinned_animation_mesh_frame{
-      static_cast<skinned_animation_mesh_frame*>(a_kp_frame_base)};
+  skinned_animation_mesh_frame *frame{
+      static_cast<skinned_animation_mesh_frame*>(frame_base)};
   /*
    * Multiply its own transformation matrix by the parent transformation
    * matrix.
    */
-  if (a_kp_parent_matrix != nullptr) {
-    p_skinned_animation_mesh_frame->combined_transformation_matrix_ =
-        p_skinned_animation_mesh_frame->TransformationMatrix
-            * (*a_kp_parent_matrix);
+  if (parent_matrix != nullptr) {
+    frame->combined_matrix_ = frame->TransformationMatrix * (*parent_matrix);
   } else {
-    p_skinned_animation_mesh_frame->combined_transformation_matrix_ =
-        p_skinned_animation_mesh_frame->TransformationMatrix;
+    frame->combined_matrix_ = frame->TransformationMatrix;
   }
 
   /* Call oneself. */
-  if (p_skinned_animation_mesh_frame->pFrameSibling != nullptr) {
-    this->update_frame_matrix(p_skinned_animation_mesh_frame->pFrameSibling,
-        a_kp_parent_matrix);
+  if (frame->pFrameSibling != nullptr) {
+    update_frame_matrix(frame->pFrameSibling, parent_matrix);
   }
   /* Call oneself. */
-  if (p_skinned_animation_mesh_frame->pFrameFirstChild != nullptr) {
-    this->update_frame_matrix(p_skinned_animation_mesh_frame->pFrameFirstChild,
-        &p_skinned_animation_mesh_frame->combined_transformation_matrix_);
+  if (frame->pFrameFirstChild != nullptr) {
+    update_frame_matrix(frame->pFrameFirstChild, &frame->combined_matrix_);
   }
 }
 
 /* Calls the 'render_mesh_container' function recursively. */
-void skinned_animation_mesh::render_frame(const ::LPD3DXFRAME a_kp_frame)
+void skinned_animation_mesh::render_frame(const ::LPD3DXFRAME frame)
 {
   {
-    ::LPD3DXMESHCONTAINER p_d3dx_mesh_container{a_kp_frame->pMeshContainer};
-    while (p_d3dx_mesh_container != nullptr) {
-      this->render_mesh_container(p_d3dx_mesh_container);
-      p_d3dx_mesh_container = p_d3dx_mesh_container->pNextMeshContainer;
+    ::LPD3DXMESHCONTAINER mesh_container{frame->pMeshContainer};
+    while (mesh_container != nullptr) {
+      render_mesh_container(mesh_container);
+      mesh_container = mesh_container->pNextMeshContainer;
     }
   }
   /* Call oneself. */
-  if (a_kp_frame->pFrameSibling != nullptr) {
-    this->render_frame(a_kp_frame->pFrameSibling);
+  if (frame->pFrameSibling != nullptr) {
+    render_frame(frame->pFrameSibling);
   }
   /* Call oneself. */
-  if (a_kp_frame->pFrameFirstChild != nullptr) {
-    this->render_frame(a_kp_frame->pFrameFirstChild);
+  if (frame->pFrameFirstChild != nullptr) {
+    render_frame(frame->pFrameFirstChild);
   }
 }
 
 void skinned_animation_mesh::render_mesh_container(
-    const ::LPD3DXMESHCONTAINER a_kp_mesh_container_base)
+    const ::LPD3DXMESHCONTAINER mesh_container_base)
 {
-  skinned_animation_mesh_container *p_mesh_container{
-      static_cast<skinned_animation_mesh_container*>(a_kp_mesh_container_base)};
+  skinned_animation_mesh_container *mesh_container{
+      static_cast<skinned_animation_mesh_container*>(mesh_container_base)};
 
-  ::LPD3DXBONECOMBINATION p_bone_combination{};
+  ::LPD3DXBONECOMBINATION bone_combination{};
 
-  p_bone_combination =
-      static_cast<::LPD3DXBONECOMBINATION>(
-          p_mesh_container->up_bone_buffer_->GetBufferPointer());
+  bone_combination = static_cast<::LPD3DXBONECOMBINATION>(
+      mesh_container->bone_buffer_->GetBufferPointer());
 
-  const ::DWORD dw_palette_size = p_mesh_container->dw_palette_size_;
+  const ::DWORD dw_palette_size = mesh_container->palette_size_;
 
-  for (::DWORD i{}; i < p_mesh_container->dw_bone_amount_; ++i) {
+  for (::DWORD i{}; i < mesh_container->bone_count_; ++i) {
     for (::DWORD k{}; k < dw_palette_size; ++k) {
-      ::DWORD dw_bone_id = p_bone_combination[i].BoneId[k];
+      ::DWORD dw_bone_id = bone_combination[i].BoneId[k];
       if (dw_bone_id == UINT_MAX) {
         continue;
       }
-      vecmat_world_matrix_array_[k] =
-          p_mesh_container->vec_bone_offset_matrices_[dw_bone_id]
-              * (*p_mesh_container->vecp_frame_combined_matrix_[dw_bone_id]);
+      world_matrix_array_[k] =
+          mesh_container->bone_offset_matrices_[dw_bone_id]
+              * (*mesh_container->frame_combined_matrix_[dw_bone_id]);
     }
-    this->up_d3dx_effect_->SetMatrixArray("g_world_matrix_array",
-        &vecmat_world_matrix_array_[0], dw_palette_size);
+    effect_->SetMatrixArray("g_world_matrix_array",
+        &world_matrix_array_[0], dw_palette_size);
 
-    ::DWORD bone_id = p_bone_combination[i].AttribId;
+    ::DWORD bone_id = bone_combination[i].AttribId;
     ::D3DXVECTOR4 vec4_color{
-        p_mesh_container->pMaterials[bone_id].MatD3D.Diffuse.r,
-        p_mesh_container->pMaterials[bone_id].MatD3D.Diffuse.g,
-        p_mesh_container->pMaterials[bone_id].MatD3D.Diffuse.b,
-        p_mesh_container->pMaterials[bone_id].MatD3D.Diffuse.a
+        mesh_container->pMaterials[bone_id].MatD3D.Diffuse.r,
+        mesh_container->pMaterials[bone_id].MatD3D.Diffuse.g,
+        mesh_container->pMaterials[bone_id].MatD3D.Diffuse.b,
+        mesh_container->pMaterials[bone_id].MatD3D.Diffuse.a
     };
-    this->up_d3dx_effect_->SetVector(this->d3dx_handle_diffuse_, &vec4_color);
-    this->up_d3dx_effect_->SetTexture(this->d3dx_handle_mesh_texture_,
-        p_mesh_container->vecup_texture_.at(bone_id).get());
+    effect_->SetVector(diffuse_handle_, &vec4_color);
+    effect_->SetTexture(mesh_texture_handle_,
+        mesh_container->texture_.at(bone_id).get());
 
-    this->up_d3dx_effect_->Begin(nullptr, D3DXFX_DONOTSAVESTATE);
+    effect_->Begin(nullptr, D3DXFX_DONOTSAVESTATE);
 
-    if (FAILED(this->up_d3dx_effect_->BeginPass(0))) {
-      this->up_d3dx_effect_->End();
+    if (FAILED(effect_->BeginPass(0))) {
+      effect_->End();
       BOOST_THROW_EXCEPTION(custom_exception{"Failed 'BeginPass' function."});
     }
-    this->up_d3dx_effect_->CommitChanges();
-    p_mesh_container->MeshData.pMesh->DrawSubset(i);
-    this->up_d3dx_effect_->EndPass();
-    this->up_d3dx_effect_->End();
+    effect_->CommitChanges();
+    mesh_container->MeshData.pMesh->DrawSubset(i);
+    effect_->EndPass();
+    effect_->End();
   }
 }
 ::HRESULT skinned_animation_mesh::allocate_bone_matrix(
-    ::LPD3DXMESHCONTAINER a_p_mesh_container)
+    ::LPD3DXMESHCONTAINER mesh_container)
 {
-  skinned_animation_mesh_frame *p_frame{};
+  skinned_animation_mesh_frame *frame{};
 
-  skinned_animation_mesh_container *p_mesh_container =
-      static_cast<skinned_animation_mesh_container*>(a_p_mesh_container);
+  skinned_animation_mesh_container *skinned_mesh_container =
+      static_cast<skinned_animation_mesh_container*>(mesh_container);
 
-  ::DWORD dw_bone_amount = p_mesh_container->pSkinInfo->GetNumBones();
-  p_mesh_container->vecp_frame_combined_matrix_.resize(dw_bone_amount);
+  ::DWORD bone_count = skinned_mesh_container->pSkinInfo->GetNumBones();
+  skinned_mesh_container->frame_combined_matrix_.resize(bone_count);
 
   // TODO Improve.
   ::UINT MAX_MATRICES = 26;
-  this->vecmat_world_matrix_array_.resize(min(MAX_MATRICES, dw_bone_amount));
+  world_matrix_array_.resize(min(MAX_MATRICES, bone_count));
 
-  this->up_d3dx_effect_->SetInt("current_bone_numbers",
-      p_mesh_container->dw_influence_number_ - 1);
+  effect_->SetInt("current_bone_numbers",
+      skinned_mesh_container->influence_count_ - 1);
 
-  for (::DWORD i{}; i < dw_bone_amount; ++i) {
-    ::LPD3DXFRAME p = ::D3DXFrameFind(this->up_d3dx_frame_root_.get(),
-        p_mesh_container->pSkinInfo->GetBoneName(i));
+  for (::DWORD i{}; i < bone_count; ++i) {
+    ::LPD3DXFRAME p = ::D3DXFrameFind(frame_root_.get(),
+        skinned_mesh_container->pSkinInfo->GetBoneName(i));
 
-    p_frame = static_cast<skinned_animation_mesh_frame*>(p);
+    frame = static_cast<skinned_animation_mesh_frame*>(p);
 
-    if (p_frame == nullptr) {
+    if (frame == nullptr) {
       return E_FAIL;
     }
-    LPD3DXMATRIX p_matrix = &p_frame->combined_transformation_matrix_;
-    p_mesh_container->vecp_frame_combined_matrix_.at(i) = p_matrix;
+    LPD3DXMATRIX p_matrix = &frame->combined_matrix_;
+    skinned_mesh_container->frame_combined_matrix_.at(i) = p_matrix;
   }
   return S_OK;
 }
 ::HRESULT skinned_animation_mesh::allocate_all_bone_matrices(
-    ::LPD3DXFRAME a_p_frame)
+    ::LPD3DXFRAME frame)
 {
-  if (a_p_frame->pMeshContainer != nullptr) {
-    // TODO why a_p_frame->pMeshContainer->pNextMeshContainer is unnecessary?
-    if (FAILED(allocate_bone_matrix(a_p_frame->pMeshContainer))) {
+  if (frame->pMeshContainer != nullptr) {
+    // TODO why frame->pMeshContainer->pNextMeshContainer is unnecessary?
+    if (FAILED(allocate_bone_matrix(frame->pMeshContainer))) {
       return E_FAIL;
     }
   }
-  if (a_p_frame->pFrameSibling != nullptr) {
-    if (FAILED(allocate_all_bone_matrices(a_p_frame->pFrameSibling))) {
+  if (frame->pFrameSibling != nullptr) {
+    if (FAILED(allocate_all_bone_matrices(frame->pFrameSibling))) {
       return E_FAIL;
     }
   }
-  if (a_p_frame->pFrameFirstChild != nullptr) {
-    if (FAILED(allocate_all_bone_matrices(a_p_frame->pFrameFirstChild))) {
+  if (frame->pFrameFirstChild != nullptr) {
+    if (FAILED(allocate_all_bone_matrices(frame->pFrameFirstChild))) {
       return E_FAIL;
     }
   }

@@ -29,30 +29,25 @@ private:
    */
   struct frame_root_deleter_object
   {
-    std::shared_ptr<skinned_animation_mesh_allocator>
-        sp_skinned_animation_mesh_allocator_;
-
+    std::shared_ptr<skinned_animation_mesh_allocator> allocator_;
     void operator()(const ::LPD3DXFRAME);
     void release_mesh_allocator(const ::LPD3DXFRAME);
   };
 
-  const static std::string                   SHADER_FILENAME;
-  bool                                       b_play_animation_;
-  float                                      f_animation_time_;
-  std::shared_ptr<::IDirect3DDevice9>        sp_direct3d_device9_;
-  std::shared_ptr<skinned_animation_mesh_allocator> 
-      sp_skinned_animation_mesh_allocator_;
-  std::unique_ptr<::D3DXFRAME, frame_root_deleter_object>
-      up_d3dx_frame_root_;
-  ::D3DXMATRIX                            mat_rotation_;
-  std::vector<::D3DXMATRIX>               vecmat_world_matrix_array_;
-
-  ::D3DXVECTOR3 vec3_center_coodinate_{};
-  float         f_scale_{};
+  const static std::string                                SHADER_FILENAME;
+  bool                                                    is_animated_;
+  float                                                   animation_time_;
+  std::shared_ptr<::IDirect3DDevice9>                     d3d_device_;
+  std::shared_ptr<skinned_animation_mesh_allocator>       allocator_;
+  std::unique_ptr<::D3DXFRAME, frame_root_deleter_object> frame_root_;
+  ::D3DXMATRIX                                            rotation_matrix_;
+  std::vector<::D3DXMATRIX>                               world_matrix_array_;
+  ::D3DXVECTOR3                                           center_coodinate_{};
+  float                                                   scale_{};
 
   // For effect.
-  ::D3DXHANDLE                                   d3dx_handle_view_projection_;
-  ::D3DXHANDLE                                   d3dx_handle_scale_;
+  ::D3DXHANDLE                                   view_projection_handle_;
+  ::D3DXHANDLE                                   scale_handle_;
 
   void update_frame_matrix(const ::LPD3DXFRAME, const ::LPD3DXMATRIX);
   void render_frame(const ::LPD3DXFRAME);

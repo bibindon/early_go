@@ -9,10 +9,10 @@ struct animation_strategy {
       std::unique_ptr<
           ::ID3DXAnimationSet, custom_deleter
       >
-  > vecup_animation_set_;
+  > animation_sets_;
 
   std::unique_ptr<::ID3DXAnimationController, custom_deleter>
-      up_d3dx_animation_controller_;
+      animation_controller_;
 
   virtual void operator()(const std::size_t&) = 0;
   virtual void operator()(const std::string&) = 0;
@@ -29,31 +29,30 @@ struct no_animation : animation_strategy {
 
 struct normal_animation : animation_strategy {
   normal_animation(::LPD3DXANIMATIONCONTROLLER a) {
-    this->up_d3dx_animation_controller_.reset(a);
-    ::DWORD dw_animation_number{
-        this->up_d3dx_animation_controller_->GetNumAnimationSets()};
+    animation_controller_.reset(a);
+    ::DWORD animation_count{animation_controller_->GetNumAnimationSets()};
 
     std::vector<std::unique_ptr<::ID3DXAnimationSet, custom_deleter> >
-        temp_vecup(dw_animation_number);
+        animation_sets(animation_count);
 
-    this->vecup_animation_set_.swap(temp_vecup);
+    animation_sets_.swap(animation_sets);
 
-    for (::DWORD i{}; i < dw_animation_number; ++i) {
-      ::LPD3DXANIMATIONSET p_temp{};
-      this->up_d3dx_animation_controller_->GetAnimationSet(i, &p_temp);
-      this->vecup_animation_set_.at(i).reset(p_temp);
+    for (::DWORD i{}; i < animation_count; ++i) {
+      ::LPD3DXANIMATIONSET temp_animation_set{};
+      animation_controller_->GetAnimationSet(i, &temp_animation_set);
+      animation_sets_.at(i).reset(temp_animation_set);
     }
   }
 
-  void operator()(const std::size_t& a_kr_animation_set) override {
-    if (a_kr_animation_set >= this->vecup_animation_set_.size()) {
+  void operator()(const std::size_t& animation_set) override {
+    if (animation_set >= animation_sets_.size()) {
       BOOST_THROW_EXCEPTION(
           custom_exception{"An illegal animation set was sent."});
     }
-    this->up_d3dx_animation_controller_->SetTrackAnimationSet(
-        0, this->vecup_animation_set_.at(a_kr_animation_set).get());
+    animation_controller_->SetTrackAnimationSet(
+        0, animation_sets_.at(animation_set).get());
   };
-  void operator()(const std::string& a_kr_animation_set) override {
+  void operator()(const std::string& animation_set) override {
     std::vector<
         std::unique_ptr<
             ::ID3DXAnimationSet, custom_deleter
@@ -61,18 +60,18 @@ struct normal_animation : animation_strategy {
     >::const_iterator kit;
 
     kit = std::find_if(
-        this->vecup_animation_set_.cbegin(),
-        this->vecup_animation_set_.cend(),
+        animation_sets_.cbegin(),
+        animation_sets_.cend(),
         [&](const std::unique_ptr<::ID3DXAnimationSet, custom_deleter>& a){
-          return a_kr_animation_set == a->GetName();
+          return animation_set == a->GetName();
     });
 
-    if (this->vecup_animation_set_.cend() == kit) {
+    if (animation_sets_.cend() == kit) {
       BOOST_THROW_EXCEPTION(
           custom_exception{"An illegal animation set was sent."});
     }
 
-    this->up_d3dx_animation_controller_->SetTrackAnimationSet(0, kit->get());
+    animation_controller_->SetTrackAnimationSet(0, kit->get());
   };
 };
 }
