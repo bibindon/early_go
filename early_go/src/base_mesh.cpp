@@ -31,7 +31,7 @@ base_mesh::base_mesh(
                      nullptr);
   effect_.reset(effect);
   if (FAILED(result)) {
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed to create an effect file."});
+    THROW_WITH_TRACE("Failed to create an effect file.");
   }
 
   texture_handle_[0] = effect_->GetParameterByName(nullptr, "g_texture_0");
@@ -63,7 +63,7 @@ base_mesh::base_mesh(
                                    ::D3DFMT_A8B8G8R8,
                                    ::D3DPOOL_DEFAULT,
                                    &temp_texture))) {
-      BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
+      THROW_WITH_TRACE("texture file is not found.");
     } else {
       ::D3DLOCKED_RECT locked_rect{};
       temp_texture->LockRect(0, &locked_rect, nullptr, D3DLOCK_DISCARD);
@@ -97,7 +97,7 @@ void base_mesh::set_dynamic_texture(const std::string& filename,
           &buffer[0],
           static_cast<::UINT>(buffer.size()),
           &temp_texture))) {
-    BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
+    THROW_WITH_TRACE("texture file is not found.");
   } else {
     dynamic_texture_.textures_.at(layer_number).reset(
         temp_texture, custom_deleter{});
@@ -270,7 +270,7 @@ base_mesh::dynamic_texture::text_message_writer::text_message_writer(
                                  ::D3DFMT_A8B8G8R8,
                                  ::D3DPOOL_DEFAULT,
                                  &p_temp_texture))) {
-    BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
+    THROW_WITH_TRACE("texture file is not found.");
   }
 
   texture_.reset(p_temp_texture, custom_deleter{});
@@ -291,7 +291,7 @@ base_mesh::dynamic_texture::text_message_writer::text_message_writer(
   ::strcpy_s(logfont.lfFaceName, fontname.c_str());
   hfont_ = ::CreateFontIndirect(&logfont);
   if (hfont_ == nullptr) {
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed to create message writer."});
+    THROW_WITH_TRACE("Failed to create message writer.");
   }
 
   hdc_ = ::GetDC(nullptr);
@@ -304,7 +304,7 @@ base_mesh::dynamic_texture::text_message_writer::text_message_writer(
 
   ::DWORD *pTexBuf = (::DWORD*)locked_rect.pBits;
   if (pTexBuf == nullptr) {
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed to create message writer."});
+    THROW_WITH_TRACE("Failed to create message writer.");
   }
   std::fill(pTexBuf,
             pTexBuf + locked_rect.Pitch * TEXTURE_PIXEL_SIZE / sizeof(int),

@@ -46,8 +46,7 @@ struct normal_animation : animation_strategy {
 
   void operator()(const std::size_t& animation_set) override {
     if (animation_set >= animation_sets_.size()) {
-      BOOST_THROW_EXCEPTION(
-          custom_exception{"An illegal animation set was sent."});
+      THROW_WITH_TRACE("An illegal animation set was sent.");
     }
     animation_controller_->SetTrackAnimationSet(
         0, animation_sets_.at(animation_set).get());
@@ -67,8 +66,7 @@ struct normal_animation : animation_strategy {
     });
 
     if (animation_sets_.cend() == kit) {
-      BOOST_THROW_EXCEPTION(
-          custom_exception{"An illegal animation set was sent."});
+      THROW_WITH_TRACE("An illegal animation set was sent.");
     }
 
     animation_controller_->SetTrackAnimationSet(0, kit->get());

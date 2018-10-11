@@ -73,8 +73,7 @@ animation_mesh_container::animation_mesh_container(
                                         temp_d3d_device,
                                         &MeshData.pMesh)};
     if (FAILED(result)) {
-      BOOST_THROW_EXCEPTION(
-          custom_exception{"Failed 'CloneMeshFVF' function."});
+      THROW_WITH_TRACE("Failed 'CloneMeshFVF' function.");
     }
     mesh = MeshData.pMesh;
     ::D3DXComputeNormals(mesh, nullptr);
@@ -125,7 +124,7 @@ animation_mesh_container::animation_mesh_container(
             &buffer[0],
             static_cast<::UINT>(buffer.size()),
             &temp_texture))) {
-          BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
+          THROW_WITH_TRACE("texture file is not found.");
         } else {
           texture_.at(i).reset(temp_texture);
         }
@@ -175,10 +174,13 @@ animation_mesh_allocator::animation_mesh_allocator(
                                                        materials,
                                                        materials_count,
                                                        adjacency};
-  } catch (const std::exception& expception) {
-    early_go::log_liner{} << boost::diagnostic_information(expception);
+  } catch (const boost::exception& e) {
+    exception_reserve = boost::copy_exception(e);
+    return E_FAIL;
+  } catch (...) {
     return E_FAIL;
   }
+
   return S_OK;
 }
 

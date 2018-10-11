@@ -255,6 +255,7 @@
     <ClInclude Include="src\basic_window.hpp" />
     <ClInclude Include="src\character.hpp" />
     <ClInclude Include="src\constants.hpp" />
+    <ClInclude Include="src\error_dialog.hpp" />
     <ClInclude Include="src\exception.hpp" />
     <ClInclude Include="src\inline_macro.hpp" />
     <ClInclude Include="src\mesh.hpp" />

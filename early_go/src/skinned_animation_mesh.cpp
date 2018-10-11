@@ -92,9 +92,7 @@ skinned_animation_mesh::skinned_animation_mesh(
       nullptr,
       &temp_frame_root,
       &temp_animation_controller))) {
-    ::MessageBox(nullptr, constants::FAILED_TO_READ_X_FILE_MESSAGE.c_str(),
-        x_filename.c_str(), MB_OK);
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed to load a x-file."});
+    THROW_WITH_TRACE("Failed to load a x-file.");
   }
   /* lazy initialization */
   frame_root_.reset(temp_frame_root);
@@ -252,7 +250,7 @@ void skinned_animation_mesh::render_mesh_container(
 
     if (FAILED(effect_->BeginPass(0))) {
       effect_->End();
-      BOOST_THROW_EXCEPTION(custom_exception{"Failed 'BeginPass' function."});
+      THROW_WITH_TRACE("Failed 'BeginPass' function.");
     }
     effect_->CommitChanges();
     mesh_container->MeshData.pMesh->DrawSubset(i);

@@ -82,8 +82,7 @@ skinned_animation_mesh_container::skinned_animation_mesh_container(
                                 d3d_device,
                                 &MeshData.pMesh);
     if (FAILED(result)) {
-      BOOST_THROW_EXCEPTION(
-          custom_exception{"Failed 'CloneMeshFVF' function."});
+      THROW_WITH_TRACE("Failed 'CloneMeshFVF' function.");
     }
     mesh = MeshData.pMesh;
     ::D3DXComputeNormals(mesh, nullptr);
@@ -142,7 +141,7 @@ void skinned_animation_mesh_container::initialize_materials(
             &buffer[0],
             static_cast<UINT>(buffer.size()),
             &temp_texture))) {
-          BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
+          THROW_WITH_TRACE("texture file is not found.");
         } else {
           texture_.at(i).reset(temp_texture);
         }
@@ -160,7 +159,7 @@ void skinned_animation_mesh_container::initialize_bone(
     const ::LPD3DXSKININFO &skin_info, const ::LPD3DXMESH &mesh)
 {
   if (skin_info == nullptr) {
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed to get skin info."});
+    THROW_WITH_TRACE("Failed to get skin info.");
   }
   pSkinInfo = skin_info;
   pSkinInfo->AddRef();
@@ -191,7 +190,7 @@ void skinned_animation_mesh_container::initialize_bone(
                                                     &bone_count_,
                                                     &bone_buffer,
                                                     &MeshData.pMesh))) {
-    BOOST_THROW_EXCEPTION(custom_exception{ "Failed to get skin info." });
+    THROW_WITH_TRACE("Failed to get skin info.");
   }
   bone_buffer_.reset(bone_buffer);
 }
@@ -223,7 +222,7 @@ void skinned_animation_mesh_container::initialize_vertex_element()
   ::LPD3DVERTEXELEMENT9 current_decl;
   ::HRESULT result = MeshData.pMesh->GetDeclaration(decl);
   if (FAILED(result)) {
-    BOOST_THROW_EXCEPTION(custom_exception{ "Failed to get skin info." });
+    THROW_WITH_TRACE("Failed to get skin info.");
   }
 
   current_decl = decl;
@@ -237,7 +236,7 @@ void skinned_animation_mesh_container::initialize_vertex_element()
 
   result = MeshData.pMesh->UpdateSemantics(decl);
   if (FAILED(result)) {
-    BOOST_THROW_EXCEPTION(custom_exception{ "Failed to get skin info." });
+    THROW_WITH_TRACE("Failed to get skin info.");
   }
 }
 

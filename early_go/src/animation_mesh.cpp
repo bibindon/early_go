@@ -96,10 +96,7 @@ animation_mesh::animation_mesh(
       &temp_animation_controller)};
 
   if (FAILED(result)) {
-    std::string error_msg{constants::FAILED_TO_READ_X_FILE_MESSAGE
-            + ": " + ::DXGetErrorString(result)};
-    ::MessageBox(nullptr, error_msg.c_str(), x_filename.c_str(), MB_OK);
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed to load a x-file."});
+    THROW_WITH_TRACE("Failed to load a x-file.");
   }
   /* lazy initialization */
   frame_root_.reset(temp_root_frame);
@@ -230,7 +227,7 @@ void animation_mesh::render_mesh_container(
 
   if (FAILED(effect_->BeginPass(0))) {
     effect_->End();
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed 'BeginPass' function."});
+    THROW_WITH_TRACE("Failed 'BeginPass' function.");
   }
 
   animation_mesh_container *mesh_container{

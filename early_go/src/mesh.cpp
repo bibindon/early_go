@@ -43,7 +43,7 @@ mesh::mesh(
                                        &materials_count_,
                                        &temp_mesh);
   if (FAILED(result)) {
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed to load a x-file."});
+    THROW_WITH_TRACE("Failed to load a x-file.");
   }
   d3dx_mesh_.reset(temp_mesh);
 
@@ -80,7 +80,7 @@ mesh::mesh(
                                  d3d_device_.get(),
                                  &temp_mesh);
   if (FAILED(result)) {
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed 'CloneMesh' function."});
+    THROW_WITH_TRACE("Failed 'CloneMesh' function.");
   }
   d3dx_mesh_.reset(temp_mesh);
   DWORD* word_buffer =
@@ -89,8 +89,7 @@ mesh::mesh(
   result = ::D3DXComputeNormals(d3dx_mesh_.get(), word_buffer);
 
   if (FAILED(result)) {
-    BOOST_THROW_EXCEPTION(
-        custom_exception{"Failed 'D3DXComputeNormals' function."});
+    THROW_WITH_TRACE("Failed 'D3DXComputeNormals' function.");
   }
 
   result = d3dx_mesh_->OptimizeInplace(
@@ -104,8 +103,7 @@ mesh::mesh(
   safe_release(adjacency_buffer);
 
   if (FAILED(result)) {
-    BOOST_THROW_EXCEPTION(
-        custom_exception{"Failed 'OptimizeInplace' function."});
+    THROW_WITH_TRACE("Failed 'OptimizeInplace' function.");
   }
 
   colors_.insert(std::begin(colors_), materials_count_, ::D3DCOLORVALUE{});
@@ -134,7 +132,7 @@ mesh::mesh(
               &buffer[0],
               static_cast<::UINT>(buffer.size()),
               &temp_texture))) {
-        BOOST_THROW_EXCEPTION(custom_exception{"texture file is not found."});
+        THROW_WITH_TRACE("texture file is not found.");
       } else {
         textures_.at(i).reset(temp_texture);
       }
@@ -175,7 +173,7 @@ void mesh::do_render(const ::D3DXMATRIX&  view_matrix,
   ::HRESULT result{};
   if (FAILED(result = effect_->BeginPass(0))) {
     effect_->End();
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed 'BeginPass' function."});
+    THROW_WITH_TRACE("Failed 'BeginPass' function.");
   }
 
   for (::DWORD i{}; i < materials_count_; ++i) {

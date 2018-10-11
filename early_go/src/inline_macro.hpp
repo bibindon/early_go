@@ -86,7 +86,7 @@ inline std::vector<char> get_resource(const std::string& query)
   ::sqlite3* db = nullptr;
   if (::sqlite3_open(constants::DATABASE_NAME.c_str(), &db) != SQLITE_OK) {
     ::sqlite3_close(db);
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed to open a database."});
+    THROW_WITH_TRACE("Failed to open a database.");
   }
   ::sqlite3_stmt* _statement = nullptr;
   ::sqlite3_prepare_v2(db, query.c_str(), -1, &_statement, nullptr);
@@ -97,9 +97,8 @@ inline std::vector<char> get_resource(const std::string& query)
     } else {
       ::sqlite3_finalize(_statement);
       ::sqlite3_close(db);
-      BOOST_THROW_EXCEPTION(
-          custom_exception{"There are multiple specified resources.\n"
-                           " query: " + query});
+      THROW_WITH_TRACE(
+          "There are multiple specified resources.\n query: " + query);
     }
     const char* blob = (char*)sqlite3_column_blob(_statement, 0);
     int data_count = sqlite3_column_bytes(_statement, 0);
@@ -109,8 +108,7 @@ inline std::vector<char> get_resource(const std::string& query)
   ::sqlite3_finalize(_statement);
   ::sqlite3_close(db);
   if (!is_found) {
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed to find a resource.\n"
-                          " query: " + query});
+    THROW_WITH_TRACE("Failed to find a resource.\n query: " + query);
   }
   return ret;
 #endif
@@ -125,8 +123,7 @@ inline std::vector<char> get_resource(const std::string& query)
  */
 struct log_liner
 {
-//#if defined(DEBUG) || defined(_DEBUG)
-#if 1
+#if defined(DEBUG) || defined(_DEBUG)
   /* c'tor */
   log_liner(const std::string& op = "") : ostringstream_{}, option_{op} {}
 
@@ -157,5 +154,6 @@ private:
   }
 #endif
 };
+
 }
 #endif

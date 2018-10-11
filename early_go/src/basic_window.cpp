@@ -82,8 +82,7 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
   ::LPDIRECT3D9 direct3d9{::Direct3DCreate9(D3D_SDK_VERSION)};
 
   if (nullptr == direct3d9) {
-    ::MessageBox(0, "Direct3D‚Ì‰Šú‰»‚ÉŽ¸”s‚µ‚Ü‚µ‚½", "", MB_OK);
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed to create 'Direct3D'."});
+    THROW_WITH_TRACE("Failed to create 'Direct3D'.");
   }
   direct3d9_.reset(direct3d9);
 
@@ -110,27 +109,20 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
         D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
         &d3d_present_parameters_,
         &d3d_device9))) {
-      if (SUCCEEDED(direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
+      if (FAILED(direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
           ::D3DDEVTYPE_REF,
           hwnd,
           D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
           &d3d_present_parameters_,
           &d3d_device9))) {
-        ::MessageBox(0,
-            constants::FAILED_TO_CREATE_HARDWARE_MODE_MESSAGE.c_str(),
-            nullptr, MB_OK);
-      } else if (SUCCEEDED(direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
-          ::D3DDEVTYPE_REF,
-          hwnd,
-          D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
-          &d3d_present_parameters_,
-          &d3d_device9))) {
-        ::MessageBox(0,
-            constants::FAILED_TO_CREATE_HARDWARE_MODE_MESSAGE.c_str(),
-            nullptr, MB_OK);
-      } else {
-        BOOST_THROW_EXCEPTION(
-            custom_exception{"Failed to create 'Direct3D Device'."});
+        if (FAILED(direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
+            ::D3DDEVTYPE_REF,
+            hwnd,
+            D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
+            &d3d_present_parameters_,
+            &d3d_device9))) {
+          THROW_WITH_TRACE("Failed to create 'Direct3D Device'.");
+        }
       }
     }
   }
@@ -183,7 +175,7 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
                               FIXED_PITCH | FF_MODERN,
                               "MS_Gothic",
                               &font))) {
-    BOOST_THROW_EXCEPTION(custom_exception{"Failed to create a font."});
+    THROW_WITH_TRACE("Failed to create a font.");
   }
   font_.reset(font, custom_deleter{});
   render_string_object::weak_font_ = font_;
