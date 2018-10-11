@@ -85,7 +85,7 @@ protected:
 
       std::shared_ptr<::IDirect3DTexture9>& texture_;
       const std::string                     message_;
-      const bool                            is_animated;
+      const bool                            is_message_animated_;
       const ::RECT                          rect_;
       const int                             color_;
       int                                   font_width_sum_;

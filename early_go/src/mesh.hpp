@@ -15,7 +15,7 @@ public:
 private:
   const static std::string                       SHADER_FILENAME;
   std::unique_ptr<::ID3DXMesh, custom_deleter>   d3dx_mesh_;
-  ::DWORD                                        materials_count;
+  ::DWORD                                        materials_count_;
   ::D3DXHANDLE                                   world_view_proj_handle_;
   std::vector<::D3DCOLORVALUE>                   colors_;
   std::vector<

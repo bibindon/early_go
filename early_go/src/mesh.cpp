@@ -10,10 +10,10 @@ mesh::mesh(
     const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
     const std::string& x_filename,
     const ::D3DXVECTOR3& position,
-    const float& size)
+    const float& scale)
     : base_mesh{d3d_device, SHADER_FILENAME, position},
       d3dx_mesh_{nullptr, custom_deleter{}},
-      materials_count{},
+      materials_count_{},
       world_view_proj_handle_{},
       colors_{},
       textures_{},
@@ -40,7 +40,7 @@ mesh::mesh(
                                        &adjacency_buffer,
                                        &material_buffer,
                                        nullptr,
-                                       &materials_count,
+                                       &materials_count_,
                                        &temp_mesh);
   if (FAILED(result)) {
     BOOST_THROW_EXCEPTION(custom_exception{"Failed to load a x-file."});
@@ -108,15 +108,15 @@ mesh::mesh(
         custom_exception{"Failed 'OptimizeInplace' function."});
   }
 
-  colors_.insert(std::begin(colors_), materials_count, ::D3DCOLORVALUE{});
+  colors_.insert(std::begin(colors_), materials_count_, ::D3DCOLORVALUE{});
   std::vector<std::unique_ptr<::IDirect3DTexture9, custom_deleter> >
-      temp_textures(materials_count);
+      temp_textures(materials_count_);
   textures_.swap(temp_textures);
 
   ::D3DXMATERIAL* materials =
       static_cast<::D3DXMATERIAL*>(material_buffer->GetBufferPointer());
 
-  for (::DWORD i{}; i < materials_count; ++i) {
+  for (::DWORD i{}; i < materials_count_; ++i) {
     colors_.at(i) = materials[i].MatD3D.Diffuse;
     if (materials[i].pTextureFilename != nullptr) {
       std::string query{};
@@ -142,7 +142,7 @@ mesh::mesh(
   }
   safe_release(material_buffer);
 
-  scale_ = size / radius_;
+  scale_ = scale;
 }
 
 void mesh::do_render(const ::D3DXMATRIX&  view_matrix,
@@ -178,7 +178,7 @@ void mesh::do_render(const ::D3DXMATRIX&  view_matrix,
     BOOST_THROW_EXCEPTION(custom_exception{"Failed 'BeginPass' function."});
   }
 
-  for (::DWORD i{}; i < materials_count; ++i) {
+  for (::DWORD i{}; i < materials_count_; ++i) {
     // TODO : remove redundant set****. 
     ::D3DXVECTOR4 vec4_color{ colors_.at(i).r,
                               colors_.at(i).g,

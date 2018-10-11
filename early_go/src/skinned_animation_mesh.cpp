@@ -65,7 +65,7 @@ skinned_animation_mesh::skinned_animation_mesh(
     const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
     const std::string& x_filename,
     const ::D3DXVECTOR3& position,
-    const float& size)
+    const float& scale)
     : base_mesh{d3d_device, SHADER_FILENAME, position},
       is_animated_{true},
       animation_time_{},
@@ -103,7 +103,7 @@ skinned_animation_mesh::skinned_animation_mesh(
 
   allocate_all_bone_matrices(frame_root_.get());
 
-  scale_ = size;
+  scale_ = scale;
 }
 
 /* Renders its own animation mesh. */

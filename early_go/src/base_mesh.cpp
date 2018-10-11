@@ -132,7 +132,7 @@ void base_mesh::dynamic_texture::text_message_writer::operator()()
   ::D3DLOCKED_RECT locked_rect{};
   texture_->LockRect(0, &locked_rect, nullptr, 0);
 
-  while (write_character() && !is_animated);
+  while (write_character() && !is_message_animated_);
 
   texture_->UnlockRect(0);
 }
@@ -240,7 +240,7 @@ base_mesh::dynamic_texture::text_message_writer::text_message_writer(
     std::shared_ptr<::IDirect3DDevice9>   d3d_device,
     std::shared_ptr<::IDirect3DTexture9>& texture,
     const std::string                     message,
-    const bool                            is_animated,
+    const bool                            is_message_animated,
     const ::RECT                          rect,
     const int                             color,
     int                                   font_width_sum,
@@ -250,7 +250,7 @@ base_mesh::dynamic_texture::text_message_writer::text_message_writer(
     const int&                            weight)
     : texture_{texture},
       message_{message},
-      is_animated{is_animated},
+      is_message_animated_{is_message_animated},
       rect_{rect},
       color_{color},
       font_width_sum_{font_width_sum},

@@ -62,7 +62,7 @@ animation_mesh::animation_mesh(
     const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
     const std::string& x_filename,
     const ::D3DXVECTOR3& position,
-    const float& size)
+    const float& scale)
     : base_mesh{d3d_device, SHADER_FILENAME, position},
       is_animated_{true},
       animation_time_{},
@@ -106,7 +106,7 @@ animation_mesh::animation_mesh(
   animation_strategy_.reset(
       new_crt normal_animation{temp_animation_controller});
 
-  scale_ = size;
+  scale_ = scale;
 }
 
 /* Renders its own animation mesh. */
