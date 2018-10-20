@@ -66,7 +66,7 @@ struct normal_animation : animation_strategy {
     });
 
     if (animation_sets_.cend() == kit) {
-      THROW_WITH_TRACE("An illegal animation set was sent.");
+      THROW_WITH_TRACE("An illegal animation set was sent.: " + animation_set);
     }
 
     animation_controller_->SetTrackAnimationSet(0, kit->get());

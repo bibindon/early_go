@@ -5,7 +5,7 @@ namespace early_go {
 const int constants::WINDOW_WIDTH = 1600;
 const int constants::WINDOW_HEIGHT = 900;
 #if defined(_WIN64) && defined(_WIN32)
-const float constants::ANIMATION_SPEED = 0.02f/120;
+const float constants::ANIMATION_SPEED = 0.03f/120;
 #elif !defined(_WIN64) && defined(_WIN32)
 const float constants::ANIMATION_SPEED = 0.02f;
 #endif
@@ -24,4 +24,6 @@ const std::string constants::EARLY_BODY = "model/early_tentative/body.x";
 const std::string constants::EARLY_ARMOR = "model/early_tentative/armor.x";
 const std::string constants::EARLY_LANCE = "model/early_tentative/lance.x";
 const std::string constants::EARLY_SABER = "model/early_tentative/saber.x";
+const std::string constants::EARLY_HAIR = "model/early_tentative/hair.x";
+const std::string constants::EARLY_SKIRT = "model/early_tentative/skirt.x";
 }

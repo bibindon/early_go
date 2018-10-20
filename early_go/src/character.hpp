@@ -56,13 +56,7 @@ public:
   void set_dynamic_message_color(
       const std::string&, const int&, const ::D3DXVECTOR4&);
 
-  template <typename T>
-  void play_animation_set(const std::string& x_filename, const T& animation_set)
-  {
-    if (mesh_map_.find(x_filename) != mesh_map_.end()) {
-      mesh_map_.at(x_filename)->play_animation_set(animation_set);
-    }
-  }
+  void play_animation_set(const std::string&);
 private:
   std::unordered_map<std::string, std::shared_ptr<base_mesh> > mesh_map_;
   const std::shared_ptr<::IDirect3DDevice9>& d3d_device_;

@@ -156,9 +156,12 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
 
   early_->set_position({0.0f, 0.0f, -1.0f});
   early_->add_mesh<skinned_animation_mesh>(constants::EARLY_BODY);
-  early_->add_mesh<animation_mesh>(constants::EARLY_ARMOR);
-  early_->add_mesh<animation_mesh>(constants::EARLY_LANCE);
-  early_->add_mesh<animation_mesh>(constants::EARLY_SABER);
+  early_->add_mesh<skinned_animation_mesh>(constants::EARLY_ARMOR);
+  early_->add_mesh<skinned_animation_mesh>(constants::EARLY_LANCE);
+  early_->add_mesh<skinned_animation_mesh>(constants::EARLY_SABER);
+
+  early_->add_mesh<skinned_animation_mesh>(constants::EARLY_HAIR);
+  early_->add_mesh<skinned_animation_mesh>(constants::EARLY_SKIRT);
   /* ~ Create a Direct3D Device object. */
 
   /* Create font. ~ */
@@ -288,20 +291,27 @@ void basic_window::render()
       light_direction_.z = 0.0f;
     }
     if (::GetAsyncKeyState('1') & 0x8000) {
-      //early_->play_animation_set(
-      //     constants::SKINNED_ANIMATION_MESH_FILE_NAME, 1);
+      early_->play_animation_set("Idle");
       skinned_animation_mesh_->play_animation_set(1);
     }
     if (::GetAsyncKeyState('2') & 0x8000) {
+      early_->play_animation_set("Ready");
       skinned_animation_mesh_->play_animation_set(2);
     }
     if (::GetAsyncKeyState('3') & 0x8000) {
+      early_->play_animation_set("Step_Front");
       skinned_animation_mesh_->play_animation_set(3);
     }
     if (::GetAsyncKeyState('4') & 0x8000) {
+      early_->play_animation_set("Step_Back");
       skinned_animation_mesh_->play_animation_set(4);
     }
     if (::GetAsyncKeyState('5') & 0x8000) {
+      early_->play_animation_set("Step_Left");
+      skinned_animation_mesh_->play_animation_set("Wolf_Walk_cycle_");
+    }
+    if (::GetAsyncKeyState('6') & 0x8000) {
+      early_->play_animation_set("Step_Right");
       skinned_animation_mesh_->play_animation_set("Wolf_Walk_cycle_");
     }
     if (::GetAsyncKeyState('Z') & 0x8000) {

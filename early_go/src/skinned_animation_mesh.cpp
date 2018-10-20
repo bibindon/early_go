@@ -92,7 +92,7 @@ skinned_animation_mesh::skinned_animation_mesh(
       nullptr,
       &temp_frame_root,
       &temp_animation_controller))) {
-    THROW_WITH_TRACE("Failed to load a x-file.");
+    THROW_WITH_TRACE("Failed to load a x-file.: " + x_filename);
   }
   /* lazy initialization */
   frame_root_.reset(temp_frame_root);

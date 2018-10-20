@@ -1,5 +1,8 @@
 #include "stdafx.hpp"
 
+#include <regex>
+#include <cctype>
+
 #include "base_mesh.hpp"
 #include "character.hpp"
 
@@ -88,6 +91,26 @@ void character::set_dynamic_message_color(const std::string& x_filename,
 {
   if (mesh_map_.find(x_filename) != mesh_map_.end()) {
     mesh_map_.at(x_filename)->set_dynamic_message_color(layer_number, color);
+  }
+}
+
+void character::play_animation_set(const std::string& animation_set)
+{
+  for (const auto& x : mesh_map_) {
+    // "Idle" + "hoge/piyo/model.x" -> "Idle_Model"
+    std::regex reg{R"(.*/(.*)\.x)"};
+    std::smatch match{};
+    std::string animation_fullname{};
+    std::string model_filename{};
+
+    if (std::regex_match(x.first, match, reg) && match.size() == 2) {
+      model_filename = match[1].str();
+      unsigned char c = std::toupper(model_filename.at(0));
+      model_filename.erase(0, 1);
+      model_filename.insert(model_filename.begin(), c);
+      animation_fullname = animation_set + "_" + model_filename;
+      x.second->play_animation_set(animation_fullname);
+    }
   }
 }
 

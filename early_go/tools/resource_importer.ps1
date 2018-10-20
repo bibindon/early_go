@@ -44,10 +44,32 @@ try {
 
         $sqlcmd.CommandText = $sql
         $sqlcmd.ExecuteNonQuery() > $null
-
+    
+        # Delete unnecessary files.
+        $sql ="SELECT filename from ${table_name};"
+        $sqlcmd.CommandText = $sql
+        $result =  $sqlcmd.ExecuteReader()
+        $delete_file_list = @()
+        while ($result.Read()) {
+            $relative_path = $RESOURCE_DIRECTORY + "\" + $result["filename"]
+            if (!(Test-Path $relative_path)) {
+                $delete_file_list += $result["filename"]
+            }
+        }
+        $result.Close()
+        foreach ($delete_file in $delete_file_list) {
+            Write-Output "Delete: ${delete_file}"
+            $sql = "DELETE FROM ${table_name}
+                    WHERE filename = `"${delete_file}`";"
+                        
+            $sqlcmd.CommandText = $sql
+            $sqlcmd.ExecuteNonQuery() > $null
+        }
+        
         $table_directory = $RESOURCE_DIRECTORY + "\" + $table_name
         $relative_paths = Get-ChildItem -Recurse -File $table_directory | Resolve-Path -Relative
     
+        # Upsert files.
         for ($j=0; $j -lt $relative_paths.Length; $j++) {
             # Create "filename" column data.
             $filename = $relative_paths[$j].Substring($RESOURCE_DIRECTORY.Length+1);
@@ -65,7 +87,6 @@ try {
             $sqlcmd.CommandText = $sql
             $result =  $sqlcmd.ExecuteScalar()
             
-            # upsert
             if ($result -eq 0) {
                 Write-Output "Upsert: $filename"
                 $sql = "INSERT OR REPLACE INTO ${table_name} VALUES (
@@ -101,3 +122,5 @@ try {
 
 $sqlcmd.Dispose()
 $sqlite.Close()
+
+Read-Host "Please press Enter key"

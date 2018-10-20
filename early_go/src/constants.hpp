@@ -19,6 +19,9 @@ struct constants {
   const static std::string EARLY_ARMOR;
   const static std::string EARLY_LANCE;
   const static std::string EARLY_SABER;
+
+  const static std::string EARLY_HAIR;
+  const static std::string EARLY_SKIRT;
 };
 } /* namespace early_go */
 #endif
