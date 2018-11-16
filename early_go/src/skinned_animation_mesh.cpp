@@ -67,8 +67,6 @@ skinned_animation_mesh::skinned_animation_mesh(
     const ::D3DXVECTOR3& position,
     const float& scale)
     : base_mesh{d3d_device, SHADER_FILENAME, position},
-      is_animated_{true},
-      animation_time_{},
       d3d_device_{d3d_device},
       allocator_{new_crt skinned_animation_mesh_allocator{x_filename}},
       frame_root_{nullptr, frame_root_deleter_object{allocator_}},
@@ -112,11 +110,7 @@ void skinned_animation_mesh::do_render(const ::D3DXMATRIX& view_matrix,
 
   effect_->SetMatrix(view_projection_handle_, &view_projection_matrix);
 
-  if (is_animated_) {
-    animation_time_ += constants::ANIMATION_SPEED;
-    animation_strategy_->animation_controller_->AdvanceTime(
-        constants::ANIMATION_SPEED, nullptr);
-  }
+  (*animation_strategy_)();
 
   ::D3DXMATRIX world_matrix{};
   ::D3DXMatrixIdentity(&world_matrix);
@@ -137,26 +131,6 @@ void skinned_animation_mesh::do_render(const ::D3DXMATRIX& view_matrix,
 
   update_frame_matrix(frame_root_.get(), &world_matrix);
   render_frame(frame_root_.get());
-
-  std::stringstream ss{};
-  ss << std::fixed << std::setprecision(2)
-      << "animation time: " << animation_time_ << std::endl;
-  basic_window::render_string_object::render_string(ss.str(), 10, 10);
-}
-
-bool skinned_animation_mesh::get_play_animation() const
-{
-  return is_animated_;
-}
-
-void skinned_animation_mesh::set_play_animation(const bool& is_animated)
-{
-  is_animated_ = is_animated;
-}
-
-float skinned_animation_mesh::get_animation_time() const
-{
-  return animation_time_;
 }
 
 /*

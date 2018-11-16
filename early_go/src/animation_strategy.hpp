@@ -4,7 +4,17 @@
 
 namespace early_go {
 
-struct animation_strategy {
+class animation_strategy {
+public:
+  virtual void operator()() = 0;
+  virtual void set_animation(const std::size_t&){};
+  virtual void set_animation(const std::string&){};
+  virtual void set_default_animation(const std::string&){};
+  virtual void set_animation_config(const std::string&,
+                                    const bool&,
+                                    const float&){};
+
+protected:
   std::vector<
       std::unique_ptr<
           ::ID3DXAnimationSet, custom_deleter
@@ -13,23 +23,25 @@ struct animation_strategy {
 
   std::unique_ptr<::ID3DXAnimationController, custom_deleter>
       animation_controller_;
-
-  virtual void operator()(const std::size_t&) = 0;
-  virtual void operator()(const std::string&) = 0;
 };
 
-struct no_animation : animation_strategy {
-  void operator()(const std::size_t&) override {
-    // do nothing
-  };
-  void operator()(const std::string&) override {
+class no_animation : public animation_strategy {
+public:
+  void operator()() override
+  {
     // do nothing
   };
 };
 
-struct normal_animation : animation_strategy {
-  normal_animation(::LPD3DXANIMATIONCONTROLLER a) {
-    animation_controller_.reset(a);
+class normal_animation : public animation_strategy {
+public:
+  normal_animation(::LPD3DXANIMATIONCONTROLLER controller)
+  : default_animation_{""},
+    animation_time_{},
+    is_playing_{false},
+    playing_animation_{""}
+  {
+    animation_controller_.reset(controller);
     ::DWORD animation_count{animation_controller_->GetNumAnimationSets()};
 
     std::vector<std::unique_ptr<::ID3DXAnimationSet, custom_deleter> >
@@ -44,14 +56,8 @@ struct normal_animation : animation_strategy {
     }
   }
 
-  void operator()(const std::size_t& animation_set) override {
-    if (animation_set >= animation_sets_.size()) {
-      THROW_WITH_TRACE("An illegal animation set was sent.");
-    }
-    animation_controller_->SetTrackAnimationSet(
-        0, animation_sets_.at(animation_set).get());
-  };
-  void operator()(const std::string& animation_set) override {
+  void set_animation(const std::string& animation_set) override
+  {
     std::vector<
         std::unique_ptr<
             ::ID3DXAnimationSet, custom_deleter
@@ -70,7 +76,54 @@ struct normal_animation : animation_strategy {
     }
 
     animation_controller_->SetTrackAnimationSet(0, kit->get());
+    animation_controller_->SetTrackPosition(0, 0.0f);
+
+    if (animation_configs_.find(animation_set) == animation_configs_.end()) {
+      return;
+    }
+    if (animation_set != default_animation_ &&
+        !animation_configs_.at(animation_set).loop_) {
+      is_playing_ = true;
+      playing_animation_ = animation_set;
+    }
   };
+  void operator()() override
+  {
+    animation_controller_->AdvanceTime(constants::ANIMATION_SPEED, nullptr);
+    if (is_playing_) {
+      animation_time_ += constants::ANIMATION_SPEED;
+      float duration{animation_configs_.at(playing_animation_).duration_};
+      if (animation_time_ >= duration) {
+        set_animation(default_animation_);
+        is_playing_ = false;
+        animation_time_ = 0;
+      }
+    }
+  };
+  void set_default_animation(const std::string& animation_name) override
+  {
+    default_animation_ = animation_name;
+    set_animation(default_animation_);
+  }
+  void set_animation_config(const std::string& animation_name,
+                            const bool&        loop,
+                            const float&       duration) override
+  {
+    animation_configs_.emplace(
+        animation_name, animation_config{loop, duration});
+  }
+
+private:
+  std::string default_animation_;
+  float animation_time_;
+  bool is_playing_;
+  std::string playing_animation_;
+
+  struct animation_config {
+    bool  loop_{true};
+    float duration_{1.0f};
+  };
+  std::unordered_map<std::string, animation_config> animation_configs_;
 };
 }
 

@@ -18,11 +18,9 @@ public:
 //    ADDITION,
 //    MULTIPLICATION,
   };
-  template <typename T>
-  void play_animation_set(const T& animation_set)
-  {
-    (*animation_strategy_)(animation_set);
-  }
+  void set_animation(const std::string&);
+  void set_default_animation(const std::string&);
+  void set_animation_config(const std::string&, const bool&, const float&);
   void render(const ::D3DXMATRIX&,
               const ::D3DXMATRIX&,
               const ::D3DXVECTOR4&,

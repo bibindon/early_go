@@ -16,9 +16,6 @@ public:
                  const std::string&,
                  const ::D3DXVECTOR3&,
                  const float&);
-  bool get_play_animation() const;
-  void set_play_animation(const bool&);
-  float get_animation_time() const;
 
 private:
   void do_render(const ::D3DXMATRIX&, const ::D3DXMATRIX&) override;
@@ -36,8 +33,6 @@ private:
   };
 
   const static std::string                   SHADER_FILENAME;
-  bool                                       is_animated_;
-  float                                      animation_time_;
   std::shared_ptr<::IDirect3DDevice9>        d3d_device_;
   std::shared_ptr<animation_mesh_allocator>  allocator_;
   std::unique_ptr<::D3DXFRAME,

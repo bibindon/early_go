@@ -4,11 +4,7 @@
 namespace early_go {
 const int constants::WINDOW_WIDTH = 1600;
 const int constants::WINDOW_HEIGHT = 900;
-#if defined(_WIN64) && defined(_WIN32)
-const float constants::ANIMATION_SPEED = 0.03f/120;
-#elif !defined(_WIN64) && defined(_WIN32)
-const float constants::ANIMATION_SPEED = 0.02f;
-#endif
+const float constants::ANIMATION_SPEED = 1.0f/60;
 const std::string constants::APP_NAME = "early_go";
 const std::string constants::DATABASE_NAME = ".res";
 const std::string constants::MESH_FILE_NAME = "model/tiger/tiger.x";

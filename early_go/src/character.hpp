@@ -21,6 +21,8 @@ public:
     mesh_map_.emplace(xfile_name,
         new_crt T{d3d_device_, xfile_name, position_, size_});
   }
+  void set_default_animation(const std::string&);
+  void set_animation_config(const std::string&, const bool&, const float&);
 
   void render(const ::D3DXMATRIX&,
       const ::D3DXMATRIX&, const ::D3DXVECTOR4&, const float&);
@@ -56,8 +58,9 @@ public:
   void set_dynamic_message_color(
       const std::string&, const int&, const ::D3DXVECTOR4&);
 
-  void play_animation_set(const std::string&);
+  void set_animation(const std::string&);
 private:
+  std::string create_animation_fullname(const std::string&, const std::string&);
   std::unordered_map<std::string, std::shared_ptr<base_mesh> > mesh_map_;
   const std::shared_ptr<::IDirect3DDevice9>& d3d_device_;
   ::D3DXVECTOR3 position_;

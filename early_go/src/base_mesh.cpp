@@ -352,6 +352,23 @@ void base_mesh::set_dynamic_message_color(const int& layer_number,
   dynamic_texture_.colors_.at(layer_number) = color;
 }
 
+void base_mesh::set_animation(const std::string& animation_set)
+{
+  animation_strategy_->set_animation(animation_set);
+}
+
+void base_mesh::set_default_animation(const std::string& animation_name)
+{
+  animation_strategy_->set_default_animation(animation_name);
+}
+
+void base_mesh::set_animation_config(const std::string& animation_name,
+                                     const bool&        loop,
+                                     const float&       duration)
+{
+  animation_strategy_->set_animation_config(animation_name, loop, duration);
+}
+
 void base_mesh::render(const ::D3DXMATRIX&  view_matrix,
                        const ::D3DXMATRIX&  projection_matrix,
                        const ::D3DXVECTOR4& light_normal,

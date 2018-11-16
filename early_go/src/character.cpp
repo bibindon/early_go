@@ -20,6 +20,28 @@ character::~character()
 {
 }
 
+void character::set_default_animation(const std::string& animation_name)
+{
+  for (const auto& x : mesh_map_) {
+    std::string animation_fullname{
+        create_animation_fullname(animation_name, x.first)};
+
+    x.second->set_default_animation(animation_fullname);
+  }
+}
+
+void character::set_animation_config(const std::string& animation_name,
+                                     const bool&        loop,
+                                     const float&       duration)
+{
+  for (const auto& x : mesh_map_) {
+    std::string animation_fullname{
+        create_animation_fullname(animation_name, x.first)};
+
+    x.second->set_animation_config(animation_fullname, loop, duration);
+  }
+}
+
 void character::render(const ::D3DXMATRIX&  view_matrix,
                        const ::D3DXMATRIX&  projection_matrix,
                        const ::D3DXVECTOR4& normal_light,
@@ -94,24 +116,35 @@ void character::set_dynamic_message_color(const std::string& x_filename,
   }
 }
 
-void character::play_animation_set(const std::string& animation_set)
+void character::set_animation(const std::string& animation_set)
 {
   for (const auto& x : mesh_map_) {
-    // "Idle" + "hoge/piyo/model.x" -> "Idle_Model"
-    std::regex reg{R"(.*/(.*)\.x)"};
-    std::smatch match{};
-    std::string animation_fullname{};
-    std::string model_filename{};
+    std::string animation_fullname{
+        create_animation_fullname(animation_set, x.first)};
 
-    if (std::regex_match(x.first, match, reg) && match.size() == 2) {
-      model_filename = match[1].str();
-      unsigned char c = std::toupper(model_filename.at(0));
-      model_filename.erase(0, 1);
-      model_filename.insert(model_filename.begin(), c);
-      animation_fullname = animation_set + "_" + model_filename;
-      x.second->play_animation_set(animation_fullname);
-    }
+    x.second->set_animation(animation_fullname);
   }
 }
 
+// "Idle" + "hoge/piyo/hair.x" -> "Idle_Hair"
+std::string character::create_animation_fullname(
+    const std::string& former_name, const std::string& model_fullname)
+{
+  std::regex reg{R"(.*/(.*)\.x)"};
+  std::smatch match{};
+  std::string model_filename{};
+  std::string animation_fullname{};
+
+  if (!std::regex_match(model_fullname, match, reg) || match.size() != 2) {
+    THROW_WITH_TRACE("A model filename doesn't match regular expression.: " +
+        model_fullname);
+  } else {
+    model_filename = match[1].str();
+    unsigned char c = std::toupper(model_filename.at(0));
+    model_filename.erase(0, 1);
+    model_filename.insert(model_filename.begin(), c);
+    animation_fullname = former_name + "_" + model_filename;
+  }
+  return animation_fullname;
+}
 }
