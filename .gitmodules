@@ -1,0 +1,3 @@
+[submodule "early_go/tools/io_scene_x2"]
+	path = early_go/tools/io_scene_x2
+	url = https://github.com/bibindon/io_scene_x2.git
