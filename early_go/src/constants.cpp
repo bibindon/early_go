@@ -16,10 +16,14 @@ const std::string constants::SKINNED_ANIMATION_MESH_FILE_NAME =
 const std::string constants::SKINNED_ANIMATION_MESH_FILE_NAME2 =
     "model/tiny/tiny.x";
 
-const std::string constants::EARLY_BODY = "model/early_tentative/body.x";
+const std::string constants::EARLY_BODY  = "model/early_tentative/body.x";
 const std::string constants::EARLY_ARMOR = "model/early_tentative/armor.x";
 const std::string constants::EARLY_LANCE = "model/early_tentative/lance.x";
 const std::string constants::EARLY_SABER = "model/early_tentative/saber.x";
-const std::string constants::EARLY_HAIR = "model/early_tentative/hair.x";
+const std::string constants::EARLY_HAIR  = "model/early_tentative/hair.x";
 const std::string constants::EARLY_SKIRT = "model/early_tentative/skirt.x";
+
+const std::string constants::SUO_BODY  = "model/suo_tentative/body.x";
+const std::string constants::SUO_SABER = "model/suo_tentative/saber.x";
+const std::string constants::SUO_ARMOR = "model/suo_tentative/armor.x";
 }

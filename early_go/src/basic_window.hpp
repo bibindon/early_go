@@ -43,6 +43,7 @@ private:
   std::shared_ptr<base_mesh>                    mesh2_;
 
   std::shared_ptr<character>                    early_;
+  std::shared_ptr<character>                    suo_;
 
   ::D3DXMATRIX                                  view_matrix_;
   ::D3DXMATRIX                                  projection_matrix_;

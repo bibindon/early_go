@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # "cd doc" and exit if it fails.
 cd doc
@@ -11,7 +11,7 @@ fi
 updated_file=0
 for source_file in $( find ../early_go/src/ ); do
     if [ $source_file -nt html.zip ] ; then
-        $updated_file=$((updated_file++))
+        (( updated_file++ ))
     fi
 done
 

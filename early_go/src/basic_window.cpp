@@ -23,6 +23,7 @@ basic_window::basic_window(const ::HINSTANCE& hinstance)
       mesh_{},
       mesh2_{},
       early_{new character{d3d_device_, {0.0f, 0.0f, 0.0f}, 1.0f}},
+      suo_{new character{d3d_device_, {0.0f, 0.0f, 0.0f}, 1.0f}},
       view_matrix_{},
       projection_matrix_{},
       light_direction_{-1.0f, 0.0f, 0.0f},
@@ -174,6 +175,24 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
   early_->set_animation_config("Rotate_Right", false, 1.0f);
   early_->set_animation_config("Attack",       false, 1.0f);
   early_->set_animation_config("Damaged",      false, 1.0f);
+
+  suo_->set_position({1.0f, 0.0f, -1.0f});
+  suo_->add_mesh<skinned_animation_mesh>(constants::SUO_BODY);
+  suo_->add_mesh<skinned_animation_mesh>(constants::SUO_ARMOR);
+  suo_->add_mesh<animation_mesh>(constants::SUO_SABER);
+
+  suo_->set_default_animation("Ready");
+  suo_->set_animation_config("Idle",         true,  1.0f);
+  suo_->set_animation_config("Ready",        true,  4.0f);
+  suo_->set_animation_config("Step_Front",   false, 1.0f);
+  suo_->set_animation_config("Step_Back",    false, 1.0f);
+  suo_->set_animation_config("Step_Right",   false, 1.0f);
+  suo_->set_animation_config("Step_Left",    false, 1.0f);
+  suo_->set_animation_config("Rotate_Back",  false, 1.0f);
+  suo_->set_animation_config("Rotate_Left",  false, 1.0f);
+  suo_->set_animation_config("Rotate_Right", false, 1.0f);
+  suo_->set_animation_config("Attack",       false, 1.0f);
+  suo_->set_animation_config("Damaged",      false, 1.0f);
   /* ~ Create a Direct3D Device object. */
 
   /* Create font. ~ */
@@ -304,38 +323,49 @@ void basic_window::render()
     }
     if (::GetAsyncKeyState('1') & 0x8000) {
       early_->set_animation("Idle");
+      suo_->set_animation("Idle");
     }
     if (::GetAsyncKeyState('2') & 0x8000) {
       early_->set_animation("Ready");
+      suo_->set_animation("Ready");
     }
     if (::GetAsyncKeyState('3') & 0x8000) {
       early_->set_animation("Step_Front");
+      suo_->set_animation("Step_Front");
     }
     if (::GetAsyncKeyState('4') & 0x8000) {
       early_->set_animation("Step_Back");
+      suo_->set_animation("Step_Back");
     }
     if (::GetAsyncKeyState('5') & 0x8000) {
       early_->set_animation("Step_Left");
+      suo_->set_animation("Step_Left");
       skinned_animation_mesh_->set_animation("Wolf_Idle_");
     }
     if (::GetAsyncKeyState('6') & 0x8000) {
       early_->set_animation("Step_Right");
+      suo_->set_animation("Step_Right");
       skinned_animation_mesh_->set_animation("Wolf_Run_Cycle_");
     }
     if (::GetAsyncKeyState('7') & 0x8000) {
       early_->set_animation("Rotate_Back");
+      suo_->set_animation("Rotate_Back");
     }
     if (::GetAsyncKeyState('8') & 0x8000) {
       early_->set_animation("Rotate_Left");
+      suo_->set_animation("Rotate_Left");
     }
     if (::GetAsyncKeyState('9') & 0x8000) {
       early_->set_animation("Rotate_Right");
+      suo_->set_animation("Rotate_Right");
     }
     if (::GetAsyncKeyState('0') & 0x8000) {
       early_->set_animation("Attack");
+      suo_->set_animation("Attack");
     }
     if (::GetAsyncKeyState('P') & 0x8000) {
       early_->set_animation("Damaged");
+      suo_->set_animation("Damaged");
     }
     if (::GetAsyncKeyState('Z') & 0x8000) {
       early_->set_dynamic_texture(constants::EARLY_BODY,
@@ -425,6 +455,10 @@ void basic_window::render()
                     light_direction,
                     light_brightness_);
      early_->render(view_matrix_,
+                    projection_matrix_,
+                    light_direction,
+                    light_brightness_);
+     suo_->render(view_matrix_,
                     projection_matrix_,
                     light_direction,
                     light_brightness_);
