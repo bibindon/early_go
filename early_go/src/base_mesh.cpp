@@ -9,11 +9,13 @@ const int base_mesh::TEXTURE_PIXEL_SIZE = 512;
 base_mesh::base_mesh(
     const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
     const std::string& shader_filename,
-    const ::D3DXVECTOR3& position)
+    const ::D3DXVECTOR3& position,
+    const ::D3DXVECTOR3& rotation)
     : d3d_device_{d3d_device},
       effect_{nullptr, custom_deleter{}},
       dynamic_texture_{},
-      position_{position}
+      position_{position},
+      rotation_{rotation}
 {
   ::HRESULT result{};
   std::vector<char> buffer = get_resource(
@@ -350,6 +352,16 @@ void base_mesh::set_dynamic_message_color(const int& layer_number,
                                           const ::D3DXVECTOR4& color)
 {
   dynamic_texture_.colors_.at(layer_number) = color;
+}
+
+void base_mesh::set_position(const ::D3DXVECTOR3& position)
+{
+  position_ = position;
+}
+
+void base_mesh::set_rotation(const ::D3DXVECTOR3& rotation)
+{
+  rotation_ = rotation;
 }
 
 void base_mesh::set_animation(const std::string& animation_set)

@@ -15,6 +15,7 @@ public:
   skinned_animation_mesh(const std::shared_ptr<::IDirect3DDevice9>&,
                          const std::string&,
                          const ::D3DXVECTOR3&,
+                         const ::D3DXVECTOR3&,
                          const float&);
 
 private:

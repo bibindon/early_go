@@ -230,6 +230,7 @@
     <ClCompile Include="src\base_mesh.cpp" />
     <ClCompile Include="src\basic_window.cpp" />
     <ClCompile Include="src\animation_mesh_allocator.cpp" />
+    <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\character.cpp" />
     <ClCompile Include="src\constants.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.hpp</PrecompiledHeaderFile>
@@ -253,6 +254,7 @@
     <ClInclude Include="src\animation_strategy.hpp" />
     <ClInclude Include="src\base_mesh.hpp" />
     <ClInclude Include="src\basic_window.hpp" />
+    <ClInclude Include="src\camera.hpp" />
     <ClInclude Include="src\character.hpp" />
     <ClInclude Include="src\constants.hpp" />
     <ClInclude Include="src\error_dialog.hpp" />

@@ -29,6 +29,7 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <queue>
 
 #include "constants.hpp"
 #include "exception.hpp"

@@ -10,8 +10,9 @@ mesh::mesh(
     const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
     const std::string& x_filename,
     const ::D3DXVECTOR3& position,
+    const ::D3DXVECTOR3& rotation,
     const float& scale)
-    : base_mesh{d3d_device, SHADER_FILENAME, position},
+    : base_mesh{d3d_device, SHADER_FILENAME, position, rotation},
       d3dx_mesh_{nullptr, custom_deleter{}},
       materials_count_{},
       world_view_proj_handle_{},
@@ -158,6 +159,10 @@ void mesh::do_render(const ::D3DXMATRIX&  view_matrix,
     world_view_projection_matrix *= mat;
 
     ::D3DXMatrixScaling(&mat, scale_, scale_, scale_);
+    world_view_projection_matrix *= mat;
+
+    ::D3DXMatrixRotationYawPitchRoll(
+        &mat, rotation_.x, rotation_.y, rotation_.z);
     world_view_projection_matrix *= mat;
 
     ::D3DXMatrixTranslation(&mat, position_.x, position_.y, position_.z);

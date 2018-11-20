@@ -4,6 +4,7 @@
 #include "skinned_animation_mesh.hpp"
 #include "basic_window.hpp"
 #include "mesh.hpp"
+#include "camera.hpp"
 #include "character.hpp"
 #include "base_mesh.hpp"
 
@@ -22,14 +23,17 @@ basic_window::basic_window(const ::HINSTANCE& hinstance)
       skinned_animation_mesh2_{},
       mesh_{},
       mesh2_{},
-      early_{new character{d3d_device_, {0.0f, 0.0f, 0.0f}, 1.0f}},
-      suo_{new character{d3d_device_, {0.0f, 0.0f, 0.0f}, 1.0f}},
-      view_matrix_{},
-      projection_matrix_{},
+      early_{new character{d3d_device_,
+                           {0.0f, 0.0f, 0.0f},
+                           {D3DX_PI, 0.0f, 0.0f},
+                           1.0f}},
+      suo_{new character{d3d_device_,
+                         {0.0f, 0.0f, 0.0f},
+                         {D3DX_PI, 0.0f, 0.0f},
+                         1.0f}},
       light_direction_{-1.0f, 0.0f, 0.0f},
       light_brightness_{1.0f},
-      eye_position_{0.0f, 2.0f, -4.0f},
-      look_at_position_{0.0f, 0.0f, 0.0f}
+      camera_{new camera{{0.0f, 1.3f, -1.1639f*3},{0.0f, 1.3f, 0.0f}}}
 {
   ::WNDCLASSEX wndclassex{};
   wndclassex.cbSize        = sizeof(wndclassex);
@@ -133,26 +137,31 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
       d3d_device_,
       constants::ANIMATION_MESH_FILE_NAME,
       ::D3DXVECTOR3{0.0f, 0.0f, 0.0f},
+      ::D3DXVECTOR3{0.0f, 0.0f, 0.0f},
       1.0f});
   skinned_animation_mesh_.reset(new_crt skinned_animation_mesh{
       d3d_device_,
       constants::SKINNED_ANIMATION_MESH_FILE_NAME,
       ::D3DXVECTOR3{1.0f, 0.0f, 0.0f},
+      ::D3DXVECTOR3{0.0f, 0.0f, 0.0f},
       1.0f});
   skinned_animation_mesh2_.reset(new_crt skinned_animation_mesh{
       d3d_device_,
       constants::SKINNED_ANIMATION_MESH_FILE_NAME2,
       ::D3DXVECTOR3{-1.0f, 0.0f, 0.0f},
+      ::D3DXVECTOR3{0.0f, 0.0f, 0.0f},
       0.003f});
   mesh_.reset(new_crt mesh{
       d3d_device_,
       constants::MESH_FILE_NAME,
       ::D3DXVECTOR3{-0.5f, 0.0f, -1.0f},
+      ::D3DXVECTOR3{0.0f, 0.0f, 0.0f},
       1.0f});
   mesh2_.reset(new_crt mesh{
       d3d_device_,
       constants::MESH_FILE_NAME2,
       ::D3DXVECTOR3{ 0.5f, 0.0f, 2.0f},
+      ::D3DXVECTOR3{0.0f, 0.0f, 0.0f},
       1.0f});
 
   early_->set_position({0.0f, 0.0f, -1.0f});
@@ -254,28 +263,22 @@ void basic_window::render()
   ::D3DXVECTOR4 light_direction{};
   {
     if (::GetAsyncKeyState('I') & 0x8000) {
-      eye_position_.z += 0.02f;
-      look_at_position_.z += 0.02f;
+      camera_->move_position({0.0f, 0.0f, 0.002f});
     }
     if (::GetAsyncKeyState('K') & 0x8000) {
-      eye_position_.z -= 0.02f;
-      look_at_position_.z -= 0.02f;
+      camera_->move_position({0.0f, 0.0f, -0.002f});
     }
     if (::GetAsyncKeyState('J') & 0x8000) {
-      eye_position_.x -= 0.02f;
-      look_at_position_.x -= 0.02f;
+      camera_->move_position({-0.002f, 0.0f, 0.0f});
     }
     if (::GetAsyncKeyState('L') & 0x8000) {
-      eye_position_.x += 0.02f;
-      look_at_position_.x += 0.02f;
+      camera_->move_position({0.002f, 0.0f, 0.0f});
     }
     if (::GetAsyncKeyState('H') & 0x8000) {
-      eye_position_.y += 0.02f;
-      look_at_position_.y += 0.02f;
+      camera_->move_position({0.0f, 0.002f, 0.0f});
     }
     if (::GetAsyncKeyState('N') & 0x8000) {
-      eye_position_.y -= 0.02f;
-      look_at_position_.y -= 0.02f;
+      camera_->move_position({0.0f, -0.002f, 0.0f});
     }
     if (::GetAsyncKeyState('Q') & 0x8000) {
       ::PostQuitMessage(0);
@@ -369,11 +372,11 @@ void basic_window::render()
     }
     if (::GetAsyncKeyState('Z') & 0x8000) {
       early_->set_dynamic_texture(constants::EARLY_BODY,
-          "image/board2.png", 0, base_mesh::combine_type::NORMAL);
+          "image/back_ground.png", 0, base_mesh::combine_type::NORMAL);
     }
     if (::GetAsyncKeyState('X') & 0x8000) {
       early_->set_dynamic_texture(constants::EARLY_BODY,
-          "image/board.png", 1, base_mesh::combine_type::NORMAL);
+          "image/early_tentative.png", 1, base_mesh::combine_type::NORMAL);
     }
     if (::GetAsyncKeyState('C') & 0x8000) {
       static float f = 0.0f;
@@ -391,6 +394,15 @@ void basic_window::render()
       early_->set_dynamic_message(constants::EARLY_BODY, 1,
           "ccccccccccccccccccccc", false, { 210, 270, 511, 511 });
     }
+    if (::GetAsyncKeyState(VK_OEM_COMMA) & 0x8000) {
+      camera_->set_to_behind_animation();
+    }
+    if (::GetAsyncKeyState('M') & 0x8000) {
+      camera_->set_to_close_up_animation();
+    }
+
+    (*camera_)();
+
     if (::GetAsyncKeyState('W') & 0x8000) {
       early_->set_dynamic_message(constants::EARLY_BODY, 1,
           "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
@@ -411,21 +423,10 @@ void basic_window::render()
     light_direction.z = light_direction_.z;
     light_direction.w = 1.0f;
     ::D3DXVec4Normalize(&light_direction, &light_direction);
+  }
 
-    ::D3DXVECTOR3 upward{ 0.0f, 1.0f, 0.0f};
-    ::D3DXMatrixLookAtLH(&view_matrix_,
-                         &eye_position_,
-                         &look_at_position_,
-                         &upward);
-  }
-  {
-    ::D3DXMatrixPerspectiveFovLH(
-        &projection_matrix_,
-        D3DX_PI / 4,
-        static_cast<float>(constants::WINDOW_WIDTH) / constants::WINDOW_HEIGHT,
-        0.1f,
-        3000.0f);
-  }
+  ::D3DXMATRIX view_matrix{camera_->get_view_matrix()};
+  ::D3DXMATRIX projection_matrix{camera_->get_projection_matrix()};
 
   d3d_device_->Clear(0,
                      nullptr,
@@ -434,44 +435,42 @@ void basic_window::render()
                      1.0f,
                      0);
    if (SUCCEEDED(d3d_device_->BeginScene())) {
-     animation_mesh_->render(view_matrix_,
-                             projection_matrix_,
+     animation_mesh_->render(view_matrix,
+                             projection_matrix,
                              light_direction,
                              light_brightness_);
-     skinned_animation_mesh_->render(view_matrix_,
-                                     projection_matrix_,
+     skinned_animation_mesh_->render(view_matrix,
+                                     projection_matrix,
                                      light_direction,
                                      light_brightness_);
-     skinned_animation_mesh2_->render(view_matrix_,
-                                      projection_matrix_,
+     skinned_animation_mesh2_->render(view_matrix,
+                                      projection_matrix,
                                       light_direction,
                                       light_brightness_);
-     mesh_->render(view_matrix_,
-                   projection_matrix_,
+     mesh_->render(view_matrix,
+                   projection_matrix,
                    light_direction,
                    light_brightness_);
-     mesh2_->render(view_matrix_,
-                    projection_matrix_,
+     mesh2_->render(view_matrix,
+                    projection_matrix,
                     light_direction,
                     light_brightness_);
-     early_->render(view_matrix_,
-                    projection_matrix_,
+     early_->render(view_matrix,
+                    projection_matrix,
                     light_direction,
                     light_brightness_);
-     suo_->render(view_matrix_,
-                    projection_matrix_,
+     suo_->render(view_matrix,
+                    projection_matrix,
                     light_direction,
                     light_brightness_);
 
     render_string_object::render_string(std::to_string(fps), 10, 30);
-    render_string_object::render_string(
-        std::to_string(light_direction.x), 10, 50);
-    render_string_object::render_string(
-        std::to_string(light_direction.y), 10, 70);
-    render_string_object::render_string(
-        std::to_string(light_direction.z), 10, 90);
-    render_string_object::render_string(
-        std::to_string(light_direction.w), 10, 110);
+//    render_string_object::render_string(
+//        std::to_string(eye_position_.x), 10, 50);
+//    render_string_object::render_string(
+//        std::to_string(eye_position_.y), 10, 70);
+//    render_string_object::render_string(
+//        std::to_string(eye_position_.z), 10, 90);
 
     d3d_device_->EndScene();
   }

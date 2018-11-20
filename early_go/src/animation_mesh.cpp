@@ -62,8 +62,9 @@ animation_mesh::animation_mesh(
     const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
     const std::string& x_filename,
     const ::D3DXVECTOR3& position,
+    const ::D3DXVECTOR3& rotation,
     const float& scale)
-    : base_mesh{d3d_device, SHADER_FILENAME, position},
+    : base_mesh{d3d_device, SHADER_FILENAME, position, rotation},
       d3d_device_{d3d_device},
       allocator_{new_crt animation_mesh_allocator{x_filename}},
       frame_root_{nullptr, frame_root_deleter_object{allocator_}},
@@ -122,6 +123,10 @@ void animation_mesh::do_render(const ::D3DXMATRIX& view_matrix,
     world_matrix *= mat;
 
     ::D3DXMatrixScaling(&mat, scale_, scale_, scale_);
+    world_matrix *= mat;
+
+    ::D3DXMatrixRotationYawPitchRoll(
+        &mat, rotation_.x, rotation_.y, rotation_.z);
     world_matrix *= mat;
 
     ::D3DXMatrixTranslation(&mat, position_.x, position_.y, position_.z);

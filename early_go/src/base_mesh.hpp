@@ -12,6 +12,7 @@ public:
   base_mesh(
       const std::shared_ptr<::IDirect3DDevice9>&,
       const std::string&,
+      const ::D3DXVECTOR3&,
       const ::D3DXVECTOR3&);
   enum class combine_type{
     NORMAL,
@@ -47,10 +48,8 @@ public:
                            const int& = 0);
 
   void set_dynamic_message_color(const int&, const ::D3DXVECTOR4&);
-  void set_position(const ::D3DXVECTOR3& position)
-  {
-    position_ = position;
-  }
+  void set_position(const ::D3DXVECTOR3&);
+  void set_rotation(const ::D3DXVECTOR3&);
 protected:
   std::shared_ptr<::IDirect3DDevice9>            d3d_device_;
   std::unique_ptr<::ID3DXEffect, custom_deleter> effect_;
@@ -107,6 +106,7 @@ protected:
   ::D3DXHANDLE                                   diffuse_handle_;
   std::array<::D3DXHANDLE, dynamic_texture::LAYER_NUMBER> texture_handle_;
   ::D3DXVECTOR3                                  position_;
+  ::D3DXVECTOR3                                  rotation_;
 private:
   virtual void do_render(const ::D3DXMATRIX&, const ::D3DXMATRIX&) = 0;
 };

@@ -9,9 +9,11 @@
 namespace early_go {
 character::character(const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
                      const ::D3DXVECTOR3&                       position,
+                     const ::D3DXVECTOR3&                       rotation,
                      const float&                               size)
   : d3d_device_{d3d_device},
     position_{position},
+    rotation_{rotation},
     size_{size}
 {
 }
@@ -57,6 +59,14 @@ void character::set_position(const ::D3DXVECTOR3& position)
   position_ = position;
   for (const auto& x : mesh_map_) {
     x.second->set_position(position_);
+  }
+}
+
+void character::set_rotation(const ::D3DXVECTOR3& rotation)
+{
+  rotation_ = rotation;
+  for (const auto& x : mesh_map_) {
+    x.second->set_rotation(rotation_);
   }
 }
 

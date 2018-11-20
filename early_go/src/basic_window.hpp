@@ -7,6 +7,7 @@ namespace early_go {
 class mesh;
 class animation_mesh;
 class skinned_animation_mesh;
+class camera;
 class character;
 class base_mesh;
 
@@ -45,12 +46,9 @@ private:
   std::shared_ptr<character>                    early_;
   std::shared_ptr<character>                    suo_;
 
-  ::D3DXMATRIX                                  view_matrix_;
-  ::D3DXMATRIX                                  projection_matrix_;
   ::D3DXVECTOR3                                 light_direction_;
   float                                         light_brightness_;
-  ::D3DXVECTOR3                                 eye_position_;
-  ::D3DXVECTOR3                                 look_at_position_;
+  std::shared_ptr<camera>                       camera_;
 
   void initialize_direct3d(const ::HWND&);
   void render();
