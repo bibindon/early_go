@@ -33,7 +33,8 @@ basic_window::basic_window(const ::HINSTANCE& hinstance)
                          1.0f}},
       light_direction_{-1.0f, 0.0f, 0.0f},
       light_brightness_{1.0f},
-      camera_{new camera{{0.0f, 1.3f, -1.1639f*3},{0.0f, 1.3f, 0.0f}}}
+      camera_{new camera{{0.0f, 1.3f, -1.1639f*3},{0.0f, 1.3f, 0.0f}}},
+      shake_novel_window_{}
 {
   ::WNDCLASSEX wndclassex{};
   wndclassex.cbSize        = sizeof(wndclassex);
@@ -394,13 +395,20 @@ void basic_window::render()
       early_->set_dynamic_message(constants::EARLY_BODY, 1,
           "ccccccccccccccccccccc", false, { 210, 270, 511, 511 });
     }
-    if (::GetAsyncKeyState(VK_OEM_COMMA) & 0x8000) {
-      camera_->set_to_behind_animation();
-    }
     if (::GetAsyncKeyState('M') & 0x8000) {
       camera_->set_to_close_up_animation();
     }
-
+    if (::GetAsyncKeyState(VK_OEM_COMMA) & 0x8000) {
+      camera_->set_to_behind_animation();
+    }
+    if (::GetAsyncKeyState(VK_OEM_PERIOD) & 0x8000) {
+      shake_novel_window_ = std::make_shared<shake_novel_window>();
+    }
+    if (shake_novel_window_ != nullptr) {
+      if ((*shake_novel_window_)(early_, constants::EARLY_BODY)) {
+        shake_novel_window_.reset();
+      }
+    }
     (*camera_)();
 
     if (::GetAsyncKeyState('W') & 0x8000) {
@@ -499,5 +507,65 @@ void basic_window::render_string_object::render_string(
                    DT_LEFT | DT_BOTTOM,
                    0xff00ff00);
   }
+}
+
+const std::array<
+    ::D3DXVECTOR2, basic_window::shake_novel_window::SHAKE_POSITIONS_SIZE>
+        basic_window::shake_novel_window::SHAKING_POSITIONS = {
+            ::D3DXVECTOR2{0.0f,  0.0f},
+            ::D3DXVECTOR2{0.02f, 0.02f},
+            ::D3DXVECTOR2{0.02f, -0.01f},
+            ::D3DXVECTOR2{-0.02f, 0.02f},
+            ::D3DXVECTOR2{-0.01f, -0.02f},
+            ::D3DXVECTOR2{0.01f, 0.02f},
+            ::D3DXVECTOR2{0.02f, -0.02f},
+            ::D3DXVECTOR2{0.0f, -0.02f},
+            ::D3DXVECTOR2{0.0f, 0.0f},
+            ::D3DXVECTOR2{0.02f, 0.02f},
+            ::D3DXVECTOR2{0.02f, -0.01f},
+            ::D3DXVECTOR2{-0.02f, 0.02f},
+            ::D3DXVECTOR2{-0.01f, -0.02f},
+            ::D3DXVECTOR2{0.01f, 0.02f},
+            ::D3DXVECTOR2{0.02f, -0.02f},
+            ::D3DXVECTOR2{0.0f, -0.02f},
+};
+
+const int basic_window::shake_novel_window::SHAKE_FRAME = 4;
+const int basic_window::shake_novel_window::SHAKE_DURATION = 30;
+
+basic_window::shake_novel_window::shake_novel_window()
+  : count_{0},
+    current_shaking_position_{0.0f, 0.0f},
+    previous_shaking_position_{0.0f, 0.0f} {}
+
+bool basic_window::shake_novel_window::operator()(
+    std::shared_ptr<character> character,
+    const std::string& part)
+{
+  if (count_ >= SHAKE_DURATION) {
+    for (int i{}; i < base_mesh::LAYER_NUMBER; ++i) {
+      character->set_dynamic_texture_position(
+          part, i, ::D3DXVECTOR2{0.0f, 0.0f});
+    }
+    return true;
+  }
+
+  if (count_ % SHAKE_FRAME == 0) {
+    int shaking_positions_index{count_/SHAKE_FRAME%(SHAKE_POSITIONS_SIZE-1)};
+    previous_shaking_position_ = SHAKING_POSITIONS.at(shaking_positions_index);
+    current_shaking_position_ =
+        SHAKING_POSITIONS.at(static_cast<__int64>(shaking_positions_index)+1);
+  }
+
+  // 1/4 -> 2/4 -> 3/4 -> 4/4 -> 1/4 -> 2/4 ->...
+  float loop_counter{static_cast<float>(count_%SHAKE_FRAME+1)/SHAKE_FRAME};
+  for (int i{}; i < base_mesh::LAYER_NUMBER; ++i) {
+    character->set_dynamic_texture_position(part, i,
+        previous_shaking_position_ +
+        (current_shaking_position_ - previous_shaking_position_)*loop_counter);
+  }
+
+  ++count_;
+  return false;
 }
 } /* namespace early_go */

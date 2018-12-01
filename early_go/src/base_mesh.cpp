@@ -55,7 +55,7 @@ base_mesh::base_mesh(
       effect_->GetParameterByName(nullptr, "g_mesh_texture");
   diffuse_handle_          = effect_->GetParameterByName(nullptr, "g_diffuse");
 
-  for (int i{}; i < dynamic_texture::LAYER_NUMBER; ++i){
+  for (int i{}; i < LAYER_NUMBER; ++i){
     if (::LPDIRECT3DTEXTURE9 temp_texture{};
         FAILED(::D3DXCreateTexture(d3d_device_.get(),
                                    TEXTURE_PIXEL_SIZE,
@@ -390,12 +390,12 @@ void base_mesh::render(const ::D3DXMATRIX&  view_matrix,
   effect_->SetFloat(brightness_handle_, brightness);
   effect_->SetVectorArray(texture_position_handle_,
                           &dynamic_texture_.positions_[0],
-                          dynamic_texture::LAYER_NUMBER);
+                          LAYER_NUMBER);
   effect_->SetFloatArray(texture_opacity_handle_,
                          &dynamic_texture_.opacities_[0],
-                         dynamic_texture::LAYER_NUMBER);
+                         LAYER_NUMBER);
 
-  for (std::size_t i{}; i < dynamic_texture::LAYER_NUMBER; ++i) {
+  for (std::size_t i{}; i < LAYER_NUMBER; ++i) {
     if (dynamic_texture_.writer_.at(i)) {
       (*dynamic_texture_.writer_.at(i))();
     }

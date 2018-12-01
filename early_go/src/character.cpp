@@ -81,9 +81,9 @@ void character::set_dynamic_texture(const std::string& x_filename,
   }
 }
 
-void character::set_dynamic_texture_position(const std::string&  x_filename,
-                                             const int&          layer_number,
-                                             const::D3DXVECTOR2& position)
+void character::set_dynamic_texture_position(const std::string&   x_filename,
+                                             const int&           layer_number,
+                                             const ::D3DXVECTOR2& position)
 {
   if (mesh_map_.find(x_filename) != mesh_map_.end()) {
     mesh_map_.at(x_filename)->set_dynamic_texture_position(

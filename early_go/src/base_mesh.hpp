@@ -19,6 +19,7 @@ public:
 //    ADDITION,
 //    MULTIPLICATION,
   };
+  static constexpr int LAYER_NUMBER{8};
   void set_animation(const std::string&);
   void set_default_animation(const std::string&);
   void set_animation_config(const std::string&, const bool&, const float&);
@@ -55,7 +56,6 @@ protected:
   std::unique_ptr<::ID3DXEffect, custom_deleter> effect_;
   std::unique_ptr<animation_strategy>            animation_strategy_;
   struct dynamic_texture {
-    static constexpr int LAYER_NUMBER = 8;
     std::array<
         std::shared_ptr<::IDirect3DTexture9>,
         LAYER_NUMBER
@@ -104,7 +104,7 @@ protected:
   ::D3DXHANDLE                                   brightness_handle_;
   ::D3DXHANDLE                                   mesh_texture_handle_;
   ::D3DXHANDLE                                   diffuse_handle_;
-  std::array<::D3DXHANDLE, dynamic_texture::LAYER_NUMBER> texture_handle_;
+  std::array<::D3DXHANDLE, LAYER_NUMBER>         texture_handle_;
   ::D3DXVECTOR3                                  position_;
   ::D3DXVECTOR3                                  rotation_;
 private:
