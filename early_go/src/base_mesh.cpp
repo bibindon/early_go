@@ -55,7 +55,7 @@ base_mesh::base_mesh(
       effect_->GetParameterByName(nullptr, "g_mesh_texture");
   diffuse_handle_          = effect_->GetParameterByName(nullptr, "g_diffuse");
 
-  for (int i{}; i < LAYER_NUMBER; ++i){
+  for (int i{}; i < dynamic_texture::LAYER_NUMBER; ++i){
     if (::LPDIRECT3DTEXTURE9 temp_texture{};
         FAILED(::D3DXCreateTexture(d3d_device_.get(),
                                    TEXTURE_PIXEL_SIZE,
@@ -388,19 +388,92 @@ void base_mesh::render(const ::D3DXMATRIX&  view_matrix,
 {
   effect_->SetVector(light_normal_handle_, &light_normal);
   effect_->SetFloat(brightness_handle_, brightness);
+
+  if (dynamic_texture_.texture_shaker_) {
+    (*dynamic_texture_.texture_shaker_)(*this);
+  }
+
   effect_->SetVectorArray(texture_position_handle_,
                           &dynamic_texture_.positions_[0],
-                          LAYER_NUMBER);
+                          dynamic_texture::LAYER_NUMBER);
   effect_->SetFloatArray(texture_opacity_handle_,
                          &dynamic_texture_.opacities_[0],
-                         LAYER_NUMBER);
+                         dynamic_texture::LAYER_NUMBER);
 
-  for (std::size_t i{}; i < LAYER_NUMBER; ++i) {
+  for (std::size_t i{}; i < dynamic_texture::LAYER_NUMBER; ++i) {
     if (dynamic_texture_.writer_.at(i)) {
       (*dynamic_texture_.writer_.at(i))();
     }
   }
-  do_render(view_matrix, projection_matrix);
+  render(view_matrix, projection_matrix);
+}
+
+void base_mesh::set_shake_texture()
+{
+  dynamic_texture_.texture_shaker_.reset(
+      new_crt base_mesh::dynamic_texture::texture_shaker());
+}
+
+const std::array<
+    ::D3DXVECTOR2,
+    base_mesh::dynamic_texture::texture_shaker::SHAKE_POSITIONS_SIZE>
+        base_mesh::dynamic_texture::texture_shaker::SHAKING_POSITIONS = {
+            ::D3DXVECTOR2{0.0f,  0.0f},
+            ::D3DXVECTOR2{0.02f, 0.02f},
+            ::D3DXVECTOR2{0.02f, -0.01f},
+            ::D3DXVECTOR2{-0.02f, 0.02f},
+            ::D3DXVECTOR2{-0.01f, -0.02f},
+            ::D3DXVECTOR2{0.01f, 0.02f},
+            ::D3DXVECTOR2{0.02f, -0.02f},
+            ::D3DXVECTOR2{0.0f, -0.02f},
+            ::D3DXVECTOR2{0.0f, 0.0f},
+            ::D3DXVECTOR2{0.02f, 0.02f},
+            ::D3DXVECTOR2{0.02f, -0.01f},
+            ::D3DXVECTOR2{-0.02f, 0.02f},
+            ::D3DXVECTOR2{-0.01f, -0.02f},
+            ::D3DXVECTOR2{0.01f, 0.02f},
+            ::D3DXVECTOR2{0.02f, -0.02f},
+            ::D3DXVECTOR2{0.0f, -0.02f},
+};
+
+const int base_mesh::dynamic_texture::texture_shaker::SHAKE_FRAME = 4;
+const int base_mesh::dynamic_texture::texture_shaker::SHAKE_DURATION = 30;
+
+
+base_mesh::dynamic_texture::texture_shaker::texture_shaker()
+  : count_{0},
+  current_position_{0.0f, 0.0f},
+  previous_position_{0.0f, 0.0f} {}
+
+void base_mesh::dynamic_texture::texture_shaker::operator()(
+    base_mesh& base_mesh)
+{
+  if (count_ > SHAKE_DURATION) {
+    return;
+  } else if (count_ == SHAKE_DURATION) {
+    for (int i{}; i < LAYER_NUMBER; ++i) {
+      base_mesh.set_dynamic_texture_position(i, ::D3DXVECTOR2{0.0f, 0.0f});
+    }
+    count_ = SHAKE_DURATION+1;
+    return;
+  }
+
+  if (count_ % SHAKE_FRAME == 0) {
+    int64_t shaking_positions_index{
+        count_/SHAKE_FRAME%(SHAKE_POSITIONS_SIZE-1)};
+    previous_position_ = SHAKING_POSITIONS.at(shaking_positions_index);
+    current_position_ = SHAKING_POSITIONS.at(shaking_positions_index+1);
+  }
+
+  // 1/4 -> 2/4 -> 3/4 -> 4/4 -> 1/4 -> 2/4 ->...
+  float loop_counter{static_cast<float>(count_%SHAKE_FRAME+1)/SHAKE_FRAME};
+  for (int i{}; i < LAYER_NUMBER; ++i) {
+    base_mesh.set_dynamic_texture_position(i,
+        previous_position_ +
+        (current_position_ - previous_position_)*loop_counter);
+  }
+
+  ++count_;
 }
 
 }

@@ -144,8 +144,8 @@ mesh::mesh(
   scale_ = scale;
 }
 
-void mesh::do_render(const ::D3DXMATRIX&  view_matrix,
-                     const ::D3DXMATRIX&  projection_matrix)
+void mesh::render(const ::D3DXMATRIX&  view_matrix,
+                  const ::D3DXMATRIX&  projection_matrix)
 {
   ::D3DXMATRIX world_view_projection_matrix{};
   ::D3DXMatrixIdentity(&world_view_projection_matrix);

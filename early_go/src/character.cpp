@@ -136,6 +136,13 @@ void character::set_animation(const std::string& animation_set)
   }
 }
 
+void character::set_shake_texture(const std::string& x_filename)
+{
+  if (mesh_map_.find(x_filename) != mesh_map_.end()) {
+    mesh_map_.at(x_filename)->set_shake_texture();
+  }
+}
+
 // "Idle" + "hoge/piyo/hair.x" -> "Idle_Hair"
 std::string character::create_animation_fullname(
     const std::string& former_name, const std::string& model_fullname)

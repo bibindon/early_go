@@ -28,7 +28,7 @@ private:
   float                                          radius_;
   float                                          scale_;
 
-  void do_render(const ::D3DXMATRIX&, const ::D3DXMATRIX&) override;
+  void render(const ::D3DXMATRIX&, const ::D3DXMATRIX&) override;
 };
 } /* namespace early_go */
 #endif

@@ -52,23 +52,6 @@ private:
 
   void initialize_direct3d(const ::HWND&);
   void render();
-
-  struct shake_novel_window {
-    shake_novel_window();
-    bool operator()(std::shared_ptr<character>, const std::string&);
-  private:
-    int  count_;
-    // A fixed value is used. That's because random value doesn't become
-    // appropriate. 
-    static constexpr int SHAKE_POSITIONS_SIZE{16};
-    const static std::array<::D3DXVECTOR2, SHAKE_POSITIONS_SIZE>
-        SHAKING_POSITIONS;
-    const static int SHAKE_FRAME;
-    const static int SHAKE_DURATION;
-    ::D3DXVECTOR2 current_shaking_position_;
-    ::D3DXVECTOR2 previous_shaking_position_;
-  };
-  std::shared_ptr<shake_novel_window> shake_novel_window_;
 };
 } /* namespace early_go */
 #endif
