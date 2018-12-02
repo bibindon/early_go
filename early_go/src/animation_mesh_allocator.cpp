@@ -85,14 +85,14 @@ animation_mesh_container::animation_mesh_container(
 
   /* This strange bracket is measures of being interpretered as WinAPI macro. */
   NumMaterials = (std::max)(1UL, materials_count);
-  pMaterials   = new_crt ::D3DXMATERIAL[NumMaterials]{};
+  pMaterials   = new_crt ::D3DXMATERIAL[NumMaterials];
   std::vector<std::unique_ptr<::IDirect3DTexture9, custom_deleter> >
       temp_texture(NumMaterials);
   texture_.swap(temp_texture);
 
   /* Initialize the 'pAdjacency' of a member variable. */
-  ::DWORD faces_count{mesh->GetNumFaces()};
-  pAdjacency = new_crt ::DWORD[faces_count * 3]{};
+  int64_t faces_count{mesh->GetNumFaces()};
+  pAdjacency = new_crt ::DWORD[faces_count * 3];
 
   for (::DWORD i{}; i < faces_count * 3; ++i) {
     pAdjacency[i] = adjacency[i];

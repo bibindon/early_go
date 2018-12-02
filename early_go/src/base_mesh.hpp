@@ -33,15 +33,15 @@ public:
   void set_dynamic_texture_opacity(const int&,
                                    const float&);
 
-  static const int TEXTURE_PIXEL_SIZE;
+  static const int64_t TEXTURE_PIXEL_SIZE;
   void set_dynamic_message(const int&,
                            const std::string&,
                            const bool& = false,
                            const ::RECT& = {
                                0,
                                0,
-                               TEXTURE_PIXEL_SIZE - 1,
-                               TEXTURE_PIXEL_SIZE - 1},
+                               static_cast<LONG>(TEXTURE_PIXEL_SIZE) - 1,
+                               static_cast<LONG>(TEXTURE_PIXEL_SIZE) - 1},
                            const int& = RGB(0xff, 0xff, 0xff),
                            const std::string& = "‚l‚r ‚oƒSƒVƒbƒN",
                            const int& = 40,
@@ -72,8 +72,8 @@ protected:
                           const bool,
                           const ::RECT,
                           const int,
-                          int,
-                          int,
+                          ::UINT,
+                          ::UINT,
                           const std::string&,
                           const int&,
                           const int&);
@@ -87,8 +87,8 @@ protected:
       const bool                            is_message_animated_;
       const ::RECT                          rect_;
       const int                             color_;
-      int                                   font_width_sum_;
-      int                                   font_height_sum_;
+      ::UINT                                font_width_sum_;
+      ::UINT                                font_height_sum_;
       ::TEXTMETRIC                          text_metric_;
       ::HDC                                 hdc_;
       ::HFONT                               hfont_;

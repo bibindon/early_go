@@ -93,8 +93,8 @@ skinned_animation_mesh_container::skinned_animation_mesh_container(
   }
 
   /* Initialize the 'pAdjacency' of a member variable. */
-  ::DWORD face_count{mesh->GetNumFaces()};
-  pAdjacency = new_crt ::DWORD[face_count * 3]{};
+  int64_t face_count{mesh->GetNumFaces()};
+  pAdjacency = new_crt ::DWORD[face_count * 3];
 
   for (unsigned int i{}; i < face_count * 3; ++i) {
     pAdjacency[i] = adjacency[i];
@@ -114,7 +114,7 @@ void skinned_animation_mesh_container::initialize_materials(
 {
   /* This strange bracket is measures of being interpretered as WinAPI macro. */
   NumMaterials = (std::max)(1UL, materials_count);
-  pMaterials = new_crt ::D3DXMATERIAL[NumMaterials]{};
+  pMaterials = new_crt ::D3DXMATERIAL[NumMaterials];
   std::vector<std::unique_ptr<::IDirect3DTexture9, custom_deleter> >
       temp_texture(NumMaterials);
   texture_.swap(temp_texture);

@@ -4,7 +4,7 @@
 
 namespace early_go {
 
-const int base_mesh::TEXTURE_PIXEL_SIZE = 512;
+const int64_t base_mesh::TEXTURE_PIXEL_SIZE = 512;
 
 base_mesh::base_mesh(
     const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
@@ -212,7 +212,7 @@ bool base_mesh::dynamic_texture::text_message_writer::write_character()
   }
 
   font_width_sum_ += glyph_metrics.gmptGlyphOrigin.x;
-  int offset{font_height_sum_};
+  ::UINT offset{font_height_sum_};
   offset += text_metric_.tmAscent - glyph_metrics.gmptGlyphOrigin.y;
   
   ::DWORD  new_alpha{};
@@ -220,8 +220,8 @@ bool base_mesh::dynamic_texture::text_message_writer::write_character()
   ::DWORD  current_alpha{};
   ::DWORD  sum_alpha{};
 
-  for (::UINT y{}; y < font_height; ++y) {
-    for (::UINT x{}; x < font_width; ++x) {
+  for (uint64_t y{}; y < font_height; ++y) {
+    for (uint64_t x{}; x < font_width; ++x) {
       new_alpha     = mono_buffer[y][x] * 255 / GGO_LEVEL;
       texture_pixel = &texture_buffer_[y + offset][x + font_width_sum_];
 
@@ -245,8 +245,8 @@ base_mesh::dynamic_texture::text_message_writer::text_message_writer(
     const bool                            is_message_animated,
     const ::RECT                          rect,
     const int                             color,
-    int                                   font_width_sum,
-    int                                   font_height_sum,
+    ::UINT                                font_width_sum,
+    ::UINT                                font_height_sum,
     const std::string&                    fontname,
     const int&                            size,
     const int&                            weight)
@@ -336,8 +336,8 @@ void base_mesh::set_dynamic_message(const int&         layer_number,
           is_animated,
           rect,
           color,
-          rect.left,
-          rect.top,
+          static_cast<::UINT>(rect.left),
+          static_cast<::UINT>(rect.top),
           fontname,
           size,
           weight }};
