@@ -4,7 +4,7 @@
 
 namespace early_go {
 
-const int64_t base_mesh::TEXTURE_PIXEL_SIZE = 512;
+const int64_t base_mesh::TEXTURE_PIXEL_SIZE = 2048;
 
 base_mesh::base_mesh(
     const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
@@ -13,6 +13,7 @@ base_mesh::base_mesh(
     const ::D3DXVECTOR3& rotation)
     : d3d_device_{d3d_device},
       effect_{nullptr, custom_deleter{}},
+      animation_strategy_{nullptr},
       dynamic_texture_{},
       position_{position},
       rotation_{rotation}
@@ -220,8 +221,8 @@ bool base_mesh::dynamic_texture::text_message_writer::write_character()
   ::DWORD  current_alpha{};
   ::DWORD  sum_alpha{};
 
-  for (uint64_t y{}; y < font_height; ++y) {
-    for (uint64_t x{}; x < font_width; ++x) {
+  for (::ULONG y{}; y < font_height; ++y) {
+    for (::ULONG x{}; x < font_width; ++x) {
       new_alpha     = mono_buffer[y][x] * 255 / GGO_LEVEL;
       texture_pixel = &texture_buffer_[y + offset][x + font_width_sum_];
 
@@ -459,8 +460,7 @@ void base_mesh::dynamic_texture::texture_shaker::operator()(
   }
 
   if (count_ % SHAKE_FRAME == 0) {
-    int64_t shaking_positions_index{
-        count_/SHAKE_FRAME%(SHAKE_POSITIONS_SIZE-1)};
+    int shaking_positions_index{count_/SHAKE_FRAME%(SHAKE_POSITIONS_SIZE-1)};
     previous_position_ = SHAKING_POSITIONS.at(shaking_positions_index);
     current_position_ = SHAKING_POSITIONS.at(shaking_positions_index+1);
   }

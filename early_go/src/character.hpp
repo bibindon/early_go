@@ -51,8 +51,10 @@ public:
                            const ::RECT& = {
                                0,
                                0,
-                               base_mesh::TEXTURE_PIXEL_SIZE - 1,
-                               base_mesh::TEXTURE_PIXEL_SIZE - 1 },
+                               static_cast<::LONG>(
+                                   base_mesh::TEXTURE_PIXEL_SIZE) - 1,
+                               static_cast<::LONG>(
+                                   base_mesh::TEXTURE_PIXEL_SIZE) - 1 },
                            const int& = RGB(0xff, 0xff, 0xff),
                            const std::string& = "‚l‚r ‚oƒSƒVƒbƒN",
                            const int& = 40,

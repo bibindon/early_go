@@ -9,7 +9,7 @@ namespace early_go {
 boost::exception_ptr early_go::exception_reserve{};
 static std::string error_msg{};
 
-::INT_PTR error_dialog_procedure(::HWND, ::UINT, ::WPARAM, ::LPARAM);
+::INT_PTR CALLBACK error_dialog_procedure(::HWND, ::UINT, ::WPARAM, ::LPARAM);
 
 void show_error_dialog(const ::HINSTANCE& hinstance, const std::exception& e)
 {
@@ -28,7 +28,7 @@ void show_error_dialog(const ::HINSTANCE& hinstance, const std::exception& e)
       nullptr, error_dialog_procedure);
 }
 
-::INT_PTR error_dialog_procedure(
+::INT_PTR CALLBACK error_dialog_procedure(
     ::HWND hwnd, ::UINT msg, ::WPARAM wparam, ::LPARAM)
 {
   if (msg == WM_SHOWWINDOW) {

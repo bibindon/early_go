@@ -4,7 +4,7 @@
 
 #define D3D_DEBUG_INFO
 #define BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
-//#define MEMORY_LEAKS
+#define MEMORY_LEAKS
 
 #if (defined(DEBUG) || defined(_DEBUG)) && defined(MEMORY_LEAKS)
 #include <crtdbg.h>

@@ -23,17 +23,17 @@ basic_window::basic_window(const ::HINSTANCE& hinstance)
       skinned_animation_mesh2_{},
       mesh_{},
       mesh2_{},
-      early_{new character{d3d_device_,
-                           {0.0f, 0.0f, 0.0f},
-                           {D3DX_PI, 0.0f, 0.0f},
-                           1.0f}},
-      suo_{new character{d3d_device_,
-                         {0.0f, 0.0f, 0.0f},
-                         {D3DX_PI, 0.0f, 0.0f},
-                         1.0f}},
+      early_{new_crt character{d3d_device_,
+                               {0.0f, 0.0f, 0.0f},
+                               {D3DX_PI, 0.0f, 0.0f},
+                               1.0f}},
+      suo_{new_crt character{d3d_device_,
+                             {0.0f, 0.0f, 0.0f},
+                             {D3DX_PI, 0.0f, 0.0f},
+                             1.0f}},
       light_direction_{-1.0f, 0.0f, 0.0f},
       light_brightness_{1.0f},
-      camera_{new camera{{0.0f, 1.3f, -1.1639f*3},{0.0f, 1.3f, 0.0f}}}
+      camera_{new_crt camera{{0.0f, 1.3f, -1.1639f*3},{0.0f, 1.3f, 0.0f}}}
 {
   ::WNDCLASSEX wndclassex{};
   wndclassex.cbSize        = sizeof(wndclassex);

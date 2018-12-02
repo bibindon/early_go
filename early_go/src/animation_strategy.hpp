@@ -13,6 +13,7 @@ public:
   virtual void set_animation_config(const std::string&,
                                     const bool&,
                                     const float&){};
+  virtual ~animation_strategy(){};
 
 protected:
   std::vector<
