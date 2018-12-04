@@ -33,7 +33,7 @@ basic_window::basic_window(const ::HINSTANCE& hinstance)
                              1.0f}},
       light_direction_{-1.0f, 0.0f, 0.0f},
       light_brightness_{1.0f},
-      camera_{new_crt camera{{0.0f, 1.3f, -1.1639f*3},{0.0f, 1.3f, 0.0f}}}
+      camera_{new_crt camera{{0.0f, 1.3f, -1.1639f*3}, {0.0f, 1.3f, 0.0f}}}
 {
   ::WNDCLASSEX wndclassex{};
   wndclassex.cbSize        = sizeof(wndclassex);
@@ -379,16 +379,22 @@ void basic_window::render()
           "image/early_tentative.png", 1, base_mesh::combine_type::NORMAL);
     }
     if (::GetAsyncKeyState('C') & 0x8000) {
-      static float f = 0.0f;
-      f += 0.01f;
-      early_->set_dynamic_texture_position(
-          constants::EARLY_BODY, 1, {f, f} );
+      early_->set_fade_in(constants::EARLY_BODY);
+      mesh_->set_fade_in();
+      animation_mesh_->set_fade_in();
+      //static float f = 0.0f;
+      //f += 0.01f;
+      //early_->set_dynamic_texture_position(
+      //    constants::EARLY_BODY, 1, {f, f} );
     }
     if (::GetAsyncKeyState('V') & 0x8000) {
-      static float f = 3.1415926535f/2;
-      f += 0.1f;
-      early_->set_dynamic_texture_opacity(
-          constants::EARLY_BODY, 1, std::sin(f)/2+0.5f);
+      early_->set_fade_out(constants::EARLY_BODY);
+      mesh_->set_fade_out();
+      animation_mesh_->set_fade_out();
+      //static float f = 3.1415926535f/2;
+      //f += 0.1f;
+      //early_->set_dynamic_texture_opacity(
+      //    constants::EARLY_BODY, 1, std::sin(f)/2+0.5f);
     }
     if (::GetAsyncKeyState('B') & 0x8000) {
       early_->set_dynamic_message(constants::EARLY_BODY, 1,

@@ -143,6 +143,20 @@ void character::set_shake_texture(const std::string& x_filename)
   }
 }
 
+void character::set_fade_in(const std::string& x_filename)
+{
+  if (mesh_map_.find(x_filename) != mesh_map_.end()) {
+    mesh_map_.at(x_filename)->set_fade_in();
+  }
+}
+
+void character::set_fade_out(const std::string& x_filename)
+{
+  if (mesh_map_.find(x_filename) != mesh_map_.end()) {
+    mesh_map_.at(x_filename)->set_fade_out();
+  }
+}
+
 // "Idle" + "hoge/piyo/hair.x" -> "Idle_Hair"
 std::string character::create_animation_fullname(
     const std::string& former_name, const std::string& model_fullname)

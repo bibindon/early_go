@@ -93,7 +93,7 @@ skinned_animation_mesh_container::skinned_animation_mesh_container(
   }
 
   /* Initialize the 'pAdjacency' of a member variable. */
-  ::ULONG face_count{mesh->GetNumFaces()};
+  uint64_t face_count{mesh->GetNumFaces()};
   pAdjacency = new_crt ::DWORD[face_count * 3];
 
   for (unsigned int i{}; i < face_count * 3; ++i) {

@@ -84,6 +84,7 @@ base_mesh::base_mesh(
           dynamic_texture_.textures_.at(i).get());
     }
   }
+  dynamic_texture_.opacities_.at(dynamic_texture::FADE_LAYER) = 0.0f;
 }
 
 void base_mesh::set_dynamic_texture(const std::string& filename,
@@ -221,8 +222,8 @@ bool base_mesh::dynamic_texture::text_message_writer::write_character()
   ::DWORD  current_alpha{};
   ::DWORD  sum_alpha{};
 
-  for (::ULONG y{}; y < font_height; ++y) {
-    for (::ULONG x{}; x < font_width; ++x) {
+  for (int64_t y{}; y < font_height; ++y) {
+    for (int64_t x{}; x < font_width; ++x) {
       new_alpha     = mono_buffer[y][x] * 255 / GGO_LEVEL;
       texture_pixel = &texture_buffer_[y + offset][x + font_width_sum_];
 
@@ -393,10 +394,14 @@ void base_mesh::render(const ::D3DXMATRIX&  view_matrix,
   if (dynamic_texture_.texture_shaker_) {
     (*dynamic_texture_.texture_shaker_)(*this);
   }
+  if (dynamic_texture_.texture_fader_) {
+    (*dynamic_texture_.texture_fader_)(*this);
+  }
 
   effect_->SetVectorArray(texture_position_handle_,
                           &dynamic_texture_.positions_[0],
                           dynamic_texture::LAYER_NUMBER);
+
   effect_->SetFloatArray(texture_opacity_handle_,
                          &dynamic_texture_.opacities_[0],
                          dynamic_texture::LAYER_NUMBER);
@@ -460,9 +465,11 @@ void base_mesh::dynamic_texture::texture_shaker::operator()(
   }
 
   if (count_ % SHAKE_FRAME == 0) {
-    int shaking_positions_index{count_/SHAKE_FRAME%(SHAKE_POSITIONS_SIZE-1)};
+    int64_t shaking_positions_index{
+        count_/SHAKE_FRAME%(SHAKE_POSITIONS_SIZE-1)};
     previous_position_ = SHAKING_POSITIONS.at(shaking_positions_index);
-    current_position_ = SHAKING_POSITIONS.at(shaking_positions_index+1);
+    current_position_ = SHAKING_POSITIONS.at(
+        static_cast<int64_t>(shaking_positions_index+1));
   }
 
   // 1/4 -> 2/4 -> 3/4 -> 4/4 -> 1/4 -> 2/4 ->...
@@ -474,6 +481,57 @@ void base_mesh::dynamic_texture::texture_shaker::operator()(
   }
 
   ++count_;
+}
+
+const int base_mesh::dynamic_texture::texture_fader::FADE_DURATION = 60;
+
+void base_mesh::set_fade_in()
+{
+  dynamic_texture_.texture_fader_.reset(
+      new_crt base_mesh::dynamic_texture::texture_fader(
+          base_mesh::dynamic_texture::texture_fader::fade_type::FADE_IN));
+}
+
+void base_mesh::set_fade_out()
+{
+  dynamic_texture_.texture_fader_.reset(
+      new_crt base_mesh::dynamic_texture::texture_fader(
+          base_mesh::dynamic_texture::texture_fader::fade_type::FADE_OUT));
+}
+
+base_mesh::dynamic_texture::texture_fader::texture_fader(
+    const base_mesh::dynamic_texture::texture_fader::fade_type& fade_type)
+  : count_{0},
+    fade_type_{fade_type} { }
+
+void base_mesh::dynamic_texture::texture_fader::operator()(base_mesh& base_mesh)
+{
+  if (fade_type_ == fade_type::FADE_IN) {
+    if (count_ > FADE_DURATION) {
+      return;
+    } else if (count_ == FADE_DURATION) {
+      base_mesh.set_dynamic_texture_opacity(FADE_LAYER, 0.0f);
+      count_ = FADE_DURATION+1;
+      return;
+    } else {
+      base_mesh.set_dynamic_texture_opacity(
+          FADE_LAYER, 1.0f - static_cast<float>(count_) / FADE_DURATION);
+    }
+  } else if (fade_type_ == fade_type::FADE_OUT) {
+    if (count_ > FADE_DURATION) {
+      return;
+    } else if (count_ == FADE_DURATION) {
+      base_mesh.set_dynamic_texture_opacity(FADE_LAYER, 1.0f);
+      count_ = FADE_DURATION+1;
+      return;
+    } else {
+      base_mesh.set_dynamic_texture_opacity(
+          FADE_LAYER, static_cast<float>(count_) / FADE_DURATION);
+    }
+
+  }
+  ++count_;
+
 }
 
 }

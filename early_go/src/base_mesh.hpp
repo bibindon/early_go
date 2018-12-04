@@ -51,12 +51,15 @@ public:
   void set_position(const ::D3DXVECTOR3&);
   void set_rotation(const ::D3DXVECTOR3&);
   void set_shake_texture();
+  void set_fade_in();
+  void set_fade_out();
 protected:
   std::shared_ptr<::IDirect3DDevice9>            d3d_device_;
   std::unique_ptr<::ID3DXEffect, custom_deleter> effect_;
   std::unique_ptr<animation_strategy>            animation_strategy_;
   struct dynamic_texture {
     static constexpr int LAYER_NUMBER{8};
+    static constexpr int FADE_LAYER{LAYER_NUMBER-1};
     std::array<
         std::shared_ptr<::IDirect3DTexture9>,
         LAYER_NUMBER
@@ -115,6 +118,19 @@ protected:
       ::D3DXVECTOR2 previous_position_;
     };
     std::shared_ptr<texture_shaker> texture_shaker_;
+    struct texture_fader {
+      enum fade_type {
+        FADE_IN,
+        FADE_OUT,
+      };
+      texture_fader(const fade_type&);
+      void operator()(base_mesh&);
+    private:
+      int count_;
+      fade_type fade_type_;
+      const static int FADE_DURATION;
+    };
+    std::shared_ptr<texture_fader> texture_fader_;
   } dynamic_texture_;
   ::D3DXHANDLE                                   texture_position_handle_;
   ::D3DXHANDLE                                   texture_opacity_handle_;

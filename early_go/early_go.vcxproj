@@ -269,6 +269,11 @@
   <ItemGroup>
     <ResourceCompile Include="early_go.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="res\shader\animation_mesh_shader.fx" />
+    <FxCompile Include="res\shader\mesh_shader.fx" />
+    <FxCompile Include="res\shader\skinned_animation_mesh_shader.fx" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\boost.1.68.0.0\build\boost.targets" Condition="Exists('..\packages\boost.1.68.0.0\build\boost.targets')" />

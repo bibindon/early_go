@@ -65,6 +65,8 @@ public:
   void set_animation(const std::string&);
 
   void set_shake_texture(const std::string&);
+  void set_fade_in(const std::string&);
+  void set_fade_out(const std::string&);
 private:
   std::string create_animation_fullname(const std::string&, const std::string&);
   std::unordered_map<std::string, std::shared_ptr<base_mesh> > mesh_map_;

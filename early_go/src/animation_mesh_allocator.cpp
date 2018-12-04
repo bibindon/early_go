@@ -91,7 +91,7 @@ animation_mesh_container::animation_mesh_container(
   texture_.swap(temp_texture);
 
   /* Initialize the 'pAdjacency' of a member variable. */
-  ::ULONG faces_count{mesh->GetNumFaces()};
+  uint64_t faces_count{mesh->GetNumFaces()};
   pAdjacency = new_crt ::DWORD[faces_count * 3];
 
   for (::DWORD i{}; i < faces_count * 3; ++i) {
