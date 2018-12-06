@@ -46,6 +46,8 @@ public:
                                    const float&);
   void flip_dynamic_texture(const std::string&,
                             const int&);
+  void clear_dynamic_texture(const std::string&,
+                             const int&);
   void set_dynamic_message(const std::string&,
                            const int&,
                            const std::string&,

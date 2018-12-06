@@ -285,42 +285,42 @@ void basic_window::render()
     if (::GetAsyncKeyState('Q') & 0x8000) {
       ::PostQuitMessage(0);
     }
-    if (::GetAsyncKeyState('F') & 0x8000) {
-      light_direction_.x += 0.2f;
-      if (light_direction_.x >= 1.0f) {
-        light_direction_.x = 1.0f;
-      }
-    }
-    if (::GetAsyncKeyState('S') & 0x8000) {
-      light_direction_.x -= 0.2f;
-      if (light_direction_.x <= -1.0f) {
-        light_direction_.x = -1.0f;
-      }
-    }
-    if (::GetAsyncKeyState('E') & 0x8000) {
-      light_direction_.z += 0.2f;
-      if (light_direction_.z >= 1.0f) {
-        light_direction_.z = 1.0f;
-      }
-    }
-    if (::GetAsyncKeyState('D') & 0x8000) {
-      light_direction_.z -= 0.2f;
-      if (light_direction_.z <= -1.0f) {
-        light_direction_.z = -1.0f;
-      }
-    }
-    if (::GetAsyncKeyState('T') & 0x8000) {
-      light_direction_.y += 0.2f;
-      if (light_direction_.y >= 1.0f) {
-        light_direction_.y = 1.0f;
-      }
-    }
-    if (::GetAsyncKeyState('G') & 0x8000) {
-      light_direction_.y -= 0.2f;
-      if (light_direction_.y <= -1.0f) {
-        light_direction_.y = -1.0f;
-      }
-    }
+//    if (::GetAsyncKeyState('F') & 0x8000) {
+//      light_direction_.x += 0.2f;
+//      if (light_direction_.x >= 1.0f) {
+//        light_direction_.x = 1.0f;
+//      }
+//    }
+//    if (::GetAsyncKeyState('S') & 0x8000) {
+//      light_direction_.x -= 0.2f;
+//      if (light_direction_.x <= -1.0f) {
+//        light_direction_.x = -1.0f;
+//      }
+//    }
+//    if (::GetAsyncKeyState('E') & 0x8000) {
+//      light_direction_.z += 0.2f;
+//      if (light_direction_.z >= 1.0f) {
+//        light_direction_.z = 1.0f;
+//      }
+//    }
+//    if (::GetAsyncKeyState('D') & 0x8000) {
+//      light_direction_.z -= 0.2f;
+//      if (light_direction_.z <= -1.0f) {
+//        light_direction_.z = -1.0f;
+//      }
+//    }
+//    if (::GetAsyncKeyState('T') & 0x8000) {
+//      light_direction_.y += 0.2f;
+//      if (light_direction_.y >= 1.0f) {
+//        light_direction_.y = 1.0f;
+//      }
+//    }
+//    if (::GetAsyncKeyState('G') & 0x8000) {
+//      light_direction_.y -= 0.2f;
+//      if (light_direction_.y <= -1.0f) {
+//        light_direction_.y = -1.0f;
+//      }
+//    }
 //    if (::GetAsyncKeyState('R') & 0x8000) {
 //      light_direction_.x = 0.0f;
 //      light_direction_.y = 0.0f;
@@ -384,6 +384,9 @@ void basic_window::render()
     }
     if (::GetAsyncKeyState('R') & 0x8000) {
       early_->flip_dynamic_texture(constants::EARLY_BODY, 1);
+    }
+    if (::GetAsyncKeyState('T') & 0x8000) {
+      early_->clear_dynamic_texture(constants::EARLY_BODY, 1);
     }
     if (::GetAsyncKeyState('C') & 0x8000) {
       early_->set_fade_in(constants::EARLY_BODY);

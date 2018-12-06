@@ -109,6 +109,14 @@ void character::flip_dynamic_texture(const std::string& x_filename,
   }
 }
 
+void character::clear_dynamic_texture(const std::string& x_filename,
+                                      const int&         layer_number)
+{
+  if (mesh_map_.find(x_filename) != mesh_map_.end()) {
+    mesh_map_.at(x_filename)->clear_dynamic_texture(layer_number);
+  }
+}
+
 void character::set_dynamic_message(const std::string& x_filename,
                                     const int&         layer_number,
                                     const std::string& message,

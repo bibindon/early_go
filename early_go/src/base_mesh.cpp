@@ -183,6 +183,20 @@ void base_mesh::flip_dynamic_texture(const int& layer_number)
   }
 }
 
+void base_mesh::clear_dynamic_texture(const int& layer_number)
+{
+  ::D3DLOCKED_RECT locked_rect{};
+  dynamic_texture_.textures_.at(layer_number)->LockRect(
+      0, &locked_rect, nullptr, D3DLOCK_DISCARD);
+
+  std::fill(static_cast<int*>(locked_rect.pBits),
+            static_cast<int*>(locked_rect.pBits) + locked_rect.Pitch
+                * TEXTURE_PIXEL_SIZE / sizeof(int),
+            0x00000000);
+
+  dynamic_texture_.textures_.at(layer_number)->UnlockRect(0);
+}
+
 base_mesh::dynamic_texture::text_message_writer::~text_message_writer()
 {
   ::SelectObject(hdc_, hfont_);

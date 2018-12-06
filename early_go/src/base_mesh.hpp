@@ -33,6 +33,7 @@ public:
   void set_dynamic_texture_opacity(const int&,
                                    const float&);
   void flip_dynamic_texture(const int&);
+  void clear_dynamic_texture(const int&);
 
   static const int64_t TEXTURE_PIXEL_SIZE;
   void set_dynamic_message(const int&,
