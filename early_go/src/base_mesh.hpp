@@ -32,6 +32,7 @@ public:
                                     const ::D3DXVECTOR2&);
   void set_dynamic_texture_opacity(const int&,
                                    const float&);
+  void flip_dynamic_texture(const int&);
 
   static const int64_t TEXTURE_PIXEL_SIZE;
   void set_dynamic_message(const int&,
@@ -58,15 +59,19 @@ protected:
   std::unique_ptr<::ID3DXEffect, custom_deleter> effect_;
   std::unique_ptr<animation_strategy>            animation_strategy_;
   struct dynamic_texture {
+    // Do not make dynamic_texture to array because it is necessary to transfer
+    // position, opacity and color info to GPU.
     static constexpr int LAYER_NUMBER{8};
     static constexpr int FADE_LAYER{LAYER_NUMBER-1};
     std::array<
         std::shared_ptr<::IDirect3DTexture9>,
         LAYER_NUMBER
     > textures_;
+    std::array<std::string, LAYER_NUMBER>   filename_;
     std::array<::D3DXVECTOR4, LAYER_NUMBER> positions_;
     std::array<float, LAYER_NUMBER>         opacities_;
     std::array<::D3DXVECTOR4, LAYER_NUMBER> colors_;
+    std::array<bool, LAYER_NUMBER>          flipped_;
 
     struct text_message_writer {
       text_message_writer(std::shared_ptr<::IDirect3DDevice9>,

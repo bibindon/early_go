@@ -113,7 +113,7 @@ void skinned_animation_mesh_container::initialize_materials(
     const LPDIRECT3DDEVICE9& d3d_device)
 {
   /* This strange bracket is measures of being interpretered as WinAPI macro. */
-  NumMaterials = (std::max)(1UL, materials_count);
+  NumMaterials = std::max(1UL, materials_count);
   pMaterials = new_crt ::D3DXMATERIAL[NumMaterials];
   std::vector<std::unique_ptr<::IDirect3DTexture9, custom_deleter> >
       temp_texture(NumMaterials);
@@ -172,8 +172,8 @@ void skinned_animation_mesh_container::initialize_bone(
   }
 
   // TODO Improve.
-  ::UINT MAX_MATRICES = 26;
-  palette_size_ = min(MAX_MATRICES, pSkinInfo->GetNumBones());
+  ::DWORD MAX_MATRICES = 26;
+  palette_size_ = std::min(MAX_MATRICES, pSkinInfo->GetNumBones());
 
   // generate skinned mesh
   safe_release(MeshData.pMesh);

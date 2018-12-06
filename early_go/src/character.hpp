@@ -44,6 +44,8 @@ public:
   void set_dynamic_texture_opacity(const std::string&,
                                    const int&,
                                    const float&);
+  void flip_dynamic_texture(const std::string&,
+                            const int&);
   void set_dynamic_message(const std::string&,
                            const int&,
                            const std::string&,

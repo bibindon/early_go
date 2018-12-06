@@ -84,7 +84,7 @@ animation_mesh_container::animation_mesh_container(
   }
 
   /* This strange bracket is measures of being interpretered as WinAPI macro. */
-  NumMaterials = (std::max)(1UL, materials_count);
+  NumMaterials = std::max(1UL, materials_count);
   pMaterials   = new_crt ::D3DXMATERIAL[NumMaterials];
   std::vector<std::unique_ptr<::IDirect3DTexture9, custom_deleter> >
       temp_texture(NumMaterials);

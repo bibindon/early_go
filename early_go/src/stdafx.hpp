@@ -2,21 +2,34 @@
 #ifndef STDAFX_HPP
 #define STDAFX_HPP
 
+#define NOMINMAX
 #define D3D_DEBUG_INFO
 #define BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
 //#define MEMORY_LEAKS
 
+// Library header
 #if (defined(DEBUG) || defined(_DEBUG)) && defined(MEMORY_LEAKS)
-#include <crtdbg.h>
+# include <crtdbg.h>
 #endif
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <DXErr.h>
-#include <stdio.h>
-#include <string.h>
+
 #include <sqlite3.h>
+
+# pragma warning(disable : 4996) // fopen / fopen_s warning
+# pragma warning(disable : 4819) // sjis / utf8 warning
+#   include <opencv2/opencv.hpp>
+# pragma warning(default : 4819)
+# pragma warning(default : 4996)
+
 #include <windows.h>
 
+// C Standard Library
+#include <stdio.h>
+#include <string.h>
+
+// STL
 #include <algorithm>
 #include <array>
 #include <cstring>
@@ -30,7 +43,9 @@
 #include <type_traits>
 #include <vector>
 #include <queue>
+#include <unordered_map>
 
+// Self made header
 #include "constants.hpp"
 #include "exception.hpp"
 #include "inline_macro.hpp"

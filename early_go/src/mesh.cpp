@@ -126,9 +126,8 @@ mesh::mesh(
       query += "';";
 
       buffer = get_resource(query);
-      
-      if (::LPDIRECT3DTEXTURE9 temp_texture{};
-          FAILED(::D3DXCreateTextureFromFileInMemory(
+      ::LPDIRECT3DTEXTURE9 temp_texture{};
+      if (FAILED(::D3DXCreateTextureFromFileInMemory(
               d3d_device_.get(),
               &buffer[0],
               static_cast<::UINT>(buffer.size()),

@@ -167,7 +167,7 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
   early_->set_position({0.0f, 0.0f, -1.0f});
   early_->add_mesh<skinned_animation_mesh>(constants::EARLY_BODY);
   early_->add_mesh<skinned_animation_mesh>(constants::EARLY_ARMOR);
-  early_->add_mesh<animation_mesh>(constants::EARLY_LANCE);
+  //early_->add_mesh<animation_mesh>(constants::EARLY_LANCE);
   early_->add_mesh<skinned_animation_mesh>(constants::EARLY_SABER);
 
   early_->add_mesh<skinned_animation_mesh>(constants::EARLY_HAIR);
@@ -264,6 +264,8 @@ void basic_window::render()
   {
     if (::GetAsyncKeyState('I') & 0x8000) {
       camera_->move_position({0.0f, 0.0f, 0.002f});
+      early_->add_mesh<animation_mesh>(constants::EARLY_LANCE);
+      early_->set_default_animation("Ready");
     }
     if (::GetAsyncKeyState('K') & 0x8000) {
       camera_->move_position({0.0f, 0.0f, -0.002f});
@@ -319,11 +321,11 @@ void basic_window::render()
         light_direction_.y = -1.0f;
       }
     }
-    if (::GetAsyncKeyState('R') & 0x8000) {
-      light_direction_.x = 0.0f;
-      light_direction_.y = 0.0f;
-      light_direction_.z = 0.0f;
-    }
+//    if (::GetAsyncKeyState('R') & 0x8000) {
+//      light_direction_.x = 0.0f;
+//      light_direction_.y = 0.0f;
+//      light_direction_.z = 0.0f;
+//    }
     if (::GetAsyncKeyState('1') & 0x8000) {
       early_->set_animation("Idle");
       suo_->set_animation("Idle");
@@ -375,17 +377,25 @@ void basic_window::render()
           "image/back_ground.png", 0, base_mesh::combine_type::NORMAL);
     }
     if (::GetAsyncKeyState('X') & 0x8000) {
+      //early_->set_dynamic_texture(constants::EARLY_BODY,
+      //    "image/early_tentative.png", 1, base_mesh::combine_type::NORMAL);
       early_->set_dynamic_texture(constants::EARLY_BODY,
-          "image/early_tentative.png", 1, base_mesh::combine_type::NORMAL);
+          "image/early/0.png", 1, base_mesh::combine_type::NORMAL);
+    }
+    if (::GetAsyncKeyState('R') & 0x8000) {
+      early_->flip_dynamic_texture(constants::EARLY_BODY, 1);
     }
     if (::GetAsyncKeyState('C') & 0x8000) {
       early_->set_fade_in(constants::EARLY_BODY);
       mesh_->set_fade_in();
       animation_mesh_->set_fade_in();
-      //static float f = 0.0f;
-      //f += 0.01f;
-      //early_->set_dynamic_texture_position(
-      //    constants::EARLY_BODY, 1, {f, f} );
+    }
+    if (::GetAsyncKeyState('A') & 0x8000) {
+      static float f = 0.0f;
+      f += 0.01f;
+      early_->set_dynamic_texture_position(
+          constants::EARLY_BODY, 1, {f, f} );
+
     }
     if (::GetAsyncKeyState('V') & 0x8000) {
       early_->set_fade_out(constants::EARLY_BODY);

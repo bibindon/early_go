@@ -57,8 +57,8 @@ base_mesh::base_mesh(
   diffuse_handle_          = effect_->GetParameterByName(nullptr, "g_diffuse");
 
   for (int i{}; i < dynamic_texture::LAYER_NUMBER; ++i){
-    if (::LPDIRECT3DTEXTURE9 temp_texture{};
-        FAILED(::D3DXCreateTexture(d3d_device_.get(),
+    ::LPDIRECT3DTEXTURE9 temp_texture{};
+    if (FAILED(::D3DXCreateTexture(d3d_device_.get(),
                                    TEXTURE_PIXEL_SIZE,
                                    TEXTURE_PIXEL_SIZE,
                                    1,
@@ -87,25 +87,50 @@ base_mesh::base_mesh(
   dynamic_texture_.opacities_.at(dynamic_texture::FADE_LAYER) = 0.0f;
 }
 
+static std::vector<::uchar> resize_with_margin(const cv::Mat& source)
+{
+  cv::Mat blank{cv::Mat::zeros(base_mesh::TEXTURE_PIXEL_SIZE,
+                               base_mesh::TEXTURE_PIXEL_SIZE,
+                               CV_8UC4)};
+  cv::Mat destination = blank(cv::Rect(0, 0, source.rows, source.cols));
+  source.copyTo(destination);
+  std::vector<::uchar> cv_buffer{};
+  cv::imencode(".bmp", blank, cv_buffer);
+  return cv_buffer;
+}
+
+static std::vector<::uchar> resize_with_margin(const std::vector<char>& buffer)
+{
+  std::vector<::uchar> cv_buffer{buffer.cbegin(), buffer.cend()};
+  cv::Mat source{cv::imdecode(cv::Mat(cv_buffer), cv::IMREAD_UNCHANGED)};
+
+  return resize_with_margin(source);
+}
+
 void base_mesh::set_dynamic_texture(const std::string& filename,
                                     const int&         layer_number,
                                     const combine_type&)
 {
-  std::string query{};
-  query = "SELECT DATA FROM IMAGE WHERE FILENAME = '" + filename + "';";
+  std::string query{
+      "SELECT DATA FROM IMAGE WHERE FILENAME = '" + filename + "';"};
 
   std::vector<char> buffer = get_resource(query);
-  if (::LPDIRECT3DTEXTURE9 temp_texture{};
-      FAILED(::D3DXCreateTextureFromFileInMemory(
+
+  std::vector<::uchar> cv_buffer{resize_with_margin(buffer)};
+
+  ::LPDIRECT3DTEXTURE9 temp_texture{};
+  if (FAILED(::D3DXCreateTextureFromFileInMemory(
           d3d_device_.get(),
-          &buffer[0],
-          static_cast<::UINT>(buffer.size()),
+          &cv_buffer[0],
+          static_cast<::UINT>(cv_buffer.size()),
           &temp_texture))) {
     THROW_WITH_TRACE("texture file is not found.");
   } else {
+    dynamic_texture_.filename_.at(layer_number) = filename;
     dynamic_texture_.textures_.at(layer_number).reset(
         temp_texture, custom_deleter{});
     dynamic_texture_.opacities_.at(layer_number) = 1.0f;
+    dynamic_texture_.flipped_.at(layer_number) = false;
 
     effect_->SetTexture(texture_handle_.at(layer_number),
                         dynamic_texture_.textures_.at(layer_number).get());
@@ -123,6 +148,39 @@ void base_mesh::set_dynamic_texture_opacity(const int&   layer_number,
                                             const float& opacity)
 {
   dynamic_texture_.opacities_.at(layer_number) = opacity;
+}
+
+void base_mesh::flip_dynamic_texture(const int& layer_number)
+{
+  std::string query{"SELECT DATA FROM IMAGE WHERE FILENAME = '"
+      + dynamic_texture_.filename_.at(layer_number) + "';"};
+
+  std::vector<char> buffer = get_resource(query);
+  std::vector<::uchar> cv_buffer{buffer.cbegin(), buffer.cend()};
+  cv::Mat source{cv::imdecode(cv::Mat(cv_buffer), cv::IMREAD_UNCHANGED)};
+  if (!dynamic_texture_.flipped_.at(layer_number)) {
+    cv::flip(source, source, 1);
+  }
+  // flip flipped flag.
+  dynamic_texture_.flipped_.at(layer_number) =
+    !dynamic_texture_.flipped_.at(layer_number);
+
+  cv_buffer = resize_with_margin(source);
+
+  ::LPDIRECT3DTEXTURE9 temp_texture{};
+  if (FAILED(::D3DXCreateTextureFromFileInMemory(
+          d3d_device_.get(),
+          &cv_buffer[0],
+          static_cast<::UINT>(cv_buffer.size()),
+          &temp_texture))) {
+    THROW_WITH_TRACE("texture file is not found.");
+  } else {
+    dynamic_texture_.textures_.at(layer_number).reset(
+        temp_texture, custom_deleter{});
+
+    effect_->SetTexture(texture_handle_.at(layer_number),
+                        dynamic_texture_.textures_.at(layer_number).get());
+  }
 }
 
 base_mesh::dynamic_texture::text_message_writer::~text_message_writer()
@@ -229,7 +287,9 @@ bool base_mesh::dynamic_texture::text_message_writer::write_character()
 
       current_alpha = *texture_pixel & 0xff000000UL;
       current_alpha >>= 24;
-      sum_alpha     = std::clamp(current_alpha+new_alpha, 0UL, 255UL);
+      // C++17
+      // sum_alpha     = std::clamp(current_alpha+new_alpha, 0UL, 255UL);
+      sum_alpha     = std::min(std::max(current_alpha+new_alpha, 0UL), 255UL);
 
       *texture_pixel = (sum_alpha << 24) | color_;
     }

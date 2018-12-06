@@ -249,8 +249,8 @@ void skinned_animation_mesh::render_mesh_container(
   skinned_mesh_container->frame_combined_matrix_.resize(bone_count);
 
   // TODO Improve.
-  ::UINT MAX_MATRICES = 26;
-  world_matrix_array_.resize(min(MAX_MATRICES, bone_count));
+  ::DWORD MAX_MATRICES = 26;
+  world_matrix_array_.resize(std::min(MAX_MATRICES, bone_count));
 
   effect_->SetInt("current_bone_numbers",
       skinned_mesh_container->influence_count_ - 1);
