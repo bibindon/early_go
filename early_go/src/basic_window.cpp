@@ -7,6 +7,7 @@
 #include "camera.hpp"
 #include "character.hpp"
 #include "base_mesh.hpp"
+#include "input.hpp"
 
 namespace early_go {
 /* A definition of the static member variable. */
@@ -233,14 +234,29 @@ int basic_window::operator()()
       ::TranslateMessage(&msg_);
       ::DispatchMessage(&msg_);
     } else {
+      if (input::update()) {
+        key_input();
+      }
+//#if (defined(DEBUG) || defined(_DEBUG))
+      debug();
+//#endif
       render();
     }
   }
   return static_cast<int>(msg_.wParam);
 }
 
-void basic_window::render()
+void basic_window::key_input()
 {
+  if (input::is_down('Q')) {
+    ::PostQuitMessage(0);
+  }
+
+}
+
+void basic_window::debug()
+{
+  // fps
   static int frame_count = 0;
   static float fps = 0;
   static std::chrono::system_clock::time_point start, end;
@@ -257,202 +273,195 @@ void basic_window::render()
     start = std::chrono::system_clock::now();
   }
   ++frame_count;
+  render_string_object::render_string(std::to_string(fps), 10, 30);
+//  render_string_object::render_string(
+//      std::to_string(eye_position_.x), 10, 50);
+//  render_string_object::render_string(
+//      std::to_string(eye_position_.y), 10, 70);
+//  render_string_object::render_string(
+//      std::to_string(eye_position_.z), 10, 90);
 
 
-
-  ::D3DXVECTOR4 light_direction{};
-  {
-    if (::GetAsyncKeyState('I') & 0x8000) {
-      camera_->move_position({0.0f, 0.0f, 0.002f});
-      early_->add_mesh<animation_mesh>(constants::EARLY_LANCE);
-      early_->set_default_animation("Ready");
-    }
-    if (::GetAsyncKeyState('K') & 0x8000) {
-      camera_->move_position({0.0f, 0.0f, -0.002f});
-    }
-    if (::GetAsyncKeyState('J') & 0x8000) {
-      camera_->move_position({-0.002f, 0.0f, 0.0f});
-    }
-    if (::GetAsyncKeyState('L') & 0x8000) {
-      camera_->move_position({0.002f, 0.0f, 0.0f});
-    }
-    if (::GetAsyncKeyState('H') & 0x8000) {
-      camera_->move_position({0.0f, 0.002f, 0.0f});
-    }
-    if (::GetAsyncKeyState('N') & 0x8000) {
-      camera_->move_position({0.0f, -0.002f, 0.0f});
-    }
-    if (::GetAsyncKeyState('Q') & 0x8000) {
-      ::PostQuitMessage(0);
-    }
-//    if (::GetAsyncKeyState('F') & 0x8000) {
-//      light_direction_.x += 0.2f;
-//      if (light_direction_.x >= 1.0f) {
-//        light_direction_.x = 1.0f;
-//      }
-//    }
-//    if (::GetAsyncKeyState('S') & 0x8000) {
-//      light_direction_.x -= 0.2f;
-//      if (light_direction_.x <= -1.0f) {
-//        light_direction_.x = -1.0f;
-//      }
-//    }
-//    if (::GetAsyncKeyState('E') & 0x8000) {
-//      light_direction_.z += 0.2f;
-//      if (light_direction_.z >= 1.0f) {
-//        light_direction_.z = 1.0f;
-//      }
-//    }
-//    if (::GetAsyncKeyState('D') & 0x8000) {
-//      light_direction_.z -= 0.2f;
-//      if (light_direction_.z <= -1.0f) {
-//        light_direction_.z = -1.0f;
-//      }
-//    }
-//    if (::GetAsyncKeyState('T') & 0x8000) {
-//      light_direction_.y += 0.2f;
-//      if (light_direction_.y >= 1.0f) {
-//        light_direction_.y = 1.0f;
-//      }
-//    }
-//    if (::GetAsyncKeyState('G') & 0x8000) {
-//      light_direction_.y -= 0.2f;
-//      if (light_direction_.y <= -1.0f) {
-//        light_direction_.y = -1.0f;
-//      }
-//    }
-//    if (::GetAsyncKeyState('R') & 0x8000) {
-//      light_direction_.x = 0.0f;
-//      light_direction_.y = 0.0f;
-//      light_direction_.z = 0.0f;
-//    }
-    if (::GetAsyncKeyState('1') & 0x8000) {
-      early_->set_animation("Idle");
-      suo_->set_animation("Idle");
-    }
-    if (::GetAsyncKeyState('2') & 0x8000) {
-      early_->set_animation("Ready");
-      suo_->set_animation("Ready");
-    }
-    if (::GetAsyncKeyState('3') & 0x8000) {
-      early_->set_animation("Step_Front");
-      suo_->set_animation("Step_Front");
-    }
-    if (::GetAsyncKeyState('4') & 0x8000) {
-      early_->set_animation("Step_Back");
-      suo_->set_animation("Step_Back");
-    }
-    if (::GetAsyncKeyState('5') & 0x8000) {
-      early_->set_animation("Step_Left");
-      suo_->set_animation("Step_Left");
-      skinned_animation_mesh_->set_animation("Wolf_Idle_");
-    }
-    if (::GetAsyncKeyState('6') & 0x8000) {
-      early_->set_animation("Step_Right");
-      suo_->set_animation("Step_Right");
-      skinned_animation_mesh_->set_animation("Wolf_Run_Cycle_");
-    }
-    if (::GetAsyncKeyState('7') & 0x8000) {
-      early_->set_animation("Rotate_Back");
-      suo_->set_animation("Rotate_Back");
-    }
-    if (::GetAsyncKeyState('8') & 0x8000) {
-      early_->set_animation("Rotate_Left");
-      suo_->set_animation("Rotate_Left");
-    }
-    if (::GetAsyncKeyState('9') & 0x8000) {
-      early_->set_animation("Rotate_Right");
-      suo_->set_animation("Rotate_Right");
-    }
-    if (::GetAsyncKeyState('0') & 0x8000) {
-      early_->set_animation("Attack");
-      suo_->set_animation("Attack");
-    }
-    if (::GetAsyncKeyState('P') & 0x8000) {
-      early_->set_animation("Damaged");
-      suo_->set_animation("Damaged");
-    }
-    if (::GetAsyncKeyState('Z') & 0x8000) {
-      early_->set_dynamic_texture(constants::EARLY_BODY,
-          "image/back_ground.png", 0, base_mesh::combine_type::NORMAL);
-    }
-    if (::GetAsyncKeyState('X') & 0x8000) {
-      //early_->set_dynamic_texture(constants::EARLY_BODY,
-      //    "image/early_tentative.png", 1, base_mesh::combine_type::NORMAL);
-      early_->set_dynamic_texture(constants::EARLY_BODY,
-          "image/early/0.png", 1, base_mesh::combine_type::NORMAL);
-    }
-    if (::GetAsyncKeyState('R') & 0x8000) {
-      early_->flip_dynamic_texture(constants::EARLY_BODY, 1);
-    }
-    if (::GetAsyncKeyState('T') & 0x8000) {
-      early_->clear_dynamic_texture(constants::EARLY_BODY, 1);
-    }
-    if (::GetAsyncKeyState('C') & 0x8000) {
-      early_->set_fade_in(constants::EARLY_BODY);
-      mesh_->set_fade_in();
-      animation_mesh_->set_fade_in();
-    }
-    if (::GetAsyncKeyState('A') & 0x8000) {
-      static float f = 0.0f;
-      f += 0.01f;
-      early_->set_dynamic_texture_position(
-          constants::EARLY_BODY, 1, {f, f} );
-
-    }
-    if (::GetAsyncKeyState('V') & 0x8000) {
-      early_->set_fade_out(constants::EARLY_BODY);
-      mesh_->set_fade_out();
-      animation_mesh_->set_fade_out();
-      //static float f = 3.1415926535f/2;
-      //f += 0.1f;
-      //early_->set_dynamic_texture_opacity(
-      //    constants::EARLY_BODY, 1, std::sin(f)/2+0.5f);
-    }
-    if (::GetAsyncKeyState('B') & 0x8000) {
-      early_->set_dynamic_message(constants::EARLY_BODY, 1,
-          "ccccccccccccccccccccc", false, { 210, 270, 511, 511 });
-    }
-    if (::GetAsyncKeyState('M') & 0x8000) {
-      camera_->set_to_close_up_animation();
-    }
-    if (::GetAsyncKeyState(VK_OEM_COMMA) & 0x8000) {
-      camera_->set_to_behind_animation();
-    }
-    if (::GetAsyncKeyState(VK_OEM_PERIOD) & 0x8000) {
-      early_->set_shake_texture(constants::EARLY_BODY);
-    }
-    (*camera_)();
-
-    if (::GetAsyncKeyState('W') & 0x8000) {
-      early_->set_dynamic_message(constants::EARLY_BODY, 1,
-          "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
-    }
-
-    static float pos = -1.0f;
-    if (::GetAsyncKeyState(VK_UP) & 0x8000) {
-      pos += 0.02f;
-      early_->set_position({0.0f, 0.0f, pos});
-    }
-    if (::GetAsyncKeyState(VK_DOWN) & 0x8000) {
-      pos -= 0.02f;
-      early_->set_position({0.0f, 0.0f, pos});
-    }
-
-    light_direction.x = light_direction_.x;
-    light_direction.y = light_direction_.y;
-    light_direction.z = light_direction_.z;
-    light_direction.w = 1.0f;
-    ::D3DXVec4Normalize(&light_direction, &light_direction);
+  if (input::is_hold('K')) {
+    camera_->move_position({0.0f, 0.0f, -0.02f});
+  }
+  if (input::is_hold('J')) {
+    camera_->move_position({-0.02f, 0.0f, 0.0f});
+  }
+  if (input::is_hold('L')) {
+    camera_->move_position({0.02f, 0.0f, 0.0f});
+  }
+  if (input::is_hold('H')) {
+    camera_->move_position({0.0f, 0.02f, 0.0f});
+  }
+  if (input::is_hold('N')) {
+    camera_->move_position({0.0f, -0.02f, 0.0f});
+  }
+  if (input::is_hold('I')) {
+    camera_->move_position({0.0f, 0.0f, 0.02f});
+//    early_->add_mesh<animation_mesh>(constants::EARLY_LANCE);
+//    early_->set_default_animation("Ready");
   }
 
+//  if (input::is_hold('F')) {
+//    light_direction_.x += 0.2f;
+//    if (light_direction_.x >= 1.0f) {
+//      light_direction_.x = 1.0f;
+//    }
+//  }
+//  if (input::is_hold('S')) {
+//    light_direction_.x -= 0.2f;
+//    if (light_direction_.x <= -1.0f) {
+//      light_direction_.x = -1.0f;
+//    }
+//  }
+//  if (input::is_hold('E')) {
+//    light_direction_.z += 0.2f;
+//    if (light_direction_.z >= 1.0f) {
+//      light_direction_.z = 1.0f;
+//    }
+//  }
+//  if (input::is_hold('D')) {
+//    light_direction_.z -= 0.2f;
+//    if (light_direction_.z <= -1.0f) {
+//      light_direction_.z = -1.0f;
+//    }
+//  }
+//  if (input::is_hold('T')) {
+//    light_direction_.y += 0.2f;
+//    if (light_direction_.y >= 1.0f) {
+//      light_direction_.y = 1.0f;
+//    }
+//  }
+//  if (input::is_hold('G')) {
+//    light_direction_.y -= 0.2f;
+//    if (light_direction_.y <= -1.0f) {
+//      light_direction_.y = -1.0f;
+//    }
+//  }
+//  if (input::is_hold('R')) {
+//    light_direction_.x = 0.0f;
+//    light_direction_.y = 0.0f;
+//    light_direction_.z = 0.0f;
+//  }
+  if (input::is_down('1')) {
+    early_->set_animation("Idle");
+    suo_->set_animation("Idle");
+  }
+  if (input::is_down('2')) {
+    early_->set_animation("Ready");
+    suo_->set_animation("Ready");
+  }
+  if (input::is_down('3')) {
+    early_->set_animation("Step_Front");
+    suo_->set_animation("Step_Front");
+  }
+  if (input::is_down('4')) {
+    early_->set_animation("Step_Back");
+    suo_->set_animation("Step_Back");
+  }
+  if (input::is_down('5')) {
+    early_->set_animation("Step_Left");
+    suo_->set_animation("Step_Left");
+    skinned_animation_mesh_->set_animation("Wolf_Idle_");
+  }
+  if (input::is_down('6')) {
+    early_->set_animation("Step_Right");
+    suo_->set_animation("Step_Right");
+    skinned_animation_mesh_->set_animation("Wolf_Run_Cycle_");
+  }
+  if (input::is_down('7')) {
+    early_->set_animation("Rotate_Back");
+    suo_->set_animation("Rotate_Back");
+  }
+  if (input::is_down('8')) {
+    early_->set_animation("Rotate_Left");
+    suo_->set_animation("Rotate_Left");
+  }
+  if (input::is_down('9')) {
+    early_->set_animation("Rotate_Right");
+    suo_->set_animation("Rotate_Right");
+  }
+  if (input::is_down('0')) {
+    early_->set_animation("Attack");
+    suo_->set_animation("Attack");
+  }
+  if (input::is_down('P')) {
+    early_->set_animation("Damaged");
+    suo_->set_animation("Damaged");
+  }
+  if (input::is_down('Z')) {
+    early_->set_dynamic_texture(constants::EARLY_BODY,
+        "image/back_ground.png", 0, base_mesh::combine_type::NORMAL);
+  }
+  if (input::is_down('X')) {
+    early_->set_dynamic_texture(constants::EARLY_BODY,
+        "image/early/0.png", 1, base_mesh::combine_type::NORMAL);
+  }
+  if (input::is_down('R')) {
+    early_->flip_dynamic_texture(constants::EARLY_BODY, 1);
+  }
+  if (input::is_down('T')) {
+    early_->clear_dynamic_texture(constants::EARLY_BODY, 1);
+  }
+  if (input::is_down('C')) {
+    early_->set_fade_in(constants::EARLY_BODY);
+    mesh_->set_fade_in();
+    animation_mesh_->set_fade_in();
+  }
+  if (input::is_down('A')) {
+    static float f = 0.0f;
+    f -= 0.01f;
+    early_->set_dynamic_texture_position(
+        constants::EARLY_BODY, 1, {f, f} );
+
+  }
+  if (input::is_down('V')) {
+    early_->set_fade_out(constants::EARLY_BODY);
+    mesh_->set_fade_out();
+    animation_mesh_->set_fade_out();
+    //static float f = D3DX_PI/2;
+    //f += 0.1f;
+    //early_->set_dynamic_texture_opacity(
+    //    constants::EARLY_BODY, 1, std::sin(f)/2+0.5f);
+  }
+  if (input::is_down('B')) {
+    early_->set_dynamic_message(constants::EARLY_BODY, 1,
+        "ccccccccccccccccccccc", false, { 210, 270, 511, 511 });
+  }
+  if (input::is_down('M')) {
+    camera_->set_to_close_up_animation();
+  }
+  if (input::is_down(VK_OEM_COMMA)) {
+    camera_->set_to_behind_animation();
+  }
+  if (input::is_down(VK_OEM_PERIOD)) {
+    early_->set_shake_texture(constants::EARLY_BODY);
+  }
+
+  if (input::is_down('W')) {
+    early_->set_dynamic_message(constants::EARLY_BODY, 1,
+        "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
+  }
+}
+
+void basic_window::render()
+{
+  ::D3DXVECTOR4 light_direction{};
+  light_direction.x = light_direction_.x;
+  light_direction.y = light_direction_.y;
+  light_direction.z = light_direction_.z;
+  light_direction.w = 1.0f;
+  ::D3DXVec4Normalize(&light_direction, &light_direction);
+
+  (*camera_)();
   ::D3DXMATRIX view_matrix{camera_->get_view_matrix()};
   ::D3DXMATRIX projection_matrix{camera_->get_projection_matrix()};
 
   d3d_device_->Clear(0,
                      nullptr,
                      D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-                     D3DCOLOR_XRGB(0x0f, 0x17, 0x1c),
+                     D3DCOLOR_XRGB(0x40, 0x40, 0x40),
                      1.0f,
                      0);
    if (SUCCEEDED(d3d_device_->BeginScene())) {
@@ -484,14 +493,6 @@ void basic_window::render()
                     projection_matrix,
                     light_direction,
                     light_brightness_);
-
-    render_string_object::render_string(std::to_string(fps), 10, 30);
-//    render_string_object::render_string(
-//        std::to_string(eye_position_.x), 10, 50);
-//    render_string_object::render_string(
-//        std::to_string(eye_position_.y), 10, 70);
-//    render_string_object::render_string(
-//        std::to_string(eye_position_.z), 10, 90);
 
     d3d_device_->EndScene();
   }

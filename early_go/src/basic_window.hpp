@@ -51,6 +51,8 @@ private:
   std::shared_ptr<camera>                       camera_;
 
   void initialize_direct3d(const ::HWND&);
+  void key_input();
+  void debug();
   void render();
 };
 } /* namespace early_go */
