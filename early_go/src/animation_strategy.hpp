@@ -77,7 +77,8 @@ public:
     }
 
     animation_controller_->SetTrackAnimationSet(0, kit->get());
-    animation_controller_->SetTrackPosition(0, 0.0f);
+    animation_controller_->SetTrackPosition(0, -1.001f/60);
+    animation_time_ = 0;
 
     if (animation_configs_.find(animation_set) == animation_configs_.end()) {
       return;
@@ -94,7 +95,7 @@ public:
     if (is_playing_) {
       animation_time_ += constants::ANIMATION_SPEED;
       float duration{animation_configs_.at(playing_animation_).duration_};
-      if (animation_time_ >= duration) {
+      if (animation_time_ + 0.001f >= duration) {
         set_animation(default_animation_);
         is_playing_ = false;
         animation_time_ = 0;

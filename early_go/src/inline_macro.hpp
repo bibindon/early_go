@@ -123,7 +123,8 @@ inline std::vector<char> get_resource(const std::string& query)
  */
 struct log_liner
 {
-#if defined(DEBUG) || defined(_DEBUG)
+//#if defined(DEBUG) || defined(_DEBUG)
+#if 1
   /* c'tor */
   log_liner(const std::string& op = "") : ostringstream_{}, option_{op} {}
 

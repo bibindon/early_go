@@ -3,6 +3,8 @@
 
 #include "stdafx.hpp"
 #include "base_mesh.hpp"
+#include <boost/fusion/include/map.hpp>
+#include <boost/fusion/include/at_key.hpp>
 
 namespace early_go {
 
@@ -71,12 +73,65 @@ public:
   void set_shake_texture(const std::string&);
   void set_fade_in(const std::string&);
   void set_fade_out(const std::string&);
+  enum DIRECTION {
+    FRONT,
+    LEFT,
+    BACK,
+    RIGHT,
+    NONE,
+  };
+  void set_step_action(const DIRECTION&);
+  void set_rotate_action(const DIRECTION&);
 private:
   std::string create_animation_fullname(const std::string&, const std::string&);
   std::unordered_map<std::string, std::shared_ptr<base_mesh> > mesh_map_;
+  std::unordered_map<std::string, float>     duration_map_;
   const std::shared_ptr<::IDirect3DDevice9>& d3d_device_;
+
+  struct action {
+    action(character& outer, const DIRECTION&);
+    virtual bool operator()() = 0;
+    virtual ~action(){}
+    int              count_;
+    character&       outer_;
+    const DIRECTION  direction_;
+  };
+
+  struct step : public action {
+    step(character&, const DIRECTION&);
+    bool operator()() override;
+    std::vector<float> destinations_;
+  };
+  struct rotate : public action {
+    rotate(character&, const DIRECTION&);
+    bool operator()() override;
+    ~rotate();
+  };
+  struct step_and_rotate : public action {
+    step_and_rotate(character&, const DIRECTION&, const DIRECTION&);
+    bool operator()() override;
+    ~step_and_rotate();
+    step step_;
+    rotate rotate_;
+  };
+
+  std::shared_ptr<action> current_action_;
+  std::shared_ptr<action> next_action_;
+
   ::D3DXVECTOR3 position_;
+
+  struct x{};
+  struct y{};
+  struct z{};
+
+  boost::fusion::map<
+      boost::fusion::pair<x, int>,
+      boost::fusion::pair<y, int>,
+      boost::fusion::pair<z, int>
+  > grid_position_;
+
   ::D3DXVECTOR3 rotation_;
+  DIRECTION     direction_;
   float         size_;
 };
 } /* namespace early_go */

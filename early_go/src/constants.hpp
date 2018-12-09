@@ -7,6 +7,9 @@ struct constants {
   const static int         WINDOW_WIDTH;
   const static int         WINDOW_HEIGHT;
   const static float       ANIMATION_SPEED;
+  const static float       GRID_LENGTH;
+  const static float       ACTION_INTERVAL;
+  const static int         ACTION_INTERVAL_FRAME;
   const static std::string APP_NAME;
   const static std::string DATABASE_NAME;
   const static std::string MESH_FILE_NAME;

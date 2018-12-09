@@ -251,29 +251,54 @@ void basic_window::key_input()
   if (input::is_down('Q')) {
     ::PostQuitMessage(0);
   }
+  if (input::is_down('W')) {
+    early_->set_step_action(character::DIRECTION::FRONT);
+  }
+  if (input::is_down('A')) {
+    early_->set_step_action(character::DIRECTION::LEFT);
+  }
+  if (input::is_down('S')) {
+    early_->set_step_action(character::DIRECTION::BACK);
+  }
+  if (input::is_down('D')) {
+    early_->set_step_action(character::DIRECTION::RIGHT);
+  }
+  if (input::is_down('I')) {
+    early_->set_rotate_action(character::DIRECTION::FRONT);
+  }
+  if (input::is_down('J')) {
+    early_->set_rotate_action(character::DIRECTION::LEFT);
+  }
+  if (input::is_down('K')) {
+    early_->set_rotate_action(character::DIRECTION::BACK);
+  }
+  if (input::is_down('L')) {
+    early_->set_rotate_action(character::DIRECTION::RIGHT);
+  }
 
 }
 
 void basic_window::debug()
 {
+  // TODO: move between d3ddevice.beginScene and endScene.
   // fps
-  static int frame_count = 0;
-  static float fps = 0;
-  static std::chrono::system_clock::time_point start, end;
-  if (frame_count == 100) {
-    frame_count = 0;
-    end = std::chrono::system_clock::now();
-    int64_t elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-        end - start).count();
-    fps = 100 * 1000 / static_cast<float>(elapsed);
-    start = std::chrono::system_clock::now();
-  }
-
-  if (frame_count == 0) {
-    start = std::chrono::system_clock::now();
-  }
-  ++frame_count;
-  render_string_object::render_string(std::to_string(fps), 10, 30);
+//  static int frame_count = 0;
+//  static float fps = 0;
+//  static std::chrono::system_clock::time_point start, end;
+//  if (frame_count == 100) {
+//    frame_count = 0;
+//    end = std::chrono::system_clock::now();
+//    int64_t elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+//        end - start).count();
+//    fps = 100 * 1000 / static_cast<float>(elapsed);
+//    start = std::chrono::system_clock::now();
+//  }
+//
+//  if (frame_count == 0) {
+//    start = std::chrono::system_clock::now();
+//  }
+//  ++frame_count;
+//  render_string_object::render_string(std::to_string(fps), 10, 30);
 //  render_string_object::render_string(
 //      std::to_string(eye_position_.x), 10, 50);
 //  render_string_object::render_string(
@@ -439,10 +464,10 @@ void basic_window::debug()
     early_->set_shake_texture(constants::EARLY_BODY);
   }
 
-  if (input::is_down('W')) {
-    early_->set_dynamic_message(constants::EARLY_BODY, 1,
-        "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
-  }
+  //if (input::is_down('W')) {
+  //  early_->set_dynamic_message(constants::EARLY_BODY, 1,
+  //      "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
+  //}
 }
 
 void basic_window::render()

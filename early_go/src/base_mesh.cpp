@@ -557,7 +557,8 @@ void base_mesh::dynamic_texture::texture_shaker::operator()(
   ++count_;
 }
 
-const int base_mesh::dynamic_texture::texture_fader::FADE_DURATION = 60;
+const int base_mesh::dynamic_texture::texture_fader::FADE_DURATION =
+    static_cast<int>(1.0f/constants::ANIMATION_SPEED);
 
 void base_mesh::set_fade_in()
 {
