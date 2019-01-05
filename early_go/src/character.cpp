@@ -11,7 +11,7 @@
 
 namespace early_go {
 character::character(const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
-                     const grid_position&                       position,
+                     const grid_coordinate&                       position,
                      const direction&                           direction,
                      const float&                               size)
   : d3d_device_{d3d_device},
@@ -83,7 +83,7 @@ void character::render(const ::D3DXMATRIX&  view_matrix,
   }
 }
 
-void character::set_position(const character::grid_position& position)
+void character::set_position(const grid_coordinate& position)
 {
   grid_position_ = position;
   set_position(::D3DXVECTOR3{
@@ -268,6 +268,11 @@ void character::cancel_action()
 direction character::get_direction()
 {
   return direction_;
+}
+
+grid_coordinate character::get_position()
+{
+  return grid_position_;
 }
 
 // "Idle" + "hoge/piyo/hair.x" -> "Idle_Hair"
@@ -630,13 +635,35 @@ void character::step_and_rotate::cancel()
   rotate_.cancel();
 }
 
-character::attack::attack(character& outer)
-  : action{outer, direction::NONE}
+character::attack::attack(character& outer, operation& a_operation)
+  : action{outer, direction::NONE},
+    operation_{a_operation},
+    availability_{true}
 {
 }
 
 operation::behavior_state character::attack::operator()()
 {
+  if (availability_) {
+    int x = boost::fusion::at_key<tag_x>(outer_.grid_position_);
+    int z = boost::fusion::at_key<tag_z>(outer_.grid_position_);
+    switch (outer_.direction_) {
+    case direction::FRONT:
+      ++z;
+      break;
+    case direction::LEFT:
+      --x;
+      break;
+    case direction::BACK:
+      --z;
+      break;
+    case direction::RIGHT:
+      ++x;
+      break;
+    }
+    operation_.set_offensive_position(x, z);
+  }
+
   if (count_ == 0) {
     outer_.set_animation("Attack");
   }
@@ -650,6 +677,7 @@ operation::behavior_state character::attack::operator()()
 
 void character::attack::cancel()
 {
+  availability_ = false;
 }
 
 character::attack::~attack()

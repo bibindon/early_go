@@ -1,10 +1,15 @@
 #include "stdafx.hpp"
 #include "constants.hpp"
 
+#include <boost/static_assert.hpp>
+
 namespace early_go {
 const int constants::WINDOW_WIDTH = 1600;
 const int constants::WINDOW_HEIGHT = 900;
 const float constants::ANIMATION_SPEED = 1.0f/60;
+const int constants::GRID_NUM_HEIGHT = 9;
+const int constants::GRID_NUM_WIDTH  = 9;
+BOOST_STATIC_ASSERT(constants::GRID_NUM_WIDTH%2 == 1);
 const float constants::GRID_LENGTH = 1.5f;
 const float constants::ACTION_INTERVAL = 1.0f/3;
 const int constants::ACTION_INTERVAL_FRAME =

@@ -167,7 +167,7 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
       ::D3DXVECTOR3{0.0f, 0.0f, 0.0f},
       1.0f});
 
-  early_->set_position(character::grid_position{0, 0, -1});
+  early_->set_position(grid_coordinate{0, 0, 0});
   early_->add_mesh<skinned_animation_mesh>(constants::EARLY_BODY);
   early_->add_mesh<skinned_animation_mesh>(constants::EARLY_ARMOR);
   //early_->add_mesh<animation_mesh>(constants::EARLY_LANCE);
@@ -188,7 +188,7 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
   early_->set_animation_config("Attack",       false, 1.0f);
   early_->set_animation_config("Damaged",      false, 1.0f);
 
-  suo_->set_position(character::grid_position{1, 0, 2});
+  suo_->set_position(grid_coordinate{1, 0, 2});
   suo_->add_mesh<skinned_animation_mesh>(constants::SUO_BODY);
   suo_->add_mesh<skinned_animation_mesh>(constants::SUO_ARMOR);
   suo_->add_mesh<animation_mesh>(constants::SUO_SABER);
@@ -251,6 +251,11 @@ int basic_window::operator()()
 std::shared_ptr<character> basic_window::get_main_character()
 {
   return early_;
+}
+
+std::shared_ptr<character> basic_window::get_enemy_character()
+{
+  return suo_;
 }
 
 void basic_window::debug()

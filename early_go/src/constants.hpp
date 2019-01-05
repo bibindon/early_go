@@ -1,12 +1,18 @@
 #ifndef CONSTANTS_HPP
 #define CONSTANTS_HPP
 #include "stdafx.hpp"
+
+#include <boost/fusion/include/map.hpp>
+#include <boost/fusion/include/at_key.hpp>
+
 // TODO: if constants become large, make namespace more nest.
 namespace early_go {
 struct constants {
   const static int         WINDOW_WIDTH;
   const static int         WINDOW_HEIGHT;
   const static float       ANIMATION_SPEED;
+  const static int         GRID_NUM_HEIGHT;
+  const static int         GRID_NUM_WIDTH;
   const static float       GRID_LENGTH;
   const static float       ACTION_INTERVAL;
   const static int         ACTION_INTERVAL_FRAME;
@@ -39,5 +45,16 @@ enum direction {
   RIGHT,
   NONE,
 };
+
+struct tag_x{};
+struct tag_y{};
+struct tag_z{};
+
+typedef boost::fusion::map<
+    boost::fusion::pair<tag_x, int>,
+    boost::fusion::pair<tag_y, int>,
+    boost::fusion::pair<tag_z, int>
+> grid_coordinate;
+
 } /* namespace early_go */
 #endif

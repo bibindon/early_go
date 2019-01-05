@@ -4,8 +4,6 @@
 #include "stdafx.hpp"
 #include "base_mesh.hpp"
 #include "operation.hpp"
-#include <boost/fusion/include/map.hpp>
-#include <boost/fusion/include/at_key.hpp>
 #include <boost/variant.hpp>
 
 namespace early_go {
@@ -15,18 +13,8 @@ class base_mesh;
 class character
 {
 public:
-  struct tag_x{};
-  struct tag_y{};
-  struct tag_z{};
-
-  typedef boost::fusion::map<
-      boost::fusion::pair<tag_x, int>,
-      boost::fusion::pair<tag_y, int>,
-      boost::fusion::pair<tag_z, int>
-  > grid_position;
-
   character(const std::shared_ptr<::IDirect3DDevice9>&,
-            const grid_position&,
+            const grid_coordinate&,
             const direction&,
             const float&);
   virtual ~character();
@@ -46,7 +34,7 @@ public:
     size_ = size;
   }
 
-  void set_position(const grid_position&);
+  void set_position(const grid_coordinate&);
   void set_rotation(const direction&);
 
   void set_dynamic_texture(const std::string&,
@@ -91,6 +79,7 @@ public:
   void set_step_and_rotate_action(const direction&, const direction&);
   void cancel_action();
   direction get_direction();
+  grid_coordinate get_position();
 
   struct action {
     action(character& outer, const direction&);
@@ -134,10 +123,12 @@ public:
     rotate rotate_;
   };
   struct attack : public action {
-    attack(character&);
+    attack(character&, operation&);
     operation::behavior_state operator()() override;
     void cancel() override;
     ~attack();
+    operation& operation_;
+    bool availability_;
   };
 
 private:
@@ -151,7 +142,7 @@ private:
   std::shared_ptr<action> current_action_;
 
   ::D3DXVECTOR3 position_;
-  grid_position grid_position_;
+  grid_coordinate grid_position_;
 
   ::D3DXVECTOR3 rotation_;
   direction     direction_;

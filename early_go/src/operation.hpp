@@ -47,6 +47,7 @@ public:
       >
   > behavior_concept;
 
+  void set_offensive_position(const int&, const int&);
 private:
   struct state {
     std::vector<
@@ -59,6 +60,8 @@ private:
 
   std::shared_ptr<behavior_concept> current_behavior_;
   std::shared_ptr<behavior_concept> reserved_behavior_;
+
+  std::unordered_map<int, std::unordered_map<int, bool> > offensive_area_;
 
   const static std::chrono::milliseconds DOUBLE_DOWN_CHANCE_FRAME;
   bool check_recent_keycode(const int&);

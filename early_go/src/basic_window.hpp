@@ -31,6 +31,7 @@ public:
   explicit basic_window(const ::HINSTANCE&);
   int operator()();
   std::shared_ptr<character> get_main_character();
+  std::shared_ptr<character> get_enemy_character();
 
 private:
 
