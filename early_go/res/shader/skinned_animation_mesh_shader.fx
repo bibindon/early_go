@@ -2,7 +2,7 @@ float4 g_light_normal;
 float  g_light_brightness;
 //float4 g_light_diffuse = {1, 0, 0, 0}; // TODO
 float4 g_diffuse;
-float4 g_ambient = { 0.2f, 0.2f, 0.2f, 0.0f };
+float4 g_ambient = { 0.2f, 0.2f, 0.5f, 0.0f };
 
 /* Matrix Palette */
 static const int MAX_MATRICES = 26;

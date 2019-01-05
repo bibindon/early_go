@@ -18,7 +18,7 @@ mesh::mesh(
       world_view_proj_handle_{},
       colors_{},
       textures_{},
-      center_coodinate_{},
+      center_coodinate_{0.0f, 0.0f, 0.0f},
       radius_{},
       scale_{}
 {

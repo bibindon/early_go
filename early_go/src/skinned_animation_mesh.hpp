@@ -38,8 +38,8 @@ private:
   std::unique_ptr<::D3DXFRAME, frame_root_deleter_object> frame_root_;
   ::D3DXMATRIX                                            rotation_matrix_;
   std::vector<::D3DXMATRIX>                               world_matrix_array_;
-  ::D3DXVECTOR3                                           center_coodinate_{};
-  float                                                   scale_{};
+  ::D3DXVECTOR3                                           center_coodinate_;
+  float                                                   scale_;
 
   // For effect.
   ::D3DXHANDLE                                   view_projection_handle_;

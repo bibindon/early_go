@@ -10,6 +10,7 @@ class skinned_animation_mesh;
 class camera;
 class character;
 class base_mesh;
+class operation;
 
 /*
  * A class that handles basic window processings.
@@ -29,6 +30,7 @@ public:
 
   explicit basic_window(const ::HINSTANCE&);
   int operator()();
+  std::shared_ptr<character> get_main_character();
 
 private:
 
@@ -51,9 +53,10 @@ private:
   std::shared_ptr<camera>                       camera_;
 
   void initialize_direct3d(const ::HWND&);
-  void key_input();
   void debug();
   void render();
+
+  std::shared_ptr<operation>                        operation_;
 };
 } /* namespace early_go */
 #endif

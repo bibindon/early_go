@@ -3,8 +3,10 @@
 
 #include "stdafx.hpp"
 #include "base_mesh.hpp"
+#include "operation.hpp"
 #include <boost/fusion/include/map.hpp>
 #include <boost/fusion/include/at_key.hpp>
+#include <boost/variant.hpp>
 
 namespace early_go {
 
@@ -13,9 +15,19 @@ class base_mesh;
 class character
 {
 public:
+  struct tag_x{};
+  struct tag_y{};
+  struct tag_z{};
+
+  typedef boost::fusion::map<
+      boost::fusion::pair<tag_x, int>,
+      boost::fusion::pair<tag_y, int>,
+      boost::fusion::pair<tag_z, int>
+  > grid_position;
+
   character(const std::shared_ptr<::IDirect3DDevice9>&,
-            const ::D3DXVECTOR3&,
-            const ::D3DXVECTOR3&,
+            const grid_position&,
+            const direction&,
             const float&);
   virtual ~character();
   template <typename T>
@@ -34,8 +46,9 @@ public:
     size_ = size;
   }
 
-  void set_position(const ::D3DXVECTOR3&);
-  void set_rotation(const ::D3DXVECTOR3&);
+  void set_position(const grid_position&);
+  void set_rotation(const direction&);
+
   void set_dynamic_texture(const std::string&,
                            const std::string&,
                            const int&,
@@ -73,65 +86,75 @@ public:
   void set_shake_texture(const std::string&);
   void set_fade_in(const std::string&);
   void set_fade_out(const std::string&);
-  enum DIRECTION {
-    FRONT,
-    LEFT,
-    BACK,
-    RIGHT,
-    NONE,
+  void set_step_action(const direction&);
+  void set_rotate_action(const direction&);
+  void set_step_and_rotate_action(const direction&, const direction&);
+  void cancel_action();
+  direction get_direction();
+
+  struct action {
+    action(character& outer, const direction&);
+
+    virtual operation::behavior_state operator()() = 0;
+    virtual void cancel() = 0;
+    virtual ~action(){}
+    std::vector<
+        boost::variant<direction>
+    > params_;
+    std::vector<boost::variant<direction> > get_params()
+    {
+      return params_;
+    }
+    int              count_;
+    character&       outer_;
   };
-  void set_step_action(const DIRECTION&);
-  void set_rotate_action(const DIRECTION&);
+
+  struct step : public action {
+    step(character&, const direction&);
+    operation::behavior_state operator()() override;
+    void cancel() override;
+    ~step() override;
+    std::vector<float> destinations_;
+    direction relative_direction_;
+  };
+  struct rotate : public action {
+    rotate(character&, const direction&);
+    operation::behavior_state operator()() override;
+    void cancel() override;
+    ~rotate() override;
+    direction relative_direction_;
+    const direction back_up_direction_;
+  };
+  struct step_and_rotate : public action {
+    step_and_rotate(character&, const direction&, const direction&);
+    operation::behavior_state operator()() override;
+    void cancel() override;
+    ~step_and_rotate() override;
+    step step_;
+    rotate rotate_;
+  };
+  struct attack : public action {
+    attack(character&);
+    operation::behavior_state operator()() override;
+    void cancel() override;
+    ~attack();
+  };
+
 private:
+  void set_position(const ::D3DXVECTOR3&);
+  void set_rotation(const ::D3DXVECTOR3&);
   std::string create_animation_fullname(const std::string&, const std::string&);
   std::unordered_map<std::string, std::shared_ptr<base_mesh> > mesh_map_;
   std::unordered_map<std::string, float>     duration_map_;
   const std::shared_ptr<::IDirect3DDevice9>& d3d_device_;
 
-  struct action {
-    action(character& outer, const DIRECTION&);
-    virtual bool operator()() = 0;
-    virtual ~action(){}
-    int              count_;
-    character&       outer_;
-    const DIRECTION  direction_;
-  };
-
-  struct step : public action {
-    step(character&, const DIRECTION&);
-    bool operator()() override;
-    std::vector<float> destinations_;
-  };
-  struct rotate : public action {
-    rotate(character&, const DIRECTION&);
-    bool operator()() override;
-    ~rotate();
-  };
-  struct step_and_rotate : public action {
-    step_and_rotate(character&, const DIRECTION&, const DIRECTION&);
-    bool operator()() override;
-    ~step_and_rotate();
-    step step_;
-    rotate rotate_;
-  };
-
   std::shared_ptr<action> current_action_;
-  std::shared_ptr<action> next_action_;
 
   ::D3DXVECTOR3 position_;
-
-  struct x{};
-  struct y{};
-  struct z{};
-
-  boost::fusion::map<
-      boost::fusion::pair<x, int>,
-      boost::fusion::pair<y, int>,
-      boost::fusion::pair<z, int>
-  > grid_position_;
+  grid_position grid_position_;
 
   ::D3DXVECTOR3 rotation_;
-  DIRECTION     direction_;
+  direction     direction_;
   float         size_;
 };
 } /* namespace early_go */

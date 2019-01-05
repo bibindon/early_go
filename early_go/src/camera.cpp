@@ -57,15 +57,15 @@ void camera::set_to_behind_animation()
   std::queue<std::shared_ptr<key_animation> >().swap(animation_queue_); // clear
 
   std::shared_ptr<key_animation> tmp{
-      new_crt teleport{::D3DXVECTOR3{0.0f, 1.2998f, -0.7f},
-                       ::D3DXVECTOR3{0.0f, 1.2998f, -1.0f},
+      new_crt teleport{::D3DXVECTOR3{0.0f, 1.2998f, -1.2f},
+                       ::D3DXVECTOR3{0.0f, 1.2998f, -2.0f},
                        D3DX_PI/100}
   };
   animation_queue_.push(tmp);
 
   tmp = std::shared_ptr<key_animation>(
-      new_crt transfer{::D3DXVECTOR3{0.0f, 1.2998f, -0.7f},
-                       ::D3DXVECTOR3{0.0f, 1.2998f, -1.0f},
+      new_crt transfer{::D3DXVECTOR3{0.0f, 1.2998f, -1.2f},
+                       ::D3DXVECTOR3{0.0f, 1.2998f, -2.0f},
                        D3DX_PI/100,
                        ::D3DXVECTOR3{0.0f, 2.0f, 2.0f},
                        ::D3DXVECTOR3{0.0f, 1.2998f, -1.0f},
@@ -106,15 +106,15 @@ void camera::set_to_close_up_animation()
       new_crt transfer{::D3DXVECTOR3{0.0f, 2.0f, 2.0f},
                        ::D3DXVECTOR3{0.0f, 1.2998f, -1.0f},
                        D3DX_PI/20,
-                       ::D3DXVECTOR3{0.0f, 1.2998f, -0.7f},
-                       ::D3DXVECTOR3{0.0f, 1.2998f, -1.0f},
+                       ::D3DXVECTOR3{0.0f, 1.2998f, -1.2f},
+                       ::D3DXVECTOR3{0.0f, 1.2998f, -2.0f},
                        D3DX_PI/100,
                        240});
   animation_queue_.push(tmp);
 
   tmp = std::shared_ptr<key_animation>(
-      new_crt teleport{::D3DXVECTOR3{0.0f, 1.2998f, -0.7f},
-                       ::D3DXVECTOR3{0.0f, 1.2998f, -1.0f},
+      new_crt teleport{::D3DXVECTOR3{0.0f, 1.2998f, -1.2f},
+                       ::D3DXVECTOR3{0.0f, 1.2998f, -2.0f},
                        D3DX_PI/100});
   animation_queue_.push(tmp);
 }

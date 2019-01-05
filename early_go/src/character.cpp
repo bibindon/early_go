@@ -7,21 +7,37 @@
 #include "base_mesh.hpp"
 #include "basic_window.hpp"
 #include "character.hpp"
+#include "operation.hpp"
 
 namespace early_go {
 character::character(const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
-                     const ::D3DXVECTOR3&                       position,
-                     const ::D3DXVECTOR3&                       rotation,
+                     const grid_position&                       position,
+                     const direction&                           direction,
                      const float&                               size)
   : d3d_device_{d3d_device},
-    current_action_{nullptr},
-    next_action_{nullptr},
-    position_{position},
-    grid_position_{0, 0, 0},
-    rotation_{rotation},
-    direction_{DIRECTION::FRONT},
+    position_{boost::fusion::at_key<tag_x>(position) * constants::GRID_LENGTH,
+              boost::fusion::at_key<tag_y>(position) * constants::GRID_LENGTH,
+              boost::fusion::at_key<tag_z>(position) * constants::GRID_LENGTH},
+    grid_position_{position},
+    direction_{direction},
     size_{size}
 {
+  switch (direction_) {
+  case direction::FRONT:
+    rotation_.x = D3DX_PI;
+    break;
+  case direction::LEFT:
+    rotation_.x = D3DX_PI/2;
+    break;
+  case direction::BACK:
+    rotation_.x = 0.0f;
+    break;
+  case direction::RIGHT:
+    rotation_.x = D3DX_PI*3/2;
+    break;
+  }
+  rotation_.y = 0.0f;
+  rotation_.z = 0.0f;
 }
 
 character::~character()
@@ -56,26 +72,47 @@ void character::render(const ::D3DXMATRIX&  view_matrix,
                        const ::D3DXVECTOR4& normal_light,
                        const float&         brightness)
 {
-  if (current_action_ == nullptr && next_action_ != nullptr) {
-    current_action_.swap(next_action_);
-    next_action_.reset();
-    (*current_action_)();
-  } else if (current_action_ != nullptr && next_action_!= nullptr &&
-      current_action_->count_ >= constants::ACTION_INTERVAL_FRAME) {
-    current_action_.swap(next_action_);
-    next_action_.reset();
-    (*current_action_)();
-  } else if (current_action_ != nullptr && !(*current_action_)()) {
-    current_action_.swap(next_action_);
-    next_action_.reset();
-    if (current_action_ != nullptr) {
-      (*current_action_)();
+  if (current_action_ != nullptr) {
+    if (operation::behavior_state::FINISH == (*current_action_)()) {
+      current_action_.reset();
     }
   }
 
   for (const auto& x : mesh_map_) {
     x.second->render(view_matrix, projection_matrix, normal_light, brightness);
   }
+}
+
+void character::set_position(const character::grid_position& position)
+{
+  grid_position_ = position;
+  set_position(::D3DXVECTOR3{
+      boost::fusion::at_key<tag_x>(position) * constants::GRID_LENGTH,
+      boost::fusion::at_key<tag_y>(position) * constants::GRID_LENGTH,
+      boost::fusion::at_key<tag_z>(position) * constants::GRID_LENGTH});
+}
+
+void character::set_rotation(const direction& direction)
+{
+  ::D3DXVECTOR3 rotation;
+  switch (direction) {
+  case direction::FRONT:
+    rotation.x = D3DX_PI;
+    break;
+  case direction::LEFT:
+    rotation.x = D3DX_PI/2;
+    break;
+  case direction::BACK:
+    rotation.x = 0.0f;
+    break;
+  case direction::RIGHT:
+    rotation.x = D3DX_PI*3/2;
+    break;
+  }
+  rotation.y = 0.0f;
+  rotation.z = 0.0f;
+
+  set_rotation(rotation);
 }
 
 void character::set_position(const ::D3DXVECTOR3& position)
@@ -197,32 +234,40 @@ void character::set_fade_out(const std::string& x_filename)
   }
 }
 
-void character::set_step_action(const character::DIRECTION& step_dir)
+void character::set_step_action(const direction& step_dir)
 {
-  if (next_action_ == nullptr) {
-    next_action_.reset(new_crt step{*this, step_dir});
-  } else {
-    if (typeid(*next_action_.get()) == typeid(rotate)) {
-      DIRECTION rotate_dir = next_action_->direction_;
-      next_action_.reset(new_crt step_and_rotate{*this, step_dir, rotate_dir});
-    }
-  }
+  current_action_.reset(); // call dtor.
+  current_action_.reset(new_crt step{*this, step_dir});
 }
 
-void character::set_rotate_action(const character::DIRECTION& rotate_dir)
+void character::set_rotate_action(const direction& rotate_dir)
 {
   if (direction_ == rotate_dir) {
     return;
   }
-  if (next_action_ == nullptr) {
-    next_action_.reset(new_crt rotate{*this, rotate_dir});
-  } else {
-    if (typeid(*next_action_.get()) == typeid(step)) {
-      DIRECTION step_dir = next_action_->direction_;
-      next_action_.reset(new_crt step_and_rotate{*this, step_dir, rotate_dir});
-    }
+  current_action_.reset(); // call dtor.
+  current_action_.reset(new_crt rotate{*this, rotate_dir});
+}
 
+void character::set_step_and_rotate_action(
+    const direction& step_dir,
+    const direction& rotate_dir)
+{
+  current_action_.reset(); // call dtor.
+  current_action_.reset(new_crt step_and_rotate{*this, step_dir, rotate_dir});
+}
+
+void character::cancel_action()
+{
+  if (current_action_ != nullptr) {
+    current_action_->cancel();
+    current_action_.reset();
   }
+}
+
+direction character::get_direction()
+{
+  return direction_;
 }
 
 // "Idle" + "hoge/piyo/hair.x" -> "Idle_Hair"
@@ -247,228 +292,330 @@ std::string character::create_animation_fullname(
   return animation_fullname;
 }
 
-character::action::action(character& outer, const DIRECTION& direction)
+character::action::action(character& outer, const direction& direction)
   : count_{},
-    outer_{outer},
-    direction_{direction} {}
+    outer_{outer}
+{
+  params_.push_back(direction);
+}
 
-character::step::step(character& outer, const DIRECTION& direction)
-  : action{outer, direction}
+static float get_sine_curve(int theta, int duration)
+{
+  float sine_curve{
+      std::sin((static_cast<float>(theta)/duration*D3DX_PI)-(D3DX_PI/2))};
+  sine_curve += 1.0f;
+  sine_curve /= 2.0f;
+  return sine_curve;
+
+}
+
+static float get_irrational_curve(int x, int duration)
+{
+  float y = std::sqrt(static_cast<float>(x)/duration);
+  return y;
+
+}
+
+character::step::step(character& outer, const direction& dir)
+  : action{outer, dir},
+    relative_direction_{direction::NONE}
 {
   for (int i{}; i < constants::ACTION_INTERVAL_FRAME+1; ++i) {
-    float y = std::sqrt(static_cast<float>(i)/constants::ACTION_INTERVAL_FRAME)
-        * constants::GRID_LENGTH;
+    float y{get_sine_curve(i, constants::ACTION_INTERVAL_FRAME)
+        * constants::GRID_LENGTH};
+
     destinations_.push_back(y);
+  }
+  switch (boost::get<direction>(params_.at(0))) {
+  case direction::FRONT:
+    switch (outer_.direction_) {
+    case direction::FRONT:
+      relative_direction_ = direction::FRONT;
+      break;
+    case direction::LEFT:
+      relative_direction_ = direction::RIGHT;
+      break;
+    case direction::BACK:
+      relative_direction_ = direction::BACK;
+      break;
+    case direction::RIGHT:
+      relative_direction_ = direction::RIGHT;
+      break;
+    }
+    break;
+  case direction::LEFT:
+    switch (outer_.direction_) {
+    case direction::FRONT:
+      relative_direction_ = direction::LEFT;
+      break;
+    case direction::LEFT:
+      relative_direction_ = direction::FRONT;
+      break;
+    case direction::BACK:
+      relative_direction_ = direction::RIGHT;
+      break;
+    case direction::RIGHT:
+      relative_direction_ = direction::BACK;
+      break;
+    }
+    break;
+  case direction::BACK:
+    switch (outer_.direction_) {
+    case direction::FRONT:
+      relative_direction_ = direction::BACK;
+      break;
+    case direction::LEFT:
+      relative_direction_ = direction::LEFT;
+      break;
+    case direction::BACK:
+      relative_direction_ = direction::FRONT;
+      break;
+    case direction::RIGHT:
+      relative_direction_ = direction::RIGHT;
+      break;
+    }
+    break;
+  case direction::RIGHT:
+    switch (outer_.direction_) {
+    case direction::FRONT:
+      relative_direction_ = direction::LEFT;
+      break;
+    case direction::LEFT:
+      relative_direction_ = direction::BACK;
+      break;
+    case direction::BACK:
+      relative_direction_ = direction::RIGHT;
+      break;
+    case direction::RIGHT:
+      relative_direction_ = direction::FRONT;
+      break;
+    }
+    break;
   }
 }
 
-bool character::step::operator()()
+operation::behavior_state character::step::operator()()
 {
-  if (count_ >= constants::ACTION_INTERVAL_FRAME) {
-    return false;
-  }
   if (count_ == 0) {
-    switch (direction_) {
-    case DIRECTION::FRONT:
-      boost::fusion::at_key<z>(outer_.grid_position_) += 1;
-      switch (outer_.direction_) {
-      case DIRECTION::FRONT:
-        outer_.set_animation("Step_Front");
-        break;
-      case DIRECTION::LEFT:
-        outer_.set_animation("Step_Right");
-        break;
-      case DIRECTION::BACK:
-        outer_.set_animation("Step_Back");
-        break;
-      case DIRECTION::RIGHT:
-        outer_.set_animation("Step_Left");
-        break;
-      }
+    switch (boost::get<direction>(params_.at(0))) {
+    case direction::FRONT:
+      boost::fusion::at_key<tag_z>(outer_.grid_position_) += 1;
       break;
-    case DIRECTION::LEFT:
-      boost::fusion::at_key<x>(outer_.grid_position_) -= 1;
-      switch (outer_.direction_) {
-      case DIRECTION::FRONT:
-        outer_.set_animation("Step_Left");
-        break;
-      case DIRECTION::LEFT:
-        outer_.set_animation("Step_Front");
-        break;
-      case DIRECTION::BACK:
-        outer_.set_animation("Step_Right");
-        break;
-      case DIRECTION::RIGHT:
-        outer_.set_animation("Step_Back");
-        break;
-      }
+    case direction::LEFT:
+      boost::fusion::at_key<tag_x>(outer_.grid_position_) -= 1;
       break;
-    case DIRECTION::BACK:
-      boost::fusion::at_key<z>(outer_.grid_position_) -= 1;
-      switch (outer_.direction_) {
-      case DIRECTION::FRONT:
-        outer_.set_animation("Step_Back");
-        break;
-      case DIRECTION::LEFT:
-        outer_.set_animation("Step_Left");
-        break;
-      case DIRECTION::BACK:
-        outer_.set_animation("Step_Front");
-        break;
-      case DIRECTION::RIGHT:
-        outer_.set_animation("Step_Right");
-        break;
-      }
+    case direction::BACK:
+      boost::fusion::at_key<tag_z>(outer_.grid_position_) -= 1;
       break;
-    case DIRECTION::RIGHT:
-      boost::fusion::at_key<x>(outer_.grid_position_) += 1;
-      switch (outer_.direction_) {
-      case DIRECTION::FRONT:
-        outer_.set_animation("Step_Left");
-        break;
-      case DIRECTION::LEFT:
-        outer_.set_animation("Step_Back");
-        break;
-      case DIRECTION::BACK:
-        outer_.set_animation("Step_Right");
-        break;
-      case DIRECTION::RIGHT:
-        outer_.set_animation("Step_Front");
-        break;
-      }
+    case direction::RIGHT:
+      boost::fusion::at_key<tag_x>(outer_.grid_position_) += 1;
+      break;
+    }
+    switch (relative_direction_) {
+    case direction::FRONT:
+      outer_.set_animation("Step_Front");
+      break;
+    case direction::LEFT:
+      outer_.set_animation("Step_Left");
+      break;
+    case direction::BACK:
+      outer_.set_animation("Step_Back");
+      break;
+    case direction::RIGHT:
+      outer_.set_animation("Step_Right");
       break;
     }
   }
+  if (constants::ACTION_INTERVAL_FRAME <= count_ &&
+      (count_)*constants::ANIMATION_SPEED <
+      outer_.duration_map_.at("Step_Left")) {
+    ++count_;
+    return operation::behavior_state::CANCELABLE;
+  } else if (outer_.duration_map_.at("Step_Left") <=
+      (count_)*constants::ANIMATION_SPEED ) {
+    return operation::behavior_state::FINISH;
+  }
   ::D3DXVECTOR3 position{outer_.position_};
-  float delta = destinations_.at(static_cast<int64_t>(count_)+1)
-      - destinations_.at(count_);
-  switch (direction_) {
-  case DIRECTION::FRONT:
+  float delta{0.0f};
+  if (static_cast<uint64_t>(count_)+1 < destinations_.size()) {
+    delta = destinations_.at(static_cast<int64_t>(count_)+1)
+        - destinations_.at(count_);
+  }
+  switch (boost::get<direction>(params_.at(0))) {
+  case direction::FRONT:
     position.z += delta;
     break;
-  case DIRECTION::LEFT:
+  case direction::LEFT:
     position.x -= delta;
     break;
-  case DIRECTION::BACK:
+  case direction::BACK:
     position.z -= delta;
     break;
-  case DIRECTION::RIGHT:
+  case direction::RIGHT:
     position.x += delta;
     break;
   }
   outer_.set_position(position);
   ++count_;
-  return true;
+  return operation::behavior_state::PLAY;
 }
 
-character::rotate::rotate(character& outer, const DIRECTION& direction)
-  : action{outer, direction} { }
-
-bool character::rotate::operator()()
+character::step::~step()
 {
-  if ((count_)*constants::ANIMATION_SPEED >=
-      outer_.duration_map_.at("Rotate_Left")) {
-    return false;
+  if (count_ != 0) {
+    outer_.set_position(outer_.position_);
   }
-  if (count_ == 0) {
-    switch (outer_.direction_) {
-    case DIRECTION::FRONT:
-      switch (direction_) {
-      case DIRECTION::FRONT:
-        break;
-      case DIRECTION::LEFT:
-        outer_.set_animation("Rotate_Left");
-        break;
-      case DIRECTION::BACK:
-        outer_.set_animation("Rotate_Back");
-        break;
-      case DIRECTION::RIGHT:
-        outer_.set_animation("Rotate_Right");
-        break;
-      }
+}
+
+void character::step::cancel()
+{
+  if (count_ != 0) {
+    switch (boost::get<direction>(params_.at(0))) {
+    case direction::FRONT:
+      boost::fusion::at_key<tag_z>(outer_.grid_position_) -= 1;
       break;
-    case DIRECTION::LEFT:
-      switch (direction_) {
-      case DIRECTION::FRONT:
-        outer_.set_animation("Rotate_Right");
-        break;
-      case DIRECTION::LEFT:
-        break;
-      case DIRECTION::BACK:
-        outer_.set_animation("Rotate_Left");
-        break;
-      case DIRECTION::RIGHT:
-        outer_.set_animation("Rotate_Back");
-        break;
-      }
+    case direction::LEFT:
+      boost::fusion::at_key<tag_x>(outer_.grid_position_) += 1;
       break;
-    case DIRECTION::BACK:
-      switch (direction_) {
-      case DIRECTION::FRONT:
-        outer_.set_animation("Rotate_Back");
-        break;
-      case DIRECTION::LEFT:
-        outer_.set_animation("Rotate_Right");
-        break;
-      case DIRECTION::BACK:
-        break;
-      case DIRECTION::RIGHT:
-        outer_.set_animation("Rotate_Left");
-        break;
-      }
+    case direction::BACK:
+      boost::fusion::at_key<tag_z>(outer_.grid_position_) += 1;
       break;
-    case DIRECTION::RIGHT:
-      switch (direction_) {
-      case DIRECTION::FRONT:
-        outer_.set_animation("Rotate_Left");
-        break;
-      case DIRECTION::LEFT:
-        outer_.set_animation("Rotate_Back");
-        break;
-      case DIRECTION::BACK:
-        outer_.set_animation("Rotate_Right");
-        break;
-      case DIRECTION::RIGHT:
-        break;
-      }
+    case direction::RIGHT:
+      boost::fusion::at_key<tag_x>(outer_.grid_position_) -= 1;
       break;
     }
-    outer_.direction_ = direction_;
+    outer_.set_position(outer_.grid_position_);
+  }
+}
+
+character::rotate::rotate(character& outer, const direction& dir)
+  : action{outer, dir},
+    relative_direction_{direction::NONE},
+    back_up_direction_{outer.direction_}
+{
+  switch (outer_.direction_) {
+  case direction::FRONT:
+    switch (boost::get<direction>(params_.at(0))) {
+    case direction::FRONT:
+      relative_direction_ = direction::NONE;
+      break;
+    case direction::LEFT:
+      relative_direction_ = direction::LEFT;
+      break;
+    case direction::BACK:
+      relative_direction_ = direction::BACK;
+      break;
+    case direction::RIGHT:
+      relative_direction_ = direction::RIGHT;
+      break;
+    }
+    break;
+  case direction::LEFT:
+    switch (boost::get<direction>(params_.at(0))) {
+    case direction::FRONT:
+      relative_direction_ = direction::RIGHT;
+      break;
+    case direction::LEFT:
+      relative_direction_ = direction::NONE;
+      break;
+    case direction::BACK:
+      relative_direction_ = direction::LEFT;
+      break;
+    case direction::RIGHT:
+      relative_direction_ = direction::BACK;
+      break;
+    }
+    break;
+  case direction::BACK:
+    switch (boost::get<direction>(params_.at(0))) {
+    case direction::FRONT:
+      relative_direction_ = direction::BACK;
+      break;
+    case direction::LEFT:
+      relative_direction_ = direction::RIGHT;
+      break;
+    case direction::BACK:
+      relative_direction_ = direction::NONE;
+      break;
+    case direction::RIGHT:
+      relative_direction_ = direction::LEFT;
+      break;
+    }
+    break;
+  case direction::RIGHT:
+    switch (boost::get<direction>(params_.at(0))) {
+    case direction::FRONT:
+      relative_direction_ = direction::LEFT;
+      break;
+    case direction::LEFT:
+      relative_direction_ = direction::BACK;
+      break;
+    case direction::BACK:
+      relative_direction_ = direction::RIGHT;
+      break;
+    case direction::RIGHT:
+      relative_direction_ = direction::NONE;
+      break;
+    }
+    break;
+  }
+}
+
+operation::behavior_state character::rotate::operator()()
+{
+  if (count_ == 0) {
+    outer_.direction_ = boost::get<direction>(params_.at(0));
+    switch (relative_direction_) {
+    case direction::LEFT:
+      outer_.set_animation("Rotate_Left");
+      break;
+    case direction::BACK:
+      outer_.set_animation("Rotate_Back");
+      break;
+    case direction::RIGHT:
+      outer_.set_animation("Rotate_Right");
+      break;
+    case direction::NONE:
+      break;
+    }
+  }
+  if (constants::ACTION_INTERVAL_FRAME <= count_ &&
+      (count_)*constants::ANIMATION_SPEED <
+      outer_.duration_map_.at("Rotate_Left")) {
+    ++count_;
+    return operation::behavior_state::CANCELABLE;
+  } else if (outer_.duration_map_.at("Rotate_Left") <=
+      (count_)*constants::ANIMATION_SPEED) {
+    return operation::behavior_state::FINISH;
   }
   ++count_;
-  return true;
+  return operation::behavior_state::PLAY;
 }
 
 character::rotate::~rotate()
 {
-  switch (direction_) {
-  case DIRECTION::FRONT:
-    outer_.set_rotation(::D3DXVECTOR3{D3DX_PI, 0.0f, 0.0f});
-    break;
-  case DIRECTION::LEFT:
-    outer_.set_rotation(::D3DXVECTOR3{D3DX_PI/2, 0.0f, 0.0f});
-    break;
-  case DIRECTION::BACK:
-    outer_.set_rotation(::D3DXVECTOR3{0.0f, 0.0f, 0.0f});
-    break;
-  case DIRECTION::RIGHT:
-    outer_.set_rotation(::D3DXVECTOR3{D3DX_PI*3/2, 0.0f, 0.0f});
-    break;
+  if (count_ != 0) {
+    outer_.set_rotation(outer_.direction_);
   }
+}
 
+void character::rotate::cancel()
+{
+  outer_.direction_ = back_up_direction_;
+  outer_.set_rotation(outer_.direction_);
 }
 
 character::step_and_rotate::step_and_rotate(character& outer,
-                                            const DIRECTION& step_dir,
-                                            const DIRECTION& rotate_dir)
-  : action{outer, DIRECTION::NONE},
+                                            const direction& step_dir,
+                                            const direction& rotate_dir)
+  : action{outer, direction::NONE},
     step_{outer, step_dir},
     rotate_{outer, rotate_dir} { }
 
-bool character::step_and_rotate::operator()()
+operation::behavior_state character::step_and_rotate::operator()()
 {
   step_();
-  bool result = rotate_();
+  operation::behavior_state result = rotate_();
   count_ = rotate_.count_;
   return result;
 }
@@ -476,5 +623,39 @@ bool character::step_and_rotate::operator()()
 character::step_and_rotate::~step_and_rotate()
 {
 }
+
+void character::step_and_rotate::cancel()
+{
+  step_.cancel();
+  rotate_.cancel();
+}
+
+character::attack::attack(character& outer)
+  : action{outer, direction::NONE}
+{
+}
+
+operation::behavior_state character::attack::operator()()
+{
+  if (count_ == 0) {
+    outer_.set_animation("Attack");
+  }
+  if ((count_)*constants::ANIMATION_SPEED >=
+      outer_.duration_map_.at("Attack")) {
+    return operation::behavior_state::FINISH;
+  }
+  ++count_;
+  return operation::behavior_state::PLAY;
+}
+
+void character::attack::cancel()
+{
+}
+
+character::attack::~attack()
+{
+}
+
+
 
 }

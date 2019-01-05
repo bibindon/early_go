@@ -69,8 +69,8 @@ animation_mesh::animation_mesh(
       allocator_{new_crt animation_mesh_allocator{x_filename}},
       frame_root_{nullptr, frame_root_deleter_object{allocator_}},
       rotation_matrix_{::D3DMATRIX{}},
-      center_coodinate_{},
-      scale_{},
+      center_coodinate_{0.0f, 0.0f, 0.0f},
+      scale_{0.0f},
       world_handle_{},
       world_view_proj_handle_{}
 {

@@ -31,5 +31,13 @@ struct constants {
   const static std::string SUO_SABER;
 
 };
+
+enum direction {
+  FRONT,
+  LEFT,
+  BACK,
+  RIGHT,
+  NONE,
+};
 } /* namespace early_go */
 #endif
