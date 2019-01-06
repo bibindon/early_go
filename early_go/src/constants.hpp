@@ -10,6 +10,7 @@ namespace early_go {
 struct constants {
   const static int         WINDOW_WIDTH;
   const static int         WINDOW_HEIGHT;
+  const static int         STAGE_NUMBER;
   const static float       ANIMATION_SPEED;
   const static int         GRID_NUM_HEIGHT;
   const static int         GRID_NUM_WIDTH;
@@ -55,6 +56,8 @@ typedef boost::fusion::map<
     boost::fusion::pair<tag_y, int>,
     boost::fusion::pair<tag_z, int>
 > grid_coordinate;
+
+float get_sine_curve(const float&, const float&);
 
 } /* namespace early_go */
 #endif

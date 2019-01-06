@@ -54,8 +54,7 @@ void vertex_shader(
   // transform position from world space into view and then projection space
   out_position = mul(float4(position.xyz, 1.0f), g_view_projection);
 
-  // normalize normals
-  // I dont now why minus is necessary.
+  normal -= position; // Parallel light source
   float4 normal4 = normalize(float4(normal.xyz, 1.0f));
 
 

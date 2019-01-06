@@ -10,6 +10,8 @@ public:
          const ::D3DXVECTOR3&);
   void operator()();
   void move_position(const D3DXVECTOR3&);
+  void move_position(const D3DXVECTOR3&, const float&);
+  ::D3DXVECTOR3 get_position() const;
   ::D3DXMATRIX get_view_matrix();
   ::D3DXMATRIX get_projection_matrix();
   void set_to_behind_animation();
@@ -20,15 +22,23 @@ private:
   ::D3DXVECTOR3 look_at_position_;
   float         view_angle_;
 
-  class key_animation {
-  public:
+  struct flexible_animation {
+    bool operator()(camera&);
+    int                 animation_count_;
+    const ::D3DXVECTOR3 start_eye_position_;
+    const ::D3DXVECTOR3 start_look_at_position_;
+    const ::D3DXVECTOR3 delta_eye_position_;
+    const ::D3DXVECTOR3 delta_look_at_position_;
+    const float         duration_;
+  };
+
+  struct key_animation {
     // Return true when an animation is finished.
     virtual bool operator()(camera&) = 0;
   private:
 
   };
-  class teleport : public key_animation {
-  public:
+  struct teleport : key_animation {
     teleport(const ::D3DXVECTOR3&, const ::D3DXVECTOR3&, const float&);
     bool operator()(camera&) override;
   private:
@@ -36,11 +46,10 @@ private:
     const ::D3DXVECTOR3 look_at_position_;
     const float         view_angle_;
   };
-  class transfer : public key_animation {
-  public:
+  struct transfer : key_animation {
     transfer(const ::D3DXVECTOR3&, const ::D3DXVECTOR3&, const float&,
              const ::D3DXVECTOR3&, const ::D3DXVECTOR3&, const float&,
-             const int&);
+             const float&);
     bool operator()(camera&) override;
   private:
     int                 animation_count_;
@@ -50,14 +59,13 @@ private:
     const ::D3DXVECTOR3 delta_eye_position_;
     const ::D3DXVECTOR3 delta_look_at_position_;
     const float         delta_view_angle_;
-    const int           duration_;
+    const float         duration_;
   };
-  class orbit : public key_animation {
-  public:
+  struct orbit : key_animation {
     orbit(
         const ::D3DXVECTOR3&, const ::D3DXVECTOR3&, const float&, const float&,
         const ::D3DXVECTOR3&, const ::D3DXVECTOR3&, const float&, const float&,
-        const int&);
+        const float&);
     bool operator()(camera&) override;
   private:
     int                 animation_count_;
@@ -69,10 +77,11 @@ private:
     const ::D3DXVECTOR3 delta_look_at_position_;
     const float         delta_view_angle_;
     const float         delta_rotate_angle_;
-    const int           duration_;
+    const float         duration_;
     float               radius_;
   };
   std::queue<std::shared_ptr<key_animation> > animation_queue_;
+  std::shared_ptr<flexible_animation> flexible_animation_;
 };
 }
 

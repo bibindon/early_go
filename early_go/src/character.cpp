@@ -7,20 +7,24 @@
 #include "base_mesh.hpp"
 #include "basic_window.hpp"
 #include "character.hpp"
+#include "camera.hpp"
 #include "operation.hpp"
 
 namespace early_go {
 character::character(const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
-                     const grid_coordinate&                       position,
+                     const std::shared_ptr<operation>&          a_operation,
+                     const grid_coordinate&                     position,
                      const direction&                           direction,
                      const float&                               size)
   : d3d_device_{d3d_device},
+    operation_{a_operation},
     position_{boost::fusion::at_key<tag_x>(position) * constants::GRID_LENGTH,
               boost::fusion::at_key<tag_y>(position) * constants::GRID_LENGTH,
               boost::fusion::at_key<tag_z>(position) * constants::GRID_LENGTH},
     grid_position_{position},
     direction_{direction},
-    size_{size}
+    size_{size},
+    health_{1}
 {
   switch (direction_) {
   case direction::FRONT:
@@ -265,14 +269,24 @@ void character::cancel_action()
   }
 }
 
-direction character::get_direction()
+direction character::get_direction() const
 {
   return direction_;
 }
 
-grid_coordinate character::get_position()
+grid_coordinate character::get_position() const
 {
   return grid_position_;
+}
+
+int character::get_health() const
+{
+  return health_;
+}
+
+void character::set_health(const int& health)
+{
+  health_ = health;
 }
 
 // "Idle" + "hoge/piyo/hair.x" -> "Idle_Hair"
@@ -402,17 +416,26 @@ character::step::step(character& outer, const direction& dir)
 operation::behavior_state character::step::operator()()
 {
   if (count_ == 0) {
+    std::shared_ptr<camera> camera = outer_.operation_->get_camera();
     switch (boost::get<direction>(params_.at(0))) {
     case direction::FRONT:
+      camera->move_position(
+          ::D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
       boost::fusion::at_key<tag_z>(outer_.grid_position_) += 1;
       break;
     case direction::LEFT:
+      camera->move_position(
+          ::D3DXVECTOR3{-constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
       boost::fusion::at_key<tag_x>(outer_.grid_position_) -= 1;
       break;
     case direction::BACK:
+      camera->move_position(
+          ::D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
       boost::fusion::at_key<tag_z>(outer_.grid_position_) -= 1;
       break;
     case direction::RIGHT:
+      camera->move_position(
+          ::D3DXVECTOR3{constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
       boost::fusion::at_key<tag_x>(outer_.grid_position_) += 1;
       break;
     }
@@ -475,17 +498,26 @@ character::step::~step()
 void character::step::cancel()
 {
   if (count_ != 0) {
+    std::shared_ptr<camera> camera = outer_.operation_->get_camera();
     switch (boost::get<direction>(params_.at(0))) {
     case direction::FRONT:
+      camera->move_position(
+          ::D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
       boost::fusion::at_key<tag_z>(outer_.grid_position_) -= 1;
       break;
     case direction::LEFT:
+      camera->move_position(
+          ::D3DXVECTOR3{constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
       boost::fusion::at_key<tag_x>(outer_.grid_position_) += 1;
       break;
     case direction::BACK:
+      camera->move_position(
+          ::D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
       boost::fusion::at_key<tag_z>(outer_.grid_position_) += 1;
       break;
     case direction::RIGHT:
+      camera->move_position(
+          ::D3DXVECTOR3{-constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
       boost::fusion::at_key<tag_x>(outer_.grid_position_) -= 1;
       break;
     }
@@ -635,9 +667,8 @@ void character::step_and_rotate::cancel()
   rotate_.cancel();
 }
 
-character::attack::attack(character& outer, operation& a_operation)
+character::attack::attack(character& outer)
   : action{outer, direction::NONE},
-    operation_{a_operation},
     availability_{true}
 {
 }
@@ -661,7 +692,7 @@ operation::behavior_state character::attack::operator()()
       ++x;
       break;
     }
-    operation_.set_offensive_position(x, z);
+    outer_.operation_->set_offensive_position(x, z);
   }
 
   if (count_ == 0) {

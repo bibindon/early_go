@@ -2,6 +2,7 @@
 #include "key.hpp"
 #include "character.hpp"
 #include "operation.hpp"
+#include "camera.hpp"
 #include <boost/type_erasure/typeid_of.hpp>
 
 using boost::fusion::at_key;
@@ -19,8 +20,7 @@ template<
         std::nullptr_t
     > = nullptr
 >
-void set_state(operation&,
-               character&,
+void set_state(character&,
                std::shared_ptr<operation::behavior_concept>&,
                std::shared_ptr<operation::behavior_concept>&){}
 template<
@@ -34,8 +34,7 @@ template<
         std::nullptr_t
     > = nullptr
 >
-void set_state(operation&,
-               character&,
+void set_state(character&,
                std::shared_ptr<operation::behavior_concept>&,
                std::shared_ptr<operation::behavior_concept>&);
 template<
@@ -49,17 +48,18 @@ template<
         std::nullptr_t
     > = nullptr
 >
-void set_state(operation&,
-               character&,
+void set_state(character&,
                std::shared_ptr<operation::behavior_concept>&,
                std::shared_ptr<operation::behavior_concept>&);
 
 const std::chrono::milliseconds operation::DOUBLE_DOWN_CHANCE_FRAME
     = std::chrono::milliseconds(50);
 
-operation::operation()
-  : current_behavior_{nullptr},
-    reserved_behavior_{nullptr}
+operation::operation(const std::shared_ptr<camera>& camera)
+  : camera_{camera},
+    current_behavior_{nullptr},
+    reserved_behavior_{nullptr},
+    current_stage_{0}
 {
   for (int z = 0; z < constants::GRID_NUM_HEIGHT; ++z) {
     for (int x = -(constants::GRID_NUM_WIDTH-1)/2;
@@ -71,18 +71,25 @@ operation::operation()
 
 void operation::set_offensive_position(const int& x, const int& z)
 {
-  if (offensive_area_.find(z) == offensive_area_.end()) {
+  const int current_stage_z = z%(constants::GRID_NUM_HEIGHT+1);
+  if (offensive_area_.find(current_stage_z) == offensive_area_.end()) {
     return;
   }
-  if (offensive_area_.at(z).find(x) == offensive_area_.at(z).end()) {
+  if (offensive_area_.at(current_stage_z).find(x) ==
+      offensive_area_.at(current_stage_z).end()) {
     return;
   }
-  offensive_area_.at(z).at(x) = true;
+  offensive_area_.at(current_stage_z).at(x) = true;
 }
 
-void operation::operator()(basic_window& outer)
+std::shared_ptr<camera> operation::get_camera() const
 {
-  character& main_character{*outer.get_main_character()};
+  return camera_;
+}
+
+void operation::operator()(basic_window& a_basic_window)
+{
+  character& main_character{*a_basic_window.get_main_character()};
 
   if (key::is_down('Q')) {
     ::PostQuitMessage(0);
@@ -95,23 +102,23 @@ void operation::operator()(basic_window& outer)
       if (check_recent_keycode('A')) {
         set_state<character::attack, direction::NONE,
                   character::step,   direction::LEFT>(
-            *this, main_character, current_behavior_, reserved_behavior_);
+            main_character, current_behavior_, reserved_behavior_);
       } else if (check_recent_keycode('I')) {
         set_state<character::step_and_rotate, direction::FRONT,
                   character::rotate,          direction::FRONT>(
-            *this, main_character, current_behavior_, reserved_behavior_);
+            main_character, current_behavior_, reserved_behavior_);
       } else if (check_recent_keycode('J')) {
         set_state<character::step_and_rotate, direction::FRONT,
                   character::rotate,          direction::LEFT>(
-            *this, main_character, current_behavior_, reserved_behavior_);
+            main_character, current_behavior_, reserved_behavior_);
       } else if (check_recent_keycode('K')) {
         set_state<character::step_and_rotate, direction::FRONT,
                   character::rotate,          direction::BACK>(
-            *this, main_character, current_behavior_, reserved_behavior_);
+            main_character, current_behavior_, reserved_behavior_);
       } else if (check_recent_keycode('L')) {
         set_state<character::step_and_rotate, direction::FRONT,
                   character::rotate,          direction::RIGHT>(
-            *this, main_character, current_behavior_, reserved_behavior_);
+            main_character, current_behavior_, reserved_behavior_);
       } else {
         reserved_behavior_.reset(new_crt behavior_concept{
             character::step{main_character, direction::FRONT}});
@@ -126,23 +133,23 @@ void operation::operator()(basic_window& outer)
       if (check_recent_keycode('W')) {
         set_state<character::attack, direction::NONE,
                   character::step,   direction::FRONT>(
-            *this, main_character, current_behavior_, reserved_behavior_);
+            main_character, current_behavior_, reserved_behavior_);
       } else if (check_recent_keycode('I')) {
         set_state<character::step_and_rotate, direction::LEFT,
                   character::rotate,          direction::FRONT>(
-            *this, main_character, current_behavior_, reserved_behavior_);
+            main_character, current_behavior_, reserved_behavior_);
       } else if (check_recent_keycode('J')) {
         set_state<character::step_and_rotate, direction::LEFT,
                   character::rotate,          direction::LEFT>(
-            *this, main_character, current_behavior_, reserved_behavior_);
+            main_character, current_behavior_, reserved_behavior_);
       } else if (check_recent_keycode('K')) {
         set_state<character::step_and_rotate, direction::LEFT,
                   character::rotate,          direction::BACK>(
-            *this, main_character, current_behavior_, reserved_behavior_);
+            main_character, current_behavior_, reserved_behavior_);
       } else if (check_recent_keycode('L')) {
         set_state<character::step_and_rotate, direction::LEFT,
                   character::rotate,          direction::RIGHT>(
-            *this, main_character, current_behavior_, reserved_behavior_);
+            main_character, current_behavior_, reserved_behavior_);
       } else {
         reserved_behavior_.reset(new_crt behavior_concept{
             character::step{main_character, direction::LEFT}});
@@ -156,22 +163,22 @@ void operation::operator()(basic_window& outer)
     } else {
       if (check_recent_keycode('I')) {
         set_state<character::step_and_rotate, direction::BACK,
-                  character::rotate, direction::FRONT>(*this, main_character,
+                  character::rotate, direction::FRONT>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('J')) {
         set_state<character::step_and_rotate, direction::BACK,
-                  character::rotate, direction::LEFT>(*this, main_character,
+                  character::rotate, direction::LEFT>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('K')) {
         set_state<character::step_and_rotate, direction::BACK,
-                  character::rotate, direction::BACK>(*this, main_character,
+                  character::rotate, direction::BACK>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('L')) {
         set_state<character::step_and_rotate, direction::BACK,
-                  character::rotate, direction::RIGHT>(*this, main_character,
+                  character::rotate, direction::RIGHT>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else {
@@ -187,22 +194,22 @@ void operation::operator()(basic_window& outer)
     } else {
       if (check_recent_keycode('I')) {
         set_state<character::step_and_rotate,   direction::RIGHT,
-                  character::rotate, direction::FRONT>(*this, main_character,
+                  character::rotate, direction::FRONT>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('J')) {
         set_state<character::step_and_rotate,   direction::RIGHT,
-                  character::rotate, direction::LEFT>(*this, main_character,
+                  character::rotate, direction::LEFT>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('K')) {
         set_state<character::step_and_rotate,   direction::RIGHT,
-                  character::rotate, direction::BACK>(*this, main_character,
+                  character::rotate, direction::BACK>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('L')) {
         set_state<character::step_and_rotate,   direction::RIGHT,
-                  character::rotate, direction::RIGHT>(*this, main_character,
+                  character::rotate, direction::RIGHT>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else {
@@ -218,22 +225,22 @@ void operation::operator()(basic_window& outer)
     } else {
       if (check_recent_keycode('W')) {
         set_state<character::step_and_rotate, direction::FRONT,
-                  character::step,   direction::FRONT>(*this, main_character,
+                  character::step,   direction::FRONT>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('A')) {
         set_state<character::step_and_rotate, direction::FRONT,
-                  character::step,   direction::LEFT>(*this, main_character,
+                  character::step,   direction::LEFT>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('S')) {
         set_state<character::step_and_rotate, direction::FRONT,
-                  character::step,   direction::BACK>(*this, main_character,
+                  character::step,   direction::BACK>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('D')) {
         set_state<character::step_and_rotate, direction::FRONT,
-                  character::step,   direction::RIGHT>(*this, main_character,
+                  character::step,   direction::RIGHT>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else {
@@ -249,22 +256,22 @@ void operation::operator()(basic_window& outer)
     } else {
       if (check_recent_keycode('W')) {
         set_state<character::step_and_rotate, direction::LEFT,
-                  character::step,   direction::FRONT>(*this, main_character,
+                  character::step,   direction::FRONT>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('A')) {
         set_state<character::step_and_rotate, direction::LEFT,
-                  character::step,   direction::LEFT>(*this, main_character,
+                  character::step,   direction::LEFT>( main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('S')) {
         set_state<character::step_and_rotate, direction::LEFT,
-                  character::step,   direction::BACK>(*this, main_character,
+                  character::step,   direction::BACK>(main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('D')) {
         set_state<character::step_and_rotate, direction::LEFT,
-                  character::step,   direction::RIGHT>(*this, main_character,
+                  character::step,   direction::RIGHT>(main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else {
@@ -280,22 +287,22 @@ void operation::operator()(basic_window& outer)
     } else {
       if (check_recent_keycode('W')) {
         set_state<character::step_and_rotate, direction::BACK,
-                  character::step,   direction::FRONT>(*this, main_character,
+                  character::step,   direction::FRONT>(main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('A')) {
         set_state<character::step_and_rotate, direction::BACK,
-                  character::step,   direction::LEFT>(*this, main_character,
+                  character::step,   direction::LEFT>(main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('S')) {
         set_state<character::step_and_rotate, direction::BACK,
-                  character::step,   direction::BACK>(*this, main_character,
+                  character::step,   direction::BACK>(main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('D')) {
         set_state<character::step_and_rotate, direction::BACK,
-                  character::step,   direction::RIGHT>(*this, main_character,
+                  character::step,   direction::RIGHT>(main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else {
@@ -311,22 +318,22 @@ void operation::operator()(basic_window& outer)
     } else {
       if (check_recent_keycode('W')) {
         set_state<character::step_and_rotate, direction::RIGHT,
-                  character::step,   direction::FRONT>(*this, main_character,
+                  character::step,   direction::FRONT>(main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('A')) {
         set_state<character::step_and_rotate, direction::RIGHT,
-                  character::step,   direction::LEFT>(*this, main_character,
+                  character::step,   direction::LEFT>(main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('S')) {
         set_state<character::step_and_rotate, direction::RIGHT,
-                  character::step,   direction::BACK>(*this, main_character,
+                  character::step,   direction::BACK>(main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else if (check_recent_keycode('D')) {
         set_state<character::step_and_rotate, direction::RIGHT,
-                  character::step,   direction::RIGHT>(*this, main_character,
+                  character::step,   direction::RIGHT>(main_character,
                                                        current_behavior_,
                                                        reserved_behavior_);
       } else {
@@ -366,14 +373,102 @@ void operation::operator()(basic_window& outer)
   }
 
   // collision detection
-  std::shared_ptr<character> enemy = outer.get_enemy_character();
+  std::shared_ptr<character> enemy = a_basic_window.get_enemy_character();
 
   grid_coordinate enemy_pos = enemy->get_position();
-  if (offensive_area_.at(at_key<tag_z>(enemy_pos))
-                     .at(at_key<tag_x>(enemy_pos))) {
-    enemy->set_animation("Damaged");
+  const int relative_z =
+      at_key<tag_z>(enemy_pos)%(constants::GRID_NUM_HEIGHT+1);
+  if (offensive_area_.at(relative_z).at(at_key<tag_x>(enemy_pos))) {
     current_behavior_->cancel();
+    int enemy_health = enemy->get_health();
+    if (1 <= enemy_health-1) {
+      enemy->set_animation("Damaged");
+      enemy->set_health(enemy_health-1);
+    } else {
+      current_behavior_.reset(new_crt behavior_concept{
+          move_next_stage(*this, a_basic_window)});
+    }
+
   }
+}
+
+operation::move_next_stage::move_next_stage(
+    operation& a_operation, basic_window& a_basic_window)
+  : outer_{a_operation},
+    basic_window_{a_basic_window},
+    enemy_move_called_{false},
+    main_chara_move_called_{false}
+{
+  grid_coordinate pos = basic_window_.get_main_character()->get_position();
+  main_chara_x_ = static_cast<float>(at_key<tag_x>(pos))*constants::GRID_LENGTH;
+  main_chara_z_ = static_cast<float>(at_key<tag_z>(pos))*constants::GRID_LENGTH;
+
+  pos = basic_window_.get_enemy_character()->get_position();
+  enemy_x_ = static_cast<float>(at_key<tag_x>(pos))*constants::GRID_LENGTH;
+  enemy_z_ = static_cast<float>(at_key<tag_z>(pos))*constants::GRID_LENGTH;
+
+  float goal_x{0.0f};
+  float goal_z{7.0f*constants::GRID_LENGTH+
+      constants::GRID_LENGTH*(outer_.current_stage_+1)
+      *(constants::GRID_NUM_HEIGHT+1)};
+
+  delta_enemy_x_ = goal_x - enemy_x_;
+  delta_enemy_z_ = goal_z - enemy_z_;
+
+  goal_z = 1.0f*constants::GRID_LENGTH+constants::GRID_LENGTH
+      *(outer_.current_stage_+1)*(constants::GRID_NUM_HEIGHT+1);
+
+  delta_main_chara_x_ = goal_x - main_chara_x_;
+  delta_main_chara_z_ = goal_z - main_chara_z_;
+}
+
+operation::behavior_state operation::move_next_stage::operator()()
+{
+  if (count_ == 0) {
+    ++outer_.current_stage_;
+    basic_window_.get_enemy_character()->set_health(3);
+    basic_window_.get_enemy_character()->set_animation("Damaged");
+  } else if (1.0f <= count_*constants::ANIMATION_SPEED &&
+                     count_*constants::ANIMATION_SPEED < 3.0f) {
+    if (!enemy_move_called_) {
+      enemy_move_called_ = true;
+      basic_window_.get_enemy_character()->set_rotation(direction::BACK);
+      basic_window_.get_enemy_character()->set_animation("Step_Back");
+    }
+    float sine{get_sine_curve(count_*constants::ANIMATION_SPEED-1.0f, 2.0f)};
+    basic_window_.get_enemy_character()->set_position(
+        ::D3DXVECTOR3{enemy_x_ + delta_enemy_x_*sine,
+                      0.0,
+                      enemy_z_ + delta_enemy_z_*sine});
+  } else if (3.0f <= count_*constants::ANIMATION_SPEED &&
+                     count_*constants::ANIMATION_SPEED < 5.0f) {
+    if (!main_chara_move_called_) {
+      main_chara_move_called_ = true;
+      basic_window_.get_main_character()->set_rotation(direction::FRONT);
+      basic_window_.get_main_character()->set_animation("Step_Front");
+      outer_.camera_->move_position(
+          ::D3DXVECTOR3{delta_main_chara_x_, 0.0, delta_main_chara_z_}, 2.0f);
+    }
+    float sine{get_sine_curve(count_*constants::ANIMATION_SPEED-3.0f, 2.0f)};
+    basic_window_.get_main_character()->set_position(
+        ::D3DXVECTOR3{main_chara_x_ + delta_main_chara_x_*sine,
+                      0.0,
+                      main_chara_z_ + delta_main_chara_z_*sine});
+  } else if (5.0f <= count_*constants::ANIMATION_SPEED) {
+    grid_coordinate pos = basic_window_.get_main_character()->get_position();
+    at_key<tag_x>(pos) = 0;
+    at_key<tag_z>(pos) = 1+outer_.current_stage_*10;
+    basic_window_.get_main_character()->set_position(pos);
+    pos = basic_window_.get_enemy_character()->get_position();
+    at_key<tag_x>(pos) = 0;
+    at_key<tag_z>(pos) = 7+outer_.current_stage_*10;
+    basic_window_.get_enemy_character()->set_position(pos);
+    outer_.reserved_behavior_.reset();
+    return operation::behavior_state::FINISH;
+  }
+
+  ++count_;
+  return operation::behavior_state::PLAY;
 }
 
 template<
@@ -387,7 +482,7 @@ template<
         std::nullptr_t
     >
 >
-void set_state(operation&, character& a_character,
+void set_state(character& a_character,
     std::shared_ptr<operation::behavior_concept>& current_behavior,
     std::shared_ptr<operation::behavior_concept>& reserved_behavior)
 {
@@ -435,13 +530,13 @@ template<
         std::nullptr_t
     >
 >
-void set_state(operation& a_operation, character& a_character,
+void set_state(character& a_character,
     std::shared_ptr<operation::behavior_concept>& current_behavior,
     std::shared_ptr<operation::behavior_concept>& reserved_behavior)
 {
   if (current_behavior == nullptr && reserved_behavior == nullptr) {
     current_behavior.reset(new_crt operation::behavior_concept{
-        character::attack{a_character, a_operation}});
+        character::attack{a_character}});
   } else if (current_behavior != nullptr && reserved_behavior == nullptr) {
     if (boost::type_erasure::typeid_of(*current_behavior) ==
             typeid(RecentKeyAction) &&
@@ -449,14 +544,14 @@ void set_state(operation& a_operation, character& a_character,
             RecentKeyDirection) {
       current_behavior->cancel();
       current_behavior.reset(new_crt operation::behavior_concept{
-          character::attack{a_character, a_operation}});
+          character::attack{a_character}});
     } else {
       reserved_behavior.reset(new_crt operation::behavior_concept{
-          character::attack{a_character, a_operation}});
+          character::attack{a_character}});
     }
   } else {
     reserved_behavior.reset(new_crt operation::behavior_concept{
-        character::attack{a_character, a_operation}});
+        character::attack{a_character}});
   }
 }
 

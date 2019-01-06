@@ -14,7 +14,7 @@ void vertex_shader(
     out float4 out_diffuse  : COLOR0,
     out float4 out_texture  : TEXCOORD0) {
     out_position  = mul(in_position, g_world_view_projection);
-    in_normal = mul(in_normal, g_world);
+    //in_normal = mul(in_normal, g_world); // spot light source
     in_normal = normalize(in_normal);
 
     float light_intensity = g_light_brightness

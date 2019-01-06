@@ -20,9 +20,10 @@ BOOST_TYPE_ERASURE_MEMBER((early_go)(has_cancel), cancel, 0)
 
 namespace early_go {
 
+class camera;
 class operation {
 public:
-  operation();
+  operation(const std::shared_ptr<camera>&);
   void operator()(basic_window&);
 
   enum behavior_state {
@@ -48,20 +49,46 @@ public:
   > behavior_concept;
 
   void set_offensive_position(const int&, const int&);
+  std::shared_ptr<camera> get_camera() const;
 private:
-  struct state {
+  std::shared_ptr<camera> camera_;
+  struct event {
     std::vector<
         boost::variant<direction>
     > params_;
+    std::vector<
+        boost::variant<direction>
+    > get_params() {return params_;}
     int count_{0};
-    virtual bool operator()(basic_window&) = 0;
-    virtual ~state() {};
+    virtual behavior_state operator()() = 0;
+    virtual ~event() {};
+    virtual void cancel() {}
+  };
+
+  struct move_next_stage : event {
+    move_next_stage(operation&, basic_window&);
+    behavior_state operator()() override;
+    ~move_next_stage() override {}
+    operation& outer_;
+    basic_window& basic_window_;
+    float main_chara_x_;
+    float main_chara_z_;
+    float delta_main_chara_x_;
+    float delta_main_chara_z_;
+    float enemy_x_;
+    float enemy_z_;
+    float delta_enemy_x_;
+    float delta_enemy_z_;
+    bool  enemy_move_called_;
+    bool  main_chara_move_called_;
   };
 
   std::shared_ptr<behavior_concept> current_behavior_;
   std::shared_ptr<behavior_concept> reserved_behavior_;
 
   std::unordered_map<int, std::unordered_map<int, bool> > offensive_area_;
+
+  int current_stage_;
 
   const static std::chrono::milliseconds DOUBLE_DOWN_CHANCE_FRAME;
   bool check_recent_keycode(const int&);

@@ -40,11 +40,6 @@ private:
   ::D3DPRESENT_PARAMETERS                       d3d_present_parameters_;
   std::shared_ptr<::IDirect3DDevice9>           d3d_device_;
   std::shared_ptr<::ID3DXFont>                  font_;
-  std::shared_ptr<base_mesh>                    animation_mesh_;
-  std::shared_ptr<base_mesh>                    skinned_animation_mesh_;
-  std::shared_ptr<base_mesh>                    skinned_animation_mesh2_;
-  std::shared_ptr<base_mesh>                    mesh_;
-  std::shared_ptr<base_mesh>                    mesh2_;
 
   std::shared_ptr<character>                    early_;
   std::shared_ptr<character>                    suo_;
@@ -57,7 +52,13 @@ private:
   void debug();
   void render();
 
-  std::shared_ptr<operation>                        operation_;
+  std::shared_ptr<operation>                    operation_;
+
+  std::shared_ptr<base_mesh>                    animation_mesh_;
+  std::shared_ptr<base_mesh>                    skinned_animation_mesh_;
+  std::shared_ptr<base_mesh>                    skinned_animation_mesh2_;
+  std::shared_ptr<base_mesh>                    mesh_;
+  std::shared_ptr<base_mesh>                    mesh2_;
 };
 } /* namespace early_go */
 #endif

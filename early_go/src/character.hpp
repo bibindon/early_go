@@ -14,6 +14,7 @@ class character
 {
 public:
   character(const std::shared_ptr<::IDirect3DDevice9>&,
+            const std::shared_ptr<operation>&,
             const grid_coordinate&,
             const direction&,
             const float&);
@@ -34,6 +35,7 @@ public:
     size_ = size;
   }
 
+  void set_position(const ::D3DXVECTOR3&);
   void set_position(const grid_coordinate&);
   void set_rotation(const direction&);
 
@@ -78,8 +80,8 @@ public:
   void set_rotate_action(const direction&);
   void set_step_and_rotate_action(const direction&, const direction&);
   void cancel_action();
-  direction get_direction();
-  grid_coordinate get_position();
+  direction get_direction() const;
+  grid_coordinate get_position() const;
 
   struct action {
     action(character& outer, const direction&);
@@ -123,16 +125,16 @@ public:
     rotate rotate_;
   };
   struct attack : public action {
-    attack(character&, operation&);
+    attack(character&);
     operation::behavior_state operator()() override;
     void cancel() override;
     ~attack();
-    operation& operation_;
     bool availability_;
   };
 
+  int get_health() const;
+  void set_health(const int&);
 private:
-  void set_position(const ::D3DXVECTOR3&);
   void set_rotation(const ::D3DXVECTOR3&);
   std::string create_animation_fullname(const std::string&, const std::string&);
   std::unordered_map<std::string, std::shared_ptr<base_mesh> > mesh_map_;
@@ -147,6 +149,9 @@ private:
   ::D3DXVECTOR3 rotation_;
   direction     direction_;
   float         size_;
+
+  int           health_;
+  const std::shared_ptr<operation>& operation_;
 };
 } /* namespace early_go */
 

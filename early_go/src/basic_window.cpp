@@ -20,23 +20,25 @@ basic_window::basic_window(const ::HINSTANCE& hinstance)
       d3d_present_parameters_{},
       d3d_device_{},
       font_{},
+      light_direction_{-1.0f, 0.0f, 0.0f},
+      light_brightness_{1.0f},
+      camera_{new_crt camera{{0.0f, 1.3f, -1.1639f*3}, {0.0f, 1.3f, 0.0f}}},
+      operation_{new_crt operation{camera_}},
       animation_mesh_{},
       skinned_animation_mesh_{},
       skinned_animation_mesh2_{},
       mesh_{},
       mesh2_{},
       early_{new_crt character{d3d_device_,
+                               operation_,
                                {0, 0, 0},
                                direction::FRONT,
                                1.0f}},
       suo_{new_crt character{d3d_device_,
+                             operation_,
                              {0, 0, 2},
                              direction::BACK,
-                             1.0f}},
-      light_direction_{-1.0f, 0.0f, 0.0f},
-      light_brightness_{1.0f},
-      camera_{new_crt camera{{0.0f, 1.3f, -1.1639f*3}, {0.0f, 1.3f, 0.0f}}},
-      operation_{new_crt operation{}}
+                             1.0f}}
 {
   ::WNDCLASSEX wndclassex{};
   wndclassex.cbSize        = sizeof(wndclassex);
@@ -139,7 +141,7 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
   animation_mesh_.reset(new_crt animation_mesh{
       d3d_device_,
       constants::ANIMATION_MESH_FILE_NAME,
-      ::D3DXVECTOR3{0.0f, 0.0f, 0.0f},
+      ::D3DXVECTOR3{0.0f, 0.0f, 10.0f},
       ::D3DXVECTOR3{0.0f, 0.0f, 0.0f},
       1.0f});
   skinned_animation_mesh_.reset(new_crt skinned_animation_mesh{
@@ -189,6 +191,7 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
   early_->set_animation_config("Damaged",      false, 1.0f);
 
   suo_->set_position(grid_coordinate{1, 0, 2});
+  suo_->set_health(3);
   suo_->add_mesh<skinned_animation_mesh>(constants::SUO_BODY);
   suo_->add_mesh<skinned_animation_mesh>(constants::SUO_ARMOR);
   suo_->add_mesh<animation_mesh>(constants::SUO_SABER);
