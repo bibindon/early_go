@@ -10,7 +10,7 @@ namespace early_go {
 struct constants {
   const static int         WINDOW_WIDTH;
   const static int         WINDOW_HEIGHT;
-  const static int         STAGE_NUMBER;
+  const static int         MAX_STAGE_NUMBER;
   const static float       ANIMATION_SPEED;
   const static int         GRID_NUM_HEIGHT;
   const static int         GRID_NUM_WIDTH;

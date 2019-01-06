@@ -129,33 +129,38 @@ void camera::set_to_behind_animation()
 
 void camera::set_to_close_up_animation()
 {
+  set_to_close_up_animation(::D3DXVECTOR3{0.0f, 0.0f, 0.0f});
+}
+
+void camera::set_to_close_up_animation(const ::D3DXVECTOR3& pos)
+{
   std::queue<std::shared_ptr<key_animation> >().swap(animation_queue_); // clear
 
   std::shared_ptr<key_animation> tmp = std::shared_ptr<key_animation>(
-      new_crt orbit{::D3DXVECTOR3{0.0f, 2.0f, -3.95f},
-                    ::D3DXVECTOR3{0.0f, 1.2998f, 0.0f},
+      new_crt orbit{::D3DXVECTOR3{pos.x+0.0f, 2.0f, pos.z-3.95f},
+                    ::D3DXVECTOR3{pos.x+0.0f, 1.2998f, pos.z+0.0f},
                     D3DX_PI/4,
                     D3DX_PI*3/2,
-                    ::D3DXVECTOR3{0.0f, 1.2998f, 0.0f},
-                    ::D3DXVECTOR3{0.0f, 1.2998f, 0.0f},
+                    ::D3DXVECTOR3{pos.x+0.0f, 1.2998f, pos.z+0.0f},
+                    ::D3DXVECTOR3{pos.x+0.0f, 1.2998f, pos.z+0.0f},
                     D3DX_PI/20,
                     D3DX_PI/2,
                     4.0f});
   animation_queue_.push(tmp);
 
   tmp = std::shared_ptr<key_animation>(
-      new_crt transfer{::D3DXVECTOR3{0.0f, 2.0f, 3.95f},
-                       ::D3DXVECTOR3{0.0f, 1.2998f, 0.0f},
+      new_crt transfer{::D3DXVECTOR3{pos.x+0.0f, 2.0f, pos.z+3.95f},
+                       ::D3DXVECTOR3{pos.x+0.0f, 1.2998f, pos.z+0.0f},
                        D3DX_PI/20,
-                       ::D3DXVECTOR3{0.0f, 1.2998f, 0.3f},
-                       ::D3DXVECTOR3{0.0f, 1.2998f, -1.0f},
+                       ::D3DXVECTOR3{pos.x+0.0f, 1.2998f, pos.z+0.3f},
+                       ::D3DXVECTOR3{pos.x+0.0f, 1.2998f, pos.z-1.0f},
                        D3DX_PI/100,
                        4.0f});
   animation_queue_.push(tmp);
 
   tmp = std::shared_ptr<key_animation>(
-      new_crt teleport{::D3DXVECTOR3{0.0f, 1.2998f, 0.3f},
-                       ::D3DXVECTOR3{0.0f, 1.2998f, -1.0f},
+      new_crt teleport{::D3DXVECTOR3{pos.x+0.0f, 1.2998f, pos.z+0.3f},
+                       ::D3DXVECTOR3{pos.x+0.0f, 1.2998f, pos.z-1.0f},
                        D3DX_PI/100});
   animation_queue_.push(tmp);
 }

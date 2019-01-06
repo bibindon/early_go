@@ -384,9 +384,14 @@ void operation::operator()(basic_window& a_basic_window)
     if (1 <= enemy_health-1) {
       enemy->set_animation("Damaged");
       enemy->set_health(enemy_health-1);
-    } else {
+    } else if (current_stage_ != constants::MAX_STAGE_NUMBER-1) {
       current_behavior_.reset(new_crt behavior_concept{
           move_next_stage(*this, a_basic_window)});
+    } else {
+      grid_coordinate grid_pos{main_character.get_position()};
+      ::D3DXVECTOR3 pos{at_key<tag_x>(grid_pos)*constants::GRID_LENGTH, 0.0f,
+                        at_key<tag_z>(grid_pos)*constants::GRID_LENGTH};
+      camera_->set_to_close_up_animation(pos);
     }
 
   }

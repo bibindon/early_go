@@ -16,6 +16,7 @@ public:
   ::D3DXMATRIX get_projection_matrix();
   void set_to_behind_animation();
   void set_to_close_up_animation();
+  void set_to_close_up_animation(const ::D3DXVECTOR3&);
 private:
   const static ::D3DXVECTOR3 UPWARD;
   ::D3DXVECTOR3 eye_position_;

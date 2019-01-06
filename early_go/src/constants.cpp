@@ -6,7 +6,7 @@
 namespace early_go {
 const int constants::WINDOW_WIDTH = 1600;
 const int constants::WINDOW_HEIGHT = 900;
-const int constants::STAGE_NUMBER  = 20;
+const int constants::MAX_STAGE_NUMBER = 3;
 const float constants::ANIMATION_SPEED = 1.0f/60;
 const int constants::GRID_NUM_HEIGHT = 9;
 const int constants::GRID_NUM_WIDTH  = 9;
