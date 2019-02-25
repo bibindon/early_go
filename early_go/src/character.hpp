@@ -57,13 +57,11 @@ public:
                            const int&,
                            const std::string&,
                            const bool& = false,
-                           const ::RECT& = {
+                           const cv::Rect& = {
                                0,
                                0,
-                               static_cast<::LONG>(
-                                   base_mesh::TEXTURE_PIXEL_SIZE) - 1,
-                               static_cast<::LONG>(
-                                   base_mesh::TEXTURE_PIXEL_SIZE) - 1 },
+                               constants::TEXTURE_PIXEL_SIZE - 1,
+                               constants::TEXTURE_PIXEL_SIZE - 1 },
                            const int& = RGB(0xff, 0xff, 0xff),
                            const std::string& = "‚l‚r ‚oƒSƒVƒbƒN",
                            const int& = 40,

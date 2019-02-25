@@ -93,10 +93,10 @@ skinned_animation_mesh_container::skinned_animation_mesh_container(
   }
 
   /* Initialize the 'pAdjacency' of a member variable. */
-  uint64_t face_count{mesh->GetNumFaces()};
-  pAdjacency = new_crt ::DWORD[face_count * 3];
+  ::DWORD adjacency_count{mesh->GetNumFaces()*3};
+  pAdjacency = new_crt ::DWORD[adjacency_count];
 
-  for (unsigned int i{}; i < face_count * 3; ++i) {
+  for (::DWORD i{}; i < adjacency_count; ++i) {
     pAdjacency[i] = adjacency[i];
   }
 

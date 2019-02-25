@@ -12,6 +12,7 @@ struct constants {
   const static int         WINDOW_HEIGHT;
   const static int         MAX_STAGE_NUMBER;
   const static float       ANIMATION_SPEED;
+  const static ::LONG      TEXTURE_PIXEL_SIZE;
   const static int         GRID_NUM_HEIGHT;
   const static int         GRID_NUM_WIDTH;
   const static float       GRID_LENGTH;
@@ -58,6 +59,7 @@ typedef boost::fusion::map<
 > grid_coordinate;
 
 float get_sine_curve(const float&, const float&);
+int get_next_pow_2(const int&);
 
 } /* namespace early_go */
 #endif

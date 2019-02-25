@@ -186,7 +186,7 @@ void character::set_dynamic_message(const std::string& x_filename,
                                     const int&         layer_number,
                                     const std::string& message,
                                     const bool&        animation,
-                                    const ::RECT&      rect,
+                                    const cv::Rect&    rect,
                                     const int&         color,
                                     const std::string& fontname,
                                     const int&         size,
@@ -465,9 +465,9 @@ operation::behavior_state character::step::operator()()
   }
   ::D3DXVECTOR3 position{outer_.position_};
   float delta{0.0f};
-  if (static_cast<uint64_t>(count_)+1 < destinations_.size()) {
-    delta = destinations_.at(static_cast<int64_t>(count_)+1)
-        - destinations_.at(count_);
+  std::size_t count_index{static_cast<std::size_t>(count_)};
+  if (count_index+1 < destinations_.size()) {
+    delta = destinations_.at(count_index+1) - destinations_.at(count_index);
   }
   switch (boost::get<direction>(params_.at(0))) {
   case direction::FRONT:

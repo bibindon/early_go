@@ -6,6 +6,8 @@
 
 namespace early_go {
 
+struct message_writer;
+
   // TODO : アニメーションについてはストラテジパターンでごまかす。
 class base_mesh {
 public:
@@ -35,15 +37,15 @@ public:
   void flip_dynamic_texture(const int&);
   void clear_dynamic_texture(const int&);
 
-  static const int64_t TEXTURE_PIXEL_SIZE;
+//  static const int TEXTURE_PIXEL_SIZE;
   void set_dynamic_message(const int&,
                            const std::string&,
                            const bool& = false,
-                           const ::RECT& = {
+                           const cv::Rect& = {
                                0,
                                0,
-                               static_cast<LONG>(TEXTURE_PIXEL_SIZE) - 1,
-                               static_cast<LONG>(TEXTURE_PIXEL_SIZE) - 1},
+                               constants::TEXTURE_PIXEL_SIZE - 1,
+                               constants::TEXTURE_PIXEL_SIZE - 1},
                            const int& = RGB(0xff, 0xff, 0xff),
                            const std::string& = "ＭＳ Ｐゴシック",
                            const int& = 40,
@@ -74,38 +76,8 @@ protected:
     std::array<::D3DXVECTOR4, LAYER_NUMBER> colors_;
     std::array<bool, LAYER_NUMBER>          flipped_;
 
-    struct text_message_writer {
-      text_message_writer(std::shared_ptr<::IDirect3DDevice9>,
-                          std::shared_ptr<::IDirect3DTexture9>&,
-                          const std::string,
-                          const bool,
-                          const ::RECT,
-                          const int,
-                          ::UINT,
-                          ::UINT,
-                          const std::string&,
-                          const int&,
-                          const int&);
-      ~text_message_writer();
-      void operator()();
-      bool write_character();
-
-    private:
-      std::shared_ptr<::IDirect3DTexture9>& texture_;
-      const std::string                     message_;
-      const bool                            is_message_animated_;
-      const ::RECT                          rect_;
-      const int                             color_;
-      ::UINT                                font_width_sum_;
-      ::UINT                                font_height_sum_;
-      ::TEXTMETRIC                          text_metric_;
-      ::HDC                                 hdc_;
-      ::HFONT                               hfont_;
-      std::size_t                           character_index_;
-      std::vector<::DWORD*>                 texture_buffer_;
-    };
     std::array<
-        std::shared_ptr<text_message_writer>,
+        std::shared_ptr<message_writer>,
         LAYER_NUMBER
     > writer_;
     struct texture_shaker {

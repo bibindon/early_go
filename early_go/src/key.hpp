@@ -1,7 +1,6 @@
 #ifndef KEY_HPP
 #define KEY_HPP
 #include "stdafx.hpp"
-#include "key.hpp"
 
 namespace early_go {
 

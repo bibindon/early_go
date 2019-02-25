@@ -11,6 +11,7 @@ class camera;
 class character;
 class base_mesh;
 class operation;
+class hud;
 
 /*
  * A class that handles basic window processings.
@@ -29,6 +30,7 @@ public:
   };
 
   explicit basic_window(const ::HINSTANCE&);
+  ~basic_window();
   int operator()();
   std::shared_ptr<character> get_main_character();
   std::shared_ptr<character> get_enemy_character();
@@ -59,6 +61,8 @@ private:
   std::shared_ptr<base_mesh>                    skinned_animation_mesh2_;
   std::shared_ptr<base_mesh>                    mesh_;
   std::shared_ptr<base_mesh>                    mesh2_;
+
+  std::shared_ptr<hud>                          hud_;
 };
 } /* namespace early_go */
 #endif

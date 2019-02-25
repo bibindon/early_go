@@ -91,10 +91,10 @@ animation_mesh_container::animation_mesh_container(
   texture_.swap(temp_texture);
 
   /* Initialize the 'pAdjacency' of a member variable. */
-  uint64_t faces_count{mesh->GetNumFaces()};
-  pAdjacency = new_crt ::DWORD[faces_count * 3];
+  ::DWORD adjacency_count{mesh->GetNumFaces() * 3};
+  pAdjacency = new_crt ::DWORD[adjacency_count];
 
-  for (::DWORD i{}; i < faces_count * 3; ++i) {
+  for (::DWORD i{}; i < adjacency_count; ++i) {
     pAdjacency[i] = adjacency[i];
   }
 

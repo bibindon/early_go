@@ -242,11 +242,13 @@
     <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\skinned_animation_mesh.cpp" />
     <ClCompile Include="src\skinned_animation_mesh_allocator.cpp" />
+    <ClCompile Include="src\hud.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.hpp</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="src\texture_animator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -269,7 +271,9 @@
     <ClInclude Include="src\resource.h" />
     <ClInclude Include="src\skinned_animation_mesh.hpp" />
     <ClInclude Include="src\skinned_animation_mesh_allocator.hpp" />
+    <ClInclude Include="src\hud.hpp" />
     <ClInclude Include="src\stdafx.hpp" />
+    <ClInclude Include="src\texture_animator.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="early_go.rc" />
@@ -309,6 +313,10 @@
     <Import Project="..\packages\opencv.win.native.redist.320.1.1-vs141\build\native\opencv.win.native.redist.targets" Condition="Exists('..\packages\opencv.win.native.redist.320.1.1-vs141\build\native\opencv.win.native.redist.targets')" />
     <Import Project="..\packages\opencv.win.native.320.1.1-vs141\build\native\opencv.win.native.targets" Condition="Exists('..\packages\opencv.win.native.320.1.1-vs141\build\native\opencv.win.native.targets')" />
     <Import Project="..\packages\boost_context-vc141.1.68.0.0\build\boost_context-vc141.targets" Condition="Exists('..\packages\boost_context-vc141.1.68.0.0\build\boost_context-vc141.targets')" />
+    <Import Project="..\packages\lua.redist.5.3.5\build\native\lua.redist.targets" Condition="Exists('..\packages\lua.redist.5.3.5\build\native\lua.redist.targets')" />
+    <Import Project="..\packages\lua.5.3.5\build\native\lua.targets" Condition="Exists('..\packages\lua.5.3.5\build\native\lua.targets')" />
+    <Import Project="..\packages\grpc.dependencies.zlib.redist.1.2.8.10\build\native\grpc.dependencies.zlib.redist.targets" Condition="Exists('..\packages\grpc.dependencies.zlib.redist.1.2.8.10\build\native\grpc.dependencies.zlib.redist.targets')" />
+    <Import Project="..\packages\grpc.dependencies.zlib.1.2.8.10\build\native\grpc.dependencies.zlib.targets" Condition="Exists('..\packages\grpc.dependencies.zlib.1.2.8.10\build\native\grpc.dependencies.zlib.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -342,5 +350,9 @@
     <Error Condition="!Exists('..\packages\opencv.win.native.redist.320.1.1-vs141\build\native\opencv.win.native.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\opencv.win.native.redist.320.1.1-vs141\build\native\opencv.win.native.redist.targets'))" />
     <Error Condition="!Exists('..\packages\opencv.win.native.320.1.1-vs141\build\native\opencv.win.native.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\opencv.win.native.320.1.1-vs141\build\native\opencv.win.native.targets'))" />
     <Error Condition="!Exists('..\packages\boost_context-vc141.1.68.0.0\build\boost_context-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_context-vc141.1.68.0.0\build\boost_context-vc141.targets'))" />
+    <Error Condition="!Exists('..\packages\lua.redist.5.3.5\build\native\lua.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\lua.redist.5.3.5\build\native\lua.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\lua.5.3.5\build\native\lua.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\lua.5.3.5\build\native\lua.targets'))" />
+    <Error Condition="!Exists('..\packages\grpc.dependencies.zlib.redist.1.2.8.10\build\native\grpc.dependencies.zlib.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\grpc.dependencies.zlib.redist.1.2.8.10\build\native\grpc.dependencies.zlib.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\grpc.dependencies.zlib.1.2.8.10\build\native\grpc.dependencies.zlib.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\grpc.dependencies.zlib.1.2.8.10\build\native\grpc.dependencies.zlib.targets'))" />
   </Target>
 </Project>

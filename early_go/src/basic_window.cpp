@@ -9,6 +9,7 @@
 #include "base_mesh.hpp"
 #include "key.hpp"
 #include "operation.hpp"
+#include "hud.hpp"
 
 namespace early_go {
 /* A definition of the static member variable. */
@@ -229,6 +230,15 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
   font_.reset(font, custom_deleter{});
   render_string_object::weak_font_ = font_;
   /* ~ Creates font. */
+
+//  ::AddFontResource("chogokubosogothic_5.ttf");
+
+  hud_ = std::make_shared<hud>(d3d_device_);
+}
+
+basic_window::~basic_window()
+{
+//  ::RemoveFontResource("chogokubosogothic_5.ttf");
 }
 
 /* windows main loop */
@@ -284,7 +294,7 @@ void basic_window::debug()
 //  if (frame_count == 100) {
 //    frame_count = 0;
 //    end = std::chrono::system_clock::now();
-//    int64_t elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+//    int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
 //        end - start).count();
 //    fps = 100 * 1000 / static_cast<float>(elapsed);
 //    start = std::chrono::system_clock::now();
@@ -430,13 +440,76 @@ void basic_window::debug()
     mesh_->set_fade_in();
     animation_mesh_->set_fade_in();
   }
-  if (key::is_down('A')) {
-    static float f = 0.0f;
-    f -= 0.01f;
-    early_->set_dynamic_texture_position(
-        constants::EARLY_BODY, 1, {f, f} );
+  if (key::is_down('4')) {
+    //static float f = 0.0f;
+    //f -= 0.01f;
+    //early_->set_dynamic_texture_position(
+    //    constants::EARLY_BODY, 1, {f, f} );
+    hud_->add_image("test3", "image/board2.png", cv::Point(300, 400));
 
   }
+  if (key::is_down('5')) {
+    hud_->delete_image("test3");
+  }
+  if (key::is_down('6')) {
+//    hud_->add_image("image/board.png");
+//    hud_->add_message("UŒ‚‚ªƒqƒbƒgB“G‚Ì‘Ì—Í‚ª30Œ¸‚è‚Ü‚µ‚½B",
+//                      cv::Rect(100, 100, 200, 100));
+    hud_->add_message_in_frame(
+        "test4", "test1",
+        "\
+1 - Introduction\n\
+\n\
+Lua is a powerful, efficient, lightweight, embeddable scripting language. It su\
+pports procedural programming, object-oriented programming, functional programm\
+ing, data-driven programming, and data description.\n\
+\n\
+Lua combines simple procedural syntax with powerful data description constructs\
+ based on associative arrays and extensible semantics. Lua is dynamically typed\
+, runs by interpreting bytecode with a register-based virtual machine, and has \
+automatic memory management with incremental garbage collection, making it idea\
+l for configuration, scripting, and rapid prototyping.\n\
+\n\
+Lua is implemented as a library, written in clean C, the common subset of Stand\
+ard C and C++. The Lua distribution includes a host program called lua, which u\
+ses the Lua library to offer a complete, standalone Lua interpreter, for intera\
+ctive or batch use. Lua is intended to be used both as a powerful, lightweight,\
+ embeddable scripting language for any program that needs one, and as a powerfu\
+l but lightweight and efficient stand-alone language.\n\
+\n\
+As an extension language, Lua has no notion of a \"main\" program: it works emb\
+edded in a host client, called the embedding program or simply the host. (Frequ\
+ently, this host is the stand-alone lua program.) The host program can invoke f\
+unctions to execute a piece of Lua code, can write and read Lua variables, and \
+can register C functions to be called by Lua code. Through the use of C functio\
+ns, Lua can be augmented to cope with a wide range of different domains, thus c\
+reating customized programming languages sharing a syntactical framework.\n\
+\n\
+Lua is free software, and is provided as usual with no guarantees, as stated in\
+ its license. The implementation described in this manual is available at Lua's\
+ official web site, www.lua.org.\n\
+\n\
+Like any other reference manual, this document is dry in places. For a discussi\
+on of the decisions behind the design of Lua, see the technical papers availabl\
+e at Lua's web site. For a detailed introduction to programming in Lua, see Rob\
+erto's book, Programming in Lua.\n\
+");
+    //hud_->add_message("Enemy: 30 damage.", cv::Point(100, 300));
+  }
+
+  if (key::is_down('7')) {
+    hud_->add_frame("test1",
+      cv::Rect(250, 300, 600, 450), cv::Scalar(30, 20, 20, 150));
+  }
+
+  if (key::is_down('8')) {
+    hud_->delete_frame("test1");
+  }
+
+  if (key::is_down('9')) {
+    hud_->delete_message("test4");
+  }
+
   if (key::is_down('V')) {
     early_->set_fade_out(constants::EARLY_BODY);
     mesh_->set_fade_out();
@@ -448,7 +521,7 @@ void basic_window::debug()
   }
   if (key::is_down('B')) {
     early_->set_dynamic_message(constants::EARLY_BODY, 1,
-        "ccccccccccccccccccccc", false, { 210, 270, 511, 511 });
+        "ccccccccccccccc‚ ccc", false, { 210, 270, 2048, 2048 });
   }
   if (key::is_down('M')) {
     camera_->set_to_close_up_animation();
@@ -485,35 +558,37 @@ void basic_window::render()
                      D3DCOLOR_XRGB(0x40, 0x40, 0x40),
                      1.0f,
                      0);
-   if (SUCCEEDED(d3d_device_->BeginScene())) {
-     animation_mesh_->render(view_matrix,
-                             projection_matrix,
-                             light_direction,
-                             light_brightness_);
-     skinned_animation_mesh_->render(view_matrix,
+  if (SUCCEEDED(d3d_device_->BeginScene())) {
+    animation_mesh_->render(view_matrix,
+                            projection_matrix,
+                            light_direction,
+                            light_brightness_);
+    skinned_animation_mesh_->render(view_matrix,
+                                    projection_matrix,
+                                    light_direction,
+                                    light_brightness_);
+    skinned_animation_mesh2_->render(view_matrix,
                                      projection_matrix,
                                      light_direction,
                                      light_brightness_);
-     skinned_animation_mesh2_->render(view_matrix,
-                                      projection_matrix,
-                                      light_direction,
-                                      light_brightness_);
-     mesh_->render(view_matrix,
+    mesh_->render(view_matrix,
+                  projection_matrix,
+                  light_direction,
+                  light_brightness_);
+    mesh2_->render(view_matrix,
                    projection_matrix,
                    light_direction,
                    light_brightness_);
-     mesh2_->render(view_matrix,
-                    projection_matrix,
-                    light_direction,
-                    light_brightness_);
-     early_->render(view_matrix,
-                    projection_matrix,
-                    light_direction,
-                    light_brightness_);
-     suo_->render(view_matrix,
-                    projection_matrix,
-                    light_direction,
-                    light_brightness_);
+    early_->render(view_matrix,
+                   projection_matrix,
+                   light_direction,
+                   light_brightness_);
+    suo_->render(view_matrix,
+                   projection_matrix,
+                   light_direction,
+                   light_brightness_);
+
+    (*hud_)();
 
     d3d_device_->EndScene();
   }
