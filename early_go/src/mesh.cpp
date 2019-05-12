@@ -22,6 +22,7 @@ mesh::mesh(
       radius_{},
       scale_{}
 {
+  mesh_name_=x_filename;
   animation_strategy_.reset(new_crt no_animation);
 
   ::HRESULT result{};

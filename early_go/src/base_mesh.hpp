@@ -46,10 +46,12 @@ public:
                                0,
                                constants::TEXTURE_PIXEL_SIZE - 1,
                                constants::TEXTURE_PIXEL_SIZE - 1},
-                           const int& = RGB(0xff, 0xff, 0xff),
-                           const std::string& = "ÇlÇr ÇoÉSÉVÉbÉN",
+                           const ::DWORD& = D3DCOLOR_ARGB(0xff, 0xff, 0xff, 0xff),
+                           const std::string& = "ü‡ÉSÉVÉbÉN",
                            const int& = 40,
-                           const int& = 0);
+                           const int& = 0,
+                           const ::BYTE& = SHIFTJIS_CHARSET,
+                           const bool& = true);
 
   void set_dynamic_message_color(const int&, const ::D3DXVECTOR4&);
   void set_position(const ::D3DXVECTOR3&);

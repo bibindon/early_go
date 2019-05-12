@@ -10,6 +10,9 @@
 #include "key.hpp"
 #include "operation.hpp"
 #include "hud.hpp"
+#include "resource.h"
+
+#include <thread>
 
 namespace early_go {
 /* A definition of the static member variable. */
@@ -56,13 +59,13 @@ basic_window::basic_window(const ::HINSTANCE& hinstance)
   wndclassex.cbClsExtra    = 0;
   wndclassex.cbWndExtra    = 0;
   wndclassex.hInstance     = hinstance;
-  wndclassex.hIcon         = ::LoadIcon(nullptr, IDI_APPLICATION);
+  wndclassex.hIcon         = ::LoadIcon(hinstance, MAKEINTRESOURCE(IDI_ICON1));
   wndclassex.hCursor       = ::LoadCursor(nullptr, IDC_ARROW);
   wndclassex.hbrBackground =
       static_cast<::HBRUSH>(::GetStockObject(BLACK_BRUSH));
   wndclassex.lpszMenuName  = nullptr;
   wndclassex.lpszClassName = constants::APP_NAME.c_str();
-  wndclassex.hIconSm       = ::LoadIcon(nullptr, IDI_APPLICATION);
+  wndclassex.hIconSm       = ::LoadIcon(hinstance, MAKEINTRESOURCE(IDI_ICON1));
 
   ::RegisterClassEx(&wndclassex);
 
@@ -71,7 +74,8 @@ basic_window::basic_window(const ::HINSTANCE& hinstance)
 
   ::HWND hwnd{::CreateWindow(constants::APP_NAME.c_str(),
                              constants::APP_NAME.c_str(),
-                             WS_OVERLAPPEDWINDOW,
+                             WS_OVERLAPPEDWINDOW
+                                 & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX,
                              rc.right/2 - constants::WINDOW_WIDTH/2,
                              rc.bottom/2 - constants::WINDOW_HEIGHT/2,
                              constants::WINDOW_WIDTH,
@@ -160,7 +164,7 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
   mesh_.reset(new_crt mesh{
       d3d_device_,
       constants::MESH_FILE_NAME,
-      ::D3DXVECTOR3{-0.5f, 0.0f, -1.0f},
+      ::D3DXVECTOR3{2.5f, 2.0f, 1.0f},
       ::D3DXVECTOR3{0.0f, 0.0f, 0.0f},
       1.0f});
   mesh2_.reset(new_crt mesh{
@@ -170,7 +174,16 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
       ::D3DXVECTOR3{0.0f, 0.0f, 0.0f},
       1.0f});
 
-  early_->set_position(grid_coordinate{0, 0, 0});
+  early_->set_position(cv::Point3i{0, 0, 0});
+  early_->set_max_health(9999);
+  early_->set_health(4000);
+
+  early_->set_normal_move("Šî–{UŒ‚", 7, 10);
+  early_->set_normal_move("“Ë‚«UŒ‚", 10, 10);
+  early_->set_normal_move("“Š‚°UŒ‚", 5, 10);
+  early_->set_normal_move("•¥‚¢UŒ‚", 3, 10);
+
+
   early_->add_mesh<skinned_animation_mesh>(constants::EARLY_BODY);
   early_->add_mesh<skinned_animation_mesh>(constants::EARLY_ARMOR);
   //early_->add_mesh<animation_mesh>(constants::EARLY_LANCE);
@@ -191,7 +204,7 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
   early_->set_animation_config("Attack",       false, 1.0f);
   early_->set_animation_config("Damaged",      false, 1.0f);
 
-  suo_->set_position(grid_coordinate{1, 0, 2});
+  suo_->set_position(cv::Point3i{-1, 0, 2});
   suo_->set_health(3);
   suo_->add_mesh<skinned_animation_mesh>(constants::SUO_BODY);
   suo_->add_mesh<skinned_animation_mesh>(constants::SUO_ARMOR);
@@ -271,6 +284,23 @@ std::shared_ptr<character> basic_window::get_enemy_character()
   return suo_;
 }
 
+cv::Point basic_window::get_screen_coodinate(const ::D3DXVECTOR3& world)
+{
+  const ::D3DXMATRIX view_matrix{camera_->get_view_matrix()};
+  const ::D3DXMATRIX projection_matrix{camera_->get_projection_matrix()};
+  static const ::D3DXMATRIX viewport_matrix{
+    constants::WINDOW_WIDTH/2.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, -constants::WINDOW_HEIGHT/2.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    constants::WINDOW_WIDTH/2.0f, constants::WINDOW_HEIGHT/2.0f, 0.0f, 1.0f
+  };
+  ::D3DXMATRIX matrix{};
+  ::D3DXMatrixTranslation(&matrix, world.x, world.y, world.z);
+  matrix = matrix * view_matrix * projection_matrix * viewport_matrix;
+  return cv::Point(static_cast<int>(matrix._41/std::abs(matrix._44)),
+                   static_cast<int>(matrix._42/std::abs(matrix._44)));
+}
+
 void basic_window::debug()
 {
   if (key::is_down(VK_UP)) {
@@ -286,32 +316,37 @@ void basic_window::debug()
     suo_->set_step_action(direction::RIGHT);
   }
 
-  // TODO: move between d3ddevice.beginScene and endScene.
   // fps
-//  static int frame_count = 0;
-//  static float fps = 0;
-//  static std::chrono::system_clock::time_point start, end;
-//  if (frame_count == 100) {
-//    frame_count = 0;
-//    end = std::chrono::system_clock::now();
-//    int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-//        end - start).count();
-//    fps = 100 * 1000 / static_cast<float>(elapsed);
-//    start = std::chrono::system_clock::now();
-//  }
-//
-//  if (frame_count == 0) {
-//    start = std::chrono::system_clock::now();
-//  }
-//  ++frame_count;
-//  render_string_object::render_string(std::to_string(fps), 10, 30);
-//  render_string_object::render_string(
-//      std::to_string(eye_position_.x), 10, 50);
-//  render_string_object::render_string(
-//      std::to_string(eye_position_.y), 10, 70);
-//  render_string_object::render_string(
-//      std::to_string(eye_position_.z), 10, 90);
+  static int frame_count = 0;
+  static int fps = 0;
+  static std::chrono::system_clock::time_point start, end;
+  if (frame_count == 50) {
+    frame_count = 0;
+    end = std::chrono::system_clock::now();
+    std::chrono::system_clock::rep elapsed{
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            end - start).count()};
+    fps = 50 * 1000 / static_cast<int>(elapsed);
+    start = std::chrono::system_clock::now();
+  }
 
+  if (frame_count == 0) {
+    start = std::chrono::system_clock::now();
+  }
+  ++frame_count;
+
+  static bool fps_show{true};
+  if (key::is_down('F')) {
+    fps_show = !fps_show;
+    if (!fps_show) {
+      hud_->delete_message("fps");
+    }
+  }
+  if (fps_show) {
+    hud_->delete_message("fps");
+    hud_->add_message("fps", std::to_string(fps), cv::Rect(10, 10, 64, 32));
+    log_liner{} << fps;
+  }
 
 //  if (key::is_hold('I')) {
 //    camera_->move_position({0.0f, 0.0f, 0.02f});
@@ -440,16 +475,19 @@ void basic_window::debug()
     mesh_->set_fade_in();
     animation_mesh_->set_fade_in();
   }
+//  if (key::is_hold('4')) {
+//    hud_->add_image("test3", "image/board2.png", cv::Point(300, 400));
+//    static float f = 0.0f;
+//    f -= 0.01f;
+//    early_->set_dynamic_texture_position(constants::EARLY_BODY, 1, {f, f} );
+//    mesh_->set_dynamic_texture_position(1, {f, f} );
+//  }
   if (key::is_down('4')) {
-    //static float f = 0.0f;
-    //f -= 0.01f;
-    //early_->set_dynamic_texture_position(
-    //    constants::EARLY_BODY, 1, {f, f} );
-    hud_->add_image("test3", "image/board2.png", cv::Point(300, 400));
-
+    hud_->show_HP_info();
   }
   if (key::is_down('5')) {
-    hud_->delete_image("test3");
+//    hud_->delete_image("test3");
+    hud_->remove_HP_info();
   }
   if (key::is_down('6')) {
 //    hud_->add_image("image/board.png");
@@ -520,8 +558,24 @@ erto's book, Programming in Lua.\n\
     //    constants::EARLY_BODY, 1, std::sin(f)/2+0.5f);
   }
   if (key::is_down('B')) {
+    mesh_->set_dynamic_message(1,
+                               "ccc", false,
+                               { 10, 70, 2048, 2048},
+                               D3DCOLOR_ARGB(255,255,255,255),
+                               "ŸàƒSƒVƒbƒN",
+                               100,
+                               FW_NORMAL,
+                               SHIFTJIS_CHARSET,
+                               true );
     early_->set_dynamic_message(constants::EARLY_BODY, 1,
-        "ccccccccccccccc‚ ccc", false, { 210, 270, 2048, 2048 });
+                                "ccccccccccccc", false,
+                                {210, 270, 2048, 2048},
+                                D3DCOLOR_ARGB(255, 255, 255, 255),
+                                "ŸàƒSƒVƒbƒN",
+                                120,
+                                FW_NORMAL,
+                                SHIFTJIS_CHARSET,
+                                true );
   }
   if (key::is_down('M')) {
     camera_->set_to_close_up_animation();
@@ -588,7 +642,7 @@ void basic_window::render()
                    light_direction,
                    light_brightness_);
 
-    (*hud_)();
+    (*hud_)(*this);
 
     d3d_device_->EndScene();
   }

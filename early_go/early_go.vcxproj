@@ -193,7 +193,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>
@@ -238,17 +238,21 @@
     </ClCompile>
     <ClCompile Include="src\operation.cpp" />
     <ClCompile Include="src\key.cpp" />
-    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\main.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\skinned_animation_mesh.cpp" />
     <ClCompile Include="src\skinned_animation_mesh_allocator.cpp" />
-    <ClCompile Include="src\hud.cpp" />
+    <ClCompile Include="src\hud.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.hpp</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="src\texture_animator.cpp" />
+    <ClCompile Include="src\text.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -273,7 +277,7 @@
     <ClInclude Include="src\skinned_animation_mesh_allocator.hpp" />
     <ClInclude Include="src\hud.hpp" />
     <ClInclude Include="src\stdafx.hpp" />
-    <ClInclude Include="src\texture_animator.hpp" />
+    <ClInclude Include="src\text.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="early_go.rc" />
@@ -282,6 +286,9 @@
     <FxCompile Include="res\shader\animation_mesh_shader.fx" />
     <FxCompile Include="res\shader\mesh_shader.fx" />
     <FxCompile Include="res\shader\skinned_animation_mesh_shader.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

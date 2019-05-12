@@ -42,7 +42,7 @@ void camera::move_position(const D3DXVECTOR3& delta, const float& duration)
         flexible_animation_->delta_eye_position_ - eye_position_;
   }
 
-  flexible_animation_.reset(new flexible_animation{
+  flexible_animation_.reset(new_crt flexible_animation{
       0, eye_position_, look_at_position_,
       delta+remain, delta+remain, duration});
 }

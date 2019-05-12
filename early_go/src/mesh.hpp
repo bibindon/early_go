@@ -28,6 +28,7 @@ private:
   float                                          radius_;
   float                                          scale_;
 
+  std::string mesh_name_;
   void render(const ::D3DXMATRIX&, const ::D3DXMATRIX&) override;
 };
 } /* namespace early_go */

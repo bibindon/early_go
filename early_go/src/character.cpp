@@ -5,7 +5,6 @@
 #include <typeinfo>
 
 #include "base_mesh.hpp"
-#include "basic_window.hpp"
 #include "character.hpp"
 #include "camera.hpp"
 #include "operation.hpp"
@@ -13,14 +12,14 @@
 namespace early_go {
 character::character(const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
                      const std::shared_ptr<operation>&          a_operation,
-                     const grid_coordinate&                     position,
+                     const cv::Point3i&                         position,
                      const direction&                           direction,
                      const float&                               size)
   : d3d_device_{d3d_device},
     operation_{a_operation},
-    position_{boost::fusion::at_key<tag_x>(position) * constants::GRID_LENGTH,
-              boost::fusion::at_key<tag_y>(position) * constants::GRID_LENGTH,
-              boost::fusion::at_key<tag_z>(position) * constants::GRID_LENGTH},
+    position_{position.x * constants::GRID_LENGTH,
+              position.y * constants::GRID_LENGTH,
+              position.z * constants::GRID_LENGTH},
     grid_position_{position},
     direction_{direction},
     size_{size},
@@ -87,13 +86,12 @@ void character::render(const ::D3DXMATRIX&  view_matrix,
   }
 }
 
-void character::set_position(const grid_coordinate& position)
+void character::set_position(const cv::Point3i& position)
 {
   grid_position_ = position;
-  set_position(::D3DXVECTOR3{
-      boost::fusion::at_key<tag_x>(position) * constants::GRID_LENGTH,
-      boost::fusion::at_key<tag_y>(position) * constants::GRID_LENGTH,
-      boost::fusion::at_key<tag_z>(position) * constants::GRID_LENGTH});
+  set_position(::D3DXVECTOR3{position.x * constants::GRID_LENGTH,
+                             position.y * constants::GRID_LENGTH,
+                             position.z * constants::GRID_LENGTH});
 }
 
 void character::set_rotation(const direction& direction)
@@ -187,14 +185,17 @@ void character::set_dynamic_message(const std::string& x_filename,
                                     const std::string& message,
                                     const bool&        animation,
                                     const cv::Rect&    rect,
-                                    const int&         color,
+                                    const ::DWORD&     color,
                                     const std::string& fontname,
                                     const int&         size,
-                                    const int&         weight)
+                                    const int&         weight,
+                                    const ::BYTE&      charset,
+                                    const bool&        proportional)
 {
   if (mesh_map_.find(x_filename) != mesh_map_.end()) {
     mesh_map_.at(x_filename)->set_dynamic_message(
-        layer_number, message, animation, rect, color, fontname, size, weight);
+        layer_number, message, animation, rect, color, fontname, size, weight,
+        charset, proportional);
   }
 }
 
@@ -274,9 +275,14 @@ direction character::get_direction() const
   return direction_;
 }
 
-grid_coordinate character::get_position() const
+cv::Point3i character::get_grid_position() const
 {
   return grid_position_;
+}
+
+::D3DXVECTOR3 character::get_position() const
+{
+  return position_;
 }
 
 int character::get_health() const
@@ -287,6 +293,16 @@ int character::get_health() const
 void character::set_health(const int& health)
 {
   health_ = health;
+}
+
+int character::get_max_health() const
+{
+  return max_health_;
+}
+
+void character::set_max_health(const int& health)
+{
+  max_health_ = health;
 }
 
 // "Idle" + "hoge/piyo/hair.x" -> "Idle_Hair"
@@ -421,22 +437,22 @@ operation::behavior_state character::step::operator()()
     case direction::FRONT:
       camera->move_position(
           ::D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
-      boost::fusion::at_key<tag_z>(outer_.grid_position_) += 1;
+      outer_.grid_position_.z += 1;
       break;
     case direction::LEFT:
       camera->move_position(
           ::D3DXVECTOR3{-constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
-      boost::fusion::at_key<tag_x>(outer_.grid_position_) -= 1;
+      outer_.grid_position_.x -= 1;
       break;
     case direction::BACK:
       camera->move_position(
           ::D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
-      boost::fusion::at_key<tag_z>(outer_.grid_position_) -= 1;
+      outer_.grid_position_.z -= 1;
       break;
     case direction::RIGHT:
       camera->move_position(
           ::D3DXVECTOR3{constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
-      boost::fusion::at_key<tag_x>(outer_.grid_position_) += 1;
+      outer_.grid_position_.x += 1;
       break;
     }
     switch (relative_direction_) {
@@ -503,22 +519,22 @@ void character::step::cancel()
     case direction::FRONT:
       camera->move_position(
           ::D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
-      boost::fusion::at_key<tag_z>(outer_.grid_position_) -= 1;
+      outer_.grid_position_.z -= 1;
       break;
     case direction::LEFT:
       camera->move_position(
           ::D3DXVECTOR3{constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
-      boost::fusion::at_key<tag_x>(outer_.grid_position_) += 1;
+      outer_.grid_position_.x += 1;
       break;
     case direction::BACK:
       camera->move_position(
           ::D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
-      boost::fusion::at_key<tag_z>(outer_.grid_position_) += 1;
+      outer_.grid_position_.z += 1;
       break;
     case direction::RIGHT:
       camera->move_position(
           ::D3DXVECTOR3{-constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
-      boost::fusion::at_key<tag_x>(outer_.grid_position_) -= 1;
+      outer_.grid_position_.x -= 1;
       break;
     }
     outer_.set_position(outer_.grid_position_);
@@ -676,8 +692,8 @@ character::attack::attack(character& outer)
 operation::behavior_state character::attack::operator()()
 {
   if (availability_) {
-    int x = boost::fusion::at_key<tag_x>(outer_.grid_position_);
-    int z = boost::fusion::at_key<tag_z>(outer_.grid_position_);
+    int x = outer_.grid_position_.x;
+    int z = outer_.grid_position_.z;
     switch (outer_.direction_) {
     case direction::FRONT:
       ++z;
@@ -715,6 +731,70 @@ character::attack::~attack()
 {
 }
 
+void character::set_normal_move(const std::string& name,
+                                const int& power,
+                                const int& max_power)
+{
+  normal_move_.emplace_back(normal_move{name, power, max_power});
+}
 
+std::vector<std::string> character::get_normal_move()
+{
+  std::vector<std::string> ret{};
+  for (auto&& x : normal_move_) {
+    ret.emplace_back(x.name_);
+  }
+  return ret;
+}
+
+std::pair<int, int> character::get_normal_move_power(const std::string& name)
+{
+  decltype(normal_move_)::const_iterator it {
+      std::find_if(normal_move_.cbegin(), normal_move_.cend(),
+                   [&](auto&& x) {return x.name_ == name;})};
+
+  return std::make_pair(it->power_, it->max_power_);
+}
+
+std::vector<std::string> character::get_special_move()
+{
+  std::vector<std::string> ret{};
+  for (auto&& x : special_move_) {
+    ret.emplace_back(x.name_);
+  }
+  return ret;
+}
+
+void character::set_special_move(const std::string& name,
+                                 const int& power,
+                                 const int& max_power)
+{
+  special_move_.emplace_back(special_move{name, power, max_power});
+}
+
+std::pair<int, int> character::get_special_move_power(const std::string& name)
+{
+  decltype(special_move_)::const_iterator it{
+      std::find_if(special_move_.cbegin(), special_move_.cend(),
+                   [&](auto&& x) {return x.name_ == name;})};
+
+  return std::make_pair(it->power_, it->max_power_);
+}
+
+character::normal_move::normal_move(const std::string& name,
+                                    const int& power,
+                                    const int& max_power)
+  : name_{name},
+    power_{power},
+    max_power_{max_power}
+{
+}
+
+character::special_move::special_move(const std::string& name,
+                                      const int& power,
+                                      const int& max_power)
+  : normal_move{name, power, max_power}
+{
+}
 
 }

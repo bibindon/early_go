@@ -1,7 +1,7 @@
 #include "stdafx.hpp"
 
 #include "base_mesh.hpp"
-#include "texture_animator.hpp"
+#include "text.hpp"
 
 namespace early_go {
 
@@ -10,17 +10,19 @@ base_mesh::base_mesh(const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
     const ::D3DXVECTOR3& position,
     const ::D3DXVECTOR3& rotation)
     : d3d_device_{d3d_device},
-      effect_{nullptr, custom_deleter{}},
+      effect_{nullptr, custom_deleter {}},
       animation_strategy_{nullptr},
       dynamic_texture_{},
       position_{position},
       rotation_{rotation}
 {
-  ::HRESULT result{};
-  std::vector<char> buffer = get_resource(
-      "SELECT DATA FROM SHADER WHERE FILENAME = 'shader/"
-      + shader_filename + "';");
-  ::LPD3DXEFFECT effect{};
+  ::HRESULT result {NULL};
+
+  std::vector<char> buffer {get_resource(
+      "SELECT DATA FROM SHADER WHERE FILENAME = 'shader/" +
+      shader_filename + "';") };
+
+  ::LPD3DXEFFECT effect {nullptr};
   ::D3DXCreateEffect(d3d_device_.get(),
                      &buffer[0],
                      static_cast<::UINT>(buffer.size()),
@@ -55,32 +57,33 @@ base_mesh::base_mesh(const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
   diffuse_handle_          = effect_->GetParameterByName(nullptr, "g_diffuse");
 
   for (int i{}; i < dynamic_texture::LAYER_NUMBER; ++i) {
-    ::LPDIRECT3DTEXTURE9 temp_texture{};
-    ::HRESULT result{::D3DXCreateTexture(
-            d3d_device_.get(),
-            constants::TEXTURE_PIXEL_SIZE, constants::TEXTURE_PIXEL_SIZE,
-            1, D3DUSAGE_DYNAMIC,
-            ::D3DFMT_A8B8G8R8, ::D3DPOOL_DEFAULT, &temp_texture)};
+    ::LPDIRECT3DTEXTURE9 temp_texture {nullptr};
+    ::HRESULT result {::D3DXCreateTexture(d3d_device_.get(),
+                                          constants::EMPTY_TEXTURE_SIZE,
+                                          constants::EMPTY_TEXTURE_SIZE,
+                                          1, D3DUSAGE_DYNAMIC,
+                                          ::D3DFMT_A8B8G8R8, ::D3DPOOL_DEFAULT,
+                                          &temp_texture)};
     if (FAILED(result)) {
       const std::string str{DXGetErrorString(result)};
       THROW_WITH_TRACE("Failed to create texture.: " + str);
     } else {
-      ::D3DLOCKED_RECT locked_rect{};
+      ::D3DLOCKED_RECT locked_rect {0};
       temp_texture->LockRect(0, &locked_rect, nullptr, D3DLOCK_DISCARD);
 
-      std::fill(
-          static_cast<int*>(locked_rect.pBits),
-          static_cast<int*>(locked_rect.pBits) +
-              static_cast<std::size_t>(locked_rect.Pitch) *
-                  constants::TEXTURE_PIXEL_SIZE / sizeof(int),
-                0x00000000);
+      std::fill(static_cast<int*>(locked_rect.pBits),
+                static_cast<int*>(locked_rect.pBits) +
+                    static_cast<std::size_t>(locked_rect.Pitch) *
+                    constants::EMPTY_TEXTURE_SIZE / sizeof(::DWORD),
+                0x00000000UL);
 
       temp_texture->UnlockRect(0);
 
       dynamic_texture_.textures_.at(i).reset(temp_texture, custom_deleter{});
+      dynamic_texture_.positions_.at(i) = ::D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f);
 
       effect_->SetTexture(texture_handle_.at(i),
-          dynamic_texture_.textures_.at(i).get());
+                          dynamic_texture_.textures_.at(i).get());
     }
   }
   dynamic_texture_.opacities_.at(dynamic_texture::FADE_LAYER) = 0.0f;
@@ -88,19 +91,20 @@ base_mesh::base_mesh(const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
 
 static std::vector<::uchar> resize_with_margin(const cv::Mat& source)
 {
-  cv::Mat blank{cv::Mat::zeros(constants::TEXTURE_PIXEL_SIZE,
-                               constants::TEXTURE_PIXEL_SIZE, CV_8UC4)};
-  cv::Mat destination = blank(cv::Rect(0, 0, source.rows, source.cols));
+  cv::Mat blank {cv::Mat::zeros(constants::TEXTURE_PIXEL_SIZE,
+                                constants::TEXTURE_PIXEL_SIZE, CV_8UC4)};
+
+  cv::Mat destination {blank(cv::Rect(0, 0, source.rows, source.cols))};
   source.copyTo(destination);
-  std::vector<::uchar> cv_buffer{};
+  std::vector<::uchar> cv_buffer {};
   cv::imencode(".bmp", blank, cv_buffer);
   return cv_buffer;
 }
 
 static std::vector<::uchar> resize_with_margin(const std::vector<char>& buffer)
 {
-  std::vector<::uchar> cv_buffer{buffer.cbegin(), buffer.cend()};
-  cv::Mat source{cv::imdecode(cv::Mat(cv_buffer), cv::IMREAD_UNCHANGED)};
+  std::vector<::uchar> cv_buffer {buffer.cbegin(), buffer.cend()};
+  cv::Mat source {cv::imdecode(cv::Mat(cv_buffer), cv::IMREAD_UNCHANGED)};
 
   return resize_with_margin(source);
 }
@@ -109,12 +113,12 @@ void base_mesh::set_dynamic_texture(const std::string& filename,
                                     const int&         layer_number,
                                     const combine_type&)
 {
-  std::string query{
+  std::string query {
       "SELECT DATA FROM IMAGE WHERE FILENAME = '" + filename + "';"};
 
-  std::vector<char> buffer = get_resource(query);
+  std::vector<char> buffer {get_resource(query)};
 
-  std::vector<::uchar> cv_buffer{resize_with_margin(buffer)};
+  std::vector<::uchar> cv_buffer {resize_with_margin(buffer)};
 
   ::LPDIRECT3DTEXTURE9 temp_texture{};
   if (FAILED(::D3DXCreateTextureFromFileInMemory(
@@ -150,12 +154,12 @@ void base_mesh::set_dynamic_texture_opacity(const int& layer_number,
 
 void base_mesh::flip_dynamic_texture(const int& layer_number)
 {
-  std::string query{"SELECT DATA FROM IMAGE WHERE FILENAME = '" +
+  std::string query {"SELECT DATA FROM IMAGE WHERE FILENAME = '" +
                     dynamic_texture_.filename_.at(layer_number) + "';"};
 
-  std::vector<char> buffer = get_resource(query);
-  std::vector<::uchar> cv_buffer{buffer.cbegin(), buffer.cend()};
-  cv::Mat source{cv::imdecode(cv::Mat(cv_buffer), cv::IMREAD_UNCHANGED)};
+  std::vector<char> buffer {get_resource(query)};
+  std::vector<::uchar> cv_buffer {buffer.cbegin(), buffer.cend()};
+  cv::Mat source {cv::imdecode(cv::Mat(cv_buffer), cv::IMREAD_UNCHANGED)};
   if (!dynamic_texture_.flipped_.at(layer_number)) {
     cv::flip(source, source, 1);
   }
@@ -190,23 +194,25 @@ void base_mesh::clear_dynamic_texture(const int& layer_number)
   std::fill(static_cast<int*>(locked_rect.pBits),
             static_cast<int*>(locked_rect.pBits) +
                 static_cast<std::size_t>(locked_rect.Pitch) *
-                    constants::TEXTURE_PIXEL_SIZE / sizeof(int),
+                    constants::EMPTY_TEXTURE_SIZE / sizeof(int),
             0x00000000);
 
   dynamic_texture_.textures_.at(layer_number)->UnlockRect(0);
 }
 
-void base_mesh::set_dynamic_message(const int& layer_number,
+void base_mesh::set_dynamic_message(const int&         layer_number,
                                     const std::string& message,
                                     const bool&        is_animated,
                                     const cv::Rect&    rect,
-                                    const int&         color,
+                                    const ::DWORD&     color,
                                     const std::string& fontname,
                                     const int&         size,
-                                    const int&         weight)
+                                    const int&         weight,
+                                    const ::BYTE&      charset,
+                                    const bool&        proportional)
 {
   dynamic_texture_.opacities_.at(layer_number) = 1.0f;
-  message_writer* writer{new_crt message_writer{
+  message_writer* writer {new_crt message_writer {
           d3d_device_,
           dynamic_texture_.textures_.at(layer_number),
           message,
@@ -215,7 +221,9 @@ void base_mesh::set_dynamic_message(const int& layer_number,
           color,
           fontname,
           size,
-      weight}};
+          weight,
+          charset,
+          proportional}};
 
   effect_->SetTexture(texture_handle_.at(layer_number),
                       dynamic_texture_.textures_.at(layer_number).get());
@@ -296,7 +304,7 @@ void base_mesh::set_shake_texture()
 const std::array<
     ::D3DXVECTOR2,
     base_mesh::dynamic_texture::texture_shaker::SHAKE_POSITIONS_SIZE>
-        base_mesh::dynamic_texture::texture_shaker::SHAKING_POSITIONS = {
+        base_mesh::dynamic_texture::texture_shaker::SHAKING_POSITIONS {
             ::D3DXVECTOR2{0.0f,  0.0f},
             ::D3DXVECTOR2{0.02f, 0.02f},
             ::D3DXVECTOR2{0.02f, -0.01f},
@@ -329,7 +337,7 @@ void base_mesh::dynamic_texture::texture_shaker::operator()(
   if (count_ > SHAKE_DURATION) {
     return;
   } else if (count_ == SHAKE_DURATION) {
-    for (int i{}; i < LAYER_NUMBER; ++i) {
+    for (int i {0}; i < LAYER_NUMBER; ++i) {
       base_mesh.set_dynamic_texture_position(i, ::D3DXVECTOR2{0.0f, 0.0f});
     }
     count_ = SHAKE_DURATION+1;

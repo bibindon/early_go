@@ -60,7 +60,7 @@
     <ClCompile Include="src\hud.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="src\texture_animator.cpp">
+    <ClCompile Include="src\text.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -125,7 +125,7 @@
     <ClInclude Include="src\hud.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="src\texture_animator.hpp">
+    <ClInclude Include="src\text.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
@@ -144,5 +144,10 @@
     <FxCompile Include="res\shader\skinned_animation_mesh_shader.fx">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
   </ItemGroup>
 </Project>

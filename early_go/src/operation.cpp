@@ -5,8 +5,6 @@
 #include "camera.hpp"
 #include <boost/type_erasure/typeid_of.hpp>
 
-using boost::fusion::at_key;
-
 namespace early_go {
 
 template<
@@ -375,10 +373,9 @@ void operation::operator()(basic_window& a_basic_window)
   // collision detection
   std::shared_ptr<character> enemy = a_basic_window.get_enemy_character();
 
-  grid_coordinate enemy_pos = enemy->get_position();
-  const int relative_z =
-      at_key<tag_z>(enemy_pos)%(constants::GRID_NUM_HEIGHT+1);
-  if (offensive_area_.at(relative_z).at(at_key<tag_x>(enemy_pos))) {
+  cv::Point3i enemy_pos = enemy->get_grid_position();
+  const int relative_z = enemy_pos.z%(constants::GRID_NUM_HEIGHT+1);
+  if (offensive_area_.at(relative_z).at(enemy_pos.x)) {
     current_behavior_->cancel();
     int enemy_health = enemy->get_health();
     if (1 <= enemy_health-1) {
@@ -388,9 +385,9 @@ void operation::operator()(basic_window& a_basic_window)
       current_behavior_.reset(new_crt behavior_concept{
           move_next_stage(*this, a_basic_window)});
     } else {
-      grid_coordinate grid_pos{main_character.get_position()};
-      ::D3DXVECTOR3 pos{at_key<tag_x>(grid_pos)*constants::GRID_LENGTH, 0.0f,
-                        at_key<tag_z>(grid_pos)*constants::GRID_LENGTH};
+      cv::Point3i grid_pos{main_character.get_grid_position()};
+      ::D3DXVECTOR3 pos{grid_pos.x*constants::GRID_LENGTH, 0.0f,
+                        grid_pos.z*constants::GRID_LENGTH};
       camera_->set_to_close_up_animation(pos);
     }
 
@@ -404,13 +401,13 @@ operation::move_next_stage::move_next_stage(
     enemy_move_called_{false},
     main_chara_move_called_{false}
 {
-  grid_coordinate pos = basic_window_.get_main_character()->get_position();
-  main_chara_x_ = static_cast<float>(at_key<tag_x>(pos))*constants::GRID_LENGTH;
-  main_chara_z_ = static_cast<float>(at_key<tag_z>(pos))*constants::GRID_LENGTH;
+  cv::Point3i pos = basic_window_.get_main_character()->get_grid_position();
+  main_chara_x_ = static_cast<float>(pos.x)*constants::GRID_LENGTH;
+  main_chara_z_ = static_cast<float>(pos.z)*constants::GRID_LENGTH;
 
-  pos = basic_window_.get_enemy_character()->get_position();
-  enemy_x_ = static_cast<float>(at_key<tag_x>(pos))*constants::GRID_LENGTH;
-  enemy_z_ = static_cast<float>(at_key<tag_z>(pos))*constants::GRID_LENGTH;
+  pos = basic_window_.get_enemy_character()->get_grid_position();
+  enemy_x_ = static_cast<float>(pos.x)*constants::GRID_LENGTH;
+  enemy_z_ = static_cast<float>(pos.z)*constants::GRID_LENGTH;
 
   float goal_x{0.0f};
   float goal_z{7.0f*constants::GRID_LENGTH+
@@ -460,13 +457,13 @@ operation::behavior_state operation::move_next_stage::operator()()
                       0.0,
                       main_chara_z_ + delta_main_chara_z_*sine});
   } else if (5.0f <= count_*constants::ANIMATION_SPEED) {
-    grid_coordinate pos = basic_window_.get_main_character()->get_position();
-    at_key<tag_x>(pos) = 0;
-    at_key<tag_z>(pos) = 1+outer_.current_stage_*10;
+    cv::Point3i pos = basic_window_.get_main_character()->get_grid_position();
+    pos.x = 0;
+    pos.z = 1+outer_.current_stage_*10;
     basic_window_.get_main_character()->set_position(pos);
-    pos = basic_window_.get_enemy_character()->get_position();
-    at_key<tag_x>(pos) = 0;
-    at_key<tag_z>(pos) = 7+outer_.current_stage_*10;
+    pos = basic_window_.get_enemy_character()->get_grid_position();
+    pos.x = 0;
+    pos.z = 7+outer_.current_stage_*10;
     basic_window_.get_enemy_character()->set_position(pos);
     outer_.reserved_behavior_.reset();
     return operation::behavior_state::FINISH;

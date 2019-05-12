@@ -34,6 +34,7 @@ public:
   int operator()();
   std::shared_ptr<character> get_main_character();
   std::shared_ptr<character> get_enemy_character();
+  cv::Point get_screen_coodinate(const ::D3DXVECTOR3&);
 
 private:
 

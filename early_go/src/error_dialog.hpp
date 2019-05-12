@@ -4,6 +4,8 @@
 #include "stdafx.hpp"
 #include "resource.h"
 
+#include <boost/algorithm/string/replace.hpp>
+
 namespace early_go {
 
 boost::exception_ptr early_go::exception_reserve{};
