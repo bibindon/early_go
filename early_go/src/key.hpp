@@ -2,6 +2,8 @@
 #define KEY_HPP
 #include "stdafx.hpp"
 
+#include <chrono>
+
 namespace early_go {
 
 // Monostate pattern.

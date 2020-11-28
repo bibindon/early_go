@@ -60,6 +60,18 @@
 #pragma comment(lib, "sqlite3.lib")
 #pragma comment(lib, "DXErr.lib")
 
+#ifdef DEBUG
+#pragma comment(lib, "opencv_core320d.lib")
+#pragma comment(lib, "opencv_imgcodecs320d.lib")
+#pragma comment(lib, "opencv_imgproc320d.lib")
+#pragma comment(lib, "opencv_highgui320d.lib")
+#else
+#pragma comment(lib, "opencv_core320.lib")
+#pragma comment(lib, "opencv_imgcodecs320.lib")
+#pragma comment(lib, "opencv_imgproc320.lib")
+#pragma comment(lib, "opencv_highgui320.lib")
+#endif
+
 /*
  * This macro is for replacing 'malloc' and 'new' to detect memory leaks. This
  * must be at the buttom of a header file like a here because this macro causes
