@@ -983,10 +983,10 @@ void hud::HP_info_animator::operator()(HP_info& hp_info, basic_window& window)
                 cv::Scalar(0), -1, CV_AA);
   }
 
-  std::vector<::uchar> cv_buffer {};
-  cv_buffer.reserve(HP_info::TEXTURE_SIZE.width *
-                    HP_info::TEXTURE_SIZE.height * sizeof(::DWORD));
-  cv::imencode(".bmp", image, cv_buffer);
+//  std::vector<::uchar> cv_buffer {};
+//  cv_buffer.reserve(HP_info::TEXTURE_SIZE.width *
+//                    HP_info::TEXTURE_SIZE.height * sizeof(::DWORD));
+//  cv::imencode(".bmp", image, cv_buffer);
 
 //  ::LPDIRECT3DTEXTURE9 temp_texture {};
 //  if (FAILED(::D3DXCreateTextureFromFileInMemory(

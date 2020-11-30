@@ -108,6 +108,7 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
   d3d_present_parameters_.Windowed               = TRUE;
   d3d_present_parameters_.EnableAutoDepthStencil = TRUE;
   d3d_present_parameters_.AutoDepthStencilFormat = ::D3DFMT_D16;
+  d3d_present_parameters_.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
   /* for receiving */
   ::LPDIRECT3DDEVICE9 d3d_device9{};
@@ -344,7 +345,7 @@ void basic_window::debug()
   }
   if (fps_show) {
     hud_->delete_message("fps");
-    hud_->add_message("fps", std::to_string(fps), cv::Rect(10, 10, 64, 32));
+    hud_->add_message("fps", std::to_string(fps), cv::Rect(50, 10, 64, 32));
     log_liner{} << fps;
   }
 
