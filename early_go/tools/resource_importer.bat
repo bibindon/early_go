@@ -1,0 +1,1 @@
+powershell -ExecutionPolicy RemoteSigned -File ./resource_importer.ps1
