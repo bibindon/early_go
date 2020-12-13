@@ -2,12 +2,17 @@
 
 #include "hud.hpp"
 #include "text.hpp"
+#include "text_thread_ver.hpp"
 #include "character.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <thread>
 
 namespace early_go {
+void create_bezier_curve(cv::Mat* image,
+                         const std::array<cv::Point, 3>& base_point,
+                         const cv::Scalar& color,
+                         const int& line_thickness);
 
 const int hud::EDGE_CIRCLE_RADIUS{3};
 hud::hud(const std::shared_ptr<::IDirect3DDevice9>& d3d_device)
@@ -60,7 +65,11 @@ void hud::create_round_rect(::LPDIRECT3DTEXTURE9& texture,
                 color, -1, CV_AA);
 
   std::vector<::uchar> cv_buffer{};
-  cv_buffer.reserve(round_rect.rows * round_rect.cols * 4);
+  
+  cv_buffer.reserve(
+      static_cast<decltype(cv_buffer)::size_type>(round_rect.rows) *
+          round_rect.cols * 4);
+
   cv::imencode(".bmp", round_rect, cv_buffer);
   if (FAILED(::D3DXCreateTextureFromFileInMemory(
       d3d_device_.get(),
@@ -328,6 +337,771 @@ void hud::show_HP_info()
     
   HP_info_.reset(new_crt HP_info{*this, --textures_.end(),
                  std::make_shared<HP_info_animator>(HP_info_animator{})});
+
+}
+
+void hud::HP_info_drawer::draw_text_stage_number_1(
+    const std::shared_ptr<message_writer_for_thread>& writer)
+{
+  if (CIRCLE_2_IN_ANIMATION_END <= count_ &&
+      count_ < CIRCLE_2_IN_ANIMATION_END + LETTER_FADE_DURATION) {
+    const int count {count_ - CIRCLE_2_IN_ANIMATION_END};
+    ::DWORD letter_color {D3DCOLOR_ARGB(
+        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
+        static_cast<int>(BASIC_COLOR[2]),
+        static_cast<int>(BASIC_COLOR[1]),
+        static_cast<int>(BASIC_COLOR[0]))};
+
+    // stage number
+    writer->add_text("Stage No",
+        BASE_POINT.at(2) - cv::Point(87, 21),
+        letter_color);
+  } else if (CIRCLE_2_IN_ANIMATION_END + LETTER_FADE_DURATION <= count_) {
+    // stage number
+    writer->add_text("Stage No",
+        BASE_POINT.at(2) - cv::Point(87, 21),
+        LETTER_COLOR);
+  }
+  copy_text(writer);
+}
+
+void hud::HP_info_drawer::draw_text_stage_number_2(
+    const std::shared_ptr<message_writer_for_thread>& writer)
+{
+  if (CIRCLE_2_IN_ANIMATION_END <= count_ &&
+      count_ < CIRCLE_2_IN_ANIMATION_END + LETTER_FADE_DURATION) {
+    const int count {count_ - CIRCLE_2_IN_ANIMATION_END};
+    ::DWORD letter_color {D3DCOLOR_ARGB(
+        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
+        static_cast<int>(BASIC_COLOR[2]),
+        static_cast<int>(BASIC_COLOR[1]),
+        static_cast<int>(BASIC_COLOR[0]))};
+
+    // stage number
+    writer->add_text("13",
+        BASE_POINT.at(2) - cv::Point(8, 9),
+        letter_color);
+  } else if (CIRCLE_2_IN_ANIMATION_END + LETTER_FADE_DURATION <= count_) {
+    // stage number
+    writer->add_text("13",
+        BASE_POINT.at(2) - cv::Point(8, 9),
+        LETTER_COLOR);
+  }
+  copy_text(writer);
+}
+void hud::HP_info_drawer::copy_text(
+    const std::shared_ptr<message_writer_for_thread>& writer)
+{
+  const cv::Point& start_point = writer->start_point_;
+  const cv::Size&  canvas_size = writer->canvas_size_;
+  const std::vector<std::vector<DWORD> >& text_image_ = writer->text_image_;
+  for (std::size_t j{}; j < canvas_size.height; ++j) {
+    ::DWORD *row = image_.ptr<::DWORD>(static_cast<int>(j+start_point.y));
+    row += start_point.x;
+    std::transform(text_image_[j].cbegin(), text_image_[j].cend(), row, row,
+        [](const auto& src, const auto& dst) {
+            return (src & 0xff000000UL) != 0 ? src : dst;
+//            return src > 0x00ffffffUL ? src : dst;
+        }
+    );
+  }
+}
+void hud::HP_info_drawer::draw_text_time_1(
+    const std::shared_ptr<message_writer_for_thread>& writer)
+{
+  if (TIME_BAR_BACK_ANIMATION_END <= count_ &&
+      count_ < TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION) {
+    const int count = count_ - TIME_BAR_BACK_ANIMATION_END;
+    ::DWORD letter_color {D3DCOLOR_ARGB(
+        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
+        static_cast<int>(BASIC_COLOR[2]),
+        static_cast<int>(BASIC_COLOR[1]),
+        static_cast<int>(BASIC_COLOR[0]))};
+
+    writer->add_text("Time", BASE_POINT.at(5) + cv::Point(-18, -19),
+                      letter_color);
+  } else if (TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION <= count_) {
+    writer->add_text("Time", BASE_POINT.at(5) + cv::Point(-18, -19),
+                      LETTER_COLOR);
+  }
+  copy_text(writer);
+}
+void hud::HP_info_drawer::draw_text_time_2(
+    const std::shared_ptr<message_writer_for_thread>& writer)
+{
+  if (TIME_BAR_BACK_ANIMATION_END <= count_ &&
+      count_ < TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION) {
+    const int count = count_ - TIME_BAR_BACK_ANIMATION_END;
+    ::DWORD letter_color {D3DCOLOR_ARGB(
+        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
+        static_cast<int>(BASIC_COLOR[2]),
+        static_cast<int>(BASIC_COLOR[1]),
+        static_cast<int>(BASIC_COLOR[0]))};
+
+    writer->add_text("99", BASE_POINT.at(5) + cv::Point(-12, -2),
+                      letter_color);
+  } else if (TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION <= count_) {
+    writer->add_text("99", BASE_POINT.at(5) + cv::Point(-12, -2),
+                      LETTER_COLOR);
+  }
+  copy_text(writer);
+}
+void hud::HP_info_drawer::draw_text_strength_1(
+    const std::shared_ptr<message_writer_for_thread>& writer)
+{
+  std::string text {""};
+  if (!main_chara_ || main_chara_->get_normal_move().empty()) {
+    return;
+  }
+  text = main_chara_->get_normal_move().at(0);
+  text += ":";
+  text += std::to_string(main_chara_->get_normal_move_power(
+      main_chara_->get_normal_move().at(0)).first);
+  if (TIME_BAR_BACK_ANIMATION_START+5 <= count_ &&
+      count_ < TIME_BAR_BACK_ANIMATION_START+5 + LETTER_FADE_DURATION) {
+    const int count {count_ - TIME_BAR_BACK_ANIMATION_START-5};
+    ::DWORD letter_color {D3DCOLOR_ARGB(
+        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
+        static_cast<int>(BASIC_COLOR[2]),
+        static_cast<int>(BASIC_COLOR[1]),
+        static_cast<int>(BASIC_COLOR[0]))};
+
+    writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, -60 -9),
+                     letter_color);
+  } else if (TIME_BAR_BACK_ANIMATION_START+5 + LETTER_FADE_DURATION <= count_) {
+    writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, -60 -9),
+                     LETTER_COLOR);
+  }
+  copy_text(writer);
+}
+void hud::HP_info_drawer::draw_text_strength_2(
+    const std::shared_ptr<message_writer_for_thread>& writer)
+{
+  std::string text {""};
+  if (!main_chara_ || main_chara_->get_normal_move().size() < 2) {
+    return;
+  }
+  text = main_chara_->get_normal_move().at(1);
+  text += ":";
+  text += std::to_string(main_chara_->get_normal_move_power(
+      main_chara_->get_normal_move().at(1)).first);
+  if (TIME_BAR_BACK_ANIMATION_START+10 <= count_ &&
+      count_ < TIME_BAR_BACK_ANIMATION_START+10 + LETTER_FADE_DURATION) {
+    const int count {count_ - TIME_BAR_BACK_ANIMATION_START-10};
+    ::DWORD letter_color {D3DCOLOR_ARGB(
+        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
+        static_cast<int>(BASIC_COLOR[2]),
+        static_cast<int>(BASIC_COLOR[1]),
+        static_cast<int>(BASIC_COLOR[0]))};
+
+    writer->add_text(text, BASE_POINT.at(5) + cv::Point(50, -9),
+                     letter_color);
+  } else if (TIME_BAR_BACK_ANIMATION_START+5 + LETTER_FADE_DURATION <= count_) {
+    writer->add_text(text, BASE_POINT.at(5) + cv::Point(50, -9),
+                     LETTER_COLOR);
+  }
+  copy_text(writer);
+}
+void hud::HP_info_drawer::draw_text_strength_3(
+    const std::shared_ptr<message_writer_for_thread>& writer)
+{
+  std::string text {""};
+  if (!main_chara_ || main_chara_->get_normal_move().size() < 3) {
+    return;
+  }
+  text = main_chara_->get_normal_move().at(2);
+  text += ":";
+  text += std::to_string(main_chara_->get_normal_move_power(
+      main_chara_->get_normal_move().at(2)).first);
+  if (TIME_BAR_BACK_ANIMATION_START+15 <= count_ &&
+      count_ < TIME_BAR_BACK_ANIMATION_START+15 + LETTER_FADE_DURATION) {
+    const int count {count_ - TIME_BAR_BACK_ANIMATION_START-15};
+    ::DWORD letter_color {D3DCOLOR_ARGB(
+        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
+        static_cast<int>(BASIC_COLOR[2]),
+        static_cast<int>(BASIC_COLOR[1]),
+        static_cast<int>(BASIC_COLOR[0]))};
+
+    writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, 60 -9),
+                     letter_color);
+  } else if (TIME_BAR_BACK_ANIMATION_START+5 + LETTER_FADE_DURATION <= count_) {
+    writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, 60 -9),
+                     LETTER_COLOR);
+  }
+  copy_text(writer);
+}
+void hud::HP_info_drawer::draw_text_strength_4(
+    const std::shared_ptr<message_writer_for_thread>& writer)
+{
+  std::string text {""};
+  if (!main_chara_ || main_chara_->get_normal_move().size() < 4) {
+    return;
+  }
+  text = main_chara_->get_normal_move().at(3);
+  text += ":";
+  text += std::to_string(main_chara_->get_normal_move_power(
+      main_chara_->get_normal_move().at(3)).first);
+  if (TIME_BAR_BACK_ANIMATION_START+20 <= count_ &&
+      count_ < TIME_BAR_BACK_ANIMATION_START+20 + LETTER_FADE_DURATION) {
+    const int count {count_ - TIME_BAR_BACK_ANIMATION_START-20};
+    ::DWORD letter_color {D3DCOLOR_ARGB(
+        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
+        static_cast<int>(BASIC_COLOR[2]),
+        static_cast<int>(BASIC_COLOR[1]),
+        static_cast<int>(BASIC_COLOR[0]))};
+
+    writer->add_text(text, BASE_POINT.at(5) + cv::Point(-140, -9),
+                     letter_color);
+  } else if (TIME_BAR_BACK_ANIMATION_START+5 + LETTER_FADE_DURATION <= count_) {
+    writer->add_text(text, BASE_POINT.at(5) + cv::Point(-140, -9),
+                     LETTER_COLOR);
+  }
+  copy_text(writer);
+}
+void hud::HP_info_drawer::draw_text_HP_1(
+    const std::shared_ptr<message_writer_for_thread>& writer)
+{
+  if (LINE_4_ANIMATION_END <= count_ &&
+      count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION) {
+    const int count{count_ - LINE_4_ANIMATION_END};
+    ::DWORD letter_color = D3DCOLOR_ARGB(
+        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
+        static_cast<int>(BASIC_COLOR[2]),
+        static_cast<int>(BASIC_COLOR[1]),
+        static_cast<int>(BASIC_COLOR[0]));
+
+    writer->add_text("HP", BASE_POINT.at(4) + cv::Point(-10, -30),
+                      letter_color);
+  } else if(LINE_4_ANIMATION_END + LETTER_FADE_DURATION <= count_) {
+    writer->add_text("HP", BASE_POINT.at(4) + cv::Point(-10, -30),
+                      LETTER_COLOR);
+  }
+  copy_text(writer);
+}
+void hud::HP_info_drawer::draw_text_HP_2(
+    const std::shared_ptr<message_writer_for_thread>& writer)
+{
+  if (!main_chara_) {
+    return;
+  }
+  const int health = main_chara_->get_health();
+  const std::string sz_health{boost::lexical_cast<std::string>(health)};
+
+  if (LINE_4_ANIMATION_END <= count_ &&
+      count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION) {
+    const int count{count_ - LINE_4_ANIMATION_END};
+    ::DWORD letter_color = D3DCOLOR_ARGB(
+        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
+        static_cast<int>(BASIC_COLOR[2]),
+        static_cast<int>(BASIC_COLOR[1]),
+        static_cast<int>(BASIC_COLOR[0]));
+
+    writer->add_text(sz_health, BASE_POINT.at(4) + cv::Point(-33, -10),
+                      letter_color);
+  } else if(LINE_4_ANIMATION_END + LETTER_FADE_DURATION <= count_) {
+    writer->add_text(sz_health, BASE_POINT.at(4) + cv::Point(-33, -10),
+                      LETTER_COLOR);
+  }
+  copy_text(writer);
+}
+void hud::HP_info_drawer::draw_text_HP_3(
+    const std::shared_ptr<message_writer_for_thread>& writer)
+{
+  if (!main_chara_) {
+    return;
+  }
+  const int max_health = main_chara_->get_max_health();
+  const std::string sz_max_health{
+      "/ " + boost::lexical_cast<std::string>(max_health)};
+
+  if (LINE_4_ANIMATION_END <= count_ &&
+      count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION) {
+    const int count{count_ - LINE_4_ANIMATION_END};
+    ::DWORD letter_color = D3DCOLOR_ARGB(
+        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
+        static_cast<int>(BASIC_COLOR[2]),
+        static_cast<int>(BASIC_COLOR[1]),
+        static_cast<int>(BASIC_COLOR[0]));
+
+    writer->add_text(sz_max_health, BASE_POINT.at(4) + cv::Point(-20, 10),
+                     letter_color);
+  } else if(LINE_4_ANIMATION_END + LETTER_FADE_DURATION <= count_) {
+    writer->add_text(sz_max_health, BASE_POINT.at(4) + cv::Point(-20, 10),
+                     LETTER_COLOR);
+  }
+  copy_text(writer);
+}
+void hud::HP_info_drawer::operator()()
+{
+  funcs_.push_back([&]{draw_Time_bar();});
+  funcs_.push_back([&]{draw_center_circle();});
+  funcs_.push_back([&]{draw_line_1();});
+  funcs_.push_back([&]{draw_curve_1();});
+  funcs_.push_back([&]{draw_line_2();});
+  funcs_.push_back([&]{draw_line_3();});
+  funcs_.push_back([&]{draw_curve_2();});
+  funcs_.push_back([&]{draw_line_4();});
+  funcs_.push_back([&]{draw_line_5();});
+  funcs_.push_back([&]{draw_circle_2();});
+  funcs_.push_back([&]{draw_HP_bar();});
+  std::shared_ptr<message_writer_for_thread> temp_writer{
+      new message_writer_for_thread{"游ゴシック", 20, cv::Size{100, 20}}};
+  funcs_.push_back([&, temp_writer]{draw_text_stage_number_1(temp_writer);});
+
+  temp_writer.reset(
+      new message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
+  funcs_.push_back([&, temp_writer]{draw_text_stage_number_2(temp_writer);});
+
+  temp_writer.reset(
+      new message_writer_for_thread{"游ゴシック", 20, cv::Size{40, 20}});
+  funcs_.push_back([&, temp_writer]{draw_text_time_1(temp_writer);});
+
+  temp_writer.reset(
+      new message_writer_for_thread{"游ゴシック", 30, cv::Size{30, 30}});
+  funcs_.push_back([&, temp_writer]{draw_text_time_2(temp_writer);});
+
+  temp_writer.reset(
+      new message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+  funcs_.push_back([&, temp_writer]{draw_text_strength_1(temp_writer);});
+
+  temp_writer.reset(
+      new message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+  funcs_.push_back([&, temp_writer]{draw_text_strength_2(temp_writer);});
+
+  temp_writer.reset(
+      new message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+  funcs_.push_back([&, temp_writer]{draw_text_strength_3(temp_writer);});
+
+  temp_writer.reset(
+      new message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+  funcs_.push_back([&, temp_writer]{draw_text_strength_4(temp_writer);});
+
+  temp_writer.reset(
+      new message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
+  funcs_.push_back([&, temp_writer]{draw_text_HP_1(temp_writer);});
+
+  temp_writer.reset(
+      new message_writer_for_thread{"游ゴシック", 20, cv::Size{50, 20}});
+  funcs_.push_back([&, temp_writer]{draw_text_HP_2(temp_writer);});
+
+  temp_writer.reset(
+      new message_writer_for_thread{"游ゴシック", 20, cv::Size{70, 20}});
+  funcs_.push_back([&, temp_writer]{draw_text_HP_3(temp_writer);});
+
+  for (int i = 0; i < THREAD_NUM; ++i) {
+    drawer_[i].reset(new std::thread([&, i]{
+      while(true) {
+        if (finish_request_) {
+          break;
+        }
+        int charge_func_index = 0;
+        // block scope for mutex
+        {
+          std::lock_guard<std::mutex> lock(charge_func_index_mtx_);
+          charge_func_index = charge_func_index_;
+
+//          early_go::log_liner() << "i: " << i
+//              << "  charge_func_index_mtx_: " << charge_func_index;
+          if (charge_func_index < funcs_.size()) {
+            ++charge_func_index_;
+          }
+        }
+        if (charge_func_index < funcs_.size()) {
+          funcs_[charge_func_index]();
+        } else {
+          // block scope for mutex
+          {
+            std::unique_lock<std::mutex> lock(idle_mtx_);
+            idle_[i] = true;
+            cond_.wait(lock, [this, i]{return idle_[i] == false;});
+          }
+        }
+      }
+      }));
+  }
+}
+
+hud::HP_info_drawer::~HP_info_drawer()
+{
+  finish_request_ = true;
+  std::fill(&idle_[0], &idle_[THREAD_NUM], false);
+  cond_.notify_all();
+  std::for_each(&drawer_[0], &drawer_[THREAD_NUM], [] (auto x){ x->join();});
+}
+
+hud::HP_info_drawer::HP_info_drawer()
+{
+}
+void hud::HP_info_drawer::draw_center_circle()
+{
+  if (count_ < CENTER_CIRCLE_ANIMATION_TIME) {
+    cv::circle(image_,
+               CENTER,
+               CENTER_CIRCLE_RADIUS_IN * count_ / CENTER_CIRCLE_ANIMATION_TIME,
+               BASIC_COLOR, -1, CV_AA);
+    cv::ellipse(image_,
+                CENTER,
+                cv::Size(CENTER_CIRCLE_RADIUS_OUT, CENTER_CIRCLE_RADIUS_OUT),
+                45, 0,
+                static_cast<double>(360)*count_ / CENTER_CIRCLE_ANIMATION_TIME,
+                BASIC_COLOR, LINE_THICKNESS, CV_AA);
+  } else {
+    cv::circle(image_,
+               CENTER,
+               CENTER_CIRCLE_RADIUS_IN,
+               BASIC_COLOR, -1, CV_AA);
+    cv::circle(image_,
+               CENTER,
+               CENTER_CIRCLE_RADIUS_OUT,
+               BASIC_COLOR, LINE_THICKNESS, CV_AA);
+  }
+}
+void hud::HP_info_drawer::draw_line_1()
+{
+  if (count_ < LINE_1_ANIMATION_TIME) {
+    const cv::Point LINE_1_DELTA {
+        (LINE_1_DEST - BASE_POINT.at(0)) * count_ / LINE_1_ANIMATION_TIME};
+
+    cv::line(image_,
+             BASE_POINT.at(0),
+             BASE_POINT.at(0) + LINE_1_DELTA,
+             BASIC_COLOR, LINE_THICKNESS, CV_AA);
+  } else {
+    cv::line(image_,
+             BASE_POINT.at(0),
+             LINE_1_DEST,
+             BASIC_COLOR, LINE_THICKNESS, CV_AA);
+  }
+}
+void hud::HP_info_drawer::draw_curve_1()
+{
+  if (LINE_1_ANIMATION_TIME <= count_) {
+    create_bezier_curve(&image_, BEZIER_COOD_1, BASIC_COLOR, LINE_THICKNESS);
+  }
+}
+void hud::HP_info_drawer::draw_line_2()
+{
+  if (LINE_2_ANIMATION_START <= count_ && count_ < LINE_2_ANIMATION_END) {
+    const int count {count_ - LINE_2_ANIMATION_START};
+    const cv::Point LINE_2_LENGTH {LINE_2_DEST - LINE_2_START};
+    const cv::Point LINE_2_LENGTH_DELTA {
+        LINE_2_LENGTH * count / LINE_2_ANIMATION_LENGTH};
+
+    cv::line(image_,
+             LINE_2_START,
+             LINE_2_START + LINE_2_LENGTH_DELTA,
+             BASIC_COLOR, LINE_THICKNESS, CV_AA);
+  } else if (LINE_2_ANIMATION_END <= count_) {
+    cv::line(image_,
+             LINE_2_START,
+             LINE_2_DEST,
+             BASIC_COLOR, LINE_THICKNESS, CV_AA);
+  }
+}
+void hud::HP_info_drawer::draw_line_3()
+{
+  if (LINE_3_ANIMATION_START <= count_ && count_ < LINE_3_ANIMATION_END) {
+    const int count {count_ - LINE_3_ANIMATION_START};
+    const cv::Point LINE_3_LENGTH {LINE_3_DEST - LINE_3_START};
+    const cv::Point LINE_3_LENGTH_DELTA {
+        LINE_3_LENGTH * count / LINE_3_ANIMATION_LENGTH};
+    cv::line(image_,
+             LINE_3_START,
+             LINE_3_START + LINE_3_LENGTH_DELTA,
+             BASIC_COLOR, LINE_THICKNESS, CV_AA);
+  } else if (LINE_3_ANIMATION_END <= count_) {
+    cv::line(image_,
+             LINE_3_START,
+             LINE_3_DEST,
+             BASIC_COLOR, LINE_THICKNESS, CV_AA);
+  }
+}
+void hud::HP_info_drawer::draw_curve_2()
+{
+  if (LINE_3_ANIMATION_END <= count_) {
+    create_bezier_curve(&image_, BEZIER_COOD_2, BASIC_COLOR, LINE_THICKNESS);
+  }
+}
+void hud::HP_info_drawer::draw_line_4()
+{
+  if (LINE_4_ANIMATION_START <= count_ && count_ < LINE_4_ANIMATION_END) {
+    const int count {count_ - LINE_4_ANIMATION_START};
+    const cv::Point LINE_4_LENGTH {LINE_4_DEST - LINE_4_START};
+    const cv::Point LINE_4_LENGTH_DELTA {
+        LINE_4_LENGTH * count / LINE_4_ANIMATION_LENGTH};
+    cv::line(image_,
+             LINE_4_START,
+             LINE_4_START + LINE_4_LENGTH_DELTA,
+             BASIC_COLOR, LINE_THICKNESS, CV_AA);
+  } else if (LINE_4_ANIMATION_END <= count_) {
+    cv::line(image_,
+             LINE_4_START,
+             LINE_4_DEST,
+             BASIC_COLOR, LINE_THICKNESS, CV_AA);
+  }
+}
+void hud::HP_info_drawer::draw_line_5()
+{
+  if (LINE_5_ANIMATION_START <= count_ && count_ < LINE_5_ANIMATION_END) {
+    const int count {count_ - LINE_3_ANIMATION_START};
+    const cv::Point LINE_5_LENGTH {LINE_5_DEST - LINE_5_START};
+    const cv::Point LINE_5_LENGTH_DELTA {
+        LINE_5_LENGTH * count / LINE_5_ANIMATION_LENGTH};
+
+    cv::line(image_,
+             LINE_5_START,
+             LINE_5_START + LINE_5_LENGTH_DELTA,
+             BASIC_COLOR, LINE_THICKNESS, CV_AA);
+  } else if (LINE_5_ANIMATION_END <= count_) {
+    cv::line(image_,
+             LINE_5_START,
+             LINE_5_DEST,
+             BASIC_COLOR, LINE_THICKNESS, CV_AA);
+  }
+}
+void hud::HP_info_drawer::draw_circle_2()
+{
+  if (11 <= count_ && count_ <= 30) {
+    const int count{count_ - CIRCLE_2_OUT_ANIMATION_START};
+    cv::circle(image_,
+               BASE_POINT.at(2),
+               CIRCLE_2_RADIUS_OUT * count / CIRCLE_2_OUT_ANIMATION_LENGTH,
+               BASIC_COLOR, -1, CV_AA);
+  } else if (30 < count_){
+    cv::circle(image_,
+               BASE_POINT.at(2),
+               CIRCLE_2_RADIUS_OUT,
+               BASIC_COLOR, -1, CV_AA);
+  }
+  if (21 <= count_ && count_ <= 40) {
+    int count = count_ - CIRCLE_2_IN_ANIMATION_START;
+    cv::circle(image_,
+               BASE_POINT.at(2),
+               CIRCLE_2_RADIUS_IN * count / CIRCLE_2_IN_ANIMATION_LENGTH,
+               cv::Scalar(0), -1, CV_AA);
+  } else if (40 < count_){
+    cv::circle(image_,
+               BASE_POINT.at(2),
+               CIRCLE_2_RADIUS_IN,
+               cv::Scalar(0), -1, CV_AA);
+  }
+}
+void hud::HP_info_drawer::draw_HP_bar()
+{
+  if (HP_BAR_BACK_ANIMATION_START <= count_ &&
+      count_ <= HP_BAR_BACK_ANIMATION_END) {
+    const int count {count_ - HP_BAR_BACK_ANIMATION_START};
+    cv::ellipse(image_,
+                HP_BAR_CENTER,
+                cv::Size(HP_BAR_RADIUS_OUT, HP_BAR_RADIUS_OUT),
+                270, 0, 360.0f * count / HP_BAR_BACK_ANIMATION_LENGTH,
+                HP_BAR_BACK, -1, CV_AA);
+    cv::ellipse(image_,
+                HP_BAR_CENTER,
+                cv::Size(HP_BAR_RADIUS_IN, HP_BAR_RADIUS_IN),
+                0, 0, 360,
+                cv::Scalar(0), -1, CV_AA);
+  } else if (HP_BAR_BACK_ANIMATION_END < count_) {
+    cv::ellipse(image_,
+                HP_BAR_CENTER,
+                cv::Size(HP_BAR_RADIUS_OUT, HP_BAR_RADIUS_OUT),
+                0, 0, 360,
+                HP_BAR_BACK, -1, CV_AA);
+    cv::ellipse(image_,
+                HP_BAR_CENTER,
+                cv::Size(HP_BAR_RADIUS_IN, HP_BAR_RADIUS_IN),
+                0, 0, 360,
+                cv::Scalar(0), -1, CV_AA);
+  }
+  // HP bar foreground
+  if (HP_BAR_FORE_ANIMATION_START <= count_ &&
+      count_ <= HP_BAR_FORE_ANIMATION_END) {
+    const int count {count_ - HP_BAR_FORE_ANIMATION_START};
+    cv::ellipse(image_,
+                HP_BAR_CENTER,
+                cv::Size{HP_BAR_RADIUS_OUT, HP_BAR_RADIUS_OUT},
+                270, 0, 360.0f * count / HP_BAR_FORE_ANIMATION_LENGTH,
+                HP_BAR_FORE, -1, CV_AA);
+    cv::ellipse(image_,
+                HP_BAR_CENTER,
+                cv::Size{HP_BAR_RADIUS_IN, HP_BAR_RADIUS_IN},
+                0, 0, 360,
+                cv::Scalar(0), -1, CV_AA);
+  } else if (HP_BAR_FORE_ANIMATION_END < count_) {
+    cv::ellipse(image_,
+                HP_BAR_CENTER,
+                cv::Size{HP_BAR_RADIUS_OUT, HP_BAR_RADIUS_OUT},
+                -90, 0, 360 * health_ / max_health_,
+                HP_BAR_FORE, -1, CV_AA);
+    cv::ellipse(image_,
+                HP_BAR_CENTER,
+                cv::Size{HP_BAR_RADIUS_IN, HP_BAR_RADIUS_IN},
+                0, 0, 360,
+                cv::Scalar(0), -1, CV_AA);
+  }
+
+  if (45 <= count_ && count_ < 75) {
+    int count {count_-45};
+    cv::ellipse(image_,
+                HP_BAR_CENTER,
+                cv::Size{HP_BAR_RADIUS_IN - 5, HP_BAR_RADIUS_IN - 5},
+                270, 0, 360 * count / 30,
+                HP_BAR_FORE, LINE_THICKNESS, CV_AA);
+  } else if (75 <= count_) {
+    cv::ellipse(image_,
+                HP_BAR_CENTER,
+                cv::Size{HP_BAR_RADIUS_IN - 5, HP_BAR_RADIUS_IN - 5},
+                270, 0, 360,
+                HP_BAR_FORE, LINE_THICKNESS, CV_AA);
+  }
+}
+void hud::HP_info_drawer::draw_Time_bar()
+{
+  // prevent from dividing by zero
+  if (power_.second == 0) {
+    return;
+  }
+  // Strength bar
+  if (TIME_BAR_BACK_ANIMATION_START <= count_ &&
+      count_ <= TIME_BAR_BACK_ANIMATION_END) {
+    const int count = count_ - TIME_BAR_BACK_ANIMATION_START;
+
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
+                static_cast<double>(45) + 5 - 1, 0,
+                (90-10)* count / TIME_BAR_BACK_ANIMATION_LENGTH,
+                HP_BAR_BACK, -1, CV_AA);
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
+                static_cast<double>(90) + 45 + 5 - 3, 0,
+                (90-10)* count / TIME_BAR_BACK_ANIMATION_LENGTH,
+                HP_BAR_BACK, -1, CV_AA);
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
+                static_cast<double>(180) + 45 + 5 + 3, 0,
+                (90-10)* count / TIME_BAR_BACK_ANIMATION_LENGTH,
+                HP_BAR_BACK, -1, CV_AA);
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
+                static_cast<double>(270) + 45 + 5 + 1, 0,
+                (90-10)* count / TIME_BAR_BACK_ANIMATION_LENGTH,
+                HP_BAR_BACK, -1, CV_AA);
+
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size{TIME_BAR_RADIUS_IN, TIME_BAR_RADIUS_IN},
+                0, 0, 360,
+                cv::Scalar{0}, -1, CV_AA);
+  } else if (TIME_BAR_BACK_ANIMATION_END < count_) {
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
+                static_cast<double>(45) + 5 - 1,
+                0,
+                static_cast<double>(90)-10,
+                HP_BAR_BACK, -1, CV_AA);
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
+                static_cast<double>(90) + 45 + 5 - 3,
+                0,
+                static_cast<double>(90)-10,
+                HP_BAR_BACK, -1, CV_AA);
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
+                static_cast<double>(180) + 45 + 5 + 3,
+                0,
+                static_cast<double>(90)-10,
+                HP_BAR_BACK, -1, CV_AA);
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
+                static_cast<double>(270) + 45 + 5 + 1,
+                0,
+                static_cast<double>(90)-10,
+                HP_BAR_BACK, -1, CV_AA);
+
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size{TIME_BAR_RADIUS_IN, TIME_BAR_RADIUS_IN},
+                0, 0, 360,
+                cv::Scalar{0}, -1, CV_AA);
+  }
+
+  if (TIME_BAR_FORE_ANIMATION_START <= count_ &&
+      count_ <= TIME_BAR_FORE_ANIMATION_END) {
+    const int count {count_ - TIME_BAR_FORE_ANIMATION_START};
+
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
+                static_cast<double>(45) + 5 - 1, 0,
+                (90-10)* count / TIME_BAR_FORE_ANIMATION_LENGTH,
+                HP_BAR_FORE, -1, CV_AA);
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
+                static_cast<double>(90) + 45 + 5 - 3, 0,
+                (90-10)* count / TIME_BAR_FORE_ANIMATION_LENGTH,
+                HP_BAR_FORE, -1, CV_AA);
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
+                static_cast<double>(180) + 45 + 5 + 3, 0,
+                (90-10)* count / TIME_BAR_FORE_ANIMATION_LENGTH,
+                HP_BAR_FORE, -1, CV_AA);
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
+                static_cast<double>(270) + 45 + 5 + 1, 0,
+                (90-10)* count / TIME_BAR_FORE_ANIMATION_LENGTH,
+                HP_BAR_FORE, -1, CV_AA);
+
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size(TIME_BAR_RADIUS_IN, TIME_BAR_RADIUS_IN),
+                0, 0, 360,
+                cv::Scalar(0), -1, CV_AA);
+  } else if (TIME_BAR_FORE_ANIMATION_END < count_) {
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
+                static_cast<double>(45) + 5 - 1,
+                0, (90-10)*power_.first/power_.second,
+                HP_BAR_FORE, -1, CV_AA);
+    power_ = main_chara_->get_normal_move_power(normal_move_name_.at(1));
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
+                static_cast<double>(90) + 45 + 5 - 3,
+                0, (90-10)*power_.first/power_.second,
+                HP_BAR_FORE, -1, CV_AA);
+    power_ = main_chara_->get_normal_move_power(normal_move_name_.at(2));
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
+                static_cast<double>(180) + 45 + 5 + 3,
+                0, (90-10)*power_.first/power_.second,
+                HP_BAR_FORE, -1, CV_AA);
+    power_ = main_chara_->get_normal_move_power(normal_move_name_.at(3));
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
+                static_cast<double>(270) + 45 + 5 + 1,
+                0, (90-10)*power_.first/power_.second,
+                HP_BAR_FORE, -1, CV_AA);
+
+    cv::ellipse(image_,
+                TIME_BAR_CENTER,
+                cv::Size(TIME_BAR_RADIUS_IN, TIME_BAR_RADIUS_IN),
+                0, 0, 360,
+                cv::Scalar(0), -1, CV_AA);
+  }
 }
 
 // TODO animation
@@ -344,9 +1118,9 @@ void hud::remove_HP_info()
 }
 
 hud::HP_info_animator::HP_info_animator()
-  : count_{0},
-    type_{type::APPEARING}
+  : HP_info_drawer_{new HP_info_drawer{}}
 {
+  (*HP_info_drawer_)();
 }
 
 void create_bezier_curve(cv::Mat* image,
@@ -363,7 +1137,7 @@ void create_bezier_curve(cv::Mat* image,
   std::vector<cv::Point2f> point(FINENESS);
 
   for (int i {0}; i < FINENESS; ++i) {
-    double d {1.0f - static_cast<float>(i) / FINENESS};
+    double d {1.0f - static_cast<double>(i) / FINENESS};
     point.at(i) =     base_pointf.at(0) * d          * d          +
                   2 * base_pointf.at(1) * d          * (1.0f - d) +
                       base_pointf.at(2) * (1.0f - d) * (1.0f - d);
@@ -372,924 +1146,72 @@ void create_bezier_curve(cv::Mat* image,
   point.push_back(base_point.at(2));
 
   for (int i {0}; i < FINENESS; ++i) {
-    cv::line(*image, point.at(i), point.at(i + 1),
-             color, line_thickness, CV_AA);
+    cv::line(*image,
+        point.at(i),
+        point.at(static_cast<decltype(point)::size_type>(i) + 1),
+        color, line_thickness, CV_AA);
   }
-}
-
-void hud::HP_info_animator::rotate(const type& direction, HP_info& hp_info)
-{
-  cv::Mat image {cv::Mat::zeros(HP_info::TEXTURE_SIZE.width,
-                                HP_info::TEXTURE_SIZE.height,
-                                CV_8UC4)};
-
-  const cv::Scalar BASIC_COLOR {200, 240, 255, 60};
-  const cv::Point2f  CENTER {
-      static_cast<float>(HP_info::TEXTURE_SIZE.width/2),
-      static_cast<float>(HP_info::TEXTURE_SIZE.height/2)};
-
-  const int LINE_THICKNESS {2};
-  const int CURVE_RADIUS {30};
-
-  // center circle animation
-  const int CENTER_CIRCLE_RADIUS_IN {5};
-  const int CENTER_CIRCLE_RADIUS_OUT {12};
-  const int CENTER_CIRCLE_ANIMATION_TIME {20};
-  {
-    cv::circle(image,
-               CENTER,
-               CENTER_CIRCLE_RADIUS_IN,
-               BASIC_COLOR, -1, CV_AA);
-    cv::circle(image,
-               CENTER,
-               CENTER_CIRCLE_RADIUS_OUT,
-               BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  }
-
-  // line animation 1
-  const cv::Point2f LINE_1_DEST {-80.0f, -80.0f};
-  const int LINE_1_ANIMATION_TIME {60};
-  const float LINE_1_ANGLE_START {D3DX_PI/4};
-  const float LINE_1_ANGLE_DEST {D3DX_PI*5/4};
-
-  float line_length {static_cast<float>(LINE_1_DEST.x) * LINE_1_DEST.x +
-                     static_cast<float>(LINE_1_DEST.y) * LINE_1_DEST.y };
-  line_length = std::sqrt(line_length);
-
-  cv::Point2f line_1 {};
-  if (count_ < LINE_1_ANIMATION_TIME) {
-    float line_1_angle_delta {LINE_1_ANGLE_DEST - LINE_1_ANGLE_START};
-    line_1_angle_delta = line_1_angle_delta * count_ / LINE_1_ANIMATION_TIME;
-    line_1_angle_delta += LINE_1_ANGLE_START;
-
-    line_1.x = line_length * std::cos(line_1_angle_delta);
-    line_1.y = line_length * std::sin(line_1_angle_delta);
-
-    cv::line(image,
-             CENTER,
-             CENTER + line_1,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  } else {
-    line_1 = LINE_1_DEST;
-    cv::line(image,
-             CENTER,
-             CENTER + LINE_1_DEST,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  }
-
-  // line animation 2
-//  const cv::Point2f LINE_2_DEST {LINE_1_DEST.x - 100, LINE_1_DEST.y};
-  const int LINE_2_ANIMATION_TIME {60};
-  const float LINE_2_ANGLE_START {0};
-  const float LINE_2_ANGLE_DEST {D3DX_PI};
-
-  if (count_ < LINE_2_ANIMATION_TIME/2) {
-    float line_2_angle_delta {LINE_2_ANGLE_DEST - LINE_2_ANGLE_START};
-    line_2_angle_delta =
-        line_2_angle_delta * count_ / (LINE_2_ANIMATION_TIME/2);
-    line_2_angle_delta += LINE_2_ANGLE_START;
-
-    line_length = 100.0f;
-    cv::Point2f line_2 {line_length * std::cos(line_2_angle_delta),
-                        line_length * std::sin(line_2_angle_delta)};
-
-    cv::line(image,
-             CENTER + line_1,
-             CENTER + line_1 + line_2,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  } else if (LINE_2_ANIMATION_TIME/2 <= count_) {
-    cv::line(image,
-             CENTER + line_1,
-             CENTER + line_1 + cv::Point2f{-100.0f, 0.0f}, //LINE_2_DEST,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  }
-
-  std::vector<::uchar> cv_buffer {};
-  cv_buffer.reserve(HP_info::TEXTURE_SIZE.width *
-                    HP_info::TEXTURE_SIZE.height * sizeof(::DWORD));
-  cv::imencode(".bmp", image, cv_buffer);
-
-  ::D3DLOCKED_RECT locked_rect{};
-  hp_info.texture_->value_->LockRect(0, &locked_rect, nullptr, 0);
-
-  ::BYTE* pTexBuf = (::BYTE*)locked_rect.pBits;
-
-  for (int j{0}; j < 1024; ++j) {
-    for (int i{0}; i < 1024; ++i) {
-      pTexBuf[j*1024*4 + (i*4)+0] = image.data[j*1024*4 + (i*4)+0];
-      pTexBuf[j*1024*4 + (i*4)+1] = image.data[j*1024*4 + (i*4)+1];
-      pTexBuf[j*1024*4 + (i*4)+2] = image.data[j*1024*4 + (i*4)+2];
-      pTexBuf[j*1024*4 + (i*4)+3] = image.data[j*1024*4 + (i*4)+3];
-    }
-  }
-
-  hp_info.texture_->value_->UnlockRect(0);
 }
 
 void hud::HP_info_animator::operator()(HP_info& hp_info, basic_window& window)
 {
-  ++count_;
-  if (count_ > 90) {
-    type_ = type::APPEARED;
+  while (true) {
+    bool all_idle = std::all_of(HP_info_drawer_->get_idles(),
+        HP_info_drawer_->get_idles()+HP_info_drawer::THREAD_NUM,
+        [] (const auto x){ return x;});
+    if (all_idle) {
+      break;
+    }
   }
 
-  const cv::Scalar BASIC_COLOR {200, 240, 255, 60};
-  const cv::Point  CENTER {HP_info::TEXTURE_SIZE.width/2,
-                           HP_info::TEXTURE_SIZE.height/2};
+  static ::D3DLOCKED_RECT locked_rect{};
+  hp_info.texture_->value_->LockRect(0, &locked_rect, nullptr, 0);
 
-  const int LINE_THICKNESS {2};
-  const int BEZIER_LENGTH {20};
+  ::DWORD* pTexBuf = (::DWORD*)locked_rect.pBits;
+  for (int i{ 0 }; i < 1024; ++i) {
+    std::copy(&HP_info_drawer_->get_image().ptr<::DWORD>(i)[0],
+        &HP_info_drawer_->get_image().ptr<::DWORD>(i)[1024], &pTexBuf[i*1024]);
+  }
+
+  hp_info.texture_->value_->UnlockRect(0);
 
   const std::shared_ptr<character>& main_chara {window.get_main_character()};
   const std::shared_ptr<character>& enemy {window.get_enemy_character()};
 
+  HP_info_drawer_->main_chara_ = main_chara;
+  HP_info_drawer_->enemy_ = enemy;
+
+  HP_info_drawer_->health_ = main_chara->get_health();
+  HP_info_drawer_->max_health_ = main_chara->get_max_health();
+  HP_info_drawer_->normal_move_name_ = main_chara->get_normal_move();
+  HP_info_drawer_->power_ = main_chara->get_normal_move_power(
+      main_chara->get_normal_move().at(0));
+
   ::D3DXVECTOR3 position {main_chara->get_position()};
   position.y += 1.0f;
   const cv::Point coodinate {window.get_screen_coodinate(position)};
+    const cv::Point  CENTER {HP_info::TEXTURE_SIZE.width/2,
+                             HP_info::TEXTURE_SIZE.height/2};
   hp_info.texture_->rect_.x = coodinate.x - CENTER.x;
   hp_info.texture_->rect_.y = coodinate.y - CENTER.y;
 
-  ::D3DXVECTOR3 enemy_position {enemy->get_position()};
-  enemy_position.y += 1.0f;
-  const cv::Point enemy_coodinate {window.get_screen_coodinate(enemy_position)};
-
-  if (coodinate.x < enemy_coodinate.x) {
-    // main chara is to the left of the enemy.
-    if (type_ == type::APPEARED) {
-      type_ = type::ROTATING_LEFT;
-      count_ = 1;
-    }
-    rotate(type::ROTATING_LEFT, hp_info);
-    return ;
-  } else {
-    // 
+  int count = HP_info_drawer_->get_count();
+  if (count > 90) {
+    HP_info_drawer_->set_type(HP_info_drawer::anim_type::APPEARED);
   }
 
-  cv::Mat image {cv::Mat::zeros(
-      HP_info::TEXTURE_SIZE.width, HP_info::TEXTURE_SIZE.height, CV_8UC4)};
-
-  const std::vector<cv::Point> BASE_POINT {
-      {CENTER},
-      {CENTER + cv::Point{80, 80}},
-      {CENTER + cv::Point{80, 80} + cv::Point{100,   0}},
-      {CENTER + cv::Point{80, 80} + cv::Point{100,   0}
-                                  + cv::Point{ 60, -60}},
-      {CENTER + cv::Point{80, 80} + cv::Point{100,   0}
-                                  + cv::Point{ 60, -60}
-                                  + cv::Point{150,   0}},
-      {CENTER + cv::Point{80, 80} + cv::Point{100,   0}
-                                  + cv::Point{ 80,  80}}
-  };
-
-  // center circle animation
-  const int CENTER_CIRCLE_RADIUS_IN {5};
-  const int CENTER_CIRCLE_RADIUS_OUT {12};
-  const int CENTER_CIRCLE_ANIMATION_TIME {20};
-  if (count_ < CENTER_CIRCLE_ANIMATION_TIME) {
-    cv::circle(image,
-               CENTER,
-               CENTER_CIRCLE_RADIUS_IN * count_ / CENTER_CIRCLE_ANIMATION_TIME,
-               BASIC_COLOR, -1, CV_AA);
-    cv::ellipse(image,
-                CENTER,
-                cv::Size(CENTER_CIRCLE_RADIUS_OUT, CENTER_CIRCLE_RADIUS_OUT),
-                45, 0, 360 * count_ / CENTER_CIRCLE_ANIMATION_TIME,
-                BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  } else {
-    cv::circle(image,
-               CENTER,
-               CENTER_CIRCLE_RADIUS_IN,
-               BASIC_COLOR, -1, CV_AA);
-    cv::circle(image,
-               CENTER,
-               CENTER_CIRCLE_RADIUS_OUT,
-               BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  }
-
-  // line animation 1
-  const cv::Point LINE_1_DEST {
-      BASE_POINT.at(1) - cv::Point{BEZIER_LENGTH, BEZIER_LENGTH}};
-
-  const int LINE_1_ANIMATION_TIME {10};
-
-  if (count_ < LINE_1_ANIMATION_TIME) {
-    const cv::Point LINE_1_DELTA {
-        (LINE_1_DEST - BASE_POINT.at(0)) * count_ / LINE_1_ANIMATION_TIME};
-
-    cv::line(image,
-             BASE_POINT.at(0),
-             BASE_POINT.at(0) + LINE_1_DELTA,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  } else {
-    cv::line(image,
-             BASE_POINT.at(0),
-             LINE_1_DEST,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  }
-
-  // curve 1
-  const std::array<cv::Point, 3> BEZIER_COOD_1{
-      BASE_POINT.at(1) - cv::Point{BEZIER_LENGTH, BEZIER_LENGTH},
-      BASE_POINT.at(1),
-      BASE_POINT.at(1) + cv::Point{BEZIER_LENGTH, 0}};
-
-  if (LINE_1_ANIMATION_TIME <= count_) {
-    create_bezier_curve(&image, BEZIER_COOD_1, BASIC_COLOR, LINE_THICKNESS);
-  }
-
-  // line animation 2
-  const cv::Point LINE_2_START {BEZIER_COOD_1.at(2)};
-  const cv::Point LINE_2_DEST {BASE_POINT.at(2)};
-  const int LINE_2_ANIMATION_START {11};
-  const int LINE_2_ANIMATION_END {20};
-  const int LINE_2_ANIMATION_LENGTH {
-      LINE_2_ANIMATION_END - LINE_2_ANIMATION_START + 1};
-
-  if (LINE_2_ANIMATION_START <= count_ && count_ < LINE_2_ANIMATION_END) {
-    const int count {count_ - LINE_2_ANIMATION_START};
-    const cv::Point LINE_2_LENGTH {LINE_2_DEST - LINE_2_START};
-    const cv::Point LINE_2_LENGTH_DELTA {
-        LINE_2_LENGTH * count / LINE_2_ANIMATION_LENGTH};
-
-    cv::line(image,
-             LINE_2_START,
-             LINE_2_START + LINE_2_LENGTH_DELTA,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  } else if (LINE_2_ANIMATION_END <= count_) {
-    cv::line(image,
-             LINE_2_START,
-             LINE_2_DEST,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  }
-
-  // line animation 3
-  const cv::Point LINE_3_START {BASE_POINT.at(2)};
-  const cv::Point LINE_3_DEST {
-      BASE_POINT.at(3) + cv::Point(-BEZIER_LENGTH, BEZIER_LENGTH)};
-
-  const int LINE_3_ANIMATION_START {21};
-  const int LINE_3_ANIMATION_END {30};
-  const int LINE_3_ANIMATION_LENGTH {
-      LINE_3_ANIMATION_END - LINE_3_ANIMATION_START + 1};
-
-  if (LINE_3_ANIMATION_START <= count_ && count_ < LINE_3_ANIMATION_END) {
-    const int count {count_ - LINE_3_ANIMATION_START};
-    const cv::Point LINE_3_LENGTH {LINE_3_DEST - LINE_3_START};
-    const cv::Point LINE_3_LENGTH_DELTA {
-        LINE_3_LENGTH * count / LINE_3_ANIMATION_LENGTH};
-    cv::line(image,
-             LINE_3_START,
-             LINE_3_START + LINE_3_LENGTH_DELTA,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  } else if (LINE_3_ANIMATION_END <= count_) {
-    cv::line(image,
-             LINE_3_START,
-             LINE_3_DEST,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  }
-
-  // curve 2
-  const std::array<cv::Point, 3> BEZIER_COOD_2{
-      BASE_POINT.at(3) + cv::Point{-BEZIER_LENGTH, BEZIER_LENGTH},
-      BASE_POINT.at(3),
-      BASE_POINT.at(3) + cv::Point{BEZIER_LENGTH, 0}};
-
-  if (LINE_3_ANIMATION_END <= count_) {
-    create_bezier_curve(&image, BEZIER_COOD_2, BASIC_COLOR, LINE_THICKNESS);
-  }
-
-
-  // line animation 4
-  const cv::Point LINE_4_START {BEZIER_COOD_2.at(2)};
-  const cv::Point LINE_4_DEST {BASE_POINT.at(4)};
-  const int LINE_4_ANIMATION_START {31};
-  const int LINE_4_ANIMATION_END {40};
-  const int LINE_4_ANIMATION_LENGTH {
-      LINE_4_ANIMATION_END - LINE_4_ANIMATION_START + 1};
-
-  if (LINE_4_ANIMATION_START <= count_ && count_ < LINE_4_ANIMATION_END) {
-    const int count {count_ - LINE_4_ANIMATION_START};
-    const cv::Point LINE_4_LENGTH {LINE_4_DEST - LINE_4_START};
-    const cv::Point LINE_4_LENGTH_DELTA {
-        LINE_4_LENGTH * count / LINE_4_ANIMATION_LENGTH};
-    cv::line(image,
-             LINE_4_START,
-             LINE_4_START + LINE_4_LENGTH_DELTA,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  } else if (LINE_4_ANIMATION_END <= count_) {
-    cv::line(image,
-             LINE_4_START,
-             LINE_4_DEST,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  }
-
-  // line animation 5
-  const cv::Point LINE_5_START {BASE_POINT.at(2)};
-  const cv::Point LINE_5_DEST {BASE_POINT.at(5)};
-  const int LINE_5_ANIMATION_START {21};
-  const int LINE_5_ANIMATION_END {30};
-  const int LINE_5_ANIMATION_LENGTH{
-      LINE_5_ANIMATION_END - LINE_5_ANIMATION_START + 1};
-
-  if (LINE_5_ANIMATION_START <= count_ && count_ < LINE_5_ANIMATION_END) {
-    const int count {count_ - LINE_3_ANIMATION_START};
-    const cv::Point LINE_5_LENGTH {LINE_5_DEST - LINE_5_START};
-    const cv::Point LINE_5_LENGTH_DELTA {
-        LINE_5_LENGTH * count / LINE_5_ANIMATION_LENGTH};
-
-    cv::line(image,
-             LINE_5_START,
-             LINE_5_START + LINE_5_LENGTH_DELTA,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  } else if (LINE_5_ANIMATION_END <= count_) {
-    cv::line(image,
-             LINE_5_START,
-             LINE_5_DEST,
-             BASIC_COLOR, LINE_THICKNESS, CV_AA);
-  }
-
-  // circle 2
-  const int CIRCLE_2_RADIUS_OUT {15};
-  const int CIRCLE_2_OUT_ANIMATION_START {11};
-  const int CIRCLE_2_OUT_ANIMATION_LENGTH {20};
-  const int CIRCLE_2_OUT_ANIMATION_END {
-      CIRCLE_2_OUT_ANIMATION_START + CIRCLE_2_OUT_ANIMATION_LENGTH - 1};
-
-  const int CIRCLE_2_RADIUS_IN {CIRCLE_2_RADIUS_OUT - (LINE_THICKNESS*2 - 1)};
-  const int CIRCLE_2_IN_ANIMATION_START {21};
-  const int CIRCLE_2_IN_ANIMATION_LENGTH {20};
-  const int CIRCLE_2_IN_ANIMATION_END {
-      CIRCLE_2_IN_ANIMATION_START + CIRCLE_2_IN_ANIMATION_LENGTH - 1};
-
-  if (11 <= count_ && count_ <= 30) {
-    const int count{count_ - CIRCLE_2_OUT_ANIMATION_START};
-    cv::circle(image,
-               BASE_POINT.at(2),
-               CIRCLE_2_RADIUS_OUT * count / CIRCLE_2_OUT_ANIMATION_LENGTH,
-               BASIC_COLOR, -1, CV_AA);
-  } else if (30 < count_){
-    cv::circle(image,
-               BASE_POINT.at(2),
-               CIRCLE_2_RADIUS_OUT,
-               BASIC_COLOR, -1, CV_AA);
-  }
-  if (21 <= count_ && count_ <= 40) {
-    int count = count_ - CIRCLE_2_IN_ANIMATION_START;
-    cv::circle(image,
-               BASE_POINT.at(2),
-               CIRCLE_2_RADIUS_IN * count / CIRCLE_2_IN_ANIMATION_LENGTH,
-               cv::Scalar(0), -1, CV_AA);
-  } else if (40 < count_){
-    cv::circle(image,
-               BASE_POINT.at(2),
-               CIRCLE_2_RADIUS_IN,
-               cv::Scalar(0), -1, CV_AA);
-  }
-
-  // HP bar
-  const int health {main_chara->get_health()};
-  const int max_health {main_chara->get_max_health()};
-
-  const int HP_BAR_RADIUS_IN {50};
-  const int HP_BAR_RADIUS_OUT {60};
-  const cv::Point HP_BAR_CENTER {BASE_POINT.at(4)};
-
-  // HP bar background
-  const int HP_BAR_BACK_ANIMATION_START {11};
-  const int HP_BAR_BACK_ANIMATION_END {40};
-  const int HP_BAR_BACK_ANIMATION_LENGTH {
-      HP_BAR_BACK_ANIMATION_END - HP_BAR_BACK_ANIMATION_START + 1};
-  const cv::Scalar HP_BAR_BACK {BASIC_COLOR[0], BASIC_COLOR[1],
-                                BASIC_COLOR[2], BASIC_COLOR[3]/2};
-  if (HP_BAR_BACK_ANIMATION_START <= count_ &&
-      count_ <= HP_BAR_BACK_ANIMATION_END) {
-    const int count {count_ - HP_BAR_BACK_ANIMATION_START};
-    cv::ellipse(image,
-                HP_BAR_CENTER,
-                cv::Size(HP_BAR_RADIUS_OUT, HP_BAR_RADIUS_OUT),
-                270, 0, 360 * count / HP_BAR_BACK_ANIMATION_LENGTH,
-                HP_BAR_BACK, -1, CV_AA);
-    cv::ellipse(image,
-                HP_BAR_CENTER,
-                cv::Size(HP_BAR_RADIUS_IN, HP_BAR_RADIUS_IN),
-                0, 0, 360,
-                cv::Scalar(0), -1, CV_AA);
-  } else if (HP_BAR_BACK_ANIMATION_END < count_) {
-    cv::ellipse(image,
-                HP_BAR_CENTER,
-                cv::Size(HP_BAR_RADIUS_OUT, HP_BAR_RADIUS_OUT),
-                0, 0, 360,
-                HP_BAR_BACK, -1, CV_AA);
-    cv::ellipse(image,
-                HP_BAR_CENTER,
-                cv::Size(HP_BAR_RADIUS_IN, HP_BAR_RADIUS_IN),
-                0, 0, 360,
-                cv::Scalar(0), -1, CV_AA);
-  }
-
-  // HP bar foreground
-  const int HP_BAR_FORE_ANIMATION_START {31};
-  const int HP_BAR_FORE_ANIMATION_END {60};
-  const int HP_BAR_FORE_ANIMATION_LENGTH {
-      HP_BAR_FORE_ANIMATION_END - HP_BAR_FORE_ANIMATION_START + 1};
-  const cv::Scalar HP_BAR_FORE {BASIC_COLOR};
-  if (HP_BAR_FORE_ANIMATION_START <= count_ &&
-      count_ <= HP_BAR_FORE_ANIMATION_END) {
-    const int count {count_ - HP_BAR_FORE_ANIMATION_START};
-    cv::ellipse(image,
-                HP_BAR_CENTER,
-                cv::Size{HP_BAR_RADIUS_OUT, HP_BAR_RADIUS_OUT},
-                270, 0, 360 * count / HP_BAR_FORE_ANIMATION_LENGTH,
-                HP_BAR_FORE, -1, CV_AA);
-    cv::ellipse(image,
-                HP_BAR_CENTER,
-                cv::Size{HP_BAR_RADIUS_IN, HP_BAR_RADIUS_IN},
-                0, 0, 360,
-                cv::Scalar(0), -1, CV_AA);
-  } else if (HP_BAR_FORE_ANIMATION_END < count_) {
-    cv::ellipse(image,
-                HP_BAR_CENTER,
-                cv::Size{HP_BAR_RADIUS_OUT, HP_BAR_RADIUS_OUT},
-                -90, 0, 360 * health / max_health,
-                HP_BAR_FORE, -1, CV_AA);
-    cv::ellipse(image,
-                HP_BAR_CENTER,
-                cv::Size{HP_BAR_RADIUS_IN, HP_BAR_RADIUS_IN},
-                0, 0, 360,
-                cv::Scalar(0), -1, CV_AA);
-  }
-
-  if (45 <= count_ && count_ < 75) {
-    int count {count_-45};
-    cv::ellipse(image,
-                HP_BAR_CENTER,
-                cv::Size{HP_BAR_RADIUS_IN - 5, HP_BAR_RADIUS_IN - 5},
-                270, 0, 360 * count / 30,
-                HP_BAR_FORE, LINE_THICKNESS, CV_AA);
-  } else if (75 <= count_) {
-    cv::ellipse(image,
-                HP_BAR_CENTER,
-                cv::Size{HP_BAR_RADIUS_IN - 5, HP_BAR_RADIUS_IN - 5},
-                270, 0, 360,
-                HP_BAR_FORE, LINE_THICKNESS, CV_AA);
-  }
-
-  // Time bar
-  const int TIME_BAR_RADIUS_IN {30};
-  const int TIME_BAR_RADIUS_OUT {40};
-  const cv::Point TIME_BAR_CENTER {BASE_POINT.at(5)};
-
-  const int TIME_BAR_BACK_ANIMATION_START {LINE_5_ANIMATION_START};
-  const int TIME_BAR_BACK_ANIMATION_LENGTH {30};
-  const int TIME_BAR_BACK_ANIMATION_END {
-      TIME_BAR_BACK_ANIMATION_START+TIME_BAR_BACK_ANIMATION_LENGTH-1};
-
-  const int TIME_BAR_FORE_ANIMATION_START {TIME_BAR_BACK_ANIMATION_START+20};
-  const int TIME_BAR_FORE_ANIMATION_LENGTH {30};
-  const int TIME_BAR_FORE_ANIMATION_END {
-      TIME_BAR_FORE_ANIMATION_START+TIME_BAR_FORE_ANIMATION_LENGTH-1};
-
-  // Strength bar
-  if (TIME_BAR_BACK_ANIMATION_START <= count_ &&
-      count_ <= TIME_BAR_BACK_ANIMATION_END) {
-    const int count = count_ - TIME_BAR_BACK_ANIMATION_START;
-
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
-                45 + 5 - 1, 0,
-                (90-10)* count / TIME_BAR_BACK_ANIMATION_LENGTH,
-                HP_BAR_BACK, -1, CV_AA);
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
-                90 + 45 + 5 - 3, 0,
-                (90-10)* count / TIME_BAR_BACK_ANIMATION_LENGTH,
-                HP_BAR_BACK, -1, CV_AA);
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
-                180 + 45 + 5 + 3, 0,
-                (90-10)* count / TIME_BAR_BACK_ANIMATION_LENGTH,
-                HP_BAR_BACK, -1, CV_AA);
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
-                270 + 45 + 5 + 1, 0,
-                (90-10)* count / TIME_BAR_BACK_ANIMATION_LENGTH,
-                HP_BAR_BACK, -1, CV_AA);
-
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size{TIME_BAR_RADIUS_IN, TIME_BAR_RADIUS_IN},
-                0, 0, 360,
-                cv::Scalar{0}, -1, CV_AA);
-  } else if (TIME_BAR_BACK_ANIMATION_END < count_) {
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
-                45 + 5 - 1, 0, 90-10,
-                HP_BAR_BACK, -1, CV_AA);
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
-                90 + 45 + 5 - 3, 0, 90-10,
-                HP_BAR_BACK, -1, CV_AA);
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
-                180 + 45 + 5 + 3, 0, 90-10,
-                HP_BAR_BACK, -1, CV_AA);
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size{TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT},
-                270 + 45 + 5 + 1, 0, 90-10,
-                HP_BAR_BACK, -1, CV_AA);
-
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size{TIME_BAR_RADIUS_IN, TIME_BAR_RADIUS_IN},
-                0, 0, 360,
-                cv::Scalar{0}, -1, CV_AA);
-  }
-
-  std::vector<std::string> normal_move_name {main_chara->get_normal_move()};
-  std::pair<int, int> power {
-      main_chara->get_normal_move_power(normal_move_name.at(0))};
-
-  if (TIME_BAR_FORE_ANIMATION_START <= count_ &&
-      count_ <= TIME_BAR_FORE_ANIMATION_END) {
-    const int count {count_ - TIME_BAR_FORE_ANIMATION_START};
-
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
-                45 + 5 - 1, 0,
-                (90-10)* count / TIME_BAR_FORE_ANIMATION_LENGTH,
-                HP_BAR_FORE, -1, CV_AA);
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
-                90 + 45 + 5 - 3, 0,
-                (90-10)* count / TIME_BAR_FORE_ANIMATION_LENGTH,
-                HP_BAR_FORE, -1, CV_AA);
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
-                180 + 45 + 5 + 3, 0,
-                (90-10)* count / TIME_BAR_FORE_ANIMATION_LENGTH,
-                HP_BAR_FORE, -1, CV_AA);
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
-                270 + 45 + 5 + 1, 0,
-                (90-10)* count / TIME_BAR_FORE_ANIMATION_LENGTH,
-                HP_BAR_FORE, -1, CV_AA);
-
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size(TIME_BAR_RADIUS_IN, TIME_BAR_RADIUS_IN),
-                0, 0, 360,
-                cv::Scalar(0), -1, CV_AA);
-  } else if (TIME_BAR_FORE_ANIMATION_END < count_) {
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
-                45 + 5 - 1, 0, (90-10)*power.first/power.second,
-                HP_BAR_FORE, -1, CV_AA);
-    power = main_chara->get_normal_move_power(normal_move_name.at(1));
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
-                90 + 45 + 5 - 3, 0, (90-10)*power.first/power.second,
-                HP_BAR_FORE, -1, CV_AA);
-    power = main_chara->get_normal_move_power(normal_move_name.at(2));
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
-                180 + 45 + 5 + 3, 0, (90-10)*power.first/power.second,
-                HP_BAR_FORE, -1, CV_AA);
-    power = main_chara->get_normal_move_power(normal_move_name.at(3));
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size(TIME_BAR_RADIUS_OUT, TIME_BAR_RADIUS_OUT),
-                270 + 45 + 5 + 1, 0, (90-10)*power.first/power.second,
-                HP_BAR_FORE, -1, CV_AA);
-
-    cv::ellipse(image,
-                TIME_BAR_CENTER,
-                cv::Size(TIME_BAR_RADIUS_IN, TIME_BAR_RADIUS_IN),
-                0, 0, 360,
-                cv::Scalar(0), -1, CV_AA);
-  }
-
-//  std::vector<::uchar> cv_buffer {};
-//  cv_buffer.reserve(HP_info::TEXTURE_SIZE.width *
-//                    HP_info::TEXTURE_SIZE.height * sizeof(::DWORD));
-//  cv::imencode(".bmp", image, cv_buffer);
-
-//  ::LPDIRECT3DTEXTURE9 temp_texture {};
-//  if (FAILED(::D3DXCreateTextureFromFileInMemory(
-//      hp_info.outer_.d3d_device_.get(),
-//      &cv_buffer[0],
-//      static_cast<::UINT>(cv_buffer.size()),
-//      &temp_texture))) {
-//    THROW_WITH_TRACE("Failed create round rect.");
-//  }
-//
-//  hp_info.texture_->value_.reset(temp_texture, custom_deleter{});
-
-  ::D3DLOCKED_RECT locked_rect{};
-  hp_info.texture_->value_->LockRect(0, &locked_rect, nullptr, 0);
-
-  ::BYTE* pTexBuf = (::BYTE*)locked_rect.pBits;
-
-  for (int j{0}; j < 1024; ++j) {
-    for (int i{0}; i < 1024; ++i) {
-      pTexBuf[j*1024*4 + (i*4)+0] = image.data[j*1024*4 + (i*4)+0];
-      pTexBuf[j*1024*4 + (i*4)+1] = image.data[j*1024*4 + (i*4)+1];
-      pTexBuf[j*1024*4 + (i*4)+2] = image.data[j*1024*4 + (i*4)+2];
-      pTexBuf[j*1024*4 + (i*4)+3] = image.data[j*1024*4 + (i*4)+3];
-    }
-  }
-
-  const ::DWORD LETTER_COLOR {
-      D3DCOLOR_ARGB(static_cast<int>(BASIC_COLOR[3]),
-                    static_cast<int>(BASIC_COLOR[2]),
-                    static_cast<int>(BASIC_COLOR[1]),
-                    static_cast<int>(BASIC_COLOR[0]))};
-
-  const int LETTER_FADE_DURATION {10};
-
-  if (CIRCLE_2_IN_ANIMATION_END <= count_ &&
-      count_ < CIRCLE_2_IN_ANIMATION_END + LETTER_FADE_DURATION) {
-    const int count {count_ - CIRCLE_2_IN_ANIMATION_END};
-    ::DWORD letter_color {D3DCOLOR_ARGB(
-        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
-        static_cast<int>(BASIC_COLOR[2]),
-        static_cast<int>(BASIC_COLOR[1]),
-        static_cast<int>(BASIC_COLOR[0]))};
-
-    // stage number
-    add_text(hp_info.texture_->value_, "Stage No",
-             cv::Rect(BASE_POINT.at(2) - cv::Point(87, 21),
-                      hp_info.texture_->rect_.size()),
-                      letter_color, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-
-    add_text(hp_info.texture_->value_, "13",
-             cv::Rect(BASE_POINT.at(2) - cv::Point(8, 9),
-                      hp_info.texture_->rect_.size()),
-                      letter_color, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-  } else if (CIRCLE_2_IN_ANIMATION_END + LETTER_FADE_DURATION <= count_) {
-    // stage number
-    add_text(hp_info.texture_->value_, "Stage No",
-             cv::Rect(BASE_POINT.at(2) - cv::Point(87, 21),
-                      hp_info.texture_->rect_.size()),
-                      LETTER_COLOR, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-
-    add_text(hp_info.texture_->value_, "13",
-             cv::Rect(BASE_POINT.at(2) - cv::Point(8, 9),
-                      hp_info.texture_->rect_.size()),
-                      LETTER_COLOR, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-  }
-
-  // Time
-  if (TIME_BAR_BACK_ANIMATION_END <= count_ &&
-      count_ < TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION) {
-    const int count = count_ - TIME_BAR_BACK_ANIMATION_END;
-    ::DWORD letter_color {D3DCOLOR_ARGB(
-        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
-        static_cast<int>(BASIC_COLOR[2]),
-        static_cast<int>(BASIC_COLOR[1]),
-        static_cast<int>(BASIC_COLOR[0]))};
-
-    add_text(hp_info.texture_->value_, "Time",
-             cv::Rect(BASE_POINT.at(5) + cv::Point(-18, -19),
-                      hp_info.texture_->rect_.size()),
-                      letter_color, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-
-    add_text(hp_info.texture_->value_, "99",
-             cv::Rect(BASE_POINT.at(5) + cv::Point(-12, -2),
-                      hp_info.texture_->rect_.size()),
-                      letter_color, "游ゴシック", 30, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-  } else if (TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION <= count_) {
-    add_text(hp_info.texture_->value_, "Time",
-             cv::Rect(BASE_POINT.at(5) + cv::Point(-18, -19),
-                      hp_info.texture_->rect_.size()),
-                      LETTER_COLOR, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-
-    add_text(hp_info.texture_->value_, "99",
-             cv::Rect(BASE_POINT.at(5) + cv::Point(-12, -2),
-                      hp_info.texture_->rect_.size()),
-                      LETTER_COLOR, "游ゴシック", 30, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-  }
-
-  // strength 1
-  std::string text {""};
-  text = normal_move_name.at(0);
-  text += ":";
-  text += std::to_string(
-      main_chara->get_normal_move_power(normal_move_name.at(0)).first);
-  if (TIME_BAR_BACK_ANIMATION_START+5 <= count_ &&
-      count_ < TIME_BAR_BACK_ANIMATION_START+5 + LETTER_FADE_DURATION) {
-    const int count {count_ - TIME_BAR_BACK_ANIMATION_START-5};
-    ::DWORD letter_color {D3DCOLOR_ARGB(
-        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
-        static_cast<int>(BASIC_COLOR[2]),
-        static_cast<int>(BASIC_COLOR[1]),
-        static_cast<int>(BASIC_COLOR[0]))};
-
-    add_text(hp_info.texture_->value_, text,
-             cv::Rect(BASE_POINT.at(5) + cv::Point(-30, -60 -9),
-                      hp_info.texture_->rect_.size()),
-                      letter_color, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-  } else if (TIME_BAR_BACK_ANIMATION_START+5 + LETTER_FADE_DURATION <= count_) {
-    add_text(hp_info.texture_->value_, text,
-             cv::Rect(BASE_POINT.at(5) + cv::Point(-30, -60 -9),
-                      hp_info.texture_->rect_.size()),
-                      LETTER_COLOR, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-  }
-
-  // strength 2
-  text = normal_move_name.at(1);
-  text += ":";
-  text += std::to_string(
-      main_chara->get_normal_move_power(normal_move_name.at(1)).first);
-  if (TIME_BAR_BACK_ANIMATION_START+10 <= count_ &&
-      count_ < TIME_BAR_BACK_ANIMATION_START+10 + LETTER_FADE_DURATION) {
-    const int count{count_ - TIME_BAR_BACK_ANIMATION_START-10};
-    ::DWORD letter_color = D3DCOLOR_ARGB(
-        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
-        static_cast<int>(BASIC_COLOR[2]),
-        static_cast<int>(BASIC_COLOR[1]),
-        static_cast<int>(BASIC_COLOR[0]));
-
-    add_text(hp_info.texture_->value_, text,
-             cv::Rect(BASE_POINT.at(5) + cv::Point(50, -9),
-                      hp_info.texture_->rect_.size()),
-                      letter_color, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-  } else if (TIME_BAR_BACK_ANIMATION_START+10 + LETTER_FADE_DURATION <= count_) {
-    add_text(hp_info.texture_->value_, text,
-             cv::Rect(BASE_POINT.at(5) + cv::Point(50, -9),
-                      hp_info.texture_->rect_.size()),
-                      LETTER_COLOR, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-  }
-
-  // strength 3
-  text = normal_move_name.at(2);
-  text += ":";
-  text += std::to_string(
-      main_chara->get_normal_move_power(normal_move_name.at(2)).first);
-  if (TIME_BAR_BACK_ANIMATION_START+15 <= count_ &&
-      count_ < TIME_BAR_BACK_ANIMATION_START+15 + LETTER_FADE_DURATION) {
-    const int count{count_ - TIME_BAR_BACK_ANIMATION_START-15};
-    ::DWORD letter_color {D3DCOLOR_ARGB(
-        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
-        static_cast<int>(BASIC_COLOR[2]),
-        static_cast<int>(BASIC_COLOR[1]),
-        static_cast<int>(BASIC_COLOR[0]))};
-
-    add_text(hp_info.texture_->value_, text,
-             cv::Rect(BASE_POINT.at(5) + cv::Point(-30, 60 -9),
-                      hp_info.texture_->rect_.size()),
-                      letter_color, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-  } else if (TIME_BAR_BACK_ANIMATION_START+15 + LETTER_FADE_DURATION <= count_) {
-    add_text(hp_info.texture_->value_, text,
-             cv::Rect(BASE_POINT.at(5) + cv::Point(-30, 60 -9),
-                      hp_info.texture_->rect_.size()),
-                      LETTER_COLOR, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-  }
-
-  // strength 4
-  text = normal_move_name.at(3);
-  text += ":";
-  text += std::to_string(
-      main_chara->get_normal_move_power(normal_move_name.at(3)).first);
-  if (TIME_BAR_BACK_ANIMATION_START+20 <= count_ &&
-      count_ < TIME_BAR_BACK_ANIMATION_START+20 + LETTER_FADE_DURATION) {
-    const int count{count_ - TIME_BAR_BACK_ANIMATION_START-20};
-    ::DWORD letter_color = D3DCOLOR_ARGB(
-        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
-        static_cast<int>(BASIC_COLOR[2]),
-        static_cast<int>(BASIC_COLOR[1]),
-        static_cast<int>(BASIC_COLOR[0]));
-
-    add_text(hp_info.texture_->value_, text,
-             cv::Rect(BASE_POINT.at(5) + cv::Point(-140, -9),
-                      hp_info.texture_->rect_.size()),
-                      letter_color, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-  } else if (TIME_BAR_BACK_ANIMATION_START+20 + LETTER_FADE_DURATION <=
-             count_) {
-    add_text(hp_info.texture_->value_, text,
-             cv::Rect(BASE_POINT.at(5) + cv::Point(-140, -9),
-                      hp_info.texture_->rect_.size()),
-                      LETTER_COLOR, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-  }
-
-  // HP
-  const std::string sz_health{boost::lexical_cast<std::string>(health)};
-  const std::string sz_max_health{
-      "/ " + boost::lexical_cast<std::string>(max_health)};
-
-  if (LINE_4_ANIMATION_END <= count_ &&
-      count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION) {
-    const int count{count_ - LINE_4_ANIMATION_END};
-    ::DWORD letter_color = D3DCOLOR_ARGB(
-        static_cast<int>(BASIC_COLOR[3] * count/LETTER_FADE_DURATION),
-        static_cast<int>(BASIC_COLOR[2]),
-        static_cast<int>(BASIC_COLOR[1]),
-        static_cast<int>(BASIC_COLOR[0]));
-
-    add_text(hp_info.texture_->value_, "HP",
-             cv::Rect(BASE_POINT.at(4) + cv::Point(-10, -30),
-                      hp_info.texture_->rect_.size()),
-                      letter_color, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-
-    add_text(hp_info.texture_->value_, sz_health,
-             cv::Rect(BASE_POINT.at(4) + cv::Point(-33, -10),
-                      hp_info.texture_->rect_.size()),
-                      letter_color, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, false);
-
-    add_text(hp_info.texture_->value_, sz_max_health,
-             cv::Rect(BASE_POINT.at(4) + cv::Point(-20, 10),
-                      hp_info.texture_->rect_.size()),
-                      letter_color, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, false);
-
-  } else if(LINE_4_ANIMATION_END + LETTER_FADE_DURATION <= count_) {
-    add_text(hp_info.texture_->value_, "HP",
-             cv::Rect(BASE_POINT.at(4) + cv::Point(-10, -30),
-                      hp_info.texture_->rect_.size()),
-                      LETTER_COLOR, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, true);
-
-    add_text(hp_info.texture_->value_, sz_health,
-             cv::Rect(BASE_POINT.at(4) + cv::Point(-33, -10),
-                      hp_info.texture_->rect_.size()),
-                      LETTER_COLOR, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      ANSI_CHARSET, false);
-
-    add_text(hp_info.texture_->value_, sz_max_health,
-             cv::Rect(BASE_POINT.at(4) + cv::Point(-20, 10),
-                      hp_info.texture_->rect_.size()),
-                      LETTER_COLOR, "游ゴシック", 20, FW_NORMAL, locked_rect,
-                      SHIFTJIS_CHARSET, false);
-  }
-  hp_info.texture_->value_->UnlockRect(0);
+  HP_info_drawer_->set_count(count+1);
+  HP_info_drawer_->set_charge_func_index(0);
+  std::fill(HP_info_drawer_->get_idles(),
+            HP_info_drawer_->get_idles() + HP_info_drawer::THREAD_NUM,
+            false);
+  HP_info_drawer_->get_idle_condition_variable().notify_all();
+
+  return;
 }
 
 void hud::operator()(basic_window& a_basic_window)
 {
-//  auto th1 = std::thread([&]{
-//    std::vector<decltype(frame_list_)::iterator> abandon;
-//    for (decltype(frame_list_)::iterator frame{frame_list_.begin()};
-//         frame != frame_list_.end(); ++frame) {
-//      if (frame->frame_animator_ != nullptr) {
-//        if (!(*frame->frame_animator_)(*frame)) {
-//          abandon.push_back(frame);
-//        }
-//      }
-//    }
-//
-//    for (auto&& x : abandon) {
-//      textures_.erase(x->texture_);
-//      frame_list_.erase(x);
-//    }
-//  });
-//  auto th2 = std::thread([&]{
-//    for (auto&& message : message_list_) {
-//      if (message.message_writer_ != nullptr) {
-//        (*message.message_writer_)();
-//      }
-//    }
-//  });
-//
-//  auto th3 = std::thread([&]{
-//    if (HP_info_ != nullptr && HP_info_->HP_info_animator_ != nullptr) {
-//      (*HP_info_->HP_info_animator_)(*HP_info_, a_basic_window);
-//    }
-//  });
-//  th1.join();
-//  th2.join();
-//  th3.join();
   std::vector<decltype(frame_list_)::iterator> abandon;
   for (decltype(frame_list_)::iterator frame{frame_list_.begin()};
        frame != frame_list_.end(); ++frame) {

@@ -174,6 +174,9 @@ bool message_writer::write_character(::D3DLOCKED_RECT& locked_rect)
     return false;
   }
   unsigned char c[2]{};
+  // Copy 2 bytes because shiftjis chara code.
+  // But if the read position is last index, do not read 2nd character because
+  // it is outside of "message_". So at that time, read 1 byte.
   if (message_.begin() + character_index_ + 1 != message_.end()) {
     c[0] = (unsigned char)message_.at(character_index_);
     c[1] = (unsigned char)message_.at(character_index_ + 1);
@@ -183,10 +186,10 @@ bool message_writer::write_character(::D3DLOCKED_RECT& locked_rect)
 
   ::UINT char_code{};
   bool b_ascii{};
+  // If 1st byte is not ascii, combine c[0] and c[1].
   if ((0x81 <= c[0] && c[0] <= 0x9f) || (0xe0 <= c[0] && c[0] <= 0xef)) {
     char_code = (c[0] << 8) + c[1];
     ++character_index_;
-    b_ascii = true;
   } else if (c[0] == '\n') {
     font_height_sum_ += text_metric_.tmHeight;
     font_width_sum_ = rect_.x;
@@ -194,6 +197,7 @@ bool message_writer::write_character(::D3DLOCKED_RECT& locked_rect)
     return true;
   } else {
     char_code = c[0];
+    b_ascii = true;
   }
 
   const ::UINT GGO_FLAG{GGO_GRAY4_BITMAP};
@@ -212,6 +216,7 @@ bool message_writer::write_character(::D3DLOCKED_RECT& locked_rect)
   ::GetGlyphOutline(hdc_, char_code, GGO_FLAG, &glyph_metrics,
                     mono_font_data_size, letter.get(), &mat);
 
+  // If char_code is space, add font_width_sum_ some width and return.
   if (char_code == 0x20) {
     if (proportional_) {
         font_width_sum_ += glyph_metrics.gmCellIncX - 1;
@@ -231,16 +236,20 @@ bool message_writer::write_character(::D3DLOCKED_RECT& locked_rect)
     return true;
   }
 
+  // Align with a multiple of 4.
   const ::UINT font_width{(glyph_metrics.gmBlackBoxX + 3) / 4 * 4};
   const ::UINT font_height{glyph_metrics.gmBlackBoxY};
 
+  // If character may go outside over leftmost, return.
   if (static_cast<::UINT>(rect_.width) < font_width_sum_ + font_width) {
     font_height_sum_ += text_metric_.tmHeight;
     font_width_sum_ = rect_.x;
-    b_ascii ? character_index_ -= 2 : --character_index_;
+    b_ascii ? --character_index_ : character_index_ -= 2;
     ++character_index_;
     return true;
-  } else if (rect_.height < font_height_sum_ + text_metric_.tmHeight) {
+  }
+  // If character may go down over bottom, scroll one line? and return.
+  else if (rect_.height < font_height_sum_ + text_metric_.tmHeight) {
     for (std::size_t y{0}; y < static_cast<std::size_t>(rect_.height); ++y) {
       for (std::size_t x{0}; x < static_cast<std::size_t>(rect_.width); ++x) {
         if (y+text_metric_.tmHeight < rect_.height) {
@@ -281,8 +290,6 @@ bool message_writer::write_character(::D3DLOCKED_RECT& locked_rect)
       current_alpha = *texture_pixel & 0xff000000UL;
       current_alpha >>= 24;
 
-      // C++17
-      // sum_alpha     = std::clamp(current_alpha+new_alpha, 0UL, 255UL);
       sum_alpha = std::min(std::max(current_alpha + new_alpha, 0UL), 255UL);
 
       *texture_pixel =
