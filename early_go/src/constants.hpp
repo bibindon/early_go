@@ -38,7 +38,7 @@ struct constants {
 
 };
 
-enum direction {
+enum class direction {
   FRONT,
   LEFT,
   BACK,

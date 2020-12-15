@@ -206,7 +206,8 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
   early_->set_animation_config("Damaged",      false, 1.0f);
 
   suo_->set_position(cv::Point3i{-1, 0, 2});
-  suo_->set_health(3);
+  suo_->set_max_health(10);
+  suo_->set_health(9);
   suo_->add_mesh<skinned_animation_mesh>(constants::SUO_BODY);
   suo_->add_mesh<skinned_animation_mesh>(constants::SUO_ARMOR);
   suo_->add_mesh<animation_mesh>(constants::SUO_SABER);
@@ -647,6 +648,35 @@ void basic_window::render()
 
     d3d_device_->EndScene();
   }
+  /*
+  // Fix 60 fps instantly.
+  static std::chrono::system_clock::time_point current_time;
+  static std::chrono::system_clock::time_point previous_time
+      = std::chrono::system_clock::now();
+
+  current_time = std::chrono::system_clock::now();
+
+  std::chrono::system_clock::rep elapsed{
+      std::chrono::duration_cast<std::chrono::milliseconds>(
+          current_time - previous_time).count()};
+
+  const int purpose_fps = 60;
+  int milli_sleep_time = (1000 / purpose_fps) - static_cast<int>(elapsed);
+
+  // tweak
+  static int count = 0;
+  ++count;
+  if (count >= 2) {
+    --milli_sleep_time;
+    count = 0;
+  }
+
+  if (milli_sleep_time >= 1) {
+    ::Sleep(milli_sleep_time);
+  }
+
+  previous_time = std::chrono::system_clock::now();
+  */
   d3d_device_->Present(nullptr, nullptr, nullptr, nullptr);
 }
 
