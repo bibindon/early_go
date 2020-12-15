@@ -73,9 +73,9 @@
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\boost.1.68.0.0\build\boost.targets" Condition="Exists('..\packages\boost.1.68.0.0\build\boost.targets')" />
     <Import Project="..\packages\opencv.win.native.redist.320.1.1-vs141\build\native\opencv.win.native.redist.targets" Condition="Exists('..\packages\opencv.win.native.redist.320.1.1-vs141\build\native\opencv.win.native.redist.targets')" />
     <Import Project="..\packages\opencv.win.native.320.1.1-vs141\build\native\opencv.win.native.targets" Condition="Exists('..\packages\opencv.win.native.320.1.1-vs141\build\native\opencv.win.native.targets')" />
+    <Import Project="..\packages\boost.1.72.0.0\build\boost.targets" Condition="Exists('..\packages\boost.1.72.0.0\build\boost.targets')" />
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -156,8 +156,8 @@
     <PropertyGroup>
       <ErrorText>このプロジェクトは、このコンピューター上にない NuGet パッケージを参照しています。それらのパッケージをダウンロードするには、[NuGet パッケージの復元] を使用します。詳細については、http://go.microsoft.com/fwlink/?LinkID=322105 を参照してください。見つからないファイルは {0} です。</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\boost.1.68.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.68.0.0\build\boost.targets'))" />
     <Error Condition="!Exists('..\packages\opencv.win.native.redist.320.1.1-vs141\build\native\opencv.win.native.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\opencv.win.native.redist.320.1.1-vs141\build\native\opencv.win.native.redist.targets'))" />
     <Error Condition="!Exists('..\packages\opencv.win.native.320.1.1-vs141\build\native\opencv.win.native.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\opencv.win.native.320.1.1-vs141\build\native\opencv.win.native.targets'))" />
+    <Error Condition="!Exists('..\packages\boost.1.72.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.72.0.0\build\boost.targets'))" />
   </Target>
 </Project>
