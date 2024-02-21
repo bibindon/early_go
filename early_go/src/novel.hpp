@@ -1,0 +1,41 @@
+#ifndef NOVEL_HPP
+#define NOVEL_HPP
+
+#include <lua.hpp>
+#include <lauxlib.h>
+#include <lualib.h>
+
+#include "stdafx.hpp"
+#include "key.hpp"
+#include "basic_window.hpp"
+
+namespace early_go {
+class basic_window;
+class novel {
+public:
+  bool get_is_novel_part() const {return is_novel_part_;}
+  void set_is_novel_part(const bool val) {is_novel_part_ = val;}
+  void operator()(basic_window&);
+  lua_State* lua_state_;
+private:
+  static int glue_draw_background(::lua_State*);
+  static int glue_draw_portrait(::lua_State*);
+  static int glue_draw_portrait_flip(::lua_State*);
+  static int glue_remove_portrait(::lua_State*);
+  static int glue_fade_in(::lua_State*);
+  static int glue_fade_out(::lua_State*);
+  static int glue_draw_message_window(::lua_State*);
+  static int glue_draw_text(::lua_State*);
+//  static int glue_shake(::lua_State*);
+  static void redraw_portrait();
+  bool is_novel_part_;
+  static basic_window* window_;
+  // i.e. {"early", "center", true} ->
+  //      {"shiho", "left", false}  ->
+  //      {"suo", "right", true}
+  // bool is whether flip or not.
+  static std::deque<
+      std::tuple<std::string, std::string, bool> > portrait_order_;
+};
+} /* namespace early_go */
+#endif

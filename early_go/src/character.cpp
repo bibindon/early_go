@@ -781,6 +781,15 @@ std::pair<int, int> character::get_special_move_power(const std::string& name)
   return std::make_pair(it->power_, it->max_power_);
 }
 
+bool character::is_tex_animation_finished(const std::string& x_filename,
+                                          const int&         layer_number)
+{
+  if (mesh_map_.find(x_filename) != mesh_map_.end()) {
+    return mesh_map_.at(x_filename)->is_tex_animation_finished(layer_number);
+  }
+  return true;
+}
+
 character::normal_move::normal_move(const std::string& name,
                                     const int& power,
                                     const int& max_power)

@@ -81,6 +81,10 @@ base_mesh::base_mesh(const std::shared_ptr<::IDirect3DDevice9>& d3d_device,
 
       dynamic_texture_.textures_.at(i).reset(temp_texture, custom_deleter{});
       dynamic_texture_.positions_.at(i) = ::D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f);
+      dynamic_texture_.tex_size_.at(i) =
+          cv::Size{constants::EMPTY_TEXTURE_SIZE,
+                   constants::EMPTY_TEXTURE_SIZE};
+      dynamic_texture_.tex_animation_finished_.at(i) = true;
 
       effect_->SetTexture(texture_handle_.at(i),
                           dynamic_texture_.textures_.at(i).get());
@@ -109,9 +113,9 @@ static std::vector<::uchar> resize_with_margin(const std::vector<char>& buffer)
   return resize_with_margin(source);
 }
 
-void base_mesh::set_dynamic_texture(const std::string& filename,
-                                    const int&         layer_number,
-                                    const combine_type&)
+void base_mesh::set_dynamic_texture(const std::string&  filename,
+                                    const int&          layer_number,
+                                    const combine_type& combine)
 {
   std::string query {
       "SELECT DATA FROM IMAGE WHERE FILENAME = '" + filename + "';"};
@@ -120,22 +124,62 @@ void base_mesh::set_dynamic_texture(const std::string& filename,
 
   std::vector<::uchar> cv_buffer {resize_with_margin(buffer)};
 
-  ::LPDIRECT3DTEXTURE9 temp_texture{};
-  if (FAILED(::D3DXCreateTextureFromFileInMemory(
-          d3d_device_.get(),
-          &cv_buffer[0],
-          static_cast<::UINT>(cv_buffer.size()),
-          &temp_texture))) {
-    THROW_WITH_TRACE("texture file is not found.");
-  } else {
-    dynamic_texture_.filename_.at(layer_number) = filename;
-    dynamic_texture_.textures_.at(layer_number).reset(
-        temp_texture, custom_deleter{});
-    dynamic_texture_.opacities_.at(layer_number) = 1.0f;
-    dynamic_texture_.flipped_.at(layer_number) = false;
+  if (combine == combine_type::NORMAL) {
+    ::LPDIRECT3DTEXTURE9 temp_texture{};
+    if (FAILED(::D3DXCreateTextureFromFileInMemory(
+            d3d_device_.get(),
+            &cv_buffer[0],
+            static_cast<::UINT>(cv_buffer.size()),
+            &temp_texture))) {
+      THROW_WITH_TRACE("texture file is not found.");
+    } else {
+      dynamic_texture_.filename_.at(layer_number) = filename;
+      dynamic_texture_.textures_.at(layer_number).reset(
+          temp_texture, custom_deleter{});
+      dynamic_texture_.opacities_.at(layer_number) = 1.0f;
+      dynamic_texture_.flipped_.at(layer_number) = false;
+      dynamic_texture_.tex_size_.at(layer_number) =
+          cv::Size{constants::TEXTURE_PIXEL_SIZE, constants::TEXTURE_PIXEL_SIZE};
 
-    effect_->SetTexture(texture_handle_.at(layer_number),
-                        dynamic_texture_.textures_.at(layer_number).get());
+      effect_->SetTexture(texture_handle_.at(layer_number),
+                          dynamic_texture_.textures_.at(layer_number).get());
+    }
+  } else if (combine == combine_type::ADDITION) {
+      dynamic_texture_.filename_.at(layer_number) = filename;
+      dynamic_texture_.opacities_.at(layer_number) = 1.0f;
+      dynamic_texture_.flipped_.at(layer_number) = false;
+      dynamic_texture_.tex_size_.at(layer_number) =
+          cv::Size{constants::TEXTURE_PIXEL_SIZE, constants::TEXTURE_PIXEL_SIZE};
+
+
+      cv::Size tex_size = dynamic_texture_.tex_size_.at(layer_number);
+
+      cv::Mat source {cv::imdecode(cv::Mat(cv_buffer), cv::IMREAD_UNCHANGED)};
+      int ch = source.channels();
+
+      ::D3DLOCKED_RECT locked_rect{};
+      dynamic_texture_.textures_.at(layer_number)->LockRect(
+          0, &locked_rect, nullptr, D3DLOCK_DISCARD);
+
+      unsigned char* tmp = static_cast<unsigned char*>(locked_rect.pBits);
+      for (int j = 0; j < tex_size.height; ++j) {
+        for (int i = 0; i < tex_size.width; ++i) {
+          if (source.data[j*4*tex_size.width+i*3] != 0) {
+          //if (source.at<cv::Vec4b>(j, i)[3] != 0) {
+//          if (200 <= j && j <= 500) {
+             // ???
+            tmp[j*4*tex_size.width+i*4  ] = 255;//source.data[j*4*tex_size.width+i*4];
+            tmp[j*4*tex_size.width+i*4+1] = 255;//source.data[j*4*tex_size.width+i*4+1];
+            tmp[j*4*tex_size.width+i*4+2] = 255;//source.data[j*4*tex_size.width+i*4+2];
+            tmp[j*4*tex_size.width+i*4+3] = 255;//source.data[j*4*tex_size.width+i*4+3];
+          }
+        }
+      }
+
+      dynamic_texture_.textures_.at(layer_number)->UnlockRect(0);
+
+      effect_->SetTexture(texture_handle_.at(layer_number),
+                          dynamic_texture_.textures_.at(layer_number).get());
   }
 }
 
@@ -187,14 +231,15 @@ void base_mesh::flip_dynamic_texture(const int& layer_number)
 
 void base_mesh::clear_dynamic_texture(const int& layer_number)
 {
+  cv::Size tex_size = dynamic_texture_.tex_size_.at(layer_number);
+
   ::D3DLOCKED_RECT locked_rect{};
   dynamic_texture_.textures_.at(layer_number)->LockRect(
       0, &locked_rect, nullptr, D3DLOCK_DISCARD);
 
   std::fill(static_cast<int*>(locked_rect.pBits),
             static_cast<int*>(locked_rect.pBits) +
-                static_cast<std::size_t>(locked_rect.Pitch) *
-                    constants::EMPTY_TEXTURE_SIZE / sizeof(int),
+                static_cast<std::size_t>(tex_size.height) * tex_size.width,
             0x00000000);
 
   dynamic_texture_.textures_.at(layer_number)->UnlockRect(0);
@@ -212,6 +257,8 @@ void base_mesh::set_dynamic_message(const int&         layer_number,
                                     const bool&        proportional)
 {
   dynamic_texture_.opacities_.at(layer_number) = 1.0f;
+  dynamic_texture_.tex_size_.at(layer_number) =
+      cv::Size{constants::TEXTURE_PIXEL_SIZE, constants::TEXTURE_PIXEL_SIZE};
   message_writer* writer {new_crt message_writer {
           d3d_device_,
           dynamic_texture_.textures_.at(layer_number),
@@ -228,6 +275,7 @@ void base_mesh::set_dynamic_message(const int&         layer_number,
   effect_->SetTexture(texture_handle_.at(layer_number),
                       dynamic_texture_.textures_.at(layer_number).get());
 
+  dynamic_texture_.tex_animation_finished_.at(layer_number) = false;
   dynamic_texture_.writer_.at(layer_number).reset(writer);
 }
 
@@ -235,6 +283,11 @@ void base_mesh::set_dynamic_message_color(const int& layer_number,
                                           const ::D3DXVECTOR4& color)
 {
   dynamic_texture_.colors_.at(layer_number) = color;
+}
+
+bool base_mesh::is_tex_animation_finished(const int layer_number)
+{
+  return dynamic_texture_.tex_animation_finished_.at(layer_number);
 }
 
 void base_mesh::set_position(const ::D3DXVECTOR3& position)
@@ -289,7 +342,10 @@ void base_mesh::render(const ::D3DXMATRIX&  view_matrix,
 
   for (std::size_t i{}; i < dynamic_texture::LAYER_NUMBER; ++i) {
     if (dynamic_texture_.writer_.at(i)) {
-      (*dynamic_texture_.writer_.at(i))();
+      bool is_finished = (*dynamic_texture_.writer_.at(i))();
+      if (is_finished) {
+        dynamic_texture_.tex_animation_finished_.at(i) = true;
+      }
     }
   }
   render(view_matrix, projection_matrix);
@@ -368,16 +424,20 @@ const int base_mesh::dynamic_texture::texture_fader::FADE_DURATION =
 
 void base_mesh::set_fade_in()
 {
+  dynamic_texture_.tex_animation_finished_
+                  .at(dynamic_texture::FADE_LAYER) = false;
   dynamic_texture_.texture_fader_.reset(
-      new_crt base_mesh::dynamic_texture::texture_fader(
-          base_mesh::dynamic_texture::texture_fader::fade_type::FADE_IN));
+      new_crt dynamic_texture::texture_fader(
+          dynamic_texture::texture_fader::fade_type::FADE_IN));
 }
 
 void base_mesh::set_fade_out()
 {
+  dynamic_texture_.tex_animation_finished_
+                  .at(dynamic_texture::FADE_LAYER) = false;
   dynamic_texture_.texture_fader_.reset(
-      new_crt base_mesh::dynamic_texture::texture_fader(
-          base_mesh::dynamic_texture::texture_fader::fade_type::FADE_OUT));
+      new_crt dynamic_texture::texture_fader(
+          dynamic_texture::texture_fader::fade_type::FADE_OUT));
 }
 
 base_mesh::dynamic_texture::texture_fader::texture_fader(
@@ -389,6 +449,7 @@ void base_mesh::dynamic_texture::texture_fader::operator()(base_mesh& base_mesh)
 {
   if (fade_type_ == fade_type::FADE_IN) {
     if (count_ > FADE_DURATION) {
+      base_mesh.dynamic_texture_.tex_animation_finished_.at(FADE_LAYER) = true;
       return;
     } else if (count_ == FADE_DURATION) {
       base_mesh.set_dynamic_texture_opacity(FADE_LAYER, 0.0f);
@@ -400,6 +461,7 @@ void base_mesh::dynamic_texture::texture_fader::operator()(base_mesh& base_mesh)
     }
   } else if (fade_type_ == fade_type::FADE_OUT) {
     if (count_ > FADE_DURATION) {
+      base_mesh.dynamic_texture_.tex_animation_finished_.at(FADE_LAYER) = true;
       return;
     } else if (count_ == FADE_DURATION) {
       base_mesh.set_dynamic_texture_opacity(FADE_LAYER, 1.0f);

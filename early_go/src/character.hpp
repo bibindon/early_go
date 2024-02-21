@@ -145,6 +145,9 @@ public:
   void set_special_move(const std::string&, const int&, const int&);
   std::vector<std::string> get_special_move();
   std::pair<int, int> get_special_move_power(const std::string&);
+
+  bool is_tex_animation_finished(const std::string& x_filename,
+                                 const int&         layer_number);
 private:
   void set_rotation(const ::D3DXVECTOR3&);
   std::string create_animation_fullname(const std::string&, const std::string&);

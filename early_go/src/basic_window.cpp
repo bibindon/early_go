@@ -10,6 +10,7 @@
 #include "key.hpp"
 #include "operation.hpp"
 #include "hud.hpp"
+#include "novel.hpp"
 #include "resource.h"
 
 #include <thread>
@@ -249,6 +250,7 @@ void basic_window::initialize_direct3d(const ::HWND& hwnd)
 //  ::AddFontResource("chogokubosogothic_5.ttf");
 
   hud_ = std::make_shared<hud>(d3d_device_);
+  novel_ = std::make_shared<novel>();
 }
 
 basic_window::~basic_window()
@@ -265,10 +267,17 @@ int basic_window::operator()()
       ::DispatchMessage(&msg_);
     } else {
       if (key::update()) {
-        (*operation_)(*this);
+        // TODO
+        if (novel_->get_is_novel_part()) {
+          (*novel_)(*this);
+        } else {
+          (*operation_)(*this);
+        }
       }
 //#if (defined(DEBUG) || defined(_DEBUG))
-      debug();
+      if (!novel_->get_is_novel_part()) {
+        debug();
+      }
 //#endif
       render();
     }
@@ -346,7 +355,7 @@ void basic_window::debug()
   }
   if (fps_show) {
     hud_->delete_message("fps");
-    hud_->add_message("fps", std::to_string(fps), cv::Rect(50, 10, 64, 32));
+    hud_->add_message("fps", std::to_string(fps), cv::Rect(30, 10, 64, 32));
     log_liner{} << fps;
   }
 
@@ -364,8 +373,8 @@ void basic_window::debug()
 //  if (key::is_hold('L')) {
 //    camera_->move_position({0.02f, 0.0f, 0.0f});
 //  }
-  if (key::is_hold('H')) {
-    camera_->move_position({0.0f, 0.02f, 0.0f});
+  if (key::is_down('H')) {
+    camera_->move_position({0.0f, 0.00f, 0.02f});
   }
   if (key::is_hold('N')) {
     camera_->move_position({0.0f, -0.02f, 0.0f});
@@ -462,9 +471,14 @@ void basic_window::debug()
     early_->set_dynamic_texture(constants::EARLY_BODY,
         "image/back_ground.png", 0, base_mesh::combine_type::NORMAL);
   }
+  if (key::is_down('U')) {
+    novel_->set_is_novel_part(true);
+  //  early_->set_dynamic_texture(constants::EARLY_BODY,
+  //      "image/settings_window.png", 0, base_mesh::combine_type::NORMAL);
+  }
   if (key::is_down('X')) {
     early_->set_dynamic_texture(constants::EARLY_BODY,
-        "image/early/0.png", 1, base_mesh::combine_type::NORMAL);
+        "image/test1.bmp", 0, base_mesh::combine_type::ADDITION);
   }
   if (key::is_down('R')) {
     early_->flip_dynamic_texture(constants::EARLY_BODY, 1);
@@ -551,13 +565,13 @@ erto's book, Programming in Lua.\n\
   }
 
   if (key::is_down('V')) {
-    early_->set_fade_out(constants::EARLY_BODY);
-    mesh_->set_fade_out();
-    animation_mesh_->set_fade_out();
-    //static float f = D3DX_PI/2;
-    //f += 0.1f;
-    //early_->set_dynamic_texture_opacity(
-    //    constants::EARLY_BODY, 1, std::sin(f)/2+0.5f);
+    //early_->set_fade_out(constants::EARLY_BODY);
+    //mesh_->set_fade_out();
+    //animation_mesh_->set_fade_out();
+    static float f = D3DX_PI/2;
+    f += 0.1f;
+    early_->set_dynamic_texture_opacity(
+        constants::EARLY_BODY, 1, std::sin(f)/2+0.5f);
   }
   if (key::is_down('B')) {
     mesh_->set_dynamic_message(1,
@@ -648,8 +662,8 @@ void basic_window::render()
 
     d3d_device_->EndScene();
   }
-  /*
   // Fix 60 fps instantly.
+  /*
   static std::chrono::system_clock::time_point current_time;
   static std::chrono::system_clock::time_point previous_time
       = std::chrono::system_clock::now();

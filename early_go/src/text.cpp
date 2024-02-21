@@ -44,12 +44,28 @@ message_writer::message_writer(std::shared_ptr<::IDirect3DDevice9> d3d_device,
                                const int& weight,
                                const ::BYTE& charset,
                                const bool& proportional)
+    : message_writer{d3d_device, texture, message, is_message_animated, rect,
+                     cv::Size{constants::TEXTURE_PIXEL_SIZE,
+                              constants::TEXTURE_PIXEL_SIZE},
+                     color, fontname, size, weight, charset, proportional} {}
+
+message_writer::message_writer(std::shared_ptr<::IDirect3DDevice9> d3d_device,
+                               std::shared_ptr<::IDirect3DTexture9>& texture,
+                               const std::string message,
+                               const bool is_message_animated,
+                               const cv::Rect rect,
+                               const cv::Size texture_size,
+                               const ::DWORD color,
+                               const std::string& fontname,
+                               const int& size,
+                               const int& weight,
+                               const ::BYTE& charset,
+                               const bool& proportional)
     : texture_{texture},
       message_{message},
       is_message_animated_{is_message_animated},
       rect_{rect},
-      texture_size_{get_next_pow_2(rect.width),
-                    get_next_pow_2(rect.height)},
+      texture_size_{texture_size},
       color_{color},
       font_width_sum_{rect.x},
       font_height_sum_{rect.y},
@@ -63,8 +79,8 @@ message_writer::message_writer(std::shared_ptr<::IDirect3DDevice9> d3d_device,
   ::LPDIRECT3DTEXTURE9 p_temp_texture{};
 
   if (FAILED(::D3DXCreateTexture(d3d_device.get(),
-                                 texture_size_.width,
-                                 texture_size_.height,
+                                 texture_size.height,
+                                 texture_size.width,
                                  1,
                                  D3DUSAGE_DYNAMIC,
                                  ::D3DFMT_A8R8G8B8,
@@ -91,7 +107,6 @@ message_writer::message_writer(std::shared_ptr<::IDirect3DDevice9> d3d_device,
 
   texture_->UnlockRect(0);
 }
-
 void message_writer::initialize(const int& size,
                                 const int& weight,
                                 const ::BYTE& charset,
@@ -130,7 +145,7 @@ message_writer::~message_writer()
   ::ReleaseDC(nullptr, hdc_);
 }
 
-void message_writer::operator()()
+bool message_writer::operator()()
 {
   ::D3DLOCKED_RECT locked_rect{};
   texture_->LockRect(0, &locked_rect, nullptr, 0);
@@ -138,6 +153,7 @@ void message_writer::operator()()
   if (is_message_animated_) {
     for (int i{}; i < MESSAGE_SPEED; ++i) {
       if (!write_character(locked_rect)) {
+        log_liner{} << "message_finished";
         break;
       }
     }
@@ -146,9 +162,10 @@ void message_writer::operator()()
   }
 
   texture_->UnlockRect(0);
+  return is_finished_;
 }
 
-void message_writer::operator()(::D3DLOCKED_RECT& locked_rect)
+bool message_writer::operator()(::D3DLOCKED_RECT& locked_rect)
 {
   if (is_message_animated_) {
     for (int i{}; i < MESSAGE_SPEED; ++i) {
@@ -159,6 +176,7 @@ void message_writer::operator()(::D3DLOCKED_RECT& locked_rect)
   } else {
     while(write_character(locked_rect));
   }
+  return is_finished_;
 }
 
 bool message_writer::write_character(::D3DLOCKED_RECT& locked_rect)
@@ -166,11 +184,13 @@ bool message_writer::write_character(::D3DLOCKED_RECT& locked_rect)
   ::DWORD* pTexBuf = (::DWORD*)locked_rect.pBits;
   if (pTexBuf != texture_buffer_.at(0)) {
     for (int y{}; y < texture_size_.height; ++y) {
-      texture_buffer_.at(y) = &pTexBuf[y * texture_size_.width];
+      //texture_buffer_.at(y) = &pTexBuf[y * texture_size_.width];
+      texture_buffer_.at(y) = &pTexBuf[y * locked_rect.Pitch/4];
     }
   }
 
   if (character_index_ >= message_.length()) {
+    is_finished_ = true;
     return false;
   }
   unsigned char c[2]{};
@@ -192,6 +212,7 @@ bool message_writer::write_character(::D3DLOCKED_RECT& locked_rect)
     ++character_index_;
   } else if (c[0] == '\n') {
     font_height_sum_ += text_metric_.tmHeight;
+    font_height_sum_ += LINE_SPACING;
     font_width_sum_ = rect_.x;
     ++character_index_;
     return true;
@@ -229,6 +250,7 @@ bool message_writer::write_character(::D3DLOCKED_RECT& locked_rect)
     }
     if (rect_.width < font_width_sum_) {
       font_height_sum_ += text_metric_.tmHeight;
+      font_height_sum_ += LINE_SPACING;
       font_width_sum_ = rect_.x;
       return true;
     }
@@ -243,6 +265,7 @@ bool message_writer::write_character(::D3DLOCKED_RECT& locked_rect)
   // If character may go outside over leftmost, return.
   if (static_cast<::UINT>(rect_.width) < font_width_sum_ + font_width) {
     font_height_sum_ += text_metric_.tmHeight;
+    font_height_sum_ += LINE_SPACING;
     font_width_sum_ = rect_.x;
     b_ascii ? --character_index_ : character_index_ -= 2;
     ++character_index_;

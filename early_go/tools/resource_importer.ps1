@@ -123,4 +123,5 @@ try {
 $sqlcmd.Dispose()
 $sqlite.Close()
 
-Read-Host "Please press Enter key"
+# Read-Host "Please press Enter key"
+echo "resource_importer finished!"

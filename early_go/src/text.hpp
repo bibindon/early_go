@@ -26,9 +26,21 @@ struct message_writer {
                  const int&,
                  const ::BYTE&,
                  const bool&);
+  message_writer(std::shared_ptr<::IDirect3DDevice9>,
+                 std::shared_ptr<::IDirect3DTexture9>&,
+                 const std::string,
+                 const bool,
+                 const cv::Rect,
+                 const cv::Size,
+                 const ::DWORD,
+                 const std::string&,
+                 const int&,
+                 const int&,
+                 const ::BYTE&,
+                 const bool&);
   ~message_writer();
-  void operator()(); // heavy
-  void operator()(::D3DLOCKED_RECT&); // light
+  bool operator()(); // heavy
+  bool operator()(::D3DLOCKED_RECT&); // light
   bool write_character(::D3DLOCKED_RECT&);
 
 private:
@@ -47,7 +59,9 @@ private:
   std::size_t                           character_index_;
   std::vector<::DWORD*>                 texture_buffer_;
   const bool                            proportional_;
-  static constexpr int                  MESSAGE_SPEED{3};
+  static constexpr int                  MESSAGE_SPEED{1};
+  static constexpr int                  LINE_SPACING{12};
+  bool                                  is_finished_{false};
 
   void initialize(const int&, const int&, const ::BYTE&, const std::string&);
 };

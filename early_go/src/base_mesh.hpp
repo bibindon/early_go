@@ -8,7 +8,6 @@ namespace early_go {
 
 struct message_writer;
 
-  // TODO : アニメーションについてはストラテジパターンでごまかす。
 class base_mesh {
 public:
   base_mesh(
@@ -16,9 +15,9 @@ public:
       const std::string&,
       const ::D3DXVECTOR3&,
       const ::D3DXVECTOR3&);
-  enum class combine_type{
+  enum class combine_type {
     NORMAL,
-//    ADDITION,
+    ADDITION,
 //    MULTIPLICATION,
   };
   void set_animation(const std::string&);
@@ -54,6 +53,7 @@ public:
                            const bool& = true);
 
   void set_dynamic_message_color(const int&, const ::D3DXVECTOR4&);
+  bool is_tex_animation_finished(const int);
   void set_position(const ::D3DXVECTOR3&);
   void set_rotation(const ::D3DXVECTOR3&);
   void set_shake_texture();
@@ -77,6 +77,8 @@ protected:
     std::array<float, LAYER_NUMBER>         opacities_;
     std::array<::D3DXVECTOR4, LAYER_NUMBER> colors_;
     std::array<bool, LAYER_NUMBER>          flipped_;
+    std::array<cv::Size, LAYER_NUMBER>      tex_size_;
+    std::array<bool, LAYER_NUMBER>          tex_animation_finished_;
 
     std::array<
         std::shared_ptr<message_writer>,
@@ -99,7 +101,7 @@ protected:
     };
     std::shared_ptr<texture_shaker> texture_shaker_;
     struct texture_fader {
-      enum fade_type {
+      enum class fade_type {
         FADE_IN,
         FADE_OUT,
       };

@@ -12,6 +12,7 @@ class character;
 class base_mesh;
 class operation;
 class hud;
+class novel;
 
 /*
  * A class that handles basic window processings.
@@ -64,6 +65,8 @@ private:
   std::shared_ptr<base_mesh>                    mesh2_;
 
   std::shared_ptr<hud>                          hud_;
+
+  std::shared_ptr<novel>                        novel_;
 };
 } /* namespace early_go */
 #endif
