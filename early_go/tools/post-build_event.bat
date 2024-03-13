@@ -13,3 +13,19 @@ IF NOT %ERRORLEVEL% == 0 (
     ECHO Copy "tools\pre-commit" to "..\.git\hooks\pre-commit"
     COPY /Y tools\pre-commit ..\.git\hooks\pre-commit > NUL
 )
+
+REM Copy dll
+
+IF NOT EXIST "..\x64\Debug\opencv_imgcodecs320d.dll" (
+    COPY /Y "..\packages\opencv.win.native.redist.320.1.1-vs141\build\native\bin\x64\v141\Debug\opencv_imgcodecs320d.dll" "..\x64\Debug\opencv_imgcodecs320d.dll"
+)
+
+IF NOT EXIST "..\x64\Debug\opencv_core320d.dll" (
+    COPY /Y "..\packages\opencv.win.native.redist.320.1.1-vs141\build\native\bin\x64\v141\Debug\opencv_core320d.dll" "..\x64\Debug\opencv_core320d.dll"
+)
+
+IF NOT EXIST "..\x64\Debug\opencv_imgproc320d.dll" (
+    COPY /Y "..\packages\opencv.win.native.redist.320.1.1-vs141\build\native\bin\x64\v141\Debug\opencv_imgproc320d.dll" "..\x64\Debug\opencv_imgproc320d.dll"
+)
+
+
