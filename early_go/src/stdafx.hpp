@@ -76,7 +76,7 @@
  * must be at the buttom of a header file like a here because this macro causes
  * the build error if this is at above include line of the specific header.
  */
-#if (defined(DEBUG) || defined(_DEBUG)) && defined(MEMORY_LEAKS)
+#if (defined(DEBUG) || defined(_DEBUG))
 # define malloc_crt(x) ::_malloc_dbg((x), _NORMAL_BLOCK, __FILE__, __LINE__)
 # define _aligned_malloc_crt(x, y) \
     ::_aligned_malloc_dbg((x), (y), __FILE__, __LINE__)

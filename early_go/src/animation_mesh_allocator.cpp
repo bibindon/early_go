@@ -8,11 +8,8 @@ animation_mesh_frame::animation_mesh_frame(const std::string& name)
     : D3DXFRAME{}, /* Initializes member with zero. */
       combined_matrix_{}
 {
-  /*
-   * The 'dup' of the '::_strdup' is the abbreviation of 'duplicate', create
-   * the new string by the argument string.
-   */
-  Name = ::_strdup(name.c_str());
+  Name = new_crt char[name.length()+1];
+  ::strcpy_s(Name, name.length()+1, name.c_str());
 
   /* Make an argument an identity matrix. */
   ::D3DXMatrixIdentity(&TransformationMatrix);
@@ -53,11 +50,8 @@ animation_mesh_container::animation_mesh_container(
     : D3DXMESHCONTAINER{}, /* Initializes with zero. */
       texture_{}
 {
-  /*
-   * The 'dup' of '::_strdup' is the abbreviation of 'duplicate', create new
-   * string by the argument string.
-   */
-  Name = ::_strdup(mesh_name.c_str());
+  Name = new_crt char[mesh_name.length()+1];
+  ::strcpy_s(Name, mesh_name.length()+1, mesh_name.c_str());
 
   ::LPDIRECT3DDEVICE9 temp_d3d_device{nullptr};
   mesh->GetDevice(&temp_d3d_device);

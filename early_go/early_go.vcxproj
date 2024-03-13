@@ -152,7 +152,7 @@
       <ShaderModel>2.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
-      <Command>tools\post-build_event.bat $(PlatformTarget)</Command>
+      <Command>tools\post-build_event.bat $(PlatformTarget) $(Configuration)</Command>
     </PostBuildEvent>
     <PreBuildEvent />
     <PreLinkEvent>
