@@ -22,3 +22,4 @@ try {
   early_go::show_error_dialog(hinstance, e);
   return EXIT_FAILURE;
 }
+
