@@ -15,7 +15,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT mes, WPARAM wParam, LPARAM lParam) {
 TEST(mesh_test, mesh_ctor_test)
 {
     HINSTANCE hInstance = nullptr;
-    MSG msg;
     HWND hWnd;
     WNDCLASSEX wcex = {
         sizeof(WNDCLASSEX),
@@ -47,7 +46,7 @@ TEST(mesh_test, mesh_ctor_test)
     LPDIRECT3DDEVICE9 g_pD3DDev;
     if (!(g_pD3D = Direct3DCreate9(D3D_SDK_VERSION))) return ;
 
-    D3DPRESENT_PARAMETERS d3dpp = { w,h,D3DFMT_UNKNOWN,0,D3DMULTISAMPLE_NONE,0,
+    D3DPRESENT_PARAMETERS d3dpp = { (UINT)w,(UINT)h,D3DFMT_UNKNOWN,0,D3DMULTISAMPLE_NONE,0,
                                   D3DSWAPEFFECT_DISCARD,NULL,TRUE,TRUE,D3DFMT_D24S8,0,0 };
 
     if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &g_pD3DDev)))
