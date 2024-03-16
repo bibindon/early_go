@@ -8,8 +8,8 @@ const int constants::WINDOW_WIDTH = 1600;
 const int constants::WINDOW_HEIGHT = 900;
 const int constants::MAX_STAGE_NUMBER = 3;
 const float constants::ANIMATION_SPEED = 1.0f/60;
-const ::LONG constants::TEXTURE_PIXEL_SIZE = 2048;
-const ::LONG constants::EMPTY_TEXTURE_SIZE = 32;
+const LONG constants::TEXTURE_PIXEL_SIZE = 2048;
+const LONG constants::EMPTY_TEXTURE_SIZE = 32;
 // a power of 2.
 BOOST_STATIC_ASSERT(
     (constants::TEXTURE_PIXEL_SIZE & constants::TEXTURE_PIXEL_SIZE-1) == 0);

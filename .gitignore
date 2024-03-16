@@ -271,3 +271,4 @@ doc/html/
 # SQLite library
 !sqlite3/Lib/x64
 !sqlite3/Lib/x86
+/.vscode
