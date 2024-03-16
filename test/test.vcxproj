@@ -116,6 +116,10 @@
       <AdditionalDependencies>gtestd.lib;gtest_maind.lib;legacy_stdio_definitions.lib;mesh.obj;util.obj;base_mesh.obj;constants.obj;text.obj;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.3\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Debug;../early_go/x64/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>COPY /Y $(ProjectDir)sqlite3.dll $(OutputPath)
+COPY /Y $(ProjectDir)zlibd1.dll $(OutputPath)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -153,7 +157,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.3\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Release;$(SolutionDir)\packages\opencv.win.native.320.1.1-vs141\build\native\lib\x64\v141\Release;../early_go/x64/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>COPY $(ProjectDir)sqlite3.dll $(OutputPath)</Command>
+      <Command>COPY /Y $(ProjectDir)sqlite3.dll $(OutputPath)
+COPY /Y $(ProjectDir)zlib1.dll $(OutputPath)
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
