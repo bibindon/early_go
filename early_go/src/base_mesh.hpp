@@ -20,7 +20,7 @@ namespace early_go
         {
             NORMAL,
             ADDITION,
-            //    MULTIPLICATION,
+            //  MULTIPLICATION,
         };
         void set_animation(const std::string &);
         void set_default_animation(const std::string &);

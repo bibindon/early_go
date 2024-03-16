@@ -52,7 +52,7 @@ namespace early_go
      *
      *   void sample()
      *   {
-     *     LPDIRECT3D9 _p_direct3d9{::Direct3DCreate9(D3D_SDK_VERSION)};
+     *     LPDIRECT3D9 _p_direct3d9{Direct3DCreate9(D3D_SDK_VERSION)};
      *     std::unique_ptr<LPDIRECT3D9, custom_deleter> up{
      *         _p_direct3d9, custom_deleter{}};
      *   }

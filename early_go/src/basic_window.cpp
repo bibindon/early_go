@@ -78,17 +78,18 @@ namespace early_go
         RECT rc{};
         SystemParametersInfo(SPI_GETWORKAREA, 0, &rc, 0);
 
-        HWND hwnd{::CreateWindow(constants::APP_NAME.c_str(),
-                                 constants::APP_NAME.c_str(),
-                                 WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX,
-                                 rc.right / 2 - constants::WINDOW_WIDTH / 2,
-                                 rc.bottom / 2 - constants::WINDOW_HEIGHT / 2,
-                                 constants::WINDOW_WIDTH,
-                                 constants::WINDOW_HEIGHT,
-                                 nullptr,
-                                 nullptr,
-                                 hinstance,
-                                 nullptr)};
+        HWND hwnd{CreateWindow(
+            constants::APP_NAME.c_str(),
+            constants::APP_NAME.c_str(),
+            WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX,
+            rc.right / 2 - constants::WINDOW_WIDTH / 2,
+            rc.bottom / 2 - constants::WINDOW_HEIGHT / 2,
+            constants::WINDOW_WIDTH,
+            constants::WINDOW_HEIGHT,
+            nullptr,
+            nullptr,
+            hinstance,
+            nullptr)};
 
         ShowWindow(hwnd, SW_SHOW);
         UpdateWindow(hwnd);
@@ -99,7 +100,7 @@ namespace early_go
     void basic_window::initialize_direct3d(const HWND &hwnd)
     {
         /* Create a Direct3D object. */
-        LPDIRECT3D9 direct3d9{::Direct3DCreate9(D3D_SDK_VERSION)};
+        LPDIRECT3D9 direct3d9{Direct3DCreate9(D3D_SDK_VERSION)};
 
         if (nullptr == direct3d9)
         {
@@ -119,33 +120,34 @@ namespace early_go
         /* for receiving */
         LPDIRECT3DDEVICE9 d3d_device9{};
 
-        if (FAILED(direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
-                                            D3DDEVTYPE_HAL,
-                                            hwnd,
-                                            D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
-                                            &d3d_present_parameters_,
-                                            &d3d_device9)))
+        if (FAILED(direct3d9_->CreateDevice(
+            D3DADAPTER_DEFAULT,
+            D3DDEVTYPE_HAL,
+            hwnd,
+            D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
+            &d3d_present_parameters_,
+            &d3d_device9)))
         {
             if (FAILED(direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
-                                                D3DDEVTYPE_HAL,
-                                                hwnd,
-                                                D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
-                                                &d3d_present_parameters_,
-                                                &d3d_device9)))
+                D3DDEVTYPE_HAL,
+                hwnd,
+                D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
+                &d3d_present_parameters_,
+                &d3d_device9)))
             {
                 if (FAILED(direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
-                                                    D3DDEVTYPE_REF,
-                                                    hwnd,
-                                                    D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
-                                                    &d3d_present_parameters_,
-                                                    &d3d_device9)))
+                    D3DDEVTYPE_REF,
+                    hwnd,
+                    D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
+                    &d3d_present_parameters_,
+                    &d3d_device9)))
                 {
                     if (FAILED(direct3d9_->CreateDevice(D3DADAPTER_DEFAULT,
-                                                        D3DDEVTYPE_REF,
-                                                        hwnd,
-                                                        D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
-                                                        &d3d_present_parameters_,
-                                                        &d3d_device9)))
+                        D3DDEVTYPE_REF,
+                        hwnd,
+                        D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
+                        &d3d_present_parameters_,
+                        &d3d_device9)))
                     {
                         THROW_WITH_TRACE("Failed to create 'Direct3D Device'.");
                     }
