@@ -48,6 +48,7 @@
 #include "constants.hpp"
 #include "exception.hpp"
 #include "inline_macro.hpp"
+#include "util.hpp"
 
 #pragma comment(lib,"d3d9.lib")
 #if defined(DEBUG) || defined(_DEBUG)

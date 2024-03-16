@@ -264,6 +264,7 @@ resource_importer.bat
     </ClCompile>
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\text_thread_ver.cpp" />
+    <ClCompile Include="src\util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -291,6 +292,7 @@ resource_importer.bat
     <ClInclude Include="src\stdafx.hpp" />
     <ClInclude Include="src\text.hpp" />
     <ClInclude Include="src\text_thread_ver.hpp" />
+    <ClInclude Include="src\util.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="early_go.rc" />

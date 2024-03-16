@@ -71,60 +71,6 @@ namespace early_go
         }
     };
 
-    inline std::vector<char> get_resource(const std::string &query)
-    {
-#if 0
-
-  size_t begin = query.find_first_of("'")+1;
-  size_t end = query.find_first_of("'", begin);
-  std::string filename{query.substr(begin, end-begin)};
-
-  std::string path{"res/" + filename};
-  std::ifstream file(path, std::ios::binary);
-  std::ostringstream ss;
-  ss << file.rdbuf();
-  const std::string& s = ss.str();
-  return std::vector<char>(s.begin(), s.end());
-
-#else
-        std::vector<char> ret;
-        sqlite3 *db = nullptr;
-        if (::sqlite3_open(constants::DATABASE_NAME.c_str(), &db) != SQLITE_OK)
-        {
-            sqlite3_close(db);
-            THROW_WITH_TRACE("Failed to open a database.");
-        }
-        sqlite3_stmt *_statement = nullptr;
-        sqlite3_prepare_v2(db, query.c_str(), -1, &_statement, nullptr);
-        bool is_found{false};
-        while (::sqlite3_step(_statement) == SQLITE_ROW)
-        {
-            if (!is_found)
-            {
-                is_found = true;
-            }
-            else
-            {
-                sqlite3_finalize(_statement);
-                sqlite3_close(db);
-                THROW_WITH_TRACE(
-                    "There are multiple specified resources.\n query: " + query);
-            }
-            const char *blob = (char *)sqlite3_column_blob(_statement, 0);
-            int data_count = sqlite3_column_bytes(_statement, 0);
-            ret.reserve(data_count);
-            ret.insert(ret.begin(), blob, blob + data_count);
-        }
-        sqlite3_finalize(_statement);
-        sqlite3_close(db);
-        if (!is_found)
-        {
-            THROW_WITH_TRACE("Failed to find a resource.\n query: " + query);
-        }
-        return ret;
-#endif
-    }
-
     /*
      * A class making logging simple.
      *
