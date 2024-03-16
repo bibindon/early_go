@@ -137,7 +137,7 @@ namespace early_go
         }
 
         hdc_ = GetDC(nullptr);
-        old_font_ = static_cast<::HFONT>(::SelectObject(hdc_, hfont_));
+        old_font_ = static_cast<HFONT>(::SelectObject(hdc_, hfont_));
 
         GetTextMetrics(hdc_, &text_metric_);
     }
@@ -260,7 +260,7 @@ namespace early_go
         DWORD mono_font_data_size = GetGlyphOutline(
             hdc_, char_code, GGO_FLAG, &glyph_metrics, 0, nullptr, &mat);
 
-        std::unique_ptr<::BYTE[]> letter{new_crt BYTE[mono_font_data_size]};
+        std::unique_ptr<BYTE[]> letter{new_crt BYTE[mono_font_data_size]};
         GetGlyphOutline(hdc_, char_code, GGO_FLAG, &glyph_metrics,
                         mono_font_data_size, letter.get(), &mat);
 
@@ -329,7 +329,7 @@ namespace early_go
             return false;
         }
 
-        std::vector<::BYTE *> mono_buffer(font_height);
+        std::vector<BYTE *> mono_buffer(font_height);
         for (std::size_t y{}; y < mono_buffer.size(); ++y)
         {
             mono_buffer.at(y) = &letter[y * font_width];

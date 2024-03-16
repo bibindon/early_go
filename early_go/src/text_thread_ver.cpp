@@ -2,10 +2,14 @@
 
 #include "text_thread_ver.hpp"
 
+using std::string;
+using std::vector;
+
 namespace early_go
 {
     message_writer_for_thread::message_writer_for_thread(
-        const std::string &font_name, const int font_size,
+        const std::string &font_name,
+        const int font_size,
         const cv::Size &canvas_size)
     {
         canvas_size_ = canvas_size;
@@ -31,7 +35,7 @@ namespace early_go
         }
 
         hdc_ = GetDC(nullptr);
-        old_font_ = static_cast<::HFONT>(::SelectObject(hdc_, hfont_));
+        old_font_ = static_cast<HFONT>(::SelectObject(hdc_, hfont_));
         GetTextMetrics(hdc_, &text_metric_);
 
         text_image_.resize(std::size_t(canvas_size_.height),
@@ -116,7 +120,7 @@ namespace early_go
         DWORD mono_font_data_size = GetGlyphOutline(
             hdc_, char_code, GGO_FLAG, &glyph_metrics, 0, nullptr, &mat);
 
-        std::unique_ptr<::BYTE[]> letter{new_crt BYTE[mono_font_data_size]};
+        std::unique_ptr<BYTE[]> letter{new_crt BYTE[mono_font_data_size]};
         GetGlyphOutline(hdc_, char_code, GGO_FLAG, &glyph_metrics,
                         mono_font_data_size, letter.get(), &mat);
 
@@ -159,7 +163,7 @@ namespace early_go
             return false;
         }
 
-        std::vector<::BYTE *> mono_buffer(font_height);
+        std::vector<BYTE *> mono_buffer(font_height);
         for (std::size_t y{}; y < mono_buffer.size(); ++y)
         {
             mono_buffer.at(y) = &letter[y * font_width];

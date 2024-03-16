@@ -3,13 +3,17 @@
 #include "base_mesh.hpp"
 #include "text.hpp"
 
+using std::string;
+using std::vector;
+
 namespace early_go
 {
 
-    base_mesh::base_mesh(const std::shared_ptr<IDirect3DDevice9> &d3d_device,
-                         const std::string &shader_filename,
-                         const D3DXVECTOR3 &position,
-                         const D3DXVECTOR3 &rotation)
+    base_mesh::base_mesh(
+        const std::shared_ptr<IDirect3DDevice9> &d3d_device,
+        const string &shader_filename,
+        const D3DXVECTOR3 &position,
+        const D3DXVECTOR3 &rotation)
         : d3d_device_{d3d_device},
           effect_{nullptr, custom_deleter{}},
           animation_strategy_{nullptr},
@@ -19,20 +23,20 @@ namespace early_go
     {
         HRESULT result{NULL};
 
-        std::vector<char> buffer{get_resource(
-            "SELECT DATA FROM SHADER WHERE FILENAME = 'shader/" +
-            shader_filename + "';")};
+        vector<char> buffer{get_resource(
+            "SELECT DATA FROM SHADER WHERE FILENAME = 'shader/" + shader_filename + "';")};
 
         LPD3DXEFFECT effect{nullptr};
-        D3DXCreateEffect(d3d_device_.get(),
-                         &buffer[0],
-                         static_cast<UINT>(buffer.size()),
-                         nullptr,
-                         nullptr,
-                         0,
-                         nullptr,
-                         &effect,
-                         nullptr);
+        D3DXCreateEffect(
+            d3d_device_.get(),
+            &buffer[0],
+            static_cast<UINT>(buffer.size()),
+            nullptr,
+            nullptr,
+            0,
+            nullptr,
+            &effect,
+            nullptr);
         effect_.reset(effect);
         if (FAILED(result))
         {
@@ -50,26 +54,26 @@ namespace early_go
 
         texture_position_handle_ = effect_->GetParameterByName(nullptr, "g_position");
         texture_opacity_handle_ = effect_->GetParameterByName(nullptr, "g_opacity");
-        light_normal_handle_ =
-            effect_->GetParameterByName(nullptr, "g_light_normal");
-        brightness_handle_ =
-            effect_->GetParameterByName(nullptr, "g_light_brightness");
-        mesh_texture_handle_ =
-            effect_->GetParameterByName(nullptr, "g_mesh_texture");
+        light_normal_handle_ = effect_->GetParameterByName(nullptr, "g_light_normal");
+        brightness_handle_ = effect_->GetParameterByName(nullptr, "g_light_brightness");
+        mesh_texture_handle_ = effect_->GetParameterByName(nullptr, "g_mesh_texture");
         diffuse_handle_ = effect_->GetParameterByName(nullptr, "g_diffuse");
 
         for (int i{}; i < dynamic_texture::LAYER_NUMBER; ++i)
         {
             LPDIRECT3DTEXTURE9 temp_texture{nullptr};
-            HRESULT result{D3DXCreateTexture(d3d_device_.get(),
-                                             constants::EMPTY_TEXTURE_SIZE,
-                                             constants::EMPTY_TEXTURE_SIZE,
-                                             1, D3DUSAGE_DYNAMIC,
-                                             D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT,
-                                             &temp_texture)};
+            HRESULT result{D3DXCreateTexture(
+                d3d_device_.get(),
+                constants::EMPTY_TEXTURE_SIZE,
+                constants::EMPTY_TEXTURE_SIZE,
+                1,
+                D3DUSAGE_DYNAMIC,
+                D3DFMT_A8B8G8R8,
+                D3DPOOL_DEFAULT,
+                &temp_texture)};
             if (FAILED(result))
             {
-                const std::string str{DXGetErrorString(result)};
+                const string str{DXGetErrorString(result)};
                 THROW_WITH_TRACE("Failed to create texture.: " + str);
             }
             else
@@ -92,43 +96,42 @@ namespace early_go
                              constants::EMPTY_TEXTURE_SIZE};
                 dynamic_texture_.tex_animation_finished_.at(i) = true;
 
-                effect_->SetTexture(texture_handle_.at(i),
-                                    dynamic_texture_.textures_.at(i).get());
+                effect_->SetTexture(texture_handle_.at(i), dynamic_texture_.textures_.at(i).get());
             }
         }
         dynamic_texture_.opacities_.at(dynamic_texture::FADE_LAYER) = 0.0f;
     }
 
-    static std::vector<::uchar> resize_with_margin(const cv::Mat &source)
+    static vector<::uchar> resize_with_margin(const cv::Mat &source)
     {
-        cv::Mat blank{cv::Mat::zeros(constants::TEXTURE_PIXEL_SIZE,
-                                     constants::TEXTURE_PIXEL_SIZE, CV_8UC4)};
+        cv::Mat blank{cv::Mat::zeros(
+            constants::TEXTURE_PIXEL_SIZE, constants::TEXTURE_PIXEL_SIZE, CV_8UC4)};
 
         cv::Mat destination{blank(cv::Rect(0, 0, source.rows, source.cols))};
         source.copyTo(destination);
-        std::vector<::uchar> cv_buffer{};
+        vector<::uchar> cv_buffer{};
         cv::imencode(".bmp", blank, cv_buffer);
         return cv_buffer;
     }
 
-    static std::vector<::uchar> resize_with_margin(const std::vector<char> &buffer)
+    static vector<::uchar> resize_with_margin(const vector<char> &buffer)
     {
-        std::vector<::uchar> cv_buffer{buffer.cbegin(), buffer.cend()};
+        vector<::uchar> cv_buffer{buffer.cbegin(), buffer.cend()};
         cv::Mat source{cv::imdecode(cv::Mat(cv_buffer), cv::IMREAD_UNCHANGED)};
 
         return resize_with_margin(source);
     }
 
-    void base_mesh::set_dynamic_texture(const std::string &filename,
-                                        const int &layer_number,
-                                        const combine_type &combine)
+    void base_mesh::set_dynamic_texture(
+        const string &filename,
+        const int &layer_number,
+        const combine_type &combine)
     {
-        std::string query{
-            "SELECT DATA FROM IMAGE WHERE FILENAME = '" + filename + "';"};
+        string query{"SELECT DATA FROM IMAGE WHERE FILENAME = '" + filename + "';"};
 
-        std::vector<char> buffer{get_resource(query)};
+        vector<char> buffer{get_resource(query)};
 
-        std::vector<::uchar> cv_buffer{resize_with_margin(buffer)};
+        vector<::uchar> cv_buffer{resize_with_margin(buffer)};
 
         if (combine == combine_type::NORMAL)
         {
@@ -168,7 +171,8 @@ namespace early_go
             int ch = source.channels();
 
             D3DLOCKED_RECT locked_rect{};
-            dynamic_texture_.textures_.at(layer_number)->LockRect(0, &locked_rect, nullptr, D3DLOCK_DISCARD);
+            dynamic_texture_.textures_.at(layer_number)->LockRect(
+                0, &locked_rect, nullptr, D3DLOCK_DISCARD);
 
             unsigned char *tmp = static_cast<unsigned char *>(locked_rect.pBits);
             for (int j = 0; j < tex_size.height; ++j)
@@ -177,13 +181,17 @@ namespace early_go
                 {
                     if (source.data[j * 4 * tex_size.width + i * 3] != 0)
                     {
+
                         // if (source.at<cv::Vec4b>(j, i)[3] != 0) {
                         //          if (200 <= j && j <= 500) {
                         // ???
-                        tmp[j * 4 * tex_size.width + i * 4] = 255;     // source.data[j*4*tex_size.width+i*4];
-                        tmp[j * 4 * tex_size.width + i * 4 + 1] = 255; // source.data[j*4*tex_size.width+i*4+1];
-                        tmp[j * 4 * tex_size.width + i * 4 + 2] = 255; // source.data[j*4*tex_size.width+i*4+2];
-                        tmp[j * 4 * tex_size.width + i * 4 + 3] = 255; // source.data[j*4*tex_size.width+i*4+3];
+                        if (tmp != nullptr)
+                        {
+                            tmp[j * 4 * tex_size.width + i * 4] = 255;     // source.data[j*4*tex_size.width+i*4];
+                            tmp[j * 4 * tex_size.width + i * 4 + 1] = 255; // source.data[j*4*tex_size.width+i*4+1];
+                            tmp[j * 4 * tex_size.width + i * 4 + 2] = 255; // source.data[j*4*tex_size.width+i*4+2];
+                            tmp[j * 4 * tex_size.width + i * 4 + 3] = 255; // source.data[j*4*tex_size.width+i*4+3];
+                        }
                     }
                 }
             }
@@ -195,34 +203,33 @@ namespace early_go
         }
     }
 
-    void base_mesh::set_dynamic_texture_position(const int &layer_number,
-                                                 const D3DXVECTOR2 &position)
+    void base_mesh::set_dynamic_texture_position(
+        const int &layer_number, const D3DXVECTOR2 &position)
     {
         dynamic_texture_.positions_.at(layer_number).x = position.x;
         dynamic_texture_.positions_.at(layer_number).y = position.y;
     }
 
-    void base_mesh::set_dynamic_texture_opacity(const int &layer_number,
-                                                const float &opacity)
+    void base_mesh::set_dynamic_texture_opacity(
+        const int &layer_number, const float &opacity)
     {
         dynamic_texture_.opacities_.at(layer_number) = opacity;
     }
 
     void base_mesh::flip_dynamic_texture(const int &layer_number)
     {
-        std::string query{"SELECT DATA FROM IMAGE WHERE FILENAME = '" +
+        string query{"SELECT DATA FROM IMAGE WHERE FILENAME = '" +
                           dynamic_texture_.filename_.at(layer_number) + "';"};
 
-        std::vector<char> buffer{get_resource(query)};
-        std::vector<::uchar> cv_buffer{buffer.cbegin(), buffer.cend()};
+        vector<char> buffer{get_resource(query)};
+        vector<::uchar> cv_buffer{buffer.cbegin(), buffer.cend()};
         cv::Mat source{cv::imdecode(cv::Mat(cv_buffer), cv::IMREAD_UNCHANGED)};
         if (!dynamic_texture_.flipped_.at(layer_number))
         {
             cv::flip(source, source, 1);
         }
         // flip flipped flag.
-        dynamic_texture_.flipped_.at(layer_number) =
-            !dynamic_texture_.flipped_.at(layer_number);
+        dynamic_texture_.flipped_.at(layer_number) = !dynamic_texture_.flipped_.at(layer_number);
 
         cv_buffer = resize_with_margin(source);
 
@@ -259,16 +266,17 @@ namespace early_go
         dynamic_texture_.textures_.at(layer_number)->UnlockRect(0);
     }
 
-    void base_mesh::set_dynamic_message(const int &layer_number,
-                                        const std::string &message,
-                                        const bool &is_animated,
-                                        const cv::Rect &rect,
-                                        const DWORD &color,
-                                        const std::string &fontname,
-                                        const int &size,
-                                        const int &weight,
-                                        const BYTE &charset,
-                                        const bool &proportional)
+    void base_mesh::set_dynamic_message(
+        const int &layer_number,
+        const string &message,
+        const bool &is_animated,
+        const cv::Rect &rect,
+        const DWORD &color,
+        const string &fontname,
+        const int &size,
+        const int &weight,
+        const BYTE &charset,
+        const bool &proportional)
     {
         dynamic_texture_.opacities_.at(layer_number) = 1.0f;
         dynamic_texture_.tex_size_.at(layer_number) =
@@ -314,27 +322,29 @@ namespace early_go
         rotation_ = rotation;
     }
 
-    void base_mesh::set_animation(const std::string &animation_set)
+    void base_mesh::set_animation(const string &animation_set)
     {
         animation_strategy_->set_animation(animation_set);
     }
 
-    void base_mesh::set_default_animation(const std::string &animation_name)
+    void base_mesh::set_default_animation(const string &animation_name)
     {
         animation_strategy_->set_default_animation(animation_name);
     }
 
-    void base_mesh::set_animation_config(const std::string &animation_name,
-                                         const bool &loop,
-                                         const float &duration)
+    void base_mesh::set_animation_config(
+        const string &animation_name,
+        const bool &loop,
+        const float &duration)
     {
         animation_strategy_->set_animation_config(animation_name, loop, duration);
     }
 
-    void base_mesh::render(const D3DXMATRIX &view_matrix,
-                           const D3DXMATRIX &projection_matrix,
-                           const D3DXVECTOR4 &light_normal,
-                           const float &brightness)
+    void base_mesh::render(
+        const D3DXMATRIX &view_matrix,
+        const D3DXMATRIX &projection_matrix,
+        const D3DXVECTOR4 &light_normal,
+        const float &brightness)
     {
         effect_->SetVector(light_normal_handle_, &light_normal);
         effect_->SetFloat(brightness_handle_, brightness);
@@ -348,13 +358,15 @@ namespace early_go
             (*dynamic_texture_.texture_fader_)(*this);
         }
 
-        effect_->SetVectorArray(texture_position_handle_,
-                                &dynamic_texture_.positions_[0],
-                                dynamic_texture::LAYER_NUMBER);
+        effect_->SetVectorArray(
+            texture_position_handle_,
+            &dynamic_texture_.positions_[0],
+            dynamic_texture::LAYER_NUMBER);
 
-        effect_->SetFloatArray(texture_opacity_handle_,
-                               &dynamic_texture_.opacities_[0],
-                               dynamic_texture::LAYER_NUMBER);
+        effect_->SetFloatArray(
+            texture_opacity_handle_,
+            &dynamic_texture_.opacities_[0],
+            dynamic_texture::LAYER_NUMBER);
 
         for (std::size_t i{}; i < dynamic_texture::LAYER_NUMBER; ++i)
         {
@@ -426,8 +438,7 @@ namespace early_go
         if (count_ % SHAKE_FRAME == 0)
         {
             std::size_t shaking_positions_index{
-                static_cast<std::size_t>(
-                    count_ / SHAKE_FRAME % (SHAKE_POSITIONS_SIZE - 1))};
+                static_cast<std::size_t>(count_ / SHAKE_FRAME % (SHAKE_POSITIONS_SIZE - 1))};
             previous_position_ = SHAKING_POSITIONS.at(shaking_positions_index);
             current_position_ = SHAKING_POSITIONS.at(shaking_positions_index + 1);
         }
@@ -436,9 +447,9 @@ namespace early_go
         float loop_counter{static_cast<float>(count_ % SHAKE_FRAME + 1) / SHAKE_FRAME};
         for (int i{}; i < LAYER_NUMBER; ++i)
         {
-            base_mesh.set_dynamic_texture_position(i,
-                                                   previous_position_ +
-                                                       (current_position_ - previous_position_) * loop_counter);
+            base_mesh.set_dynamic_texture_position(
+                i,
+                previous_position_ + (current_position_ - previous_position_) * loop_counter);
         }
 
         ++count_;
@@ -449,8 +460,7 @@ namespace early_go
 
     void base_mesh::set_fade_in()
     {
-        dynamic_texture_.tex_animation_finished_
-            .at(dynamic_texture::FADE_LAYER) = false;
+        dynamic_texture_.tex_animation_finished_.at(dynamic_texture::FADE_LAYER) = false;
         dynamic_texture_.texture_fader_.reset(
             new_crt dynamic_texture::texture_fader(
                 dynamic_texture::texture_fader::fade_type::FADE_IN));
@@ -458,8 +468,7 @@ namespace early_go
 
     void base_mesh::set_fade_out()
     {
-        dynamic_texture_.tex_animation_finished_
-            .at(dynamic_texture::FADE_LAYER) = false;
+        dynamic_texture_.tex_animation_finished_.at(dynamic_texture::FADE_LAYER) = false;
         dynamic_texture_.texture_fader_.reset(
             new_crt dynamic_texture::texture_fader(
                 dynamic_texture::texture_fader::fade_type::FADE_OUT));

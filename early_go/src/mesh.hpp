@@ -24,8 +24,8 @@ namespace early_go
         D3DXVECTOR3 center_coodinate_;
         float radius_;
         float scale_;
-
         std::string mesh_name_;
+
         void render(const D3DXMATRIX &, const D3DXMATRIX &) override;
     };
 } /* namespace early_go */
