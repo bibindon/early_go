@@ -83,7 +83,7 @@ namespace early_go
 
                 std::fill(static_cast<int *>(locked_rect.pBits),
                           static_cast<int *>(locked_rect.pBits) +
-                              static_cast<std::size_t>(locked_rect.Pitch) *
+                              static_cast<size_t>(locked_rect.Pitch) *
                                   constants::EMPTY_TEXTURE_SIZE / sizeof(DWORD),
                           0x00000000UL);
 
@@ -260,7 +260,7 @@ namespace early_go
 
         std::fill(static_cast<int *>(locked_rect.pBits),
                   static_cast<int *>(locked_rect.pBits) +
-                      static_cast<std::size_t>(tex_size.height) * tex_size.width,
+                      static_cast<size_t>(tex_size.height) * tex_size.width,
                   0x00000000);
 
         dynamic_texture_.textures_.at(layer_number)->UnlockRect(0);
@@ -368,7 +368,7 @@ namespace early_go
             &dynamic_texture_.opacities_[0],
             dynamic_texture::LAYER_NUMBER);
 
-        for (std::size_t i{}; i < dynamic_texture::LAYER_NUMBER; ++i)
+        for (size_t i{}; i < dynamic_texture::LAYER_NUMBER; ++i)
         {
             if (dynamic_texture_.writer_.at(i))
             {
@@ -437,8 +437,8 @@ namespace early_go
 
         if (count_ % SHAKE_FRAME == 0)
         {
-            std::size_t shaking_positions_index{
-                static_cast<std::size_t>(count_ / SHAKE_FRAME % (SHAKE_POSITIONS_SIZE - 1))};
+            size_t shaking_positions_index{
+                static_cast<size_t>(count_ / SHAKE_FRAME % (SHAKE_POSITIONS_SIZE - 1))};
             previous_position_ = SHAKING_POSITIONS.at(shaking_positions_index);
             current_position_ = SHAKING_POSITIONS.at(shaking_positions_index + 1);
         }

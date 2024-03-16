@@ -38,7 +38,7 @@ namespace early_go
         old_font_ = static_cast<HFONT>(::SelectObject(hdc_, hfont_));
         GetTextMetrics(hdc_, &text_metric_);
 
-        text_image_.resize(std::size_t(canvas_size_.height),
+        text_image_.resize(size_t(canvas_size_.height),
                            std::vector<DWORD>(canvas_size_.width));
     }
     message_writer_for_thread::~message_writer_for_thread()
@@ -164,7 +164,7 @@ namespace early_go
         }
 
         std::vector<BYTE *> mono_buffer(font_height);
-        for (std::size_t y{}; y < mono_buffer.size(); ++y)
+        for (size_t y{}; y < mono_buffer.size(); ++y)
         {
             mono_buffer.at(y) = &letter[y * font_width];
         }
@@ -180,9 +180,9 @@ namespace early_go
         DWORD current_alpha{};
         DWORD sum_alpha{};
 
-        for (std::size_t y{}; y < font_height; ++y)
+        for (size_t y{}; y < font_height; ++y)
         {
-            for (std::size_t x{}; x < font_width; ++x)
+            for (size_t x{}; x < font_width; ++x)
             {
                 // If blank pixel, through.
                 BYTE chara_alpha = mono_buffer.at(y)[x];

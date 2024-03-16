@@ -357,7 +357,7 @@ namespace early_go
 
                 std::fill(static_cast<int *>(locked_rect.pBits),
                           static_cast<int *>(locked_rect.pBits) +
-                              static_cast<std::size_t>(locked_rect.Pitch) *
+                              static_cast<size_t>(locked_rect.Pitch) *
                                   HP_info::TEXTURE_SIZE.height / sizeof(int),
                           0x00000000);
 
@@ -392,7 +392,7 @@ namespace early_go
 
                 std::fill(static_cast<int *>(locked_rect.pBits),
                           static_cast<int *>(locked_rect.pBits) +
-                              static_cast<std::size_t>(locked_rect.Pitch) *
+                              static_cast<size_t>(locked_rect.Pitch) *
                                   HP_info::TEXTURE_SIZE.height / sizeof(int),
                           0x00000000);
 
@@ -471,7 +471,7 @@ namespace early_go
         const cv::Point &start_point = writer->start_point_;
         const cv::Size &canvas_size = writer->canvas_size_;
         const std::vector<std::vector<DWORD>> &text_image_ = writer->text_image_;
-        for (std::size_t j{}; j < canvas_size.height; ++j)
+        for (size_t j{}; j < canvas_size.height; ++j)
         {
             DWORD *row = image_.ptr<DWORD>(static_cast<int>(j + start_point.y));
             row += start_point.x;
@@ -1594,7 +1594,7 @@ namespace early_go
         const cv::Point &start_point = writer->start_point_;
         const cv::Size &canvas_size = writer->canvas_size_;
         const std::vector<std::vector<DWORD>> &text_image_ = writer->text_image_;
-        for (std::size_t j{}; j < canvas_size.height; ++j)
+        for (size_t j{}; j < canvas_size.height; ++j)
         {
             DWORD *row = image_.ptr<DWORD>(static_cast<int>(j + start_point.y));
             row += start_point.x;

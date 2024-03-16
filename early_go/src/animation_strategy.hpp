@@ -9,7 +9,7 @@ namespace early_go
     {
     public:
         virtual void operator()() = 0;
-        virtual void set_animation(const std::size_t &){};
+        virtual void set_animation(const size_t &){};
         virtual void set_animation(const std::string &){};
         virtual void set_default_animation(const std::string &){};
         virtual void set_animation_config(const std::string &,

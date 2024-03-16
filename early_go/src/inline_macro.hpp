@@ -75,8 +75,8 @@ namespace early_go
     {
 #if 0
 
-  std::size_t begin = query.find_first_of("'")+1;
-  std::size_t end = query.find_first_of("'", begin);
+  size_t begin = query.find_first_of("'")+1;
+  size_t end = query.find_first_of("'", begin);
   std::string filename{query.substr(begin, end-begin)};
 
   std::string path{"res/" + filename};

@@ -2,25 +2,31 @@
 
 #include "text.hpp"
 
+using std::string;
+using std::shared_ptr;
+using std::vector;
+
 namespace early_go
 {
 
-    message_writer::message_writer(std::shared_ptr<IDirect3DTexture9> &texture,
-                                   const std::string message,
-                                   const bool is_message_animated,
-                                   const cv::Rect rect,
-                                   const DWORD color,
-                                   const std::string &fontname,
-                                   const int &size,
-                                   const int &weight,
-                                   const BYTE &charset,
-                                   const bool &proportional)
+    message_writer::message_writer(
+        shared_ptr<IDirect3DTexture9> &texture,
+        const string message,
+        const bool is_message_animated,
+        const cv::Rect rect,
+        const DWORD color,
+        const string &fontname,
+        const int &size,
+        const int &weight,
+        const BYTE &charset,
+        const bool &proportional)
         : texture_{texture},
           message_{message},
           is_message_animated_{is_message_animated},
           rect_{rect},
-          texture_size_{get_next_pow_2(rect.width),
-                        get_next_pow_2(rect.height)},
+          texture_size_{
+              get_next_pow_2(rect.width),
+              get_next_pow_2(rect.height)},
           color_{color},
           font_width_sum_{rect.x},
           font_height_sum_{rect.y},
@@ -34,34 +40,49 @@ namespace early_go
         initialize(size, weight, charset, fontname);
     }
 
-    message_writer::message_writer(std::shared_ptr<IDirect3DDevice9> d3d_device,
-                                   std::shared_ptr<IDirect3DTexture9> &texture,
-                                   const std::string message,
-                                   const bool is_message_animated,
-                                   const cv::Rect rect,
-                                   const DWORD color,
-                                   const std::string &fontname,
-                                   const int &size,
-                                   const int &weight,
-                                   const BYTE &charset,
-                                   const bool &proportional)
-        : message_writer{d3d_device, texture, message, is_message_animated, rect,
-                         cv::Size{constants::TEXTURE_PIXEL_SIZE,
-                                  constants::TEXTURE_PIXEL_SIZE},
-                         color, fontname, size, weight, charset, proportional} {}
+    message_writer::message_writer(
+        shared_ptr<IDirect3DDevice9> d3d_device,
+        shared_ptr<IDirect3DTexture9> &texture,
+        const string message,
+        const bool is_message_animated,
+        const cv::Rect rect,
+        const DWORD color,
+        const string &fontname,
+        const int &size,
+        const int &weight,
+        const BYTE &charset,
+        const bool &proportional)
+        : message_writer{
+            d3d_device,
+            texture,
+            message,
+            is_message_animated,
+            rect,
+            cv::Size{
+                constants::TEXTURE_PIXEL_SIZE,
+                constants::TEXTURE_PIXEL_SIZE},
+            color,
+            fontname,
+            size,
+            weight,
+            charset,
+            proportional}
+    {
+    }
 
-    message_writer::message_writer(std::shared_ptr<IDirect3DDevice9> d3d_device,
-                                   std::shared_ptr<IDirect3DTexture9> &texture,
-                                   const std::string message,
-                                   const bool is_message_animated,
-                                   const cv::Rect rect,
-                                   const cv::Size texture_size,
-                                   const DWORD color,
-                                   const std::string &fontname,
-                                   const int &size,
-                                   const int &weight,
-                                   const BYTE &charset,
-                                   const bool &proportional)
+    message_writer::message_writer(
+        shared_ptr<IDirect3DDevice9> d3d_device,
+        shared_ptr<IDirect3DTexture9> &texture,
+        const string message,
+        const bool is_message_animated,
+        const cv::Rect rect,
+        const cv::Size texture_size,
+        const DWORD color,
+        const string &fontname,
+        const int &size,
+        const int &weight,
+        const BYTE &charset,
+        const bool &proportional)
         : texture_{texture},
           message_{message},
           is_message_animated_{is_message_animated},
@@ -104,7 +125,7 @@ namespace early_go
             THROW_WITH_TRACE("Failed to create message writer.");
         }
         std::fill(pTexBuf,
-                  pTexBuf + static_cast<std::size_t>(locked_rect.Pitch) *
+                  pTexBuf + static_cast<size_t>(locked_rect.Pitch) *
                                 texture_size_.height / sizeof(DWORD),
                   0x00000000UL);
 
@@ -113,7 +134,7 @@ namespace early_go
     void message_writer::initialize(const int &size,
                                     const int &weight,
                                     const BYTE &charset,
-                                    const std::string &fontname)
+                                    const string &fontname)
     {
         LOGFONT logfont = {size,
                            0,
@@ -310,9 +331,9 @@ namespace early_go
         // If character may go down over bottom, scroll one line? and return.
         else if (rect_.height < font_height_sum_ + text_metric_.tmHeight)
         {
-            for (std::size_t y{0}; y < static_cast<std::size_t>(rect_.height); ++y)
+            for (size_t y{0}; y < static_cast<size_t>(rect_.height); ++y)
             {
-                for (std::size_t x{0}; x < static_cast<std::size_t>(rect_.width); ++x)
+                for (size_t x{0}; x < static_cast<size_t>(rect_.width); ++x)
                 {
                     if (y + text_metric_.tmHeight < rect_.height)
                     {
@@ -329,8 +350,8 @@ namespace early_go
             return false;
         }
 
-        std::vector<BYTE *> mono_buffer(font_height);
-        for (std::size_t y{}; y < mono_buffer.size(); ++y)
+        vector<BYTE *> mono_buffer(font_height);
+        for (size_t y{}; y < mono_buffer.size(); ++y)
         {
             mono_buffer.at(y) = &letter[y * font_width];
         }
@@ -345,9 +366,9 @@ namespace early_go
         DWORD current_alpha{};
         DWORD sum_alpha{};
 
-        for (std::size_t y{}; y < font_height; ++y)
+        for (size_t y{}; y < font_height; ++y)
         {
-            for (std::size_t x{}; x < font_width; ++x)
+            for (size_t x{}; x < font_width; ++x)
             {
                 new_alpha = color_ >> 24;
                 chara_alpha = static_cast<float>(mono_buffer.at(y)[x]) / GGO_LEVEL;
@@ -370,11 +391,11 @@ namespace early_go
         return true;
     }
 
-    void add_text(std::shared_ptr<IDirect3DTexture9> &texture,
-                  const std::string &text,
+    void add_text(shared_ptr<IDirect3DTexture9> &texture,
+                  const string &text,
                   const cv::Rect &rect,
                   const DWORD &color,
-                  const std::string &fontname,
+                  const string &fontname,
                   const int &size,
                   const int &weight,
                   D3DLOCKED_RECT &locked_rect,

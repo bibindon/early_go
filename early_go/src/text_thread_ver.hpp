@@ -7,7 +7,7 @@ namespace early_go
     struct message_writer_for_thread
     {
         DWORD color_{};
-        std::size_t character_index_{};
+        size_t character_index_{};
         HDC hdc_{};
         HFONT hfont_{};
         HFONT old_font_{};

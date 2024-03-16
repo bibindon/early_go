@@ -511,7 +511,7 @@ namespace early_go
         }
         D3DXVECTOR3 position{outer_.position_};
         float delta{0.0f};
-        std::size_t count_index{static_cast<std::size_t>(count_)};
+        size_t count_index{static_cast<size_t>(count_)};
         if (count_index + 1 < destinations_.size())
         {
             delta = destinations_.at(count_index + 1) - destinations_.at(count_index);
