@@ -41,7 +41,7 @@
     <LibraryPath>$(DXSDK_DIR)Lib\x64;$(ProjectDir)..\sqlite3\Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.3\build\native\include;$(DXSDK_DIR)Include;$(ProjectDir)..\sqlite3\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.3\build\native\include;$(DXSDK_DIR)Include;$(ProjectDir)..\sqlite3\Include;../early_go/;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)Lib\x64;$(ProjectDir)..\sqlite3\Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -149,8 +149,8 @@
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>gtest.lib;gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.3\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Release;$(SolutionDir)\packages\opencv.win.native.320.1.1-vs141\build\native\lib\x64\v141\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gtest.lib;gtest_main.lib;legacy_stdio_definitions.lib;mesh.obj;util.obj;base_mesh.obj;constants.obj;text.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.3\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Release;$(SolutionDir)\packages\opencv.win.native.320.1.1-vs141\build\native\lib\x64\v141\Release;../early_go/x64/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
