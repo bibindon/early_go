@@ -113,8 +113,8 @@ animation_mesh::animation_mesh(
 }
 
 /* Renders its own animation mesh. */
-void animation_mesh::render(const D3DXMATRIX &view_matrix,
-                            const D3DXMATRIX &projection_matrix)
+void animation_mesh::render_impl(
+    const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
 {
     view_matrix_ = view_matrix;
     projection_matrix_ = projection_matrix;

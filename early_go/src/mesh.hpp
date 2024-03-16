@@ -26,7 +26,7 @@ private:
     float scale_;
     std::string mesh_name_;
 
-    void render(const D3DXMATRIX &, const D3DXMATRIX &) override;
+    void render_impl(const D3DXMATRIX &, const D3DXMATRIX &) override;
 };
 } /* namespace early_go */
 #endif

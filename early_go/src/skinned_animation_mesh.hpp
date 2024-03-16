@@ -21,7 +21,7 @@ namespace early_go
                                const float &);
 
     private:
-        void render(const D3DXMATRIX &, const D3DXMATRIX &) override;
+        void render_impl(const D3DXMATRIX &, const D3DXMATRIX &) override;
         /*
          * A struct which deletes the root 'LPD3DXFRAME' object. The reason why the
          * following struct is not a prototype declaration is necessary for the

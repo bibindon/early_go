@@ -123,8 +123,8 @@ namespace early_go
         D3DXVECTOR3 rotation_;
 
     private:
-        virtual void render(const D3DXMATRIX &, const D3DXMATRIX &) = 0;
+        virtual void render_impl(const D3DXMATRIX &, const D3DXMATRIX &) = 0;
     };
 }
-
 #endif
+

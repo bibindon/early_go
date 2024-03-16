@@ -373,7 +373,7 @@ void base_mesh::render(
             }
         }
     }
-    render(view_matrix, projection_matrix);
+    render_impl(view_matrix, projection_matrix);
 }
 
 void base_mesh::set_shake_texture()

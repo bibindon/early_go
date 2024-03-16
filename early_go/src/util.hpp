@@ -1,4 +1,6 @@
-#pragma once
+#ifndef UTIL_HPP
+#define UTIL_HPP
+
 #include <vector>
 #include <string>
 
@@ -15,3 +17,5 @@ public:
     static std::vector<char> get_image_resource(const std::string& image_name);
 };
 }
+#endif
+

@@ -109,8 +109,8 @@ skinned_animation_mesh::skinned_animation_mesh(
 }
 
 /* Renders its own animation mesh. */
-void skinned_animation_mesh::render(const D3DXMATRIX &view_matrix,
-                                    const D3DXMATRIX &projection_matrix)
+void skinned_animation_mesh::render_impl(
+    const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
 {
     D3DXMATRIX view_projection_matrix{view_matrix * projection_matrix};
 

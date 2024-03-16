@@ -629,11 +629,11 @@ erto's book, Programming in Lua.\n\
         if (key::is_down('B'))
         {
             mesh_->set_dynamic_message(1,
-                                       "ccc", false,
-                                       {10, 70, 2048, 2048},
-                                       D3DCOLOR_ARGB(255, 255, 255, 255),
+                                       "1234567890", false,
+                                       {1000, 1000, 2048, 2048},
+                                       D3DCOLOR_ARGB(255, 255, 64, 64),
                                         "ü‡ÉSÉVÉbÉN",
-                                       100,
+                                       300,
                                        FW_NORMAL,
                                        SHIFTJIS_CHARSET,
                                        true);
