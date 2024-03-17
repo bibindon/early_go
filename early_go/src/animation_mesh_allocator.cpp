@@ -2,10 +2,13 @@
 
 #include "animation_mesh_allocator.hpp"
 
+using std::string;
+using std::vector;
+
 namespace early_go
 {
 /* c'tor */
-animation_mesh_frame::animation_mesh_frame(const std::string &name)
+animation_mesh_frame::animation_mesh_frame(const string &name)
     : D3DXFRAME{}, /* Initializes member with zero. */
       combined_matrix_{}
 {
@@ -42,8 +45,8 @@ animation_mesh_frame::animation_mesh_frame(const std::string &name)
  *
  */
 animation_mesh_container::animation_mesh_container(
-    const std::string &x_filename,
-    const std::string &mesh_name,
+    const string &x_filename,
+    const string &mesh_name,
     LPD3DXMESH mesh,
     const D3DXMATERIAL *materials,
     const DWORD materials_count,
@@ -64,10 +67,11 @@ animation_mesh_container::animation_mesh_container(
     if (!(mesh->GetFVF() & D3DFVF_NORMAL))
     {
         MeshData.Type = D3DXMESHTYPE_MESH;
-        HRESULT result{mesh->CloneMeshFVF(mesh->GetOptions(),
-                                          mesh->GetFVF() | D3DFVF_NORMAL,
-                                          temp_d3d_device,
-                                          &MeshData.pMesh)};
+        HRESULT result{mesh->CloneMeshFVF(
+            mesh->GetOptions(),
+            mesh->GetFVF() | D3DFVF_NORMAL,
+            temp_d3d_device,
+            &MeshData.pMesh)};
         if (FAILED(result))
         {
             THROW_WITH_TRACE("Failed 'CloneMeshFVF' function.");
@@ -85,8 +89,7 @@ animation_mesh_container::animation_mesh_container(
     /* This strange bracket is measures of being interpretered as WinAPI macro. */
     NumMaterials = std::max(1UL, materials_count);
     pMaterials = new_crt D3DXMATERIAL[NumMaterials];
-    std::vector<std::unique_ptr<IDirect3DTexture9, custom_deleter>>
-        temp_texture(NumMaterials);
+    vector<std::unique_ptr<IDirect3DTexture9, custom_deleter> > temp_texture(NumMaterials);
     texture_.swap(temp_texture);
 
     /* Initialize the 'pAdjacency' of a member variable. */
@@ -114,7 +117,7 @@ animation_mesh_container::animation_mesh_container(
             pMaterials[i].MatD3D.Ambient = D3DCOLORVALUE{0.2f, 0.2f, 0.2f, 0};
             if (pMaterials[i].pTextureFilename != nullptr)
             {
-                std::vector<char> buffer =
+                vector<char> buffer =
                     util::get_model_texture_resource(x_filename, pMaterials[i].pTextureFilename);
 
                 LPDIRECT3DTEXTURE9 temp_texture{};
@@ -141,17 +144,18 @@ animation_mesh_container::animation_mesh_container(
     }
 }
 
-animation_mesh_allocator::animation_mesh_allocator(
-    const std::string &x_filename)
+animation_mesh_allocator::animation_mesh_allocator(const string &x_filename)
     : ID3DXAllocateHierarchy{},
-      x_filename_(x_filename) {}
+      x_filename_(x_filename)
+{
+    // do nothing
+}
 
 /*
  * Alghough it's camel case and a strange type name, because this function is a
  * pure virtual function of 'ID3DXAllocateHierarchy'.
  */
-STDMETHODIMP animation_mesh_allocator::CreateFrame(
-    LPCTSTR name, LPD3DXFRAME *new_frame)
+STDMETHODIMP animation_mesh_allocator::CreateFrame(LPCTSTR name, LPD3DXFRAME *new_frame)
 {
     *new_frame = new_crt animation_mesh_frame{name};
     return S_OK;
@@ -173,12 +177,13 @@ STDMETHODIMP animation_mesh_allocator::CreateMeshContainer(
 {
     try
     {
-        *mesh_container = new_crt animation_mesh_container{x_filename_,
-                                                           mesh_name,
-                                                           mesh_data->pMesh,
-                                                           materials,
-                                                           materials_count,
-                                                           adjacency};
+        *mesh_container = new_crt animation_mesh_container{
+            x_filename_,
+            mesh_name,
+            mesh_data->pMesh,
+            materials,
+            materials_count,
+            adjacency};
     }
     catch (const boost::exception &e)
     {

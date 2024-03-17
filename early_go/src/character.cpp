@@ -11,11 +11,12 @@
 
 namespace early_go
 {
-    character::character(const std::shared_ptr<IDirect3DDevice9> &d3d_device,
-                         const std::shared_ptr<operation> &a_operation,
-                         const cv::Point3i &position,
-                         const direction &direction,
-                         const float &size)
+    character::character(
+        const std::shared_ptr<IDirect3DDevice9> &d3d_device,
+        const std::shared_ptr<operation> &a_operation,
+        const cv::Point3i &position,
+        const direction &direction,
+        const float &size)
         : d3d_device_{d3d_device},
           operation_{a_operation},
           position_{position.x * constants::GRID_LENGTH,
@@ -24,7 +25,8 @@ namespace early_go
           grid_position_{position},
           direction_{direction},
           size_{size},
-          health_{1}
+          health_{1},
+          max_health_{100}
     {
         switch (direction_)
         {
@@ -60,9 +62,10 @@ namespace early_go
         }
     }
 
-    void character::set_animation_config(const std::string &animation_name,
-                                         const bool &loop,
-                                         const float &duration)
+    void character::set_animation_config(
+        const std::string &animation_name,
+        const bool &loop,
+        const float &duration)
     {
         duration_map_.emplace(animation_name, duration);
         for (const auto &x : mesh_map_)
@@ -74,10 +77,11 @@ namespace early_go
         }
     }
 
-    void character::render(const D3DXMATRIX &view_matrix,
-                           const D3DXMATRIX &projection_matrix,
-                           const D3DXVECTOR4 &normal_light,
-                           const float &brightness)
+    void character::render(
+        const D3DXMATRIX &view_matrix,
+        const D3DXMATRIX &projection_matrix,
+        const D3DXVECTOR4 &normal_light,
+        const float &brightness)
     {
         if (current_action_ != nullptr)
         {
@@ -143,10 +147,11 @@ namespace early_go
         }
     }
 
-    void character::set_dynamic_texture(const std::string &x_filename,
-                                        const std::string &texture_filename,
-                                        const int &layer_number,
-                                        const abstract_mesh::combine_type &combine_type)
+    void character::set_dynamic_texture(
+        const std::string &x_filename,
+        const std::string &texture_filename,
+        const int &layer_number,
+        const abstract_mesh::combine_type &combine_type)
     {
         if (mesh_map_.find(x_filename) != mesh_map_.end())
         {
@@ -154,9 +159,10 @@ namespace early_go
         }
     }
 
-    void character::set_dynamic_texture_position(const std::string &x_filename,
-                                                 const int &layer_number,
-                                                 const D3DXVECTOR2 &position)
+    void character::set_dynamic_texture_position(
+        const std::string &x_filename,
+        const int &layer_number,
+        const D3DXVECTOR2 &position)
     {
         if (mesh_map_.find(x_filename) != mesh_map_.end())
         {
@@ -164,9 +170,10 @@ namespace early_go
         }
     }
 
-    void character::set_dynamic_texture_opacity(const std::string &x_filename,
-                                                const int &layer_number,
-                                                const float &opacity)
+    void character::set_dynamic_texture_opacity(
+        const std::string &x_filename,
+        const int &layer_number,
+        const float &opacity)
     {
         if (mesh_map_.find(x_filename) != mesh_map_.end())
         {
@@ -174,8 +181,7 @@ namespace early_go
         }
     }
 
-    void character::flip_dynamic_texture(const std::string &x_filename,
-                                         const int &layer_number)
+    void character::flip_dynamic_texture(const std::string &x_filename, const int &layer_number)
     {
         if (mesh_map_.find(x_filename) != mesh_map_.end())
         {
@@ -183,8 +189,7 @@ namespace early_go
         }
     }
 
-    void character::clear_dynamic_texture(const std::string &x_filename,
-                                          const int &layer_number)
+    void character::clear_dynamic_texture(const std::string &x_filename, const int &layer_number)
     {
         if (mesh_map_.find(x_filename) != mesh_map_.end())
         {
@@ -192,27 +197,37 @@ namespace early_go
         }
     }
 
-    void character::set_dynamic_message(const std::string &x_filename,
-                                        const int &layer_number,
-                                        const std::string &message,
-                                        const bool &animation,
-                                        const cv::Rect &rect,
-                                        const DWORD &color,
-                                        const std::string &fontname,
-                                        const int &size,
-                                        const int &weight,
-                                        const BYTE &charset,
-                                        const bool &proportional)
+    void character::set_dynamic_message(
+        const std::string &x_filename,
+        const int &layer_number,
+        const std::string &message,
+        const bool &animation,
+        const cv::Rect &rect,
+        const DWORD &color,
+        const std::string &fontname,
+        const int &size,
+        const int &weight,
+        const BYTE &charset,
+        const bool &proportional)
     {
         if (mesh_map_.find(x_filename) != mesh_map_.end())
         {
-            mesh_map_.at(x_filename)->set_dynamic_message(layer_number, message, animation, rect, color, fontname, size, weight, charset, proportional);
+            mesh_map_.at(x_filename)->set_dynamic_message(
+                layer_number,
+                message,
+                animation,
+                rect,
+                color,
+                fontname,
+                size,
+                weight,
+                charset,
+                proportional);
         }
     }
 
-    void character::set_dynamic_message_color(const std::string &x_filename,
-                                              const int &layer_number,
-                                              const D3DXVECTOR4 &color)
+    void character::set_dynamic_message_color(
+        const std::string &x_filename, const int &layer_number, const D3DXVECTOR4 &color)
     {
         if (mesh_map_.find(x_filename) != mesh_map_.end())
         {
@@ -704,9 +719,8 @@ namespace early_go
         outer_.set_rotation(outer_.direction_);
     }
 
-    character::step_and_rotate::step_and_rotate(character &outer,
-                                                const direction &step_dir,
-                                                const direction &rotate_dir)
+    character::step_and_rotate::step_and_rotate(
+        character &outer, const direction &step_dir, const direction &rotate_dir)
         : action{outer, direction::NONE},
           step_{outer, step_dir},
           rotate_{outer, rotate_dir} {}
@@ -781,9 +795,8 @@ namespace early_go
     {
     }
 
-    void character::set_normal_move(const std::string &name,
-                                    const int &power,
-                                    const int &max_power)
+    void character::set_normal_move(
+        const std::string &name, const int &power, const int &max_power)
     {
         normal_move_.emplace_back(normal_move{name, power, max_power});
     }
@@ -802,8 +815,7 @@ namespace early_go
     {
         decltype(normal_move_)::const_iterator it{
             std::find_if(normal_move_.cbegin(), normal_move_.cend(),
-                         [&](auto &&x)
-                         { return x.name_ == name; })};
+                [&](auto &&x) { return x.name_ == name; })};
 
         return std::make_pair(it->power_, it->max_power_);
     }
@@ -818,9 +830,8 @@ namespace early_go
         return ret;
     }
 
-    void character::set_special_move(const std::string &name,
-                                     const int &power,
-                                     const int &max_power)
+    void character::set_special_move(
+        const std::string &name, const int &power, const int &max_power)
     {
         special_move_.emplace_back(special_move{name, power, max_power});
     }
@@ -835,8 +846,8 @@ namespace early_go
         return std::make_pair(it->power_, it->max_power_);
     }
 
-    bool character::is_tex_animation_finished(const std::string &x_filename,
-                                              const int &layer_number)
+    bool character::is_tex_animation_finished(
+        const std::string &x_filename, const int &layer_number)
     {
         if (mesh_map_.find(x_filename) != mesh_map_.end())
         {
@@ -845,18 +856,16 @@ namespace early_go
         return true;
     }
 
-    character::normal_move::normal_move(const std::string &name,
-                                        const int &power,
-                                        const int &max_power)
+    character::normal_move::normal_move(
+        const std::string &name, const int &power, const int &max_power)
         : name_{name},
           power_{power},
           max_power_{max_power}
     {
     }
 
-    character::special_move::special_move(const std::string &name,
-                                          const int &power,
-                                          const int &max_power)
+    character::special_move::special_move(
+        const std::string &name, const int &power, const int &max_power)
         : normal_move{name, power, max_power}
     {
     }

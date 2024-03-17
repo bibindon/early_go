@@ -28,7 +28,7 @@ namespace early_go
         operation(const std::shared_ptr<camera> &);
         void operator()(main_window &);
 
-        enum behavior_state
+        enum class behavior_state
         {
             // READY,
             PLAY,

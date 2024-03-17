@@ -116,8 +116,9 @@ void pixel_shader(in  float4 in_diffuse  : COLOR0,
 //      color_tex[i].a *= g_opacity[i];
 //      color_result = (1.0f-color_tex[i].a) * color_result
 //          + color_tex[i].a * color_tex[i];
-      color_result = color_tex[i];
-      color_result.a = 1.0f;
+//      color_result = color_tex[i];
+//      color_result.a = 1.0f;
+//      color_result.b = 0.5f;
       }
 
     //if (i != 7) {

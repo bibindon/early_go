@@ -349,14 +349,15 @@ void main_window::debug()
     static int frame_count = 0;
     static int fps = 0;
     static system_clock::time_point start, end;
-    if (frame_count == 50)
+    if (frame_count == 100)
     {
         frame_count = 0;
         end = system_clock::now();
         system_clock::rep elapsed{
             std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()};
-        fps = 50 * 1000 / static_cast<int>(elapsed);
+        fps = 100 * 1000 / static_cast<int>(elapsed);
         start = system_clock::now();
+        log_liner{} << fps;
     }
 
     if (frame_count == 0)
@@ -378,7 +379,6 @@ void main_window::debug()
     {
         hud_->delete_message("fps");
         hud_->add_message("fps", std::to_string(fps), cv::Rect(30, 10, 64, 32));
-        log_liner{} << fps;
     }
 
     //  if (key::is_hold('I')) {
