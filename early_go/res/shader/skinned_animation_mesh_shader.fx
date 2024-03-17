@@ -112,25 +112,12 @@ void pixel_shader(in  float4 in_diffuse  : COLOR0,
   float4 color_tex[8];
   for (int i = 0; i < 8; ++i) {
     color_tex[i] = tex2D(texture_sampler[i], in_texcood + g_position[i]);
-    if (i == 0) {
-//      color_tex[i].a *= g_opacity[i];
-//      color_result = (1.0f-color_tex[i].a) * color_result
-//          + color_tex[i].a * color_tex[i];
-//      color_result = color_tex[i];
-//      color_result.a = 1.0f;
-//      color_result.b = 0.5f;
-      }
-
-    //if (i != 7) {
-    //  color_tex[i].a *= g_opacity[i];
-    //  color_result = (1.0f-color_tex[i].a) * color_result
-    //      + color_tex[i].a * color_tex[i];
-    //} else {
-    //  color_result.rgb = color_result.rgb * (1.0f-g_opacity[i]);
-    //}
+    color_tex[i].a *= g_opacity[i];
+    color_result = (1.0f-color_tex[i].a) * color_result
+        + color_tex[i].a * color_tex[i];
   }
-
   out_diffuse = (in_diffuse * color_result);
+  out_diffuse.a = 1.0f;
 }
 
 int current_bone_numbers;
