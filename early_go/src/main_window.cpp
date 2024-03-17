@@ -2,7 +2,7 @@
 
 #include "animation_mesh.hpp"
 #include "skinned_animation_mesh.hpp"
-#include "basic_window.hpp"
+#include "main_window.hpp"
 #include "mesh.hpp"
 #include "camera.hpp"
 #include "character.hpp"
@@ -18,10 +18,10 @@
 namespace early_go
 {
 /* A definition of the static member variable. */
-std::weak_ptr<ID3DXFont> basic_window::render_string_object::weak_font_;
+std::weak_ptr<ID3DXFont> main_window::render_string_object::weak_font_;
 
 /* c'tor */
-basic_window::basic_window(const HINSTANCE &hinstance)
+main_window::main_window(const HINSTANCE &hinstance)
     : direct3d9_{nullptr, custom_deleter{}},
       d3d_present_parameters_{},
       d3d_device_{},
@@ -95,7 +95,7 @@ basic_window::basic_window(const HINSTANCE &hinstance)
     initialize_direct3d(hwnd);
 }
 
-void basic_window::initialize_direct3d(const HWND &hwnd)
+void main_window::initialize_direct3d(const HWND &hwnd)
 {
     /* Create a Direct3D object. */
     LPDIRECT3D9 direct3d9{Direct3DCreate9(D3D_SDK_VERSION)};
@@ -237,18 +237,19 @@ void basic_window::initialize_direct3d(const HWND &hwnd)
 
     /* Create font. ~ */
     LPD3DXFONT font{};
-    if (FAILED(D3DXCreateFont(d3d_device_.get(),
-                              0,
-                              10,
-                              FW_REGULAR,
-                              NULL,
-                              FALSE,
-                              SHIFTJIS_CHARSET,
-                              OUT_DEFAULT_PRECIS,
-                              PROOF_QUALITY,
-                              FIXED_PITCH | FF_MODERN,
-                              "MS_Gothic",
-                              &font)))
+    if (FAILED(D3DXCreateFont(
+        d3d_device_.get(),
+        0,
+        10,
+        FW_REGULAR,
+        NULL,
+        FALSE,
+        SHIFTJIS_CHARSET,
+        OUT_DEFAULT_PRECIS,
+        PROOF_QUALITY,
+        FIXED_PITCH | FF_MODERN,
+        "MS_Gothic",
+        &font)))
     {
         THROW_WITH_TRACE("Failed to create a font.");
     }
@@ -262,13 +263,13 @@ void basic_window::initialize_direct3d(const HWND &hwnd)
     novel_ = std::make_shared<novel>();
 }
 
-basic_window::~basic_window()
+main_window::~main_window()
 {
     //  RemoveFontResource("chogokubosogothic_5.ttf");
 }
 
 /* windows main loop */
-int basic_window::operator()()
+int main_window::operator()()
 {
     while (msg_.message != WM_QUIT)
     {
@@ -303,17 +304,17 @@ int basic_window::operator()()
     return static_cast<int>(msg_.wParam);
 }
 
-std::shared_ptr<character> basic_window::get_main_character()
+std::shared_ptr<character> main_window::get_main_character()
 {
     return early_;
 }
 
-std::shared_ptr<character> basic_window::get_enemy_character()
+std::shared_ptr<character> main_window::get_enemy_character()
 {
     return suo_;
 }
 
-cv::Point basic_window::get_screen_coodinate(const D3DXVECTOR3 &world)
+cv::Point main_window::get_screen_coodinate(const D3DXVECTOR3 &world)
 {
     const D3DXMATRIX view_matrix{camera_->get_view_matrix()};
     const D3DXMATRIX projection_matrix{camera_->get_projection_matrix()};
@@ -329,7 +330,7 @@ cv::Point basic_window::get_screen_coodinate(const D3DXVECTOR3 &world)
                      static_cast<int>(matrix._42 / std::abs(matrix._44)));
 }
 
-void basic_window::debug()
+void main_window::debug()
 {
     if (key::is_down(VK_UP))
     {
@@ -668,7 +669,7 @@ erto's book, Programming in Lua.\n\
     // }
 }
 
-void basic_window::render()
+void main_window::render()
 {
     D3DXVECTOR4 light_direction{};
     light_direction.x = light_direction_.x;
@@ -734,7 +735,7 @@ void basic_window::render()
     d3d_device_->Present(nullptr, nullptr, nullptr, nullptr);
 }
 
-void basic_window::render_string_object::render_string(
+void main_window::render_string_object::render_string(
     const std::string &message, const int &x, const int &y)
 {
     std::shared_ptr<ID3DXFont> font{render_string_object::weak_font_.lock()};

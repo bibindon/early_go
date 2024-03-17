@@ -1,7 +1,7 @@
 #ifndef HUD_HPP
 #define HUD_HPP
 #include "stdafx.hpp"
-#include "basic_window.hpp"
+#include "main_window.hpp"
 
 #include <thread>
 #include <mutex>
@@ -26,7 +26,7 @@ namespace early_go
                                   const std::string &, const std::string &);
         void show_HP_info();
         void remove_HP_info();
-        void operator()(basic_window &);
+        void operator()(main_window &);
 
     private:
         std::shared_ptr<IDirect3DDevice9> d3d_device_;
@@ -98,7 +98,7 @@ namespace early_go
         struct HP_info_animator
         {
             HP_info_animator();
-            void operator()(HP_info &, basic_window &);
+            void operator()(HP_info &, main_window &);
             //    void rotate(const type&, HP_info&);
             std::shared_ptr<HP_info_drawer> HP_info_drawer_;
         };
@@ -299,7 +299,7 @@ namespace early_go
         struct HP_info_animator2
         {
             HP_info_animator2();
-            void operator()(HP_info2 &, basic_window &);
+            void operator()(HP_info2 &, main_window &);
             //    void rotate(const type&, HP_info&);
             std::shared_ptr<HP_info_drawer2> HP_info_drawer2_;
         };

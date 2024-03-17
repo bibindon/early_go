@@ -1,11 +1,11 @@
 #include "novel.hpp"
 #include "character.hpp"
-#include "basic_window.hpp"
+#include "main_window.hpp"
 
 namespace early_go
 {
 
-    basic_window *novel::window_ = nullptr;
+    main_window *novel::window_ = nullptr;
 
     std::deque<
         std::tuple<std::string, std::string, bool>>
@@ -158,7 +158,7 @@ namespace early_go
         }
     }
     lua_State *co;
-    void novel::operator()(basic_window &window)
+    void novel::operator()(main_window &window)
     {
         window_ = &window;
 

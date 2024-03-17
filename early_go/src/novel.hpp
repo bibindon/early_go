@@ -7,17 +7,17 @@
 
 #include "stdafx.hpp"
 #include "key.hpp"
-#include "basic_window.hpp"
+#include "main_window.hpp"
 
 namespace early_go
 {
-    class basic_window;
+    class main_window;
     class novel
     {
     public:
         bool get_is_novel_part() const { return is_novel_part_; }
         void set_is_novel_part(const bool val) { is_novel_part_ = val; }
-        void operator()(basic_window &);
+        void operator()(main_window &);
         lua_State *lua_state_;
 
     private:
@@ -32,7 +32,7 @@ namespace early_go
         //  static int glue_shake(::lua_State*);
         static void redraw_portrait();
         bool is_novel_part_;
-        static basic_window *window_;
+        static main_window *window_;
         // i.e. {"early", "center", true} ->
         //      {"shiho", "left", false}  ->
         //      {"suo", "right", true}

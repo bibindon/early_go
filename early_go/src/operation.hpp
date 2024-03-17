@@ -3,7 +3,7 @@
 
 #include "stdafx.hpp"
 #include "key.hpp"
-#include "basic_window.hpp"
+#include "main_window.hpp"
 
 #undef interface
 #include <boost/type_erasure/any.hpp>
@@ -26,7 +26,7 @@ namespace early_go
     {
     public:
         operation(const std::shared_ptr<camera> &);
-        void operator()(basic_window &);
+        void operator()(main_window &);
 
         enum behavior_state
         {
@@ -69,11 +69,11 @@ namespace early_go
 
         struct move_next_stage : event
         {
-            move_next_stage(operation &, basic_window &);
+            move_next_stage(operation &, main_window &);
             behavior_state operator()() override;
             ~move_next_stage() override {}
             operation &outer_;
-            basic_window &basic_window_;
+            main_window &main_window_;
             float main_chara_x_;
             float main_chara_z_;
             float delta_main_chara_x_;

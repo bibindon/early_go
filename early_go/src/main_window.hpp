@@ -18,7 +18,7 @@ namespace early_go
     /*
      * A class that handles basic window processings.
      */
-    class basic_window
+    class main_window
     {
     public:
         /*
@@ -32,8 +32,8 @@ namespace early_go
             static void render_string(const std::string &, const int &, const int &);
         };
 
-        explicit basic_window(const HINSTANCE &);
-        ~basic_window();
+        explicit main_window(const HINSTANCE &);
+        ~main_window();
         int operator()();
         std::shared_ptr<character> get_main_character();
         std::shared_ptr<character> get_enemy_character();

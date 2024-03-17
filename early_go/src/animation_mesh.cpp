@@ -2,7 +2,7 @@
 
 #include "animation_mesh.hpp"
 #include "animation_mesh_allocator.hpp"
-#include "basic_window.hpp"
+#include "main_window.hpp"
 
 using std::vector;
 using std::string;

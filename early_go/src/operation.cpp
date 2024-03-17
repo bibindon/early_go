@@ -83,9 +83,9 @@ namespace early_go
         return camera_;
     }
 
-    void operation::operator()(basic_window &a_basic_window)
+    void operation::operator()(main_window &a_main_window)
     {
-        character &main_character{*a_basic_window.get_main_character()};
+        character &main_character{*a_main_window.get_main_character()};
 
         if (key::is_down('Q'))
         {
@@ -486,7 +486,7 @@ namespace early_go
         }
 
         // collision detection
-        std::shared_ptr<character> enemy = a_basic_window.get_enemy_character();
+        std::shared_ptr<character> enemy = a_main_window.get_enemy_character();
 
         cv::Point3i enemy_pos = enemy->get_grid_position();
         const int relative_z = enemy_pos.z % (constants::GRID_NUM_HEIGHT + 1);
@@ -502,7 +502,7 @@ namespace early_go
             else if (current_stage_ != constants::MAX_STAGE_NUMBER - 1)
             {
                 current_behavior_.reset(new_crt behavior_concept{
-                    move_next_stage(*this, a_basic_window)});
+                    move_next_stage(*this, a_main_window)});
             }
             else
             {
@@ -515,17 +515,17 @@ namespace early_go
     }
 
     operation::move_next_stage::move_next_stage(
-        operation &a_operation, basic_window &a_basic_window)
+        operation &a_operation, main_window &a_main_window)
         : outer_{a_operation},
-          basic_window_{a_basic_window},
+          main_window_{a_main_window},
           enemy_move_called_{false},
           main_chara_move_called_{false}
     {
-        cv::Point3i pos = basic_window_.get_main_character()->get_grid_position();
+        cv::Point3i pos = main_window_.get_main_character()->get_grid_position();
         main_chara_x_ = static_cast<float>(pos.x) * constants::GRID_LENGTH;
         main_chara_z_ = static_cast<float>(pos.z) * constants::GRID_LENGTH;
 
-        pos = basic_window_.get_enemy_character()->get_grid_position();
+        pos = main_window_.get_enemy_character()->get_grid_position();
         enemy_x_ = static_cast<float>(pos.x) * constants::GRID_LENGTH;
         enemy_z_ = static_cast<float>(pos.z) * constants::GRID_LENGTH;
 
@@ -547,8 +547,8 @@ namespace early_go
         if (count_ == 0)
         {
             ++outer_.current_stage_;
-            basic_window_.get_enemy_character()->set_health(3);
-            basic_window_.get_enemy_character()->set_animation("Damaged");
+            main_window_.get_enemy_character()->set_health(3);
+            main_window_.get_enemy_character()->set_animation("Damaged");
         }
         else if (1.0f <= count_ * constants::ANIMATION_SPEED &&
                  count_ * constants::ANIMATION_SPEED < 3.0f)
@@ -556,11 +556,11 @@ namespace early_go
             if (!enemy_move_called_)
             {
                 enemy_move_called_ = true;
-                basic_window_.get_enemy_character()->set_rotation(direction::BACK);
-                basic_window_.get_enemy_character()->set_animation("Step_Back");
+                main_window_.get_enemy_character()->set_rotation(direction::BACK);
+                main_window_.get_enemy_character()->set_animation("Step_Back");
             }
             float sine{get_sine_curve(count_ * constants::ANIMATION_SPEED - 1.0f, 2.0f)};
-            basic_window_.get_enemy_character()->set_position(
+            main_window_.get_enemy_character()->set_position(
                 D3DXVECTOR3{enemy_x_ + delta_enemy_x_ * sine,
                             0.0,
                             enemy_z_ + delta_enemy_z_ * sine});
@@ -571,27 +571,27 @@ namespace early_go
             if (!main_chara_move_called_)
             {
                 main_chara_move_called_ = true;
-                basic_window_.get_main_character()->set_rotation(direction::FRONT);
-                basic_window_.get_main_character()->set_animation("Step_Front");
+                main_window_.get_main_character()->set_rotation(direction::FRONT);
+                main_window_.get_main_character()->set_animation("Step_Front");
                 outer_.camera_->move_position(
                     D3DXVECTOR3{delta_main_chara_x_, 0.0, delta_main_chara_z_}, 2.0f);
             }
             float sine{get_sine_curve(count_ * constants::ANIMATION_SPEED - 3.0f, 2.0f)};
-            basic_window_.get_main_character()->set_position(
+            main_window_.get_main_character()->set_position(
                 D3DXVECTOR3{main_chara_x_ + delta_main_chara_x_ * sine,
                             0.0,
                             main_chara_z_ + delta_main_chara_z_ * sine});
         }
         else if (5.0f <= count_ * constants::ANIMATION_SPEED)
         {
-            cv::Point3i pos = basic_window_.get_main_character()->get_grid_position();
+            cv::Point3i pos = main_window_.get_main_character()->get_grid_position();
             pos.x = 0;
             pos.z = 1 + outer_.current_stage_ * 10;
-            basic_window_.get_main_character()->set_position(pos);
-            pos = basic_window_.get_enemy_character()->get_grid_position();
+            main_window_.get_main_character()->set_position(pos);
+            pos = main_window_.get_enemy_character()->get_grid_position();
             pos.x = 0;
             pos.z = 7 + outer_.current_stage_ * 10;
-            basic_window_.get_enemy_character()->set_position(pos);
+            main_window_.get_enemy_character()->set_position(pos);
             outer_.reserved_behavior_.reset();
             return operation::behavior_state::FINISH;
         }

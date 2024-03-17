@@ -1,6 +1,6 @@
 #include "stdafx.hpp"
 
-#include "basic_window.hpp"
+#include "main_window.hpp"
 #include "error_dialog.hpp"
 #include "resource.h"
 
@@ -17,7 +17,7 @@ try
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-    early_go::basic_window window{hinstance};
+    early_go::main_window window{hinstance};
     return window();
 }
 catch (const std::exception &e)

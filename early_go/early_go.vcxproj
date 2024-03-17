@@ -238,7 +238,7 @@ resource_importer.bat
   <ItemGroup>
     <ClCompile Include="src\animation_mesh.cpp" />
     <ClCompile Include="src\abstract_mesh.cpp" />
-    <ClCompile Include="src\basic_window.cpp" />
+    <ClCompile Include="src\main_window.cpp" />
     <ClCompile Include="src\animation_mesh_allocator.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\character.cpp" />
@@ -274,7 +274,7 @@ resource_importer.bat
     <ClInclude Include="src\animation_mesh_allocator.hpp" />
     <ClInclude Include="src\animation_strategy.hpp" />
     <ClInclude Include="src\abstract_mesh.hpp" />
-    <ClInclude Include="src\basic_window.hpp" />
+    <ClInclude Include="src\main_window.hpp" />
     <ClInclude Include="src\camera.hpp" />
     <ClInclude Include="src\character.hpp" />
     <ClInclude Include="src\constants.hpp" />

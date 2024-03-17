@@ -2,7 +2,7 @@
 
 #include "skinned_animation_mesh.hpp"
 #include "skinned_animation_mesh_allocator.hpp"
-#include "basic_window.hpp"
+#include "main_window.hpp"
 #include "animation_strategy.hpp"
 
 namespace early_go

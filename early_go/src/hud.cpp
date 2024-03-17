@@ -1327,7 +1327,7 @@ hud::HP_info_animator2::HP_info_animator2()
     (*HP_info_drawer2_)();
 }
 
-void hud::HP_info_animator2::operator()(HP_info2 &hp_info, basic_window &window)
+void hud::HP_info_animator2::operator()(HP_info2 &hp_info, main_window &window)
 {
     while (true)
     {
@@ -1421,7 +1421,7 @@ void create_bezier_curve(cv::Mat *image,
     }
 }
 
-void hud::HP_info_animator::operator()(HP_info &hp_info, basic_window &window)
+void hud::HP_info_animator::operator()(HP_info &hp_info, main_window &window)
 {
     while (true)
     {
@@ -1483,7 +1483,7 @@ void hud::HP_info_animator::operator()(HP_info &hp_info, basic_window &window)
     return;
 }
 
-void hud::operator()(basic_window &a_basic_window)
+void hud::operator()(main_window &a_main_window)
 {
     vector<decltype(frame_list_)::iterator> abandon;
     for (decltype(frame_list_)::iterator frame{frame_list_.begin()};
@@ -1514,11 +1514,11 @@ void hud::operator()(basic_window &a_basic_window)
 
     if (HP_info_ != nullptr && HP_info_->HP_info_animator_ != nullptr)
     {
-        (*HP_info_->HP_info_animator_)(*HP_info_, a_basic_window);
+        (*HP_info_->HP_info_animator_)(*HP_info_, a_main_window);
     }
     if (HP_info2_ != nullptr && HP_info2_->HP_info_animator_ != nullptr)
     {
-        (*HP_info2_->HP_info_animator_)(*HP_info2_, a_basic_window);
+        (*HP_info2_->HP_info_animator_)(*HP_info2_, a_main_window);
     }
 
     sprite_->Begin(D3DXSPRITE_ALPHABLEND);
