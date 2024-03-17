@@ -1,3 +1,5 @@
+#pragma comment(lib,"winmm.lib")
+
 #include "stdafx.hpp"
 
 #include "animation_mesh.hpp"
@@ -14,6 +16,8 @@
 #include "resource.h"
 
 #include <thread>
+
+using std::chrono::system_clock;
 
 namespace early_go
 {
@@ -35,16 +39,8 @@ main_window::main_window(const HINSTANCE &hinstance)
       skinned_animation_mesh2_{},
       mesh_{},
       mesh2_{},
-      early_{new_crt character{d3d_device_,
-                               operation_,
-                               {0, 0, 0},
-                               direction::FRONT,
-                               1.0f}},
-      suo_{new_crt character{d3d_device_,
-                             operation_,
-                             {0, 0, 2},
-                             direction::BACK,
-                             1.0f}}
+      early_{new_crt character{d3d_device_, operation_, {0, 0, 0}, direction::FRONT, 1.0f}},
+      suo_{new_crt character{d3d_device_, operation_, {0, 0, 2}, direction::BACK, 1.0f}}
 {
     WNDCLASSEX wndclassex{};
     wndclassex.cbSize = sizeof(wndclassex);
@@ -352,22 +348,20 @@ void main_window::debug()
     // fps
     static int frame_count = 0;
     static int fps = 0;
-    static std::chrono::system_clock::time_point start, end;
+    static system_clock::time_point start, end;
     if (frame_count == 50)
     {
         frame_count = 0;
-        end = std::chrono::system_clock::now();
-        std::chrono::system_clock::rep elapsed{
-            std::chrono::duration_cast<std::chrono::milliseconds>(
-                end - start)
-                .count()};
+        end = system_clock::now();
+        system_clock::rep elapsed{
+            std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()};
         fps = 50 * 1000 / static_cast<int>(elapsed);
-        start = std::chrono::system_clock::now();
+        start = system_clock::now();
     }
 
     if (frame_count == 0)
     {
-        start = std::chrono::system_clock::now();
+        start = system_clock::now();
     }
     ++frame_count;
 
@@ -691,47 +685,45 @@ void main_window::render()
         0);
     if (SUCCEEDED(d3d_device_->BeginScene()))
     {
-        animation_mesh_->render( view_matrix, projection_matrix, light_direction, light_brightness_);
-        skinned_animation_mesh_->render( view_matrix, projection_matrix, light_direction, light_brightness_);
-        skinned_animation_mesh2_->render( view_matrix, projection_matrix, light_direction, light_brightness_);
-        mesh_->render( view_matrix, projection_matrix, light_direction, light_brightness_);
-        mesh2_->render( view_matrix, projection_matrix, light_direction, light_brightness_);
-        early_->render( view_matrix, projection_matrix, light_direction, light_brightness_);
-        suo_->render( view_matrix, projection_matrix, light_direction, light_brightness_);
+        animation_mesh_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
+        skinned_animation_mesh_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
+        skinned_animation_mesh2_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
+        mesh_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
+        mesh2_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
+        early_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
+        suo_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
 
         (*hud_)(*this);
 
         d3d_device_->EndScene();
     }
-    // Fix 60 fps instantly.
-    /*
-    static std::chrono::system_clock::time_point current_time;
-    static std::chrono::system_clock::time_point previous_time
-        = std::chrono::system_clock::now();
 
-    current_time = std::chrono::system_clock::now();
+    // Set fps to 60.
+    static system_clock::time_point current_time;
+    static system_clock::time_point previous_time = system_clock::now();
 
-    std::chrono::system_clock::rep elapsed{
+    current_time = system_clock::now();
+
+    system_clock::rep elapsed{
         std::chrono::duration_cast<std::chrono::milliseconds>(
             current_time - previous_time).count()};
 
     const int purpose_fps = 60;
     int milli_sleep_time = (1000 / purpose_fps) - static_cast<int>(elapsed);
 
-    // tweak
-    static int count = 0;
-    ++count;
-    if (count >= 2) {
-      --milli_sleep_time;
-      count = 0;
+    // Adjust
+    --milli_sleep_time;
+
+    if (milli_sleep_time >= 1)
+    {
+        // Make the Sleep function precise.
+        timeBeginPeriod(1);
+        Sleep(milli_sleep_time);
+        timeEndPeriod(1);
     }
 
-    if (milli_sleep_time >= 1) {
-      Sleep(milli_sleep_time);
-    }
+    previous_time = system_clock::now();
 
-    previous_time = std::chrono::system_clock::now();
-    */
     d3d_device_->Present(nullptr, nullptr, nullptr, nullptr);
 }
 
