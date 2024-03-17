@@ -10,7 +10,7 @@ namespace early_go
     class skinned_animation_mesh;
     class camera;
     class character;
-    class base_mesh;
+    class abstract_mesh;
     class operation;
     class hud;
     class novel;
@@ -59,11 +59,11 @@ namespace early_go
 
         std::shared_ptr<operation> operation_;
 
-        std::shared_ptr<base_mesh> animation_mesh_;
-        std::shared_ptr<base_mesh> skinned_animation_mesh_;
-        std::shared_ptr<base_mesh> skinned_animation_mesh2_;
-        std::shared_ptr<base_mesh> mesh_;
-        std::shared_ptr<base_mesh> mesh2_;
+        std::shared_ptr<abstract_mesh> animation_mesh_;
+        std::shared_ptr<abstract_mesh> skinned_animation_mesh_;
+        std::shared_ptr<abstract_mesh> skinned_animation_mesh2_;
+        std::shared_ptr<abstract_mesh> mesh_;
+        std::shared_ptr<abstract_mesh> mesh2_;
 
         std::shared_ptr<hud> hud_;
 

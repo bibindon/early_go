@@ -15,7 +15,7 @@ namespace early_go
     {
         const char *filename = lua_tostring(L, -1);
         window_->get_main_character()->set_dynamic_texture(
-            constants::EARLY_BODY, filename, 0, base_mesh::combine_type::NORMAL);
+            constants::EARLY_BODY, filename, 0, abstract_mesh::combine_type::NORMAL);
         return 0;
     }
     int novel::glue_draw_portrait(lua_State *L)
@@ -97,7 +97,7 @@ namespace early_go
     {
         window_->get_main_character()->set_dynamic_texture(
             constants::EARLY_BODY, "image/message_window.png", 1,
-            base_mesh::combine_type::NORMAL);
+            abstract_mesh::combine_type::NORMAL);
         window_->get_main_character()->set_dynamic_texture_opacity(
             constants::EARLY_BODY, 2, 0.9f);
         return 0;
@@ -133,7 +133,7 @@ namespace early_go
             }
             window_->get_main_character()->set_dynamic_texture(
                 constants::EARLY_BODY, std::get<0>(*it), layer,
-                base_mesh::combine_type::NORMAL);
+                abstract_mesh::combine_type::NORMAL);
 
             if (std::get<1>(*it) == "center")
             {
@@ -237,7 +237,7 @@ namespace early_go
             // TODO menu screen
             window_->get_main_character()->set_dynamic_texture(
                 constants::EARLY_BODY, "image/settings_window.png",
-                6, base_mesh::combine_type::NORMAL);
+                6, abstract_mesh::combine_type::NORMAL);
             window_->get_main_character()->set_dynamic_texture_opacity(
                 constants::EARLY_BODY, 6, 0.5f);
             window_->get_main_character()->set_dynamic_texture_position(

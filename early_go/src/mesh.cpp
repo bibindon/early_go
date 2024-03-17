@@ -17,7 +17,7 @@ mesh::mesh(
     const D3DXVECTOR3 &position,
     const D3DXVECTOR3 &rotation,
     const float &scale)
-    : base_mesh{d3d_device, SHADER_FILENAME, position, rotation},
+    : abstract_mesh{d3d_device, SHADER_FILENAME, position, rotation},
       d3dx_mesh_{nullptr, custom_deleter{}},
       materials_count_{},
       world_view_proj_handle_{},
@@ -143,6 +143,10 @@ mesh::mesh(
     safe_release(material_buffer);
 
     scale_ = scale;
+}
+
+mesh::~mesh()
+{
 }
 
 void mesh::render_impl(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)

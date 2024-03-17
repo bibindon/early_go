@@ -1,11 +1,11 @@
 #ifndef MESH_HPP
 #define MESH_HPP
 #include "stdafx.hpp"
-#include "base_mesh.hpp"
+#include "abstract_mesh.hpp"
 
 namespace early_go
 {
-class mesh : public base_mesh
+class mesh : public abstract_mesh
 {
 public:
     mesh(const std::shared_ptr<IDirect3DDevice9>&,
@@ -13,6 +13,7 @@ public:
          const D3DXVECTOR3&,
          const D3DXVECTOR3&,
          const float&);
+    ~mesh() override;
 
 private:
     const static std::string SHADER_FILENAME;

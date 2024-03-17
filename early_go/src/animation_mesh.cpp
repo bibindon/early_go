@@ -71,7 +71,7 @@ animation_mesh::animation_mesh(
     const D3DXVECTOR3 &position,
     const D3DXVECTOR3 &rotation,
     const float &scale)
-    : base_mesh{d3d_device, SHADER_FILENAME, position, rotation},
+    : abstract_mesh{d3d_device, SHADER_FILENAME, position, rotation},
       d3d_device_{d3d_device},
       allocator_{new_crt animation_mesh_allocator{x_filename}},
       frame_root_{nullptr, frame_root_deleter_object{allocator_}},
@@ -110,6 +110,10 @@ animation_mesh::animation_mesh(
         new_crt normal_animation{temp_animation_controller});
 
     scale_ = scale;
+}
+
+animation_mesh::~animation_mesh()
+{
 }
 
 /* Renders its own animation mesh. */

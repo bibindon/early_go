@@ -1,7 +1,7 @@
 #ifndef ANIMATION_MESH_HPP
 #define ANIMATION_MESH_HPP
 #include "stdafx.hpp"
-#include "base_mesh.hpp"
+#include "abstract_mesh.hpp"
 
 namespace early_go
 {
@@ -11,7 +11,7 @@ namespace early_go
     /*
      * A class that provides operations for a mesh file having animations.
      */
-    class animation_mesh : public base_mesh
+    class animation_mesh : public abstract_mesh
     {
     public:
         animation_mesh(const std::shared_ptr<IDirect3DDevice9> &,
@@ -19,6 +19,7 @@ namespace early_go
                        const D3DXVECTOR3 &,
                        const D3DXVECTOR3 &,
                        const float &);
+        ~animation_mesh() override;
 
     private:
         void render_impl(const D3DXMATRIX &, const D3DXMATRIX &) override;

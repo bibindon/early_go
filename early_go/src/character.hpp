@@ -2,14 +2,14 @@
 #define CHARACTER_HPP
 
 #include "stdafx.hpp"
-#include "base_mesh.hpp"
+#include "abstract_mesh.hpp"
 #include "operation.hpp"
 #include <boost/variant.hpp>
 
 namespace early_go
 {
 
-    class base_mesh;
+    class abstract_mesh;
 
     class character
     {
@@ -43,7 +43,7 @@ namespace early_go
         void set_dynamic_texture(const std::string &,
                                  const std::string &,
                                  const int &,
-                                 const base_mesh::combine_type &);
+                                 const abstract_mesh::combine_type &);
         void set_dynamic_texture_position(const std::string &,
                                           const int &,
                                           const D3DXVECTOR2 &);
@@ -153,7 +153,7 @@ namespace early_go
     private:
         void set_rotation(const D3DXVECTOR3 &);
         std::string create_animation_fullname(const std::string &, const std::string &);
-        std::unordered_map<std::string, std::shared_ptr<base_mesh>> mesh_map_;
+        std::unordered_map<std::string, std::shared_ptr<abstract_mesh>> mesh_map_;
         std::unordered_map<std::string, float> duration_map_;
         const std::shared_ptr<IDirect3DDevice9> &d3d_device_;
 

@@ -4,7 +4,7 @@
 #include <cctype>
 #include <typeinfo>
 
-#include "base_mesh.hpp"
+#include "abstract_mesh.hpp"
 #include "character.hpp"
 #include "camera.hpp"
 #include "operation.hpp"
@@ -146,7 +146,7 @@ namespace early_go
     void character::set_dynamic_texture(const std::string &x_filename,
                                         const std::string &texture_filename,
                                         const int &layer_number,
-                                        const base_mesh::combine_type &combine_type)
+                                        const abstract_mesh::combine_type &combine_type)
     {
         if (mesh_map_.find(x_filename) != mesh_map_.end())
         {

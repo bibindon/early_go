@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# too slow. Postpone to use this feature.
+exit 0
+
 # "cd doc" and exit if it fails.
 cd doc
 if [ $? != 0 ] ; then

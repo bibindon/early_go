@@ -8,14 +8,15 @@ namespace early_go
 {
     struct message_writer;
 
-    class base_mesh
+    class abstract_mesh
     {
     public:
-        base_mesh(
+        abstract_mesh(
             const std::shared_ptr<IDirect3DDevice9> &,
             const std::string &,
             const D3DXVECTOR3 &,
             const D3DXVECTOR3 &);
+        virtual ~abstract_mesh();
         enum class combine_type
         {
             NORMAL,
@@ -81,7 +82,7 @@ namespace early_go
             struct texture_shaker
             {
                 texture_shaker();
-                void operator()(base_mesh &);
+                void operator()(abstract_mesh &);
 
             private:
                 int count_;
@@ -103,7 +104,7 @@ namespace early_go
                     FADE_OUT,
                 };
                 texture_fader(const fade_type &);
-                void operator()(base_mesh &);
+                void operator()(abstract_mesh &);
 
             private:
                 int count_;
