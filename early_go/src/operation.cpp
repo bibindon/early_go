@@ -699,19 +699,18 @@ namespace early_go
             std::begin(key::key_deque_), std::end(key::key_deque_),
             [&](const std::pair<
                 std::chrono::system_clock::time_point,
-                std::array<int, key::KEY_TABLE_LENGTH>> &x)
+                std::array<SHORT, key::KEY_TABLE_LENGTH>> &x)
             {
                 std::chrono::system_clock::time_point time_out{
                     key::key_deque_.at(0).first - DOUBLE_DOWN_CHANCE_FRAME};
                 return time_out > x.first;
             });
-        auto keycode_it = std::find_if(std::begin(key::key_deque_), time_out_it,
-                                       [&](const std::pair<
-                                           std::chrono::system_clock::time_point,
-                                           std::array<int, key::KEY_TABLE_LENGTH>> &x)
-                                       {
-                                           return key::is_down(x.first, keycode);
-                                       });
+        auto keycode_it = std::find_if(
+            std::begin(key::key_deque_), time_out_it,
+            [&](const std::pair<
+                std::chrono::system_clock::time_point,
+                std::array<SHORT, key::KEY_TABLE_LENGTH>> &x)
+            { return key::is_down(x.first, keycode); });
         if (keycode_it != time_out_it)
         {
             return true;

@@ -244,8 +244,8 @@ void abstract_mesh::flip_dynamic_texture(const int &layer_number)
     {
         dynamic_texture_.textures_.at(layer_number).reset(temp_texture, custom_deleter{});
 
-        effect_->SetTexture(texture_handle_.at(layer_number),
-                            dynamic_texture_.textures_.at(layer_number).get());
+        effect_->SetTexture(
+            texture_handle_.at(layer_number), dynamic_texture_.textures_.at(layer_number).get());
     }
 }
 

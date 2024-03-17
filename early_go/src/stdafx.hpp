@@ -25,10 +25,6 @@
 
 #include <windows.h>
 
-// C Standard Library
-#include <stdio.h>
-#include <string.h>
-
 // STL
 #include <algorithm>
 #include <array>

@@ -551,7 +551,7 @@ void main_window::debug()
     if (key::is_down('6'))
     {
         //    hud_->add_image("image/board.png");
-        //    hud_->add_message("?¿½U?¿½?¿½?¿½?¿½?¿½q?¿½b?¿½g?¿½B?¿½G?¿½Ì‘Ì—Í‚ï¿½30?¿½?¿½?¿½?¿½Ü‚ï¿½?¿½?¿½?¿½B",
+        //    hud_->add_message("UŒ‚‚ªƒqƒbƒgB“G‚Ì‘Ì—Í‚ª30Œ¸‚è‚Ü‚µ‚½B",
         //                      cv::Rect(100, 100, 200, 100));
         hud_->add_message_in_frame(
             "test4", "test1",
@@ -659,7 +659,7 @@ erto's book, Programming in Lua.\n\
 
     // if (key::is_down('W')) {
     //   early_->set_dynamic_message(constants::EARLY_BODY, 1,
-    //       "aaaijijjjaa\n?¿½?¿½?¿½?¿½?¿½?¿½", true, { 210, 270, 511, 511 });
+    //       "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
     // }
 }
 

@@ -6,7 +6,6 @@
 
 namespace early_go
 {
-
     // Monostate pattern.
     struct key final
     {
@@ -19,11 +18,9 @@ namespace early_go
         static bool is_hold(const int &);
         static bool is_up(const int &);
 
-        static std::deque<
-            std::pair<
-                std::chrono::system_clock::time_point,
-                std::array<int, key::KEY_TABLE_LENGTH>>>
-            key_deque_;
+        static std::deque<std::pair<
+            std::chrono::system_clock::time_point,
+            std::array<SHORT, key::KEY_TABLE_LENGTH> > > key_deque_;
     };
 } /* namespace early_go */
 #endif
