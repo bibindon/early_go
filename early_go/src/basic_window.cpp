@@ -189,10 +189,10 @@ void basic_window::initialize_direct3d(const HWND &hwnd)
     early_->set_max_health(9999);
     early_->set_health(4000);
 
-    early_->set_normal_move("?¿½?¿½{?¿½U?¿½?¿½", 7, 10);
-    early_->set_normal_move("?¿½Ë‚ï¿½?¿½U?¿½?¿½", 10, 10);
-    early_->set_normal_move("?¿½?¿½?¿½?¿½?¿½U?¿½?¿½", 5, 10);
-    early_->set_normal_move("?¿½?¿½?¿½?¿½?¿½U?¿½?¿½", 3, 10);
+    early_->set_normal_move("Šî–{UŒ‚", 7, 10);
+    early_->set_normal_move("“Ë‚«UŒ‚", 10, 10);
+    early_->set_normal_move("“Š‚°UŒ‚", 5, 10);
+    early_->set_normal_move("•¥‚¢UŒ‚", 3, 10);
 
     early_->add_mesh<skinned_animation_mesh>(constants::EARLY_BODY);
     early_->add_mesh<skinned_animation_mesh>(constants::EARLY_ARMOR);
