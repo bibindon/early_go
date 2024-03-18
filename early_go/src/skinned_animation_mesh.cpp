@@ -9,9 +9,8 @@ namespace early_go
 {
 const std::string skinned_animation_mesh::SHADER_FILENAME = "skinned_animation_mesh_shader.fx";
 
-/* A custom deleter. */
-void skinned_animation_mesh::frame_root_deleter_object::operator()(
-    const LPD3DXFRAME frame_root)
+// Custom deleter.
+void skinned_animation_mesh::frame_root_deleter_object::operator()(const LPD3DXFRAME frame_root)
 {
     /* Call the recursive release function. */
     release_mesh_allocator(frame_root);
@@ -24,23 +23,6 @@ void skinned_animation_mesh::frame_root_deleter_object::operator()(
 void skinned_animation_mesh::frame_root_deleter_object::release_mesh_allocator(
     const LPD3DXFRAME frame)
 {
-    /*
-     * Hint:
-     *
-     * // d3dx9anim.h
-     * typedef struct _D3DXFRAME
-     * {
-     *     LPSTR                   Name;
-     *     D3DXMATRIX              TransformationMatrix;
-     *
-     *     LPD3DXMESHCONTAINER     pMeshContainer;
-     *
-     *     struct _D3DXFRAME       *pFrameSibling;
-     *     struct _D3DXFRAME       *pFrameFirstChild;
-     * } D3DXFRAME, *LPD3DXFRAME;
-     *
-     */
-
     /* Release the 'pMeshContainer' of the member variable. */
     if (frame->pMeshContainer != nullptr)
     {
@@ -157,10 +139,8 @@ void skinned_animation_mesh::update_frame_matrix(
 {
     skinned_animation_mesh_frame *frame{
         static_cast<skinned_animation_mesh_frame *>(frame_base)};
-    /*
-     * Multiply its own transformation matrix by the parent transformation
-     * matrix.
-     */
+    
+    // Multiply its own transformation matrix by the parent transformation matrix.
     if (parent_matrix != nullptr)
     {
         frame->combined_matrix_ = frame->TransformationMatrix * (*parent_matrix);
@@ -228,7 +208,8 @@ void skinned_animation_mesh::render_mesh_container(
                 continue;
             }
             world_matrix_array_[k] =
-                mesh_container->bone_offset_matrices_[dw_bone_id] * (*mesh_container->frame_combined_matrix_[dw_bone_id]);
+                mesh_container->bone_offset_matrices_[dw_bone_id] *
+                (*mesh_container->frame_combined_matrix_[dw_bone_id]);
         }
         effect_->SetMatrixArray("g_world_matrix_array",
                                 &world_matrix_array_[0], dw_palette_size);

@@ -22,28 +22,7 @@ skinned_animation_mesh_frame::skinned_animation_mesh_frame(
 }
 
 /*
- * A constructor which only initializes member variables from the beginning to
- * the end.
- *
- * References:
- *
- *  // d3dx9anim.h
- *  typedef struct _D3DXMESHCONTAINER
- *  {
- *      LPSTR                   Name;
- *
- *      D3DXMESHDATA            MeshData;
- *
- *      LPD3DXMATERIAL          pMaterials;
- *      LPD3DXEFFECTINSTANCE    pEffects;
- *      DWORD                   NumMaterials;
- *      DWORD                  *pAdjacency;
- *
- *      LPD3DXSKININFO          pSkinInfo;
- *
- *      struct _D3DXMESHCONTAINER *pNextMeshContainer;
- *  } D3DXMESHCONTAINER, *LPD3DXMESHCONTAINER;
- *
+ * A constructor which only initializes member variables from the beginning to the end.
  */
 skinned_animation_mesh_container::skinned_animation_mesh_container(
     const string &x_filename,
