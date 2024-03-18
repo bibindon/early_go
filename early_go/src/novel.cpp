@@ -183,7 +183,7 @@ void novel::operator()(main_window &window)
         lua_pushcfunction(lua_state_, glue_draw_text);
         lua_setglobal(lua_state_, "draw_text");
 
-        if (::luaL_loadfile(lua_state_, "test.lua"))
+        if (luaL_loadfile(lua_state_, "test.lua"))
         {
             log_liner{} << "cannot load file.";
             lua_close(lua_state_);

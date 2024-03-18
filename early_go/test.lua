@@ -56,5 +56,4 @@ coroutine.yield()
 
 draw_text([[‚ ‚¢‚¤‚¦‚¨‚ ‚¢‚¤‚¦‚¨‚ ‚¢‚¤‚¦‚¨]])
 
-    -- fade_out()
 end
