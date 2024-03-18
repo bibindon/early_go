@@ -473,7 +473,9 @@ void abstract_mesh::set_fade_out()
 abstract_mesh::dynamic_texture::texture_fader::texture_fader(
     const abstract_mesh::dynamic_texture::texture_fader::fade_type &fade_type)
     : count_{0},
-      fade_type_{fade_type} {}
+      fade_type_{fade_type}
+{
+}
 
 void abstract_mesh::dynamic_texture::texture_fader::operator()(abstract_mesh &abstract_mesh)
 {

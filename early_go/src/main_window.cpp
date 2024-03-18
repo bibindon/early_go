@@ -613,13 +613,13 @@ erto's book, Programming in Lua.\n\
 
     if (key::is_down('V'))
     {
-        // early_->set_fade_out(constants::EARLY_BODY);
-        // mesh_->set_fade_out();
-        // animation_mesh_->set_fade_out();
-        static float f = D3DX_PI / 2;
-        f += 0.1f;
-        early_->set_dynamic_texture_opacity(
-            constants::EARLY_BODY, 1, std::sin(f) / 2 + 0.5f);
+        early_->set_fade_out(constants::EARLY_BODY);
+        mesh_->set_fade_out();
+        animation_mesh_->set_fade_out();
+//        static float f = D3DX_PI / 2;
+//        f += 0.1f;
+//        early_->set_dynamic_texture_opacity(
+//            constants::EARLY_BODY, 1, std::sin(f) / 2 + 0.5f);
     }
     if (key::is_down('B'))
     {
