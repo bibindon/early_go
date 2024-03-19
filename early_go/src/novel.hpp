@@ -12,6 +12,8 @@
 namespace early_go
 {
 class main_window;
+struct portrait;
+
 class novel
 {
 public:
@@ -33,11 +35,18 @@ private:
     static void redraw_portrait();
     bool is_novel_part_;
     static main_window *window_;
-    // i.e. {"early", "center", true} ->
-    //      {"shiho", "left", false}  ->
-    //      {"suo", "right", true}
-    // bool is whether flip or not.
-    static std::deque<std::tuple<std::string, std::string, bool> > portrait_order_;
+    static std::deque<portrait> portrait_order_;
+};
+/// <summary>
+/// i.e. {"early", "center", true}
+///      {"shiho", "left", false}
+///      {"suo", "right", true}
+/// </summary>
+struct portrait
+{
+    std::string filename_;
+    std::string position_;
+    bool is_flip;
 };
 } // namespace early_go 
 #endif
