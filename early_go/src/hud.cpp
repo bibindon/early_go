@@ -749,28 +749,17 @@ void hud::HP_info_drawer::draw_text_HP_3(
 }
 void hud::HP_info_drawer::operator()()
 {
-    funcs_.push_back([&]
-                     { draw_Time_bar(); });
-    funcs_.push_back([&]
-                     { draw_center_circle(); });
-    funcs_.push_back([&]
-                     { draw_line_1(); });
-    funcs_.push_back([&]
-                     { draw_curve_1(); });
-    funcs_.push_back([&]
-                     { draw_line_2(); });
-    funcs_.push_back([&]
-                     { draw_line_3(); });
-    funcs_.push_back([&]
-                     { draw_curve_2(); });
-    funcs_.push_back([&]
-                     { draw_line_4(); });
-    funcs_.push_back([&]
-                     { draw_line_5(); });
-    funcs_.push_back([&]
-                     { draw_circle_2(); });
-    funcs_.push_back([&]
-                     { draw_HP_bar(); });
+    funcs_.push_back([&] { draw_Time_bar(); });
+    funcs_.push_back([&] { draw_center_circle(); });
+    funcs_.push_back([&] { draw_line_1(); });
+    funcs_.push_back([&] { draw_curve_1(); });
+    funcs_.push_back([&] { draw_line_2(); });
+    funcs_.push_back([&] { draw_line_3(); });
+    funcs_.push_back([&] { draw_curve_2(); });
+    funcs_.push_back([&] { draw_line_4(); });
+    funcs_.push_back([&] { draw_line_5(); });
+    funcs_.push_back([&] { draw_circle_2(); });
+    funcs_.push_back([&] { draw_HP_bar(); });
     std::shared_ptr<message_writer_for_thread> temp_writer{
         new message_writer_for_thread{"ü‡ÉSÉVÉbÉN", 20, cv::Size{100, 20}}};
     funcs_.push_back([&, temp_writer]

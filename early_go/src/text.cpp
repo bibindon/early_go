@@ -158,7 +158,7 @@ void message_writer::initialize(const int &size,
     }
 
     hdc_ = GetDC(nullptr);
-    old_font_ = static_cast<HFONT>(::SelectObject(hdc_, hfont_));
+    old_font_ = static_cast<HFONT>(SelectObject(hdc_, hfont_));
 
     GetTextMetrics(hdc_, &text_metric_);
 }

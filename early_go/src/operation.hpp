@@ -20,8 +20,8 @@ BOOST_TYPE_ERASURE_MEMBER((early_go)(has_cancel), cancel, 0)
 
 namespace early_go
 {
-
 class camera;
+
 class operation
 {
 public:

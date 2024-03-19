@@ -35,7 +35,7 @@ message_writer_for_thread::message_writer_for_thread(
     }
 
     hdc_ = GetDC(nullptr);
-    old_font_ = static_cast<HFONT>(::SelectObject(hdc_, hfont_));
+    old_font_ = static_cast<HFONT>(SelectObject(hdc_, hfont_));
     GetTextMetrics(hdc_, &text_metric_);
 
     text_image_.resize(size_t(canvas_size_.height),

@@ -5,6 +5,8 @@
 #include "camera.hpp"
 #include <boost/type_erasure/typeid_of.hpp>
 
+using std::shared_ptr;
+
 namespace early_go
 {
 
@@ -18,8 +20,8 @@ template <
             !std::is_same<CurrentKeyAction, character::attack>::value,
         std::nullptr_t> = nullptr>
 void set_state(character &,
-               std::shared_ptr<operation::behavior_concept> &,
-               std::shared_ptr<operation::behavior_concept> &) {}
+               shared_ptr<operation::behavior_concept> &,
+               shared_ptr<operation::behavior_concept> &) {}
 template <
     class CurrentKeyAction,
     direction CurrentKeyDirection,
@@ -30,8 +32,8 @@ template <
             !std::is_same<CurrentKeyAction, character::attack>::value,
         std::nullptr_t> = nullptr>
 void set_state(character &,
-               std::shared_ptr<operation::behavior_concept> &,
-               std::shared_ptr<operation::behavior_concept> &);
+               shared_ptr<operation::behavior_concept> &,
+               shared_ptr<operation::behavior_concept> &);
 template <
     class CurrentKeyAction,
     direction CurrentKeyDirection,
@@ -42,12 +44,10 @@ template <
             std::is_same<CurrentKeyAction, character::attack>::value,
         std::nullptr_t> = nullptr>
 void set_state(character &,
-               std::shared_ptr<operation::behavior_concept> &,
-               std::shared_ptr<operation::behavior_concept> &);
+               shared_ptr<operation::behavior_concept> &,
+               shared_ptr<operation::behavior_concept> &);
 
-//const std::chrono::milliseconds operation::DOUBLE_DOWN_CHANCE_FRAME = std::chrono::milliseconds(50);
-
-operation::operation(const std::shared_ptr<camera> &camera)
+operation::operation(const shared_ptr<camera> &camera)
     : camera_{camera},
       current_behavior_{nullptr},
       reserved_behavior_{nullptr},
@@ -78,7 +78,7 @@ void operation::set_offensive_position(const int &x, const int &z)
     offensive_area_.at(current_stage_z).at(x) = true;
 }
 
-std::shared_ptr<camera> operation::get_camera() const
+shared_ptr<camera> operation::get_camera() const
 {
     return camera_;
 }
@@ -486,7 +486,7 @@ void operation::operator()(main_window &a_main_window)
     }
 
     // collision detection
-    std::shared_ptr<character> enemy = a_main_window.get_enemy_character();
+    shared_ptr<character> enemy = a_main_window.get_enemy_character();
 
     cv::Point3i enemy_pos = enemy->get_grid_position();
     const int relative_z = enemy_pos.z % (constants::GRID_NUM_HEIGHT + 1);
@@ -610,8 +610,8 @@ template <
             !std::is_same<CurrentKeyAction, character::attack>::value,
         std::nullptr_t>>
 void set_state(character &a_character,
-               std::shared_ptr<operation::behavior_concept> &current_behavior,
-               std::shared_ptr<operation::behavior_concept> &reserved_behavior)
+               shared_ptr<operation::behavior_concept> &current_behavior,
+               shared_ptr<operation::behavior_concept> &reserved_behavior)
 {
     constexpr direction step_direction{
         std::is_same<RecentKeyAction, character::rotate>::value
@@ -661,8 +661,8 @@ template <
             std::is_same<CurrentKeyAction, character::attack>::value,
         std::nullptr_t>>
 void set_state(character &a_character,
-               std::shared_ptr<operation::behavior_concept> &current_behavior,
-               std::shared_ptr<operation::behavior_concept> &reserved_behavior)
+               shared_ptr<operation::behavior_concept> &current_behavior,
+               shared_ptr<operation::behavior_concept> &reserved_behavior)
 {
     if (current_behavior == nullptr && reserved_behavior == nullptr)
     {
