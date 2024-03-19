@@ -92,9 +92,6 @@ namespace early_go
         std::unordered_map<int, std::unordered_map<int, bool>> offensive_area_;
 
         int current_stage_;
-
-        const static std::chrono::milliseconds DOUBLE_DOWN_CHANCE_FRAME;
-        bool check_recent_keycode(const int &);
     };
 } // namespace early_go 
 #endif
