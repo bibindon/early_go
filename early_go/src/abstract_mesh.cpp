@@ -9,6 +9,58 @@ using std::shared_ptr;
 
 namespace early_go
 {
+struct abstract_mesh::dynamic_texture
+{
+    // Do not make dynamic_texture to array because it is necessary to transfer
+    // position, opacity and color info to GPU.
+    static constexpr int FADE_LAYER{LAYER_NUMBER - 1};
+    std::array<shared_ptr<IDirect3DTexture9>, LAYER_NUMBER> textures_;
+    std::array<string, LAYER_NUMBER> filename_;
+    std::array<D3DXVECTOR4, LAYER_NUMBER> positions_;
+    std::array<float, LAYER_NUMBER> opacities_;
+    std::array<D3DXVECTOR4, LAYER_NUMBER> colors_;
+    std::array<bool, LAYER_NUMBER> flipped_;
+    std::array<cv::Size, LAYER_NUMBER> tex_size_;
+    std::array<bool, LAYER_NUMBER> tex_animation_finished_;
+
+    std::array<shared_ptr<message_writer>, LAYER_NUMBER> writer_;
+    struct texture_shaker;
+    shared_ptr<texture_shaker> texture_shaker_;
+    struct texture_fader;
+    shared_ptr<texture_fader> texture_fader_;
+};
+
+struct abstract_mesh::dynamic_texture::texture_shaker
+{
+    texture_shaker();
+    void operator()(abstract_mesh &);
+
+private:
+    int count_;
+    // A fixed value is used. That's because random value doesn't become
+    // appropriate.
+    static constexpr int SHAKE_POSITIONS_SIZE{16};
+    const static std::array<D3DXVECTOR2, SHAKE_POSITIONS_SIZE> SHAKING_POSITIONS;
+    const static int SHAKE_FRAME{ 4 };
+    const static int SHAKE_DURATION{ 30 };
+    D3DXVECTOR2 current_position_;
+    D3DXVECTOR2 previous_position_;
+};
+struct abstract_mesh::dynamic_texture::texture_fader
+{
+    enum class fade_type
+    {
+        FADE_IN,
+        FADE_OUT,
+    };
+    texture_fader(const fade_type &);
+    void operator()(abstract_mesh &);
+
+private:
+    int count_;
+    fade_type fade_type_;
+    const static int FADE_DURATION;
+};
 
 abstract_mesh::abstract_mesh(
     const shared_ptr<IDirect3DDevice9> &d3d_device,
@@ -59,7 +111,7 @@ abstract_mesh::abstract_mesh(
     mesh_texture_handle_ = effect_->GetParameterByName(nullptr, "g_mesh_texture");
     diffuse_handle_ = effect_->GetParameterByName(nullptr, "g_diffuse");
 
-    for (int i{}; i < dynamic_texture::LAYER_NUMBER; ++i)
+    for (int i{}; i < LAYER_NUMBER; ++i)
     {
         LPDIRECT3DTEXTURE9 temp_texture{nullptr};
         HRESULT result{D3DXCreateTexture(
@@ -89,16 +141,16 @@ abstract_mesh::abstract_mesh(
 
             temp_texture->UnlockRect(0);
 
-            dynamic_texture_.textures_.at(i).reset(temp_texture, custom_deleter{});
-            dynamic_texture_.positions_.at(i) = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f);
-            dynamic_texture_.tex_size_.at(i) =
+            dynamic_texture_->textures_.at(i).reset(temp_texture, custom_deleter{});
+            dynamic_texture_->positions_.at(i) = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f);
+            dynamic_texture_->tex_size_.at(i) =
                 cv::Size{constants::EMPTY_TEXTURE_SIZE, constants::EMPTY_TEXTURE_SIZE};
-            dynamic_texture_.tex_animation_finished_.at(i) = true;
+            dynamic_texture_->tex_animation_finished_.at(i) = true;
 
-            effect_->SetTexture(texture_handle_.at(i), dynamic_texture_.textures_.at(i).get());
+            effect_->SetTexture(texture_handle_.at(i), dynamic_texture_->textures_.at(i).get());
         }
     }
-    dynamic_texture_.opacities_.at(dynamic_texture::FADE_LAYER) = 0.0f;
+    dynamic_texture_->opacities_.at(dynamic_texture::FADE_LAYER) = 0.0f;
 }
 
 abstract_mesh::~abstract_mesh()
@@ -147,32 +199,32 @@ void abstract_mesh::set_dynamic_texture(
         }
         else
         {
-            dynamic_texture_.filename_.at(layer_number) = filename;
-            dynamic_texture_.textures_.at(layer_number).reset(temp_texture, custom_deleter{});
-            dynamic_texture_.opacities_.at(layer_number) = 1.0f;
-            dynamic_texture_.flipped_.at(layer_number) = false;
-            dynamic_texture_.tex_size_.at(layer_number) =
+            dynamic_texture_->filename_.at(layer_number) = filename;
+            dynamic_texture_->textures_.at(layer_number).reset(temp_texture, custom_deleter{});
+            dynamic_texture_->opacities_.at(layer_number) = 1.0f;
+            dynamic_texture_->flipped_.at(layer_number) = false;
+            dynamic_texture_->tex_size_.at(layer_number) =
                 cv::Size{constants::TEXTURE_PIXEL_SIZE, constants::TEXTURE_PIXEL_SIZE};
 
             effect_->SetTexture(texture_handle_.at(layer_number),
-                                dynamic_texture_.textures_.at(layer_number).get());
+                                dynamic_texture_->textures_.at(layer_number).get());
         }
     }
     else if (combine == combine_type::ADDITION)
     {
-        dynamic_texture_.filename_.at(layer_number) = filename;
-        dynamic_texture_.opacities_.at(layer_number) = 1.0f;
-        dynamic_texture_.flipped_.at(layer_number) = false;
-        dynamic_texture_.tex_size_.at(layer_number) =
+        dynamic_texture_->filename_.at(layer_number) = filename;
+        dynamic_texture_->opacities_.at(layer_number) = 1.0f;
+        dynamic_texture_->flipped_.at(layer_number) = false;
+        dynamic_texture_->tex_size_.at(layer_number) =
             cv::Size{constants::TEXTURE_PIXEL_SIZE, constants::TEXTURE_PIXEL_SIZE};
 
-        cv::Size tex_size = dynamic_texture_.tex_size_.at(layer_number);
+        cv::Size tex_size = dynamic_texture_->tex_size_.at(layer_number);
 
         cv::Mat source{cv::imdecode(cv::Mat(cv_buffer), cv::IMREAD_UNCHANGED)};
         int ch = source.channels();
 
         D3DLOCKED_RECT locked_rect{};
-        dynamic_texture_.textures_.at(layer_number)->LockRect(
+        dynamic_texture_->textures_.at(layer_number)->LockRect(
             0, &locked_rect, nullptr, D3DLOCK_DISCARD);
 
         unsigned char *tmp = static_cast<unsigned char *>(locked_rect.pBits);
@@ -197,37 +249,37 @@ void abstract_mesh::set_dynamic_texture(
             }
         }
 
-        dynamic_texture_.textures_.at(layer_number)->UnlockRect(0);
+        dynamic_texture_->textures_.at(layer_number)->UnlockRect(0);
 
         effect_->SetTexture(texture_handle_.at(layer_number),
-                            dynamic_texture_.textures_.at(layer_number).get());
+                            dynamic_texture_->textures_.at(layer_number).get());
     }
 }
 
 void abstract_mesh::set_dynamic_texture_position(
     const int &layer_number, const D3DXVECTOR2 &position)
 {
-    dynamic_texture_.positions_.at(layer_number).x = position.x;
-    dynamic_texture_.positions_.at(layer_number).y = position.y;
+    dynamic_texture_->positions_.at(layer_number).x = position.x;
+    dynamic_texture_->positions_.at(layer_number).y = position.y;
 }
 
 void abstract_mesh::set_dynamic_texture_opacity(
     const int &layer_number, const float &opacity)
 {
-    dynamic_texture_.opacities_.at(layer_number) = opacity;
+    dynamic_texture_->opacities_.at(layer_number) = opacity;
 }
 
 void abstract_mesh::flip_dynamic_texture(const int &layer_number)
 {
-    vector<char> buffer{util::get_image_resource(dynamic_texture_.filename_.at(layer_number))};
+    vector<char> buffer{util::get_image_resource(dynamic_texture_->filename_.at(layer_number))};
     vector<uchar> cv_buffer{buffer.cbegin(), buffer.cend()};
     cv::Mat source{cv::imdecode(cv::Mat(cv_buffer), cv::IMREAD_UNCHANGED)};
-    if (!dynamic_texture_.flipped_.at(layer_number))
+    if (!dynamic_texture_->flipped_.at(layer_number))
     {
         cv::flip(source, source, 1);
     }
     // flip flipped flag.
-    dynamic_texture_.flipped_.at(layer_number) = !dynamic_texture_.flipped_.at(layer_number);
+    dynamic_texture_->flipped_.at(layer_number) = !dynamic_texture_->flipped_.at(layer_number);
 
     cv_buffer = resize_with_margin(source);
 
@@ -242,26 +294,26 @@ void abstract_mesh::flip_dynamic_texture(const int &layer_number)
     }
     else
     {
-        dynamic_texture_.textures_.at(layer_number).reset(temp_texture, custom_deleter{});
+        dynamic_texture_->textures_.at(layer_number).reset(temp_texture, custom_deleter{});
 
         effect_->SetTexture(
-            texture_handle_.at(layer_number), dynamic_texture_.textures_.at(layer_number).get());
+            texture_handle_.at(layer_number), dynamic_texture_->textures_.at(layer_number).get());
     }
 }
 
 void abstract_mesh::clear_dynamic_texture(const int &layer_number)
 {
-    cv::Size tex_size = dynamic_texture_.tex_size_.at(layer_number);
+    cv::Size tex_size = dynamic_texture_->tex_size_.at(layer_number);
 
     D3DLOCKED_RECT locked_rect{};
-    dynamic_texture_.textures_.at(layer_number)->LockRect(0, &locked_rect, nullptr, D3DLOCK_DISCARD);
+    dynamic_texture_->textures_.at(layer_number)->LockRect(0, &locked_rect, nullptr, D3DLOCK_DISCARD);
 
     std::fill(static_cast<int *>(locked_rect.pBits),
               static_cast<int *>(locked_rect.pBits) +
                   static_cast<size_t>(tex_size.height) * tex_size.width,
               0x00000000);
 
-    dynamic_texture_.textures_.at(layer_number)->UnlockRect(0);
+    dynamic_texture_->textures_.at(layer_number)->UnlockRect(0);
 }
 
 void abstract_mesh::set_dynamic_message(
@@ -276,12 +328,12 @@ void abstract_mesh::set_dynamic_message(
     const BYTE &charset,
     const bool &proportional)
 {
-    dynamic_texture_.opacities_.at(layer_number) = 1.0f;
-    dynamic_texture_.tex_size_.at(layer_number) =
+    dynamic_texture_->opacities_.at(layer_number) = 1.0f;
+    dynamic_texture_->tex_size_.at(layer_number) =
         cv::Size{constants::TEXTURE_PIXEL_SIZE, constants::TEXTURE_PIXEL_SIZE};
     message_writer *writer{new_crt message_writer{
         d3d_device_,
-        dynamic_texture_.textures_.at(layer_number),
+        dynamic_texture_->textures_.at(layer_number),
         message,
         is_animated,
         rect,
@@ -293,21 +345,21 @@ void abstract_mesh::set_dynamic_message(
         proportional}};
 
     effect_->SetTexture(texture_handle_.at(layer_number),
-                        dynamic_texture_.textures_.at(layer_number).get());
+                        dynamic_texture_->textures_.at(layer_number).get());
 
-    dynamic_texture_.tex_animation_finished_.at(layer_number) = false;
-    dynamic_texture_.writer_.at(layer_number).reset(writer);
+    dynamic_texture_->tex_animation_finished_.at(layer_number) = false;
+    dynamic_texture_->writer_.at(layer_number).reset(writer);
 }
 
 void abstract_mesh::set_dynamic_message_color(
     const int &layer_number, const D3DXVECTOR4 &color)
 {
-    dynamic_texture_.colors_.at(layer_number) = color;
+    dynamic_texture_->colors_.at(layer_number) = color;
 }
 
 bool abstract_mesh::is_tex_animation_finished(const int layer_number)
 {
-    return dynamic_texture_.tex_animation_finished_.at(layer_number);
+    return dynamic_texture_->tex_animation_finished_.at(layer_number);
 }
 
 void abstract_mesh::set_position(const D3DXVECTOR3 &position)
@@ -347,33 +399,33 @@ void abstract_mesh::render(
     effect_->SetVector(light_normal_handle_, &light_normal);
     effect_->SetFloat(brightness_handle_, brightness);
 
-    if (dynamic_texture_.texture_shaker_)
+    if (dynamic_texture_->texture_shaker_)
     {
-        (*dynamic_texture_.texture_shaker_)(*this);
+        (*dynamic_texture_->texture_shaker_)(*this);
     }
-    if (dynamic_texture_.texture_fader_)
+    if (dynamic_texture_->texture_fader_)
     {
-        (*dynamic_texture_.texture_fader_)(*this);
+        (*dynamic_texture_->texture_fader_)(*this);
     }
 
     effect_->SetVectorArray(
         texture_position_handle_,
-        &dynamic_texture_.positions_[0],
-        dynamic_texture::LAYER_NUMBER);
+        &dynamic_texture_->positions_[0],
+        LAYER_NUMBER);
 
     effect_->SetFloatArray(
         texture_opacity_handle_,
-        &dynamic_texture_.opacities_[0],
-        dynamic_texture::LAYER_NUMBER);
+        &dynamic_texture_->opacities_[0],
+        LAYER_NUMBER);
 
-    for (size_t i{}; i < dynamic_texture::LAYER_NUMBER; ++i)
+    for (size_t i{}; i < LAYER_NUMBER; ++i)
     {
-        if (dynamic_texture_.writer_.at(i))
+        if (dynamic_texture_->writer_.at(i))
         {
-            bool is_finished = (*dynamic_texture_.writer_.at(i))();
+            bool is_finished = (*dynamic_texture_->writer_.at(i))();
             if (is_finished)
             {
-                dynamic_texture_.tex_animation_finished_.at(i) = true;
+                dynamic_texture_->tex_animation_finished_.at(i) = true;
             }
         }
     }
@@ -382,7 +434,7 @@ void abstract_mesh::render(
 
 void abstract_mesh::set_shake_texture()
 {
-    dynamic_texture_.texture_shaker_.reset(new_crt abstract_mesh::dynamic_texture::texture_shaker());
+    dynamic_texture_->texture_shaker_.reset(new_crt abstract_mesh::dynamic_texture::texture_shaker());
 }
 
 const std::array<
@@ -406,9 +458,6 @@ const std::array<
         D3DXVECTOR2{0.02f, -0.02f},
         D3DXVECTOR2{0.0f, -0.02f},
     };
-
-const int abstract_mesh::dynamic_texture::texture_shaker::SHAKE_FRAME = 4;
-const int abstract_mesh::dynamic_texture::texture_shaker::SHAKE_DURATION = 30;
 
 abstract_mesh::dynamic_texture::texture_shaker::texture_shaker()
     : count_{0},
@@ -456,16 +505,16 @@ const int abstract_mesh::dynamic_texture::texture_fader::FADE_DURATION =
 
 void abstract_mesh::set_fade_in()
 {
-    dynamic_texture_.tex_animation_finished_.at(dynamic_texture::FADE_LAYER) = false;
-    dynamic_texture_.texture_fader_.reset(
+    dynamic_texture_->tex_animation_finished_.at(dynamic_texture::FADE_LAYER) = false;
+    dynamic_texture_->texture_fader_.reset(
         new_crt dynamic_texture::texture_fader(
             dynamic_texture::texture_fader::fade_type::FADE_IN));
 }
 
 void abstract_mesh::set_fade_out()
 {
-    dynamic_texture_.tex_animation_finished_.at(dynamic_texture::FADE_LAYER) = false;
-    dynamic_texture_.texture_fader_.reset(
+    dynamic_texture_->tex_animation_finished_.at(dynamic_texture::FADE_LAYER) = false;
+    dynamic_texture_->texture_fader_.reset(
         new_crt dynamic_texture::texture_fader(
             dynamic_texture::texture_fader::fade_type::FADE_OUT));
 }
@@ -483,7 +532,7 @@ void abstract_mesh::dynamic_texture::texture_fader::operator()(abstract_mesh &ab
     {
         if (count_ > FADE_DURATION)
         {
-            abstract_mesh.dynamic_texture_.tex_animation_finished_.at(FADE_LAYER) = true;
+            abstract_mesh.dynamic_texture_->tex_animation_finished_.at(FADE_LAYER) = true;
             return;
         }
         else if (count_ == FADE_DURATION)
@@ -502,7 +551,7 @@ void abstract_mesh::dynamic_texture::texture_fader::operator()(abstract_mesh &ab
     {
         if (count_ > FADE_DURATION)
         {
-            abstract_mesh.dynamic_texture_.tex_animation_finished_.at(FADE_LAYER) = true;
+            abstract_mesh.dynamic_texture_->tex_animation_finished_.at(FADE_LAYER) = true;
             return;
         }
         else if (count_ == FADE_DURATION)
