@@ -86,4 +86,4 @@ bool key::is_up(const int &keycode)
     return false;
 }
 
-} /* namespace early_go */
+} // namespace early_go 

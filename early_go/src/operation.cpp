@@ -718,4 +718,4 @@ namespace early_go
         return false;
     }
 
-} /* namespace early_go */
+} // namespace early_go 

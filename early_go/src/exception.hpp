@@ -71,5 +71,5 @@ namespace early_go
     e << traced{boost::stacktrace::stacktrace()}; \
     BOOST_THROW_EXCEPTION(e)
 
-} /* namespace early_go */
+} // namespace early_go 
 #endif

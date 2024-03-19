@@ -57,5 +57,5 @@ namespace early_go
         void render_frame(const LPD3DXFRAME);
         void render_mesh_container(const LPD3DXMESHCONTAINER, const LPD3DXFRAME);
     };
-} /* namespace early_go */
+} // namespace early_go 
 #endif

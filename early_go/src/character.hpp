@@ -177,6 +177,6 @@ private:
     };
     std::vector<special_move> special_move_;
 };
-} /* namespace early_go */
+} // namespace early_go 
 
 #endif

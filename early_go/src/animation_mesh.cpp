@@ -10,11 +10,11 @@ using std::string;
 namespace early_go
 {
 const string animation_mesh::SHADER_FILENAME = "animation_mesh_shader.fx";
-/* A custom deleter. */
+// A custom deleter. 
 void animation_mesh::frame_root_deleter_object::operator()(
     const LPD3DXFRAME frame_root)
 {
-    /* Call the recursive release function. */
+    // Call the recursive release function. 
     release_mesh_allocator(frame_root);
 }
 
@@ -42,22 +42,22 @@ void animation_mesh::frame_root_deleter_object::release_mesh_allocator(
      *
      */
 
-    /* Release the 'pMeshContainer' of the member variable. */
+    // Release the 'pMeshContainer' of the member variable. 
     if (frame->pMeshContainer != nullptr)
     {
         allocator_->DestroyMeshContainer(frame->pMeshContainer);
     }
-    /* Call oneself. */
+    // Call oneself. 
     if (frame->pFrameSibling != nullptr)
     {
         release_mesh_allocator(frame->pFrameSibling);
     }
-    /* Call oneself. */
+    // Call oneself. 
     if (frame->pFrameFirstChild != nullptr)
     {
         release_mesh_allocator(frame->pFrameFirstChild);
     }
-    /* Release oneself. */
+    // Release oneself. 
     allocator_->DestroyFrame(frame);
 }
 
@@ -104,7 +104,7 @@ animation_mesh::animation_mesh(
     {
         THROW_WITH_TRACE("Failed to load a x-file.");
     }
-    /* lazy initialization */
+    // lazy initialization 
     frame_root_.reset(temp_root_frame);
     animation_strategy_.reset(
         new_crt normal_animation{temp_animation_controller});
@@ -116,7 +116,7 @@ animation_mesh::~animation_mesh()
 {
 }
 
-/* Renders its own animation mesh. */
+// Renders its own animation mesh. 
 void animation_mesh::render_impl(
     const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
 {
@@ -169,19 +169,19 @@ void animation_mesh::update_frame_matrix(const LPD3DXFRAME frame_base,
         frame->combined_matrix_ = frame->TransformationMatrix;
     }
 
-    /* Call oneself. */
+    // Call oneself. 
     if (frame->pFrameSibling != nullptr)
     {
         update_frame_matrix(frame->pFrameSibling, parent_matrix);
     }
-    /* Call oneself. */
+    // Call oneself. 
     if (frame->pFrameFirstChild != nullptr)
     {
         update_frame_matrix(frame->pFrameFirstChild, &frame->combined_matrix_);
     }
 }
 
-/* Calls the 'render_mesh_container' function recursively. */
+// Calls the 'render_mesh_container' function recursively. 
 void animation_mesh::render_frame(const LPD3DXFRAME frame)
 {
     {
@@ -193,12 +193,12 @@ void animation_mesh::render_frame(const LPD3DXFRAME frame)
         }
     }
 
-    /* Call oneself. */
+    // Call oneself. 
     if (frame->pFrameSibling != nullptr)
     {
         render_frame(frame->pFrameSibling);
     }
-    /* Call oneself. */
+    // Call oneself. 
     if (frame->pFrameFirstChild != nullptr)
     {
         render_frame(frame->pFrameFirstChild);
@@ -209,7 +209,7 @@ void animation_mesh::render_mesh_container(
     const LPD3DXMESHCONTAINER mesh_container_base,
     const LPD3DXFRAME frame_base)
 {
-    /* Cast for making child class' function callable. */
+    // Cast for making child class' function callable. 
     animation_mesh_frame *frame{static_cast<animation_mesh_frame *>(frame_base)};
 
     D3DXMATRIX world_view_projection_matrix{frame->combined_matrix_};
@@ -248,4 +248,4 @@ void animation_mesh::render_mesh_container(
     effect_->EndPass();
     effect_->End();
 }
-} /* namespace early_go */
+} // namespace early_go 

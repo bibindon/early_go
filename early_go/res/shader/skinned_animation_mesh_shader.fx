@@ -4,7 +4,7 @@ float g_light_brightness;
 float4 g_diffuse;
 float4 g_ambient = { 0.2f, 0.2f, 0.5f, 0.0f };
 
-/* Matrix Palette */
+// Matrix Palette 
 static const int MAX_MATRICES = 26;
 float4x3 g_world_matrix_array[MAX_MATRICES];
 float4x4 g_view_projection;

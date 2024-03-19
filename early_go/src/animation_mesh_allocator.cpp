@@ -7,15 +7,15 @@ using std::vector;
 
 namespace early_go
 {
-/* c'tor */
+// c'tor 
 animation_mesh_frame::animation_mesh_frame(const string &name)
-    : D3DXFRAME{}, /* Initializes member with zero. */
+    : D3DXFRAME{}, // Initializes member with zero. 
       combined_matrix_{}
 {
     Name = new_crt char[name.length() + 1];
     strcpy_s(Name, name.length() + 1, name.c_str());
 
-    /* Make an argument an identity matrix. */
+    // Make an argument an identity matrix. 
     D3DXMatrixIdentity(&TransformationMatrix);
     D3DXMatrixIdentity(&combined_matrix_);
 }
@@ -30,7 +30,7 @@ animation_mesh_container::animation_mesh_container(
     const D3DXMATERIAL *materials,
     const DWORD materials_count,
     const DWORD *adjacency)
-    : D3DXMESHCONTAINER{}, /* Initializes with zero. */
+    : D3DXMESHCONTAINER{}, // Initializes with zero. 
       texture_{}
 {
     Name = new_crt char[mesh_name.length() + 1];
@@ -65,13 +65,13 @@ animation_mesh_container::animation_mesh_container(
         mesh->AddRef();
     }
 
-    /* This strange bracket is measures of being interpretered as WinAPI macro. */
+    // This strange bracket is measures of being interpretered as WinAPI macro. 
     NumMaterials = std::max(1UL, materials_count);
     pMaterials = new_crt D3DXMATERIAL[NumMaterials];
     vector<std::unique_ptr<IDirect3DTexture9, custom_deleter> > temp_texture(NumMaterials);
     texture_.swap(temp_texture);
 
-    /* Initialize the 'pAdjacency' of a member variable. */
+    // Initialize the 'pAdjacency' of a member variable. 
     DWORD adjacency_count{mesh->GetNumFaces() * 3};
     pAdjacency = new_crt DWORD[adjacency_count];
 
@@ -208,4 +208,4 @@ STDMETHODIMP animation_mesh_allocator::DestroyMeshContainer(
 
     return S_OK;
 }
-} /* namespace early_go */
+} // namespace early_go 

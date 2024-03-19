@@ -29,5 +29,5 @@ private:
 
     void render_impl(const D3DXMATRIX &, const D3DXMATRIX &) override;
 };
-} /* namespace early_go */
+} // namespace early_go 
 #endif

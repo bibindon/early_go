@@ -55,5 +55,5 @@ namespace early_go
         HRESULT allocate_bone_matrix(LPD3DXMESHCONTAINER);
         HRESULT allocate_all_bone_matrices(LPD3DXFRAME);
     };
-} /* namespace early_go */
+} // namespace early_go 
 #endif

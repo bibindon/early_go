@@ -23,5 +23,5 @@ namespace early_go
         void add_text(const std::string, const cv::Point &, const DWORD);
         bool write_one_character();
     };
-} /* namespace early_go */
+} // namespace early_go 
 #endif

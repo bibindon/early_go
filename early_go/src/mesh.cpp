@@ -195,4 +195,4 @@ void mesh::render_impl(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projecti
     effect_->EndPass();
     effect_->End();
 }
-} /* namespace early_go */
+} // namespace early_go 

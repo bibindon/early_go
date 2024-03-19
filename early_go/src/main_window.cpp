@@ -21,10 +21,10 @@ using std::chrono::system_clock;
 
 namespace early_go
 {
-/* A definition of the static member variable. */
+// A definition of the static member variable. 
 std::weak_ptr<ID3DXFont> main_window::render_string_object::weak_font_;
 
-/* c'tor */
+// c'tor 
 main_window::main_window(const HINSTANCE &hinstance)
     : direct3d9_{nullptr, custom_deleter{}},
       d3d_present_parameters_{},
@@ -93,7 +93,7 @@ main_window::main_window(const HINSTANCE &hinstance)
 
 void main_window::initialize_direct3d(const HWND &hwnd)
 {
-    /* Create a Direct3D object. */
+    // Create a Direct3D object. 
     LPDIRECT3D9 direct3d9{Direct3DCreate9(D3D_SDK_VERSION)};
 
     if (nullptr == direct3d9)
@@ -102,7 +102,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     }
     direct3d9_.reset(direct3d9);
 
-    /* Create a Direct3D Device object. ~ */
+    // Create a Direct3D Device object. ~ 
     d3d_present_parameters_.BackBufferFormat = D3DFMT_UNKNOWN;
     d3d_present_parameters_.BackBufferCount = 1;
     d3d_present_parameters_.SwapEffect = D3DSWAPEFFECT_DISCARD;
@@ -111,7 +111,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     d3d_present_parameters_.AutoDepthStencilFormat = D3DFMT_D16;
     d3d_present_parameters_.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
-    /* for receiving */
+    // for receiving 
     LPDIRECT3DDEVICE9 d3d_device9{};
 
     if (FAILED(direct3d9_->CreateDevice(
@@ -148,7 +148,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
             }
         }
     }
-    /* lazy initialization */
+    // lazy initialization 
     d3d_device_.reset(d3d_device9, custom_deleter{});
     animation_mesh_.reset(new_crt animation_mesh{
         d3d_device_,
@@ -229,9 +229,9 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     suo_->set_animation_config("Rotate_Right", false, 1.0f);
     suo_->set_animation_config("Attack", false, 1.0f);
     suo_->set_animation_config("Damaged", false, 1.0f);
-    /* ~ Create a Direct3D Device object. */
+    // ~ Create a Direct3D Device object. 
 
-    /* Create font. ~ */
+    // Create font. ~ 
     LPD3DXFONT font{};
     if (FAILED(D3DXCreateFont(
         d3d_device_.get(),
@@ -251,7 +251,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     }
     font_.reset(font, custom_deleter{});
     render_string_object::weak_font_ = font_;
-    /* ~ Creates font. */
+    // ~ Creates font. 
 
     //  AddFontResource("chogokubosogothic_5.ttf");
 
@@ -264,7 +264,7 @@ main_window::~main_window()
     //  RemoveFontResource("chogokubosogothic_5.ttf");
 }
 
-/* windows main loop */
+// windows main loop 
 int main_window::operator()()
 {
     while (msg_.message != WM_QUIT)
@@ -735,7 +735,7 @@ void main_window::render_string_object::render_string(
     if (font)
     {
         RECT rect{x, y, 0, 0};
-        /* Calcurate size of character string. */
+        // Calcurate size of character string. 
         font->DrawText(
             NULL,
             message.c_str(),
@@ -743,7 +743,7 @@ void main_window::render_string_object::render_string(
             &rect,
             DT_CALCRECT,
             NULL);
-        /* Draw with its size. */
+        // Draw with its size. 
         font->DrawText(
             nullptr,
             message.c_str(),
@@ -754,4 +754,4 @@ void main_window::render_string_object::render_string(
     }
 }
 
-} /* namespace early_go */
+} // namespace early_go 

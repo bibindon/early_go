@@ -96,5 +96,5 @@ namespace early_go
         const static std::chrono::milliseconds DOUBLE_DOWN_CHANCE_FRAME;
         bool check_recent_keycode(const int &);
     };
-} /* namespace early_go */
+} // namespace early_go 
 #endif

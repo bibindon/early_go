@@ -39,5 +39,5 @@ private:
     // bool is whether flip or not.
     static std::deque<std::tuple<std::string, std::string, bool> > portrait_order_;
 };
-} /* namespace early_go */
+} // namespace early_go 
 #endif

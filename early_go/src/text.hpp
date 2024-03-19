@@ -82,5 +82,5 @@ namespace early_go
         const BYTE &,
         const bool &);
 
-} /* namespace early_go */
+} // namespace early_go 
 #endif

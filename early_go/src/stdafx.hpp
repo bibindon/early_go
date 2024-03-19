@@ -1,4 +1,4 @@
-/* precompiled header */
+// precompiled header 
 #ifndef STDAFX_HPP
 #define STDAFX_HPP
 

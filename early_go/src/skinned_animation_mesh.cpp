@@ -12,7 +12,7 @@ const std::string skinned_animation_mesh::SHADER_FILENAME = "skinned_animation_m
 // Custom deleter.
 void skinned_animation_mesh::frame_root_deleter_object::operator()(const LPD3DXFRAME frame_root)
 {
-    /* Call the recursive release function. */
+    // Call the recursive release function. 
     release_mesh_allocator(frame_root);
 }
 
@@ -23,22 +23,22 @@ void skinned_animation_mesh::frame_root_deleter_object::operator()(const LPD3DXF
 void skinned_animation_mesh::frame_root_deleter_object::release_mesh_allocator(
     const LPD3DXFRAME frame)
 {
-    /* Release the 'pMeshContainer' of the member variable. */
+    // Release the 'pMeshContainer' of the member variable. 
     if (frame->pMeshContainer != nullptr)
     {
         allocator_->DestroyMeshContainer(frame->pMeshContainer);
     }
-    /* Call oneself. */
+    // Call oneself. 
     if (frame->pFrameSibling != nullptr)
     {
         release_mesh_allocator(frame->pFrameSibling);
     }
-    /* Call oneself. */
+    // Call oneself. 
     if (frame->pFrameFirstChild != nullptr)
     {
         release_mesh_allocator(frame->pFrameFirstChild);
     }
-    /* Release oneself. */
+    // Release oneself. 
     allocator_->DestroyFrame(frame);
 }
 
@@ -80,7 +80,7 @@ skinned_animation_mesh::skinned_animation_mesh(
     {
         THROW_WITH_TRACE("Failed to load a x-file.: " + x_filename);
     }
-    /* lazy initialization */
+    // lazy initialization 
     frame_root_.reset(temp_frame_root);
     animation_strategy_.reset(
         new_crt normal_animation{temp_animation_controller});
@@ -94,7 +94,7 @@ skinned_animation_mesh::~skinned_animation_mesh()
 {
 }
 
-/* Renders its own animation mesh. */
+// Renders its own animation mesh. 
 void skinned_animation_mesh::render_impl(
     const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
 {
@@ -150,19 +150,19 @@ void skinned_animation_mesh::update_frame_matrix(
         frame->combined_matrix_ = frame->TransformationMatrix;
     }
 
-    /* Call oneself. */
+    // Call oneself. 
     if (frame->pFrameSibling != nullptr)
     {
         update_frame_matrix(frame->pFrameSibling, parent_matrix);
     }
-    /* Call oneself. */
+    // Call oneself. 
     if (frame->pFrameFirstChild != nullptr)
     {
         update_frame_matrix(frame->pFrameFirstChild, &frame->combined_matrix_);
     }
 }
 
-/* Calls the 'render_mesh_container' function recursively. */
+// Calls the 'render_mesh_container' function recursively. 
 void skinned_animation_mesh::render_frame(const LPD3DXFRAME frame)
 {
     {
@@ -173,12 +173,12 @@ void skinned_animation_mesh::render_frame(const LPD3DXFRAME frame)
             mesh_container = mesh_container->pNextMeshContainer;
         }
     }
-    /* Call oneself. */
+    // Call oneself. 
     if (frame->pFrameSibling != nullptr)
     {
         render_frame(frame->pFrameSibling);
     }
-    /* Call oneself. */
+    // Call oneself. 
     if (frame->pFrameFirstChild != nullptr)
     {
         render_frame(frame->pFrameFirstChild);
@@ -298,4 +298,4 @@ HRESULT skinned_animation_mesh::allocate_all_bone_matrices(
     }
     return S_OK;
 }
-} /* namespace early_go */
+} // namespace early_go 

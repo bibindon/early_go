@@ -7,16 +7,16 @@ using std::string;
 
 namespace early_go
 {
-/* c'tor */
+// c'tor 
 skinned_animation_mesh_frame::skinned_animation_mesh_frame(
     const string &name)
-    : D3DXFRAME{}, /* Initializes member with zero. */
+    : D3DXFRAME{}, // Initializes member with zero. 
       combined_matrix_{}
 {
     Name = new_crt char[name.length() + 1];
     strcpy_s(Name, name.length() + 1, name.c_str());
 
-    /* Make an argument an identity matrix. */
+    // Make an argument an identity matrix. 
     D3DXMatrixIdentity(&TransformationMatrix);
     D3DXMatrixIdentity(&combined_matrix_);
 }
@@ -32,7 +32,7 @@ skinned_animation_mesh_container::skinned_animation_mesh_container(
     const DWORD materials_count,
     const DWORD *adjacency,
     LPD3DXSKININFO skin_info)
-    : D3DXMESHCONTAINER{}, /* Initializes with zero. */
+    : D3DXMESHCONTAINER{}, // Initializes with zero. 
       texture_{},
       palette_size_{},
       influence_count_{},
@@ -73,7 +73,7 @@ skinned_animation_mesh_container::skinned_animation_mesh_container(
         mesh->AddRef();
     }
 
-    /* Initialize the 'pAdjacency' of a member variable. */
+    // Initialize the 'pAdjacency' of a member variable. 
     DWORD adjacency_count{mesh->GetNumFaces() * 3};
     pAdjacency = new_crt DWORD[adjacency_count];
 
@@ -94,7 +94,7 @@ void skinned_animation_mesh_container::initialize_materials(
     const string &x_filename,
     const LPDIRECT3DDEVICE9 &d3d_device)
 {
-    /* This strange bracket is measures of being interpretered as WinAPI macro. */
+    // This strange bracket is measures of being interpretered as WinAPI macro. 
     NumMaterials = std::max(1UL, materials_count);
     pMaterials = new_crt D3DXMATERIAL[NumMaterials];
     vector<std::unique_ptr<IDirect3DTexture9, custom_deleter>>
@@ -165,7 +165,7 @@ void skinned_animation_mesh_container::initialize_bone(
 
     LPD3DXBUFFER bone_buffer{};
     if (FAILED(pSkinInfo->ConvertToIndexedBlendedMesh(mesh,
-                                                      0, /* not used */
+                                                      0, // not used 
                                                       palette_size_,
                                                       pAdjacency,
                                                       nullptr,
@@ -311,4 +311,4 @@ STDMETHODIMP skinned_animation_mesh_allocator::DestroyMeshContainer(
 
     return S_OK;
 }
-} /* namespace early_go */
+} // namespace early_go 

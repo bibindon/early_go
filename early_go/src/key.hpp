@@ -22,5 +22,5 @@ namespace early_go
             std::chrono::system_clock::time_point,
             std::array<SHORT, key::KEY_TABLE_LENGTH> > > key_deque_;
     };
-} /* namespace early_go */
+} // namespace early_go 
 #endif

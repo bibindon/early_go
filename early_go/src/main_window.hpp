@@ -69,5 +69,5 @@ namespace early_go
 
         std::shared_ptr<novel> novel_;
     };
-} /* namespace early_go */
+} // namespace early_go 
 #endif

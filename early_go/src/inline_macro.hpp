@@ -81,10 +81,10 @@ namespace early_go
     struct log_liner
     {
 #if defined(DEBUG) || defined(_DEBUG)
-        /* c'tor */
+        // c'tor 
         log_liner(const std::string &op = "") : ostringstream_{}, option_{op} {}
 
-        /* A definition of the "<<" operator. */
+        // A definition of the "<<" operator. 
         template <typename T>
         log_liner &operator<<(T a)
         {
@@ -92,7 +92,7 @@ namespace early_go
             return *this;
         }
 
-        /* d'tor */
+        // d'tor 
         ~log_liner()
         {
             if (option_ != "-n")

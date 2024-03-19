@@ -36,7 +36,7 @@ class animation_mesh_allocator : public ID3DXAllocateHierarchy
 {
 public:
     animation_mesh_allocator(const std::string &);
-    /* A function which be must defined. ~ */
+    // A function which be must defined. ~ 
     STDMETHOD(CreateFrame)(THIS_ LPCTSTR, LPD3DXFRAME *);
     STDMETHOD(CreateMeshContainer)
         (THIS_ LPCSTR,
@@ -49,9 +49,9 @@ public:
          LPD3DXMESHCONTAINER *);
     STDMETHOD(DestroyFrame)(THIS_ LPD3DXFRAME);
     STDMETHOD(DestroyMeshContainer)(THIS_ LPD3DXMESHCONTAINER);
-    /* ~ A function which be must defined. */
+    // ~ A function which be must defined. 
 private:
     std::string x_filename_;
 };
-} /* namespace early_go */
+} // namespace early_go 
 #endif

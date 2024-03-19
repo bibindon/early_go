@@ -51,5 +51,5 @@ enum class direction
 float get_sine_curve(const float &, const float &);
 int get_next_pow_2(const int &);
 
-} /* namespace early_go */
+} // namespace early_go 
 #endif

@@ -499,5 +499,5 @@ namespace early_go
         std::shared_ptr<HP_info> HP_info_;
         std::shared_ptr<HP_info2> HP_info2_;
     };
-} /* namespace early_go */
+} // namespace early_go 
 #endif
