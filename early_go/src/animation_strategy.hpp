@@ -10,25 +10,18 @@ public:
     virtual void operator()() = 0;
     virtual void set_animation(const std::string &){};
     virtual void set_default_animation(const std::string &){};
-    virtual void set_animation_config(const std::string &,
-                                      const bool &,
-                                      const float &){};
+    virtual void set_animation_config(const std::string &, const bool &, const float &){};
     virtual ~animation_strategy(){};
-
 protected:
-    std::vector<
-        std::unique_ptr<
-            ID3DXAnimationSet, custom_deleter>>
-        animation_sets_;
-
-    std::unique_ptr<ID3DXAnimationController, custom_deleter>
-        animation_controller_;
+    std::vector<std::unique_ptr<ID3DXAnimationSet, custom_deleter> > animation_sets_;
+    std::unique_ptr<ID3DXAnimationController, custom_deleter> animation_controller_;
 };
 
 class no_animation : public animation_strategy
 {
 public:
-    void operator()() override{
+    void operator()() override
+    {
         // do nothing
     };
 };
@@ -60,13 +53,10 @@ public:
 
     void set_animation(const std::string &animation_set) override
     {
-        std::vector<
-            std::unique_ptr<
-                ID3DXAnimationSet, custom_deleter>>::const_iterator kit;
+        std::vector<std::unique_ptr<ID3DXAnimationSet, custom_deleter>>::const_iterator kit;
 
         kit = std::find_if(
-            animation_sets_.cbegin(),
-            animation_sets_.cend(),
+            animation_sets_.cbegin(), animation_sets_.cend(),
             [&](const std::unique_ptr<ID3DXAnimationSet, custom_deleter> &a)
             {
                 return animation_set == a->GetName();
@@ -112,12 +102,12 @@ public:
         default_animation_ = animation_name;
         set_animation(default_animation_);
     }
-    void set_animation_config(const std::string &animation_name,
-                              const bool &loop,
-                              const float &duration) override
+    void set_animation_config(
+        const std::string &animation_name,
+        const bool &loop,
+        const float &duration) override
     {
-        animation_configs_.emplace(
-            animation_name, animation_config{loop, duration});
+        animation_configs_.emplace(animation_name, animation_config{loop, duration});
     }
 
 private:
