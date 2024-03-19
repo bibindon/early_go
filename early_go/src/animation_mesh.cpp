@@ -11,37 +11,15 @@ namespace early_go
 {
 const string animation_mesh::SHADER_FILENAME = "animation_mesh_shader.fx";
 // A custom deleter. 
-void animation_mesh::frame_root_deleter_object::operator()(
-    const LPD3DXFRAME frame_root)
+void animation_mesh::frame_root_deleter_object::operator()(const LPD3DXFRAME frame_root)
 {
     // Call the recursive release function. 
     release_mesh_allocator(frame_root);
 }
 
-/*
- * Releases recursively mesh containers owned by the 'animation_mesh_frame'
- * inheriting 'D3DXFRAME'.
- */
-void animation_mesh::frame_root_deleter_object::release_mesh_allocator(
-    const LPD3DXFRAME frame)
+// Releases recursively mesh containers owned by the 'animation_mesh_frame' inheriting 'D3DXFRAME'.
+void animation_mesh::frame_root_deleter_object::release_mesh_allocator(const LPD3DXFRAME frame)
 {
-    /*
-     * Hint:
-     *
-     * // d3dx9anim.h
-     * typedef struct _D3DXFRAME
-     * {
-     *     LPSTR                   Name;
-     *     D3DXMATRIX              TransformationMatrix;
-     *
-     *     LPD3DXMESHCONTAINER     pMeshContainer;
-     *
-     *     struct _D3DXFRAME       *pFrameSibling;
-     *     struct _D3DXFRAME       *pFrameFirstChild;
-     * } D3DXFRAME, *LPD3DXFRAME;
-     *
-     */
-
     // Release the 'pMeshContainer' of the member variable. 
     if (frame->pMeshContainer != nullptr)
     {
@@ -61,10 +39,7 @@ void animation_mesh::frame_root_deleter_object::release_mesh_allocator(
     allocator_->DestroyFrame(frame);
 }
 
-/*
- * Reads a mesh file, and sets the frame and the animation controller given to
- * member variables.
- */
+// Reads a mesh file, and sets the frame and the animation controller given to member variables.
 animation_mesh::animation_mesh(
     const std::shared_ptr<IDirect3DDevice9> &d3d_device,
     const string &x_filename,
@@ -82,8 +57,7 @@ animation_mesh::animation_mesh(
       world_view_proj_handle_{}
 {
     world_handle_ = effect_->GetParameterByName(nullptr, "g_world");
-    world_view_proj_handle_ =
-        effect_->GetParameterByName(nullptr, "g_world_view_projection");
+    world_view_proj_handle_ = effect_->GetParameterByName(nullptr, "g_world_view_projection");
 
     LPD3DXFRAME temp_root_frame{nullptr};
     LPD3DXANIMATIONCONTROLLER temp_animation_controller{nullptr};
@@ -106,8 +80,7 @@ animation_mesh::animation_mesh(
     }
     // lazy initialization 
     frame_root_.reset(temp_root_frame);
-    animation_strategy_.reset(
-        new_crt normal_animation{temp_animation_controller});
+    animation_strategy_.reset(new_crt normal_animation{temp_animation_controller});
 
     scale_ = scale;
 }
@@ -136,8 +109,7 @@ void animation_mesh::render_impl(
         D3DXMatrixScaling(&mat, scale_, scale_, scale_);
         world_matrix *= mat;
 
-        D3DXMatrixRotationYawPitchRoll(
-            &mat, rotation_.x, rotation_.y, rotation_.z);
+        D3DXMatrixRotationYawPitchRoll(&mat, rotation_.x, rotation_.y, rotation_.z);
         world_matrix *= mat;
 
         D3DXMatrixTranslation(&mat, position_.x, position_.y, position_.z);
@@ -148,18 +120,13 @@ void animation_mesh::render_impl(
     render_frame(frame_root_.get());
 }
 
-/*
- * Updates a world-transformation-matrix each the mesh in the frame. Also, this
- * is a recursive function.
- */
-void animation_mesh::update_frame_matrix(const LPD3DXFRAME frame_base,
-                                         const LPD3DXMATRIX parent_matrix)
+// Updates a world-transformation-matrix each the mesh in the frame. Also, this is a recursive
+// function.
+void animation_mesh::update_frame_matrix(
+    const LPD3DXFRAME frame_base, const LPD3DXMATRIX parent_matrix)
 {
     animation_mesh_frame *frame{static_cast<animation_mesh_frame *>(frame_base)};
-    /*
-     * Multiply its own transformation matrix by the parent transformation
-     * matrix.
-     */
+    // Multiply its own transformation matrix by the parent transformation matrix.
     if (parent_matrix != nullptr)
     {
         frame->combined_matrix_ = frame->TransformationMatrix * (*parent_matrix);
@@ -234,13 +201,13 @@ void animation_mesh::render_mesh_container(
 
     for (DWORD i{}; i < mesh_container->NumMaterials; ++i)
     {
-        D3DXVECTOR4 color{mesh_container->pMaterials[i].MatD3D.Diffuse.r,
-                          mesh_container->pMaterials[i].MatD3D.Diffuse.g,
-                          mesh_container->pMaterials[i].MatD3D.Diffuse.b,
-                          mesh_container->pMaterials[i].MatD3D.Diffuse.a};
+        D3DXVECTOR4 color{
+            mesh_container->pMaterials[i].MatD3D.Diffuse.r,
+            mesh_container->pMaterials[i].MatD3D.Diffuse.g,
+            mesh_container->pMaterials[i].MatD3D.Diffuse.b,
+            mesh_container->pMaterials[i].MatD3D.Diffuse.a};
         effect_->SetVector(diffuse_handle_, &color);
-        effect_->SetTexture(mesh_texture_handle_,
-                            mesh_container->texture_.at(i).get());
+        effect_->SetTexture(mesh_texture_handle_, mesh_container->texture_.at(i).get());
 
         effect_->CommitChanges();
         mesh_container->MeshData.pMesh->DrawSubset(i);

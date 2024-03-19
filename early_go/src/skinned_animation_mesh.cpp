@@ -16,10 +16,8 @@ void skinned_animation_mesh::frame_root_deleter_object::operator()(const LPD3DXF
     release_mesh_allocator(frame_root);
 }
 
-/*
- * Releases recursively mesh containers owned by the
- * 'skinned_animation_mesh_frame' inheriting 'D3DXFRAME'.
- */
+// Releases recursively mesh containers owned by the 'skinned_animation_mesh_frame' inheriting
+// 'D3DXFRAME'.
 void skinned_animation_mesh::frame_root_deleter_object::release_mesh_allocator(
     const LPD3DXFRAME frame)
 {
@@ -42,10 +40,7 @@ void skinned_animation_mesh::frame_root_deleter_object::release_mesh_allocator(
     allocator_->DestroyFrame(frame);
 }
 
-/*
- * Reads a mesh file, and sets the frame and the animation controller given to
- * member variables.
- */
+// Reads a mesh file, and sets the frame and the animation controller given to member variables.
 skinned_animation_mesh::skinned_animation_mesh(
     const std::shared_ptr<IDirect3DDevice9> &d3d_device,
     const std::string &x_filename,
@@ -62,8 +57,7 @@ skinned_animation_mesh::skinned_animation_mesh(
       view_projection_handle_{},
       scale_handle_{}
 {
-    view_projection_handle_ =
-        effect_->GetParameterByName(nullptr, "g_view_projection");
+    view_projection_handle_ = effect_->GetParameterByName(nullptr, "g_view_projection");
     LPD3DXFRAME temp_frame_root{nullptr};
     LPD3DXANIMATIONCONTROLLER temp_animation_controller{nullptr};
 
@@ -108,17 +102,14 @@ void skinned_animation_mesh::render_impl(
     D3DXMatrixIdentity(&world_matrix);
     {
         D3DXMATRIX mat{};
-        D3DXMatrixTranslation(&mat,
-                              -center_coodinate_.x,
-                              -center_coodinate_.y,
-                              -center_coodinate_.z);
+        D3DXMatrixTranslation(
+            &mat, -center_coodinate_.x, -center_coodinate_.y, -center_coodinate_.z);
         world_matrix *= mat;
 
         D3DXMatrixScaling(&mat, scale_, scale_, scale_);
         world_matrix *= mat;
 
-        D3DXMatrixRotationYawPitchRoll(
-            &mat, rotation_.x, rotation_.y, rotation_.z);
+        D3DXMatrixRotationYawPitchRoll(&mat, rotation_.x, rotation_.y, rotation_.z);
         world_matrix *= mat;
 
         D3DXMatrixTranslation(&mat, position_.x, position_.y, position_.z);
@@ -129,10 +120,8 @@ void skinned_animation_mesh::render_impl(
     render_frame(frame_root_.get());
 }
 
-/*
- * Updates a world-transformation-matrix each the mesh in the frame. Also, this
- * is a recursive function.
- */
+// Updates a world-transformation-matrix each the mesh in the frame. Also, this is a recursive
+// function.
 void skinned_animation_mesh::update_frame_matrix(
     const LPD3DXFRAME frame_base,
     const LPD3DXMATRIX parent_matrix)
@@ -237,8 +226,7 @@ void skinned_animation_mesh::render_mesh_container(
         effect_->End();
     }
 }
-HRESULT skinned_animation_mesh::allocate_bone_matrix(
-    LPD3DXMESHCONTAINER mesh_container)
+HRESULT skinned_animation_mesh::allocate_bone_matrix(LPD3DXMESHCONTAINER mesh_container)
 {
     skinned_animation_mesh_frame *frame{};
 
@@ -252,8 +240,7 @@ HRESULT skinned_animation_mesh::allocate_bone_matrix(
     DWORD MAX_MATRICES = 26;
     world_matrix_array_.resize(std::min(MAX_MATRICES, bone_count));
 
-    effect_->SetInt("current_bone_numbers",
-                    skinned_mesh_container->influence_count_ - 1);
+    effect_->SetInt("current_bone_numbers", skinned_mesh_container->influence_count_ - 1);
 
     for (DWORD i{}; i < bone_count; ++i)
     {
@@ -271,8 +258,7 @@ HRESULT skinned_animation_mesh::allocate_bone_matrix(
     }
     return S_OK;
 }
-HRESULT skinned_animation_mesh::allocate_all_bone_matrices(
-    LPD3DXFRAME frame)
+HRESULT skinned_animation_mesh::allocate_all_bone_matrices(LPD3DXFRAME frame)
 {
     if (frame->pMeshContainer != nullptr)
     {

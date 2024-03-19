@@ -21,9 +21,7 @@ skinned_animation_mesh_frame::skinned_animation_mesh_frame(
     D3DXMatrixIdentity(&combined_matrix_);
 }
 
-/*
- * A constructor which only initializes member variables from the beginning to the end.
- */
+// A constructor which only initializes member variables from the beginning to the end.
 skinned_animation_mesh_container::skinned_animation_mesh_container(
     const string &x_filename,
     const string &mesh_name,
@@ -47,18 +45,17 @@ skinned_animation_mesh_container::skinned_animation_mesh_container(
     LPDIRECT3DDEVICE9 d3d_device{nullptr};
     mesh->GetDevice(&d3d_device);
 
-    /*
-     * This IF sentence is just initializing the 'MeshData' of a member variable.
-     * When this mesh doesn't have normal vector, add it.
-     */
+    // This IF sentence is just initializing the 'MeshData' of a member variable.
+    // When this mesh doesn't have normal vector, add it.
     HRESULT result{};
     if (!(mesh->GetFVF() & D3DFVF_NORMAL))
     {
         MeshData.Type = D3DXMESHTYPE_MESH;
-        result = mesh->CloneMeshFVF(mesh->GetOptions(),
-                                    mesh->GetFVF() | D3DFVF_NORMAL,
-                                    d3d_device,
-                                    &MeshData.pMesh);
+        result = mesh->CloneMeshFVF(
+            mesh->GetOptions(),
+            mesh->GetFVF() | D3DFVF_NORMAL,
+            d3d_device,
+            &MeshData.pMesh);
         if (FAILED(result))
         {
             THROW_WITH_TRACE("Failed 'CloneMeshFVF' function.");
@@ -97,14 +94,10 @@ void skinned_animation_mesh_container::initialize_materials(
     // This strange bracket is measures of being interpretered as WinAPI macro. 
     NumMaterials = std::max(1UL, materials_count);
     pMaterials = new_crt D3DXMATERIAL[NumMaterials];
-    vector<std::unique_ptr<IDirect3DTexture9, custom_deleter>>
-        temp_texture(NumMaterials);
+    vector<std::unique_ptr<IDirect3DTexture9, custom_deleter> > temp_texture(NumMaterials);
     texture_.swap(temp_texture);
 
-    /*
-     * Initialize the 'pMaterials' and the 'texture_' of member variables
-     * if there are.
-     */
+    // Initialize the 'pMaterials' and the 'texture_' of member variables if there are.
     if (materials_count > 0)
     {
         for (DWORD i{}; i < materials_count; ++i)
@@ -164,17 +157,18 @@ void skinned_animation_mesh_container::initialize_bone(
     safe_release(MeshData.pMesh);
 
     LPD3DXBUFFER bone_buffer{};
-    if (FAILED(pSkinInfo->ConvertToIndexedBlendedMesh(mesh,
-                                                      0, // not used 
-                                                      palette_size_,
-                                                      pAdjacency,
-                                                      nullptr,
-                                                      nullptr,
-                                                      nullptr,
-                                                      &influence_count_,
-                                                      &bone_count_,
-                                                      &bone_buffer,
-                                                      &MeshData.pMesh)))
+    if (FAILED(pSkinInfo->ConvertToIndexedBlendedMesh(
+        mesh,
+        0 /* not used */, 
+        palette_size_,
+        pAdjacency,
+        nullptr,
+        nullptr,
+        nullptr,
+        &influence_count_,
+        &bone_count_,
+        &bone_buffer,
+        &MeshData.pMesh)))
     {
         THROW_WITH_TRACE("Failed to get skin info.");
     }
@@ -236,21 +230,16 @@ skinned_animation_mesh_allocator::skinned_animation_mesh_allocator(
     : ID3DXAllocateHierarchy{},
       x_filename_(x_filename) {}
 
-/*
- * Alghough it's camel case and a strange type name, because this function is a
- * pure virtual function of 'ID3DXAllocateHierarchy'.
- */
-STDMETHODIMP skinned_animation_mesh_allocator::CreateFrame(
-    LPCTSTR name, LPD3DXFRAME *new_frame)
+// Alghough it's camel case and a strange type name, because this function is a pure virtual
+// function of 'ID3DXAllocateHierarchy'.
+STDMETHODIMP skinned_animation_mesh_allocator::CreateFrame(LPCTSTR name, LPD3DXFRAME *new_frame)
 {
     *new_frame = new_crt skinned_animation_mesh_frame{name};
     return S_OK;
 }
 
-/*
- * Alghough it's camel case and a strange type name, because this function is a
- * pure virtual function of 'ID3DXAllocateHierarchy'.
- */
+// Alghough it's camel case and a strange type name, because this function is a pure virtual
+// function of 'ID3DXAllocateHierarchy'.
 STDMETHODIMP skinned_animation_mesh_allocator::CreateMeshContainer(
     LPCSTR mesh_name,
     CONST D3DXMESHDATA *mesh_data,
@@ -263,13 +252,14 @@ STDMETHODIMP skinned_animation_mesh_allocator::CreateMeshContainer(
 {
     try
     {
-        *mesh_container = new_crt skinned_animation_mesh_container{x_filename_,
-                                                                   mesh_name,
-                                                                   mesh_data->pMesh,
-                                                                   materials,
-                                                                   materials_count,
-                                                                   adjacency,
-                                                                   skin_info};
+        *mesh_container = new_crt skinned_animation_mesh_container{
+            x_filename_,
+            mesh_name,
+            mesh_data->pMesh,
+            materials,
+            materials_count,
+            adjacency,
+            skin_info};
     }
     catch (const std::exception &expception)
     {
@@ -279,12 +269,9 @@ STDMETHODIMP skinned_animation_mesh_allocator::CreateMeshContainer(
     return S_OK;
 }
 
-/*
- * Alghough it's camel case and a strange type name, because this function is a
- * pure virtual function of 'ID3DXAllocateHierarchy'.
- */
-STDMETHODIMP skinned_animation_mesh_allocator::DestroyFrame(
-    LPD3DXFRAME frame)
+// Alghough it's camel case and a strange type name, because this function is a pure virtual
+// function of 'ID3DXAllocateHierarchy'.
+STDMETHODIMP skinned_animation_mesh_allocator::DestroyFrame(LPD3DXFRAME frame)
 {
     safe_delete_array(frame->Name);
     frame->~D3DXFRAME();
@@ -292,10 +279,8 @@ STDMETHODIMP skinned_animation_mesh_allocator::DestroyFrame(
     return S_OK;
 }
 
-/*
- * Alghough it's camel case and a strange type name, because this function is a
- * pure virtual function of 'ID3DXAllocateHierarchy'.
- */
+// Alghough it's camel case and a strange type name, because this function is a pure virtual
+// function of 'ID3DXAllocateHierarchy'.
 STDMETHODIMP skinned_animation_mesh_allocator::DestroyMeshContainer(
     LPD3DXMESHCONTAINER mesh_container_base)
 {

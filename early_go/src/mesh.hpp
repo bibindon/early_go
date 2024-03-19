@@ -8,11 +8,12 @@ namespace early_go
 class mesh : public abstract_mesh
 {
 public:
-    mesh(const std::shared_ptr<IDirect3DDevice9>&,
-         const std::string&,
-         const D3DXVECTOR3&,
-         const D3DXVECTOR3&,
-         const float&);
+    mesh(
+        const std::shared_ptr<IDirect3DDevice9>&,
+        const std::string&,
+        const D3DXVECTOR3&,
+        const D3DXVECTOR3&,
+        const float&);
     ~mesh() override;
 
 private:

@@ -20,9 +20,7 @@ animation_mesh_frame::animation_mesh_frame(const string &name)
     D3DXMatrixIdentity(&combined_matrix_);
 }
 
-/*
- * A constructor which only initializes member variables from the beginning to the end.
- */
+// A constructor which only initializes member variables from the beginning to the end.
 animation_mesh_container::animation_mesh_container(
     const string &x_filename,
     const string &mesh_name,
@@ -39,10 +37,8 @@ animation_mesh_container::animation_mesh_container(
     LPDIRECT3DDEVICE9 temp_d3d_device{nullptr};
     mesh->GetDevice(&temp_d3d_device);
 
-    /*
-     * This IF sentence is just initializing the 'MeshData' of a member variable.
-     * When this mesh doesn't have normal vector, add it.
-     */
+    // This IF sentence is just initializing the 'MeshData' of a member variable.
+    // When this mesh doesn't have normal vector, add it.
     if (!(mesh->GetFVF() & D3DFVF_NORMAL))
     {
         MeshData.Type = D3DXMESHTYPE_MESH;
@@ -80,10 +76,7 @@ animation_mesh_container::animation_mesh_container(
         pAdjacency[i] = adjacency[i];
     }
 
-    /*
-     * Initialize the 'pMaterials' and the 'texture_' of member variables
-     * if there are.
-     */
+    // Initialize the 'pMaterials' and the 'texture_' of member variables if there are.
     if (materials_count > 0)
     {
         for (DWORD i{}; i < materials_count; ++i)
@@ -130,20 +123,16 @@ animation_mesh_allocator::animation_mesh_allocator(const string &x_filename)
     // do nothing
 }
 
-/*
- * Alghough it's camel case and a strange type name, because this function is a
- * pure virtual function of 'ID3DXAllocateHierarchy'.
- */
+// Alghough it's camel case and a strange type name, because this function is a pure virtual
+// function of 'ID3DXAllocateHierarchy'.
 STDMETHODIMP animation_mesh_allocator::CreateFrame(LPCTSTR name, LPD3DXFRAME *new_frame)
 {
     *new_frame = new_crt animation_mesh_frame{name};
     return S_OK;
 }
 
-/*
- * Alghough it's camel case and a strange type name, because this function is a
- * pure virtual function of 'ID3DXAllocateHierarchy'.
- */
+// Alghough it's camel case and a strange type name, because this function is a pure virtual
+// function of 'ID3DXAllocateHierarchy'.
 STDMETHODIMP animation_mesh_allocator::CreateMeshContainer(
     LPCSTR mesh_name,
     CONST D3DXMESHDATA *mesh_data,
@@ -177,10 +166,8 @@ STDMETHODIMP animation_mesh_allocator::CreateMeshContainer(
     return S_OK;
 }
 
-/*
- * Alghough it's camel case and a strange type name, because this function is a
- * pure virtual function of 'ID3DXAllocateHierarchy'.
- */
+// Alghough it's camel case and a strange type name, because this function is a pure virtual
+// function of 'ID3DXAllocateHierarchy'.
 STDMETHODIMP animation_mesh_allocator::DestroyFrame(LPD3DXFRAME frame)
 {
     safe_delete_array(frame->Name);
@@ -189,10 +176,8 @@ STDMETHODIMP animation_mesh_allocator::DestroyFrame(LPD3DXFRAME frame)
     return S_OK;
 }
 
-/*
- * Alghough it's camel case and a strange type name, because this function is a
- * pure virtual function of 'ID3DXAllocateHierarchy'.
- */
+// Alghough it's camel case and a strange type name, because this function is a pure virtual
+// function of 'ID3DXAllocateHierarchy'.
 STDMETHODIMP animation_mesh_allocator::DestroyMeshContainer(
     LPD3DXMESHCONTAINER mesh_container_base)
 {
@@ -209,3 +194,4 @@ STDMETHODIMP animation_mesh_allocator::DestroyMeshContainer(
     return S_OK;
 }
 } // namespace early_go 
+
