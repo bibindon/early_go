@@ -8,7 +8,7 @@ using std::vector;
 namespace early_go
 {
 message_writer_for_thread::message_writer_for_thread(
-    const std::string &font_name,
+    const string &font_name,
     const int font_size,
     const cv::Size &canvas_size)
 {
@@ -39,7 +39,7 @@ message_writer_for_thread::message_writer_for_thread(
     GetTextMetrics(hdc_, &text_metric_);
 
     text_image_.resize(size_t(canvas_size_.height),
-                       std::vector<DWORD>(canvas_size_.width));
+                       vector<DWORD>(canvas_size_.width));
 }
 message_writer_for_thread::~message_writer_for_thread()
 {
@@ -47,7 +47,7 @@ message_writer_for_thread::~message_writer_for_thread()
     DeleteObject(hfont_);
     ReleaseDC(nullptr, hdc_);
 }
-void message_writer_for_thread::add_text(const std::string message,
+void message_writer_for_thread::add_text(const string message,
                                          const cv::Point &start_point,
                                          const DWORD color)
 {
@@ -63,7 +63,9 @@ void message_writer_for_thread::add_text(const std::string message,
     }
 
     while (write_one_character())
+    {
         ;
+    }
 }
 bool message_writer_for_thread::write_one_character()
 {
@@ -163,7 +165,7 @@ bool message_writer_for_thread::write_one_character()
         return false;
     }
 
-    std::vector<BYTE *> mono_buffer(font_height);
+    vector<BYTE *> mono_buffer(font_height);
     for (size_t y{}; y < mono_buffer.size(); ++y)
     {
         mono_buffer.at(y) = &letter[y * font_width];

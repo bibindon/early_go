@@ -68,19 +68,19 @@ private:
     bool is_finished_{false};
 
     void initialize(const int &, const int &, const BYTE &, const std::string &);
+    void add_text(
+        std::shared_ptr<IDirect3DTexture9> &,
+        const std::string &,
+        const cv::Rect &,
+        const DWORD &,
+        const std::string &,
+        const int &,
+        const int &,
+        D3DLOCKED_RECT &,
+        const BYTE &,
+        const bool &);
 };
 
-void add_text(
-    std::shared_ptr<IDirect3DTexture9> &,
-    const std::string &,
-    const cv::Rect &,
-    const DWORD &,
-    const std::string &,
-    const int &,
-    const int &,
-    D3DLOCKED_RECT &,
-    const BYTE &,
-    const bool &);
 
 } // namespace early_go 
 #endif

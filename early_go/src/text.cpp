@@ -393,16 +393,16 @@ bool message_writer::write_character(D3DLOCKED_RECT &locked_rect)
     return true;
 }
 
-void add_text(shared_ptr<IDirect3DTexture9> &texture,
-              const string &text,
-              const cv::Rect &rect,
-              const DWORD &color,
-              const string &fontname,
-              const int &size,
-              const int &weight,
-              D3DLOCKED_RECT &locked_rect,
-              const BYTE &charset,
-              const bool &proportional)
+void message_writer::add_text(shared_ptr<IDirect3DTexture9> &texture,
+    const string &text,
+    const cv::Rect &rect,
+    const DWORD &color,
+    const string &fontname,
+    const int &size,
+    const int &weight,
+    D3DLOCKED_RECT &locked_rect,
+    const BYTE &charset,
+    const bool &proportional)
 {
     message_writer writer{texture, text, false, rect, color,
                           fontname, size, weight, charset, proportional};
