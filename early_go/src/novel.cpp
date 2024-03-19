@@ -4,12 +4,24 @@
 
 using std::string;
 using std::remove_if;
+using std::shared_ptr;
 
 namespace early_go
 {
+/// <summary>
+/// i.e. {"early", "center", true}
+///      {"shiho", "left", false}
+///      {"suo", "right", true}
+/// </summary>
+struct novel::portrait
+{
+    std::string filename_;
+    std::string position_;
+    bool is_flip;
+};
 main_window *novel::window_ = nullptr;
 
-std::deque<portrait> novel::portrait_order_;
+std::deque<shared_ptr<novel::portrait> > novel::portrait_order_;
 
 int novel::glue_draw_background(lua_State *L)
 {
@@ -32,9 +44,9 @@ int novel::glue_draw_portrait(lua_State *L)
     }
     auto it = remove_if(
         portrait_order_.begin(), portrait_order_.end(),
-        [&](const portrait &x)
+        [&](const shared_ptr<portrait> &x)
         {
-            return x.position_ == position;
+            return x->position_ == position;
         });
 
     if (it != portrait_order_.end())
@@ -42,7 +54,7 @@ int novel::glue_draw_portrait(lua_State *L)
         portrait_order_.erase(it);
     }
 
-    portrait _portrait{ filename, position, false };
+    shared_ptr<portrait> _portrait{ new_crt portrait{filename, position, false } };
     portrait_order_.push_front(_portrait);
 
     redraw_portrait();
@@ -63,9 +75,9 @@ int novel::glue_draw_portrait_flip(lua_State *L)
     }
     auto it = remove_if(
         portrait_order_.begin(), portrait_order_.end(),
-        [&](const portrait &x)
+        [&](const shared_ptr<portrait> &x)
         {
-            return x.position_ == position;
+            return x->position_ == position;
         });
 
     if (it != portrait_order_.end())
@@ -73,7 +85,7 @@ int novel::glue_draw_portrait_flip(lua_State *L)
         portrait_order_.erase(it);
     }
 
-    portrait _portrait{ filename, position, true };
+    shared_ptr<portrait> _portrait{ new_crt portrait{filename, position, true } };
     portrait_order_.push_front(_portrait);
 
     redraw_portrait();
@@ -85,9 +97,9 @@ int novel::glue_remove_portrait(lua_State *L)
     const char *position = lua_tostring(L, -1);
     auto it = remove_if(
         portrait_order_.begin(), portrait_order_.end(),
-        [&](const portrait &x)
+        [&](const shared_ptr<portrait> &x)
         {
-            return x.position_ == position;
+            return x->position_ == position;
         });
 
     if (it != portrait_order_.end())
@@ -145,24 +157,24 @@ void novel::redraw_portrait()
             break;
         }
         window_->get_main_character()->set_dynamic_texture(
-            constants::EARLY_BODY, it->filename_, layer, abstract_mesh::combine_type::NORMAL);
+            constants::EARLY_BODY, (*it)->filename_, layer, abstract_mesh::combine_type::NORMAL);
 
-        if (it->position_ == "center")
+        if ((*it)->position_ == "center")
         {
             window_->get_main_character()->set_dynamic_texture_position(
                 constants::EARLY_BODY, layer, D3DXVECTOR2{-0.12f, 0.0f});
         }
-        else if (it->position_ == "left")
+        else if ((*it)->position_ == "left")
         {
             window_->get_main_character()->set_dynamic_texture_position(
                 constants::EARLY_BODY, layer, D3DXVECTOR2{0.1f, 0.0f});
         }
-        else if (it->position_ == "right")
+        else if ((*it)->position_ == "right")
         {
             window_->get_main_character()->set_dynamic_texture_position(
                 constants::EARLY_BODY, layer, D3DXVECTOR2{-0.3f, 0.0f});
         }
-        if (it->is_flip)
+        if ((*it)->is_flip)
         {
             window_->get_main_character()->flip_dynamic_texture(constants::EARLY_BODY, layer);
         }

@@ -35,18 +35,8 @@ private:
     static void redraw_portrait();
     bool is_novel_part_;
     static main_window *window_;
-    static std::deque<portrait> portrait_order_;
-};
-/// <summary>
-/// i.e. {"early", "center", true}
-///      {"shiho", "left", false}
-///      {"suo", "right", true}
-/// </summary>
-struct portrait
-{
-    std::string filename_;
-    std::string position_;
-    bool is_flip;
+    struct portrait;
+    static std::deque<std::shared_ptr<portrait> > portrait_order_;
 };
 } // namespace early_go 
 #endif
