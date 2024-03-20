@@ -21,7 +21,7 @@ public:
         READY,
         PLAY,
         STOP,
-        CANCELABLE,
+        ALLOW_NEXT_ACTION,
         CANCEL,
         FINISH,
     };

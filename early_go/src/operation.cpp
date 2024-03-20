@@ -367,9 +367,9 @@ void operation::operator()(main_window &a_main_window)
         {
             current_behavior_->state_ = behavior_state::FINISH;
         }
-        else if (main_character2->get_action_state() == behavior_state::CANCELABLE)
+        else if (main_character2->get_action_state() == behavior_state::ALLOW_NEXT_ACTION)
         {
-            current_behavior_->state_ = behavior_state::CANCELABLE;
+            current_behavior_->state_ = behavior_state::ALLOW_NEXT_ACTION;
         }
     }
     else if (current_behavior_->state_ == behavior_state::CANCEL)
@@ -379,7 +379,7 @@ void operation::operator()(main_window &a_main_window)
     }
 
     if (current_behavior_->state_ == behavior_state::FINISH ||
-        current_behavior_->state_ == behavior_state::CANCELABLE ||
+        current_behavior_->state_ == behavior_state::ALLOW_NEXT_ACTION ||
         current_behavior_->state_ == behavior_state::NO_STATE)
     {
         if (reserved_behavior_->action_type_ != action_type::NO_ACTION)

@@ -530,7 +530,7 @@ operation::behavior_state character::step::operator()()
             outer_.duration_map_.at("Step_Left"))
     {
         ++count_;
-        return operation::behavior_state::CANCELABLE;
+        return operation::behavior_state::ALLOW_NEXT_ACTION;
     }
     else if (outer_.duration_map_.at("Step_Left") <=
              (count_)*constants::ANIMATION_SPEED)
@@ -707,7 +707,7 @@ operation::behavior_state character::rotate::operator()()
             outer_.duration_map_.at("Rotate_Left"))
     {
         ++count_;
-        return operation::behavior_state::CANCELABLE;
+        return operation::behavior_state::ALLOW_NEXT_ACTION;
     }
     else if (outer_.duration_map_.at("Rotate_Left") <=
              (count_)*constants::ANIMATION_SPEED)
