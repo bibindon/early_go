@@ -66,14 +66,17 @@ public:
     void set_shake_texture(const std::string &);
     void set_fade_in(const std::string &);
     void set_fade_out(const std::string &);
-    void set_step_action(const direction &);
-    void set_rotate_action(const direction &);
-    void set_step_and_rotate_action(const direction &, const direction &);
+    void set_action_step(const direction );
+    void set_action_rotate(const direction );
+    void set_action_step_and_rotate(const direction , const direction );
+    void set_action_attack();
+    operation::behavior_state get_action_state();
     void cancel_action();
     direction get_direction() const;
     cv::Point3i get_grid_position() const;
     D3DXVECTOR3 get_position() const;
 
+    // todo private
     struct action
     {
         action(character &outer, const direction &);
@@ -176,6 +179,7 @@ private:
         special_move(const std::string &, const int &, const int &);
     };
     std::vector<special_move> special_move_;
+    operation::behavior_state action_state_{};
 };
 } // namespace early_go 
 

@@ -330,19 +330,19 @@ void main_window::debug()
 {
     if (key::is_down(VK_UP))
     {
-        suo_->set_step_action(direction::FRONT);
+        suo_->set_action_step(direction::FRONT);
     }
     if (key::is_down(VK_LEFT))
     {
-        suo_->set_step_action(direction::LEFT);
+        suo_->set_action_step(direction::LEFT);
     }
     if (key::is_down(VK_DOWN))
     {
-        suo_->set_step_action(direction::BACK);
+        suo_->set_action_step(direction::BACK);
     }
     if (key::is_down(VK_RIGHT))
     {
-        suo_->set_step_action(direction::RIGHT);
+        suo_->set_action_step(direction::RIGHT);
     }
 
     // fps

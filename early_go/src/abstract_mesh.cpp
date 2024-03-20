@@ -46,6 +46,7 @@ private:
     D3DXVECTOR2 current_position_;
     D3DXVECTOR2 previous_position_;
 };
+
 struct abstract_mesh::dynamic_texture::texture_fader
 {
     enum class fade_type
@@ -70,7 +71,7 @@ abstract_mesh::abstract_mesh(
     : d3d_device_{d3d_device},
       effect_{nullptr, custom_deleter{}},
       animation_strategy_{nullptr},
-      dynamic_texture_{},
+      dynamic_texture_{ new_crt dynamic_texture{} },
       position_{position},
       rotation_{rotation}
 {
@@ -434,7 +435,8 @@ void abstract_mesh::render(
 
 void abstract_mesh::set_shake_texture()
 {
-    dynamic_texture_->texture_shaker_.reset(new_crt abstract_mesh::dynamic_texture::texture_shaker());
+    dynamic_texture_->texture_shaker_.reset(
+        new_crt abstract_mesh::dynamic_texture::texture_shaker());
 }
 
 const std::array<

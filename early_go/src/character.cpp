@@ -85,7 +85,8 @@ void character::render(
 {
     if (current_action_ != nullptr)
     {
-        if (operation::behavior_state::FINISH == (*current_action_)())
+        action_state_ = (*current_action_)();
+        if (action_state_ == operation::behavior_state::FINISH)
         {
             current_action_.reset();
         }
@@ -244,6 +245,7 @@ void character::set_animation(const std::string &animation_set)
 
         x.second->set_animation(animation_fullname);
     }
+    action_state_ = operation::behavior_state::NO_STATE;
 }
 
 void character::set_shake_texture(const std::string &x_filename)
@@ -270,13 +272,13 @@ void character::set_fade_out(const std::string &x_filename)
     }
 }
 
-void character::set_step_action(const direction &step_dir)
+void character::set_action_step(const direction step_dir)
 {
     current_action_.reset(); // call dtor.
     current_action_.reset(new_crt step{*this, step_dir});
 }
 
-void character::set_rotate_action(const direction &rotate_dir)
+void character::set_action_rotate(const direction rotate_dir)
 {
     if (direction_ == rotate_dir)
     {
@@ -286,12 +288,23 @@ void character::set_rotate_action(const direction &rotate_dir)
     current_action_.reset(new_crt rotate{*this, rotate_dir});
 }
 
-void character::set_step_and_rotate_action(
-    const direction &step_dir,
-    const direction &rotate_dir)
+void character::set_action_step_and_rotate(
+    const direction step_dir,
+    const direction rotate_dir)
 {
     current_action_.reset(); // call dtor.
     current_action_.reset(new_crt step_and_rotate{*this, step_dir, rotate_dir});
+}
+
+void character::set_action_attack()
+{
+    current_action_.reset(); // call dtor.
+    current_action_.reset(new_crt attack{*this});
+}
+
+operation::behavior_state character::get_action_state()
+{
+    return action_state_;
 }
 
 void character::cancel_action()

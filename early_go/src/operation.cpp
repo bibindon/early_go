@@ -3,54 +3,16 @@
 #include "character.hpp"
 #include "operation.hpp"
 #include "camera.hpp"
-#include <boost/type_erasure/typeid_of.hpp>
 
 using std::shared_ptr;
 
 namespace early_go
 {
 
-template <
-    class CurrentKeyAction,
-    direction CurrentKeyDirection,
-    class RecentKeyAction,
-    direction RecentKeyDirection,
-    std::enable_if_t<
-        !std::is_same<CurrentKeyAction, character::step_and_rotate>::value &&
-            !std::is_same<CurrentKeyAction, character::attack>::value,
-        std::nullptr_t> = nullptr>
-void set_state(character &,
-               shared_ptr<operation::behavior_concept> &,
-               shared_ptr<operation::behavior_concept> &) {}
-template <
-    class CurrentKeyAction,
-    direction CurrentKeyDirection,
-    class RecentKeyAction,
-    direction RecentKeyDirection,
-    std::enable_if_t<
-        std::is_same<CurrentKeyAction, character::step_and_rotate>::value &&
-            !std::is_same<CurrentKeyAction, character::attack>::value,
-        std::nullptr_t> = nullptr>
-void set_state(character &,
-               shared_ptr<operation::behavior_concept> &,
-               shared_ptr<operation::behavior_concept> &);
-template <
-    class CurrentKeyAction,
-    direction CurrentKeyDirection,
-    class RecentKeyAction,
-    direction RecentKeyDirection,
-    std::enable_if_t<
-        !std::is_same<CurrentKeyAction, character::step_and_rotate>::value &&
-            std::is_same<CurrentKeyAction, character::attack>::value,
-        std::nullptr_t> = nullptr>
-void set_state(character &,
-               shared_ptr<operation::behavior_concept> &,
-               shared_ptr<operation::behavior_concept> &);
-
 operation::operation(const shared_ptr<camera> &camera)
     : camera_{camera},
-      current_behavior_{nullptr},
-      reserved_behavior_{nullptr},
+      current_behavior_{ new_crt behavior{} },
+      reserved_behavior_{ new_crt behavior{} },
       current_stage_{0}
 {
     for (int z = 0; z < constants::GRID_NUM_HEIGHT; ++z)
@@ -66,12 +28,13 @@ operation::operation(const shared_ptr<camera> &camera)
 void operation::set_offensive_position(const int &x, const int &z)
 {
     const int current_stage_z = z % (constants::GRID_NUM_HEIGHT + 1);
+    // Check out of range(z).
     if (offensive_area_.find(current_stage_z) == offensive_area_.end())
     {
         return;
     }
-    if (offensive_area_.at(current_stage_z).find(x) ==
-        offensive_area_.at(current_stage_z).end())
+    // Check out of range(x).
+    if (offensive_area_.at(current_stage_z).find(x) == offensive_area_.at(current_stage_z).end())
     {
         return;
     }
@@ -85,369 +48,290 @@ shared_ptr<camera> operation::get_camera() const
 
 void operation::operator()(main_window &a_main_window)
 {
-    character &main_character{*a_main_window.get_main_character()};
+    shared_ptr<character> main_character2 = a_main_window.get_main_character();
+    character &main_character{*(main_character2)};
+//    character &main_character{*(a_main_window.get_main_character())};
 
     if (key::is_down('Q'))
     {
         PostQuitMessage(0);
     }
-    if (key::is_down('W'))
+    else if (key::is_down('W'))
     {
-        if (current_behavior_ == nullptr)
+        reserved_behavior_->step_dir_ = direction::FRONT;
+        reserved_behavior_->state_ = behavior_state::READY;
+        if (key::check_simultaneous('A'))
         {
-            current_behavior_.reset(new_crt behavior_concept{
-                character::step{main_character, direction::FRONT}});
+            reserved_behavior_->action_type_ = action_type::ATTACK;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('I'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::FRONT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('J'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::LEFT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('K'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::BACK;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('L'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::RIGHT;
+            current_behavior_->state_ = behavior_state::CANCEL;
         }
         else
         {
-            if (key::check_simultaneous('A'))
-            {
-                set_state<character::attack, direction::NONE,
-                          character::step, direction::LEFT>(
-                    main_character, current_behavior_, reserved_behavior_);
-            }
-            else if (key::check_simultaneous('I'))
-            {
-                set_state<character::step_and_rotate, direction::FRONT,
-                          character::rotate, direction::FRONT>(
-                    main_character, current_behavior_, reserved_behavior_);
-            }
-            else if (key::check_simultaneous('J'))
-            {
-                set_state<character::step_and_rotate, direction::FRONT,
-                          character::rotate, direction::LEFT>(
-                    main_character, current_behavior_, reserved_behavior_);
-            }
-            else if (key::check_simultaneous('K'))
-            {
-                set_state<character::step_and_rotate, direction::FRONT,
-                          character::rotate, direction::BACK>(
-                    main_character, current_behavior_, reserved_behavior_);
-            }
-            else if (key::check_simultaneous('L'))
-            {
-                set_state<character::step_and_rotate, direction::FRONT,
-                          character::rotate, direction::RIGHT>(
-                    main_character, current_behavior_, reserved_behavior_);
-            }
-            else
-            {
-                reserved_behavior_.reset(new_crt behavior_concept{
-                    character::step{main_character, direction::FRONT}});
-            }
+            reserved_behavior_->action_type_ = action_type::STEP;
         }
     }
-    if (key::is_down('A'))
+    else if (key::is_down('A'))
     {
-        if (current_behavior_ == nullptr)
+        reserved_behavior_->step_dir_ = direction::LEFT;
+        reserved_behavior_->state_ = behavior_state::READY;
+        if (key::check_simultaneous('W'))
         {
-            current_behavior_.reset(new_crt behavior_concept{
-                character::step{main_character, direction::LEFT}});
+            reserved_behavior_->action_type_ = action_type::ATTACK;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('I'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::FRONT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('J'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::LEFT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('K'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::BACK;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('L'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::RIGHT;
+            current_behavior_->state_ = behavior_state::CANCEL;
         }
         else
         {
-            if (key::check_simultaneous('W'))
-            {
-                set_state<character::attack, direction::NONE,
-                          character::step, direction::FRONT>(
-                    main_character, current_behavior_, reserved_behavior_);
-            }
-            else if (key::check_simultaneous('I'))
-            {
-                set_state<character::step_and_rotate, direction::LEFT,
-                          character::rotate, direction::FRONT>(
-                    main_character, current_behavior_, reserved_behavior_);
-            }
-            else if (key::check_simultaneous('J'))
-            {
-                set_state<character::step_and_rotate, direction::LEFT,
-                          character::rotate, direction::LEFT>(
-                    main_character, current_behavior_, reserved_behavior_);
-            }
-            else if (key::check_simultaneous('K'))
-            {
-                set_state<character::step_and_rotate, direction::LEFT,
-                          character::rotate, direction::BACK>(
-                    main_character, current_behavior_, reserved_behavior_);
-            }
-            else if (key::check_simultaneous('L'))
-            {
-                set_state<character::step_and_rotate, direction::LEFT,
-                          character::rotate, direction::RIGHT>(
-                    main_character, current_behavior_, reserved_behavior_);
-            }
-            else
-            {
-                reserved_behavior_.reset(new_crt behavior_concept{
-                    character::step{main_character, direction::LEFT}});
-            }
+            reserved_behavior_->action_type_ = action_type::STEP;
         }
     }
-    if (key::is_down('S'))
+    else if (key::is_down('S'))
     {
-        if (current_behavior_ == nullptr)
+        reserved_behavior_->step_dir_ = direction::BACK;
+        reserved_behavior_->state_ = behavior_state::READY;
+        if (key::check_simultaneous('I'))
         {
-            current_behavior_.reset(new_crt behavior_concept{
-                character::step{main_character, direction::BACK}});
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::FRONT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('J'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::LEFT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('K'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::BACK;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('L'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::RIGHT;
+            current_behavior_->state_ = behavior_state::CANCEL;
         }
         else
         {
-            if (key::check_simultaneous('I'))
-            {
-                set_state<character::step_and_rotate, direction::BACK,
-                          character::rotate, direction::FRONT>(main_character,
-                                                               current_behavior_,
-                                                               reserved_behavior_);
-            }
-            else if (key::check_simultaneous('J'))
-            {
-                set_state<character::step_and_rotate, direction::BACK,
-                          character::rotate, direction::LEFT>(main_character,
-                                                              current_behavior_,
-                                                              reserved_behavior_);
-            }
-            else if (key::check_simultaneous('K'))
-            {
-                set_state<character::step_and_rotate, direction::BACK,
-                          character::rotate, direction::BACK>(main_character,
-                                                              current_behavior_,
-                                                              reserved_behavior_);
-            }
-            else if (key::check_simultaneous('L'))
-            {
-                set_state<character::step_and_rotate, direction::BACK,
-                          character::rotate, direction::RIGHT>(main_character,
-                                                               current_behavior_,
-                                                               reserved_behavior_);
-            }
-            else
-            {
-                reserved_behavior_.reset(new_crt behavior_concept{
-                    character::step{main_character, direction::BACK}});
-            }
+            reserved_behavior_->action_type_ = action_type::STEP;
         }
     }
-    if (key::is_down('D'))
+    else if (key::is_down('D'))
     {
-        if (current_behavior_ == nullptr)
+        reserved_behavior_->step_dir_ = direction::RIGHT;
+        reserved_behavior_->state_ = behavior_state::READY;
+        if (key::check_simultaneous('I'))
         {
-            current_behavior_.reset(new_crt behavior_concept{
-                character::step{main_character, direction::RIGHT}});
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::FRONT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('J'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::LEFT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('K'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::BACK;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('L'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->rotate_dir_ = direction::RIGHT;
+            current_behavior_->state_ = behavior_state::CANCEL;
         }
         else
         {
-            if (key::check_simultaneous('I'))
-            {
-                set_state<character::step_and_rotate, direction::RIGHT,
-                          character::rotate, direction::FRONT>(main_character,
-                                                               current_behavior_,
-                                                               reserved_behavior_);
-            }
-            else if (key::check_simultaneous('J'))
-            {
-                set_state<character::step_and_rotate, direction::RIGHT,
-                          character::rotate, direction::LEFT>(main_character,
-                                                              current_behavior_,
-                                                              reserved_behavior_);
-            }
-            else if (key::check_simultaneous('K'))
-            {
-                set_state<character::step_and_rotate, direction::RIGHT,
-                          character::rotate, direction::BACK>(main_character,
-                                                              current_behavior_,
-                                                              reserved_behavior_);
-            }
-            else if (key::check_simultaneous('L'))
-            {
-                set_state<character::step_and_rotate, direction::RIGHT,
-                          character::rotate, direction::RIGHT>(main_character,
-                                                               current_behavior_,
-                                                               reserved_behavior_);
-            }
-            else
-            {
-                reserved_behavior_.reset(new_crt behavior_concept{
-                    character::step{main_character, direction::RIGHT}});
-            }
+            reserved_behavior_->action_type_ = action_type::STEP;
         }
     }
-    if (key::is_down('I'))
+    else if (key::is_down('I'))
     {
-        if (current_behavior_ == nullptr)
+        reserved_behavior_->rotate_dir_ = direction::FRONT;
+        reserved_behavior_->state_ = behavior_state::READY;
+        if (key::check_simultaneous('W'))
         {
-            current_behavior_.reset(new_crt behavior_concept{
-                character::rotate{main_character, direction::FRONT}});
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::FRONT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('A'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::LEFT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('S'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::BACK;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('D'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::RIGHT;
+            current_behavior_->state_ = behavior_state::CANCEL;
         }
         else
         {
-            if (key::check_simultaneous('W'))
-            {
-                set_state<character::step_and_rotate, direction::FRONT,
-                          character::step, direction::FRONT>(main_character,
-                                                             current_behavior_,
-                                                             reserved_behavior_);
-            }
-            else if (key::check_simultaneous('A'))
-            {
-                set_state<character::step_and_rotate, direction::FRONT,
-                          character::step, direction::LEFT>(main_character,
-                                                            current_behavior_,
-                                                            reserved_behavior_);
-            }
-            else if (key::check_simultaneous('S'))
-            {
-                set_state<character::step_and_rotate, direction::FRONT,
-                          character::step, direction::BACK>(main_character,
-                                                            current_behavior_,
-                                                            reserved_behavior_);
-            }
-            else if (key::check_simultaneous('D'))
-            {
-                set_state<character::step_and_rotate, direction::FRONT,
-                          character::step, direction::RIGHT>(main_character,
-                                                             current_behavior_,
-                                                             reserved_behavior_);
-            }
-            else
-            {
-                reserved_behavior_.reset(new_crt behavior_concept{
-                    character::rotate{main_character, direction::FRONT}});
-            }
+            reserved_behavior_->action_type_ = action_type::ROTATE;
         }
     }
-    if (key::is_down('J'))
+    else if (key::is_down('J'))
     {
-        if (current_behavior_ == nullptr)
+        reserved_behavior_->rotate_dir_ = direction::LEFT;
+        reserved_behavior_->state_ = behavior_state::READY;
+        if (key::check_simultaneous('W'))
         {
-            current_behavior_.reset(new_crt behavior_concept{
-                character::rotate{main_character, direction::LEFT}});
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::FRONT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('A'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::LEFT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('S'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::BACK;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('D'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::RIGHT;
+            current_behavior_->state_ = behavior_state::CANCEL;
         }
         else
         {
-            if (key::check_simultaneous('W'))
-            {
-                set_state<character::step_and_rotate, direction::LEFT,
-                          character::step, direction::FRONT>(main_character,
-                                                             current_behavior_,
-                                                             reserved_behavior_);
-            }
-            else if (key::check_simultaneous('A'))
-            {
-                set_state<character::step_and_rotate, direction::LEFT,
-                          character::step, direction::LEFT>(main_character,
-                                                            current_behavior_,
-                                                            reserved_behavior_);
-            }
-            else if (key::check_simultaneous('S'))
-            {
-                set_state<character::step_and_rotate, direction::LEFT,
-                          character::step, direction::BACK>(main_character,
-                                                            current_behavior_,
-                                                            reserved_behavior_);
-            }
-            else if (key::check_simultaneous('D'))
-            {
-                set_state<character::step_and_rotate, direction::LEFT,
-                          character::step, direction::RIGHT>(main_character,
-                                                             current_behavior_,
-                                                             reserved_behavior_);
-            }
-            else
-            {
-                reserved_behavior_.reset(new_crt behavior_concept{
-                    character::rotate{main_character, direction::LEFT}});
-            }
+            reserved_behavior_->action_type_ = action_type::ROTATE;
         }
     }
-    if (key::is_down('K'))
+    else if (key::is_down('K'))
     {
-        if (current_behavior_ == nullptr)
+        reserved_behavior_->rotate_dir_ = direction::BACK;
+        reserved_behavior_->state_ = behavior_state::READY;
+        if (key::check_simultaneous('W'))
         {
-            current_behavior_.reset(new_crt behavior_concept{
-                character::rotate{main_character, direction::BACK}});
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::FRONT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('A'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::LEFT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('S'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::BACK;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('D'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::RIGHT;
+            current_behavior_->state_ = behavior_state::CANCEL;
         }
         else
         {
-            if (key::check_simultaneous('W'))
-            {
-                set_state<character::step_and_rotate, direction::BACK,
-                          character::step, direction::FRONT>(main_character,
-                                                             current_behavior_,
-                                                             reserved_behavior_);
-            }
-            else if (key::check_simultaneous('A'))
-            {
-                set_state<character::step_and_rotate, direction::BACK,
-                          character::step, direction::LEFT>(main_character,
-                                                            current_behavior_,
-                                                            reserved_behavior_);
-            }
-            else if (key::check_simultaneous('S'))
-            {
-                set_state<character::step_and_rotate, direction::BACK,
-                          character::step, direction::BACK>(main_character,
-                                                            current_behavior_,
-                                                            reserved_behavior_);
-            }
-            else if (key::check_simultaneous('D'))
-            {
-                set_state<character::step_and_rotate, direction::BACK,
-                          character::step, direction::RIGHT>(main_character,
-                                                             current_behavior_,
-                                                             reserved_behavior_);
-            }
-            else
-            {
-                reserved_behavior_.reset(new_crt behavior_concept{
-                    character::rotate{main_character, direction::BACK}});
-            }
+            reserved_behavior_->action_type_ = action_type::ROTATE;
         }
     }
-    if (key::is_down('L'))
+    else if (key::is_down('L'))
     {
-        if (current_behavior_ == nullptr)
+        reserved_behavior_->rotate_dir_ = direction::RIGHT;
+        reserved_behavior_->state_ = behavior_state::READY;
+        if (key::check_simultaneous('W'))
         {
-            current_behavior_.reset(new_crt behavior_concept{
-                character::rotate{main_character, direction::RIGHT}});
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::FRONT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('A'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::LEFT;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('S'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::BACK;
+            current_behavior_->state_ = behavior_state::CANCEL;
+        }
+        else if (key::check_simultaneous('D'))
+        {
+            reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+            reserved_behavior_->step_dir_ = direction::RIGHT;
+            current_behavior_->state_ = behavior_state::CANCEL;
         }
         else
         {
-            if (key::check_simultaneous('W'))
-            {
-                set_state<character::step_and_rotate, direction::RIGHT,
-                          character::step, direction::FRONT>(main_character,
-                                                             current_behavior_,
-                                                             reserved_behavior_);
-            }
-            else if (key::check_simultaneous('A'))
-            {
-                set_state<character::step_and_rotate, direction::RIGHT,
-                          character::step, direction::LEFT>(main_character,
-                                                            current_behavior_,
-                                                            reserved_behavior_);
-            }
-            else if (key::check_simultaneous('S'))
-            {
-                set_state<character::step_and_rotate, direction::RIGHT,
-                          character::step, direction::BACK>(main_character,
-                                                            current_behavior_,
-                                                            reserved_behavior_);
-            }
-            else if (key::check_simultaneous('D'))
-            {
-                set_state<character::step_and_rotate, direction::RIGHT,
-                          character::step, direction::RIGHT>(main_character,
-                                                             current_behavior_,
-                                                             reserved_behavior_);
-            }
-            else
-            {
-                reserved_behavior_.reset(new_crt behavior_concept{
-                    character::rotate{main_character, direction::RIGHT}});
-            }
+            reserved_behavior_->action_type_ = action_type::ROTATE;
         }
     }
 
+    // Clear offensive_area_
     for (auto &&z : offensive_area_)
     {
         for (auto &&x : z.second)
@@ -456,32 +340,56 @@ void operation::operator()(main_window &a_main_window)
         }
     }
 
-    if (current_behavior_ != nullptr)
+    if (current_behavior_->state_ == behavior_state::READY)
     {
-        switch ((*current_behavior_)())
+        current_behavior_->state_ = behavior_state::PLAY;
+        if (current_behavior_->action_type_ == action_type::STEP)
         {
-        case behavior_state::PLAY:
-            break;
-        case behavior_state::CANCELABLE:
-            if (reserved_behavior_ != nullptr)
-            {
-                current_behavior_ = reserved_behavior_;
-                reserved_behavior_.reset();
-                (*current_behavior_)();
-            }
-            break;
-        case behavior_state::FINISH:
-            if (reserved_behavior_ != nullptr)
-            {
-                current_behavior_ = reserved_behavior_;
-                reserved_behavior_.reset();
-                (*current_behavior_)();
-            }
-            else
-            {
-                current_behavior_.reset();
-            }
-            break;
+            main_character2->set_action_step(current_behavior_->step_dir_);
+        }
+        else if (current_behavior_->action_type_ == action_type::ROTATE)
+        {
+            main_character2->set_action_rotate(current_behavior_->rotate_dir_);
+        }
+        else if (current_behavior_->action_type_ == action_type::STEP_AND_ROTATE)
+        {
+            main_character2->set_action_step_and_rotate(
+                current_behavior_->step_dir_, current_behavior_->rotate_dir_);
+        }
+        else if (current_behavior_->action_type_ == action_type::ATTACK)
+        {
+            main_character2->set_action_attack();
+        }
+    }
+    else if (current_behavior_->state_ == behavior_state::PLAY)
+    {
+        if (main_character2->get_action_state() == behavior_state::FINISH)
+        {
+            current_behavior_->state_ = behavior_state::FINISH;
+        }
+        else if (main_character2->get_action_state() == behavior_state::CANCELABLE)
+        {
+            current_behavior_->state_ = behavior_state::CANCELABLE;
+        }
+    }
+    else if (current_behavior_->state_ == behavior_state::CANCEL)
+    {
+            main_character2->cancel_action();
+            current_behavior_->state_ = behavior_state::FINISH;
+    }
+
+    if (current_behavior_->state_ == behavior_state::FINISH ||
+        current_behavior_->state_ == behavior_state::CANCELABLE ||
+        current_behavior_->state_ == behavior_state::NO_STATE)
+    {
+        if (reserved_behavior_->action_type_ != action_type::NO_ACTION)
+        {
+            *current_behavior_ = *reserved_behavior_;
+
+            reserved_behavior_->action_type_ = action_type::NO_ACTION;
+            reserved_behavior_->step_dir_ = direction::NONE;
+            reserved_behavior_->rotate_dir_ = direction::NONE;
+            reserved_behavior_->state_ = behavior_state::NO_STATE;
         }
     }
 
@@ -492,7 +400,8 @@ void operation::operator()(main_window &a_main_window)
     const int relative_z = enemy_pos.z % (constants::GRID_NUM_HEIGHT + 1);
     if (offensive_area_.at(relative_z).at(enemy_pos.x))
     {
-        current_behavior_->cancel();
+//        current_behavior_->cancel();
+        main_character2->cancel_action();
         int enemy_health = enemy->get_health();
         if (1 <= enemy_health - 1)
         {
@@ -501,8 +410,8 @@ void operation::operator()(main_window &a_main_window)
         }
         else if (current_stage_ != constants::MAX_STAGE_NUMBER - 1)
         {
-            current_behavior_.reset(new_crt behavior_concept{
-                move_next_stage(*this, a_main_window)});
+        //    current_behavior_.reset(new_crt behavior_concept{
+        //        move_next_stage(*this, a_main_window)});
         }
         else
         {
@@ -514,6 +423,7 @@ void operation::operator()(main_window &a_main_window)
     }
 }
 
+/*
 operation::move_next_stage::move_next_stage(
     operation &a_operation, main_window &a_main_window)
     : outer_{a_operation},
@@ -599,98 +509,6 @@ operation::behavior_state operation::move_next_stage::operator()()
     ++count_;
     return operation::behavior_state::PLAY;
 }
-
-template <
-    class CurrentKeyAction,
-    direction CurrentKeyDirection,
-    class RecentKeyAction,
-    direction RecentKeyDirection,
-    std::enable_if_t<
-        std::is_same<CurrentKeyAction, character::step_and_rotate>::value &&
-            !std::is_same<CurrentKeyAction, character::attack>::value,
-        std::nullptr_t>>
-void set_state(character &a_character,
-               shared_ptr<operation::behavior_concept> &current_behavior,
-               shared_ptr<operation::behavior_concept> &reserved_behavior)
-{
-    constexpr direction step_direction{
-        std::is_same<RecentKeyAction, character::rotate>::value
-            ? CurrentKeyDirection
-            : RecentKeyDirection};
-    constexpr direction rotate_direction{
-        std::is_same<RecentKeyAction, character::rotate>::value
-            ? RecentKeyDirection
-            : CurrentKeyDirection};
-
-    if (reserved_behavior != nullptr &&
-        boost::type_erasure::typeid_of(*reserved_behavior) ==
-            typeid(RecentKeyAction) &&
-        boost::get<direction>(reserved_behavior->get_params().at(0)) ==
-            RecentKeyDirection)
-    {
-        reserved_behavior.reset(new_crt operation::behavior_concept{
-            character::step_and_rotate{
-                a_character, step_direction, rotate_direction}});
-    }
-    else if (boost::type_erasure::typeid_of(*current_behavior) ==
-             typeid(character::step_and_rotate))
-    {
-        std::conditional_t<
-            std::is_same_v<RecentKeyAction, character::step>,
-            character::rotate,
-            character::step>
-            step_or_rotate{a_character, CurrentKeyDirection};
-        reserved_behavior.reset(
-            new_crt operation::behavior_concept{step_or_rotate});
-    }
-    else
-    {
-        current_behavior->cancel();
-        current_behavior.reset(new_crt operation::behavior_concept{
-            character::step_and_rotate{
-                a_character, step_direction, rotate_direction}});
-    }
-}
-template <
-    class CurrentKeyAction,
-    direction CurrentKeyDirection,
-    class RecentKeyAction,
-    direction RecentKeyDirection,
-    std::enable_if_t<
-        !std::is_same<CurrentKeyAction, character::step_and_rotate>::value &&
-            std::is_same<CurrentKeyAction, character::attack>::value,
-        std::nullptr_t>>
-void set_state(character &a_character,
-               shared_ptr<operation::behavior_concept> &current_behavior,
-               shared_ptr<operation::behavior_concept> &reserved_behavior)
-{
-    if (current_behavior == nullptr && reserved_behavior == nullptr)
-    {
-        current_behavior.reset(new_crt operation::behavior_concept{
-            character::attack{a_character}});
-    }
-    else if (current_behavior != nullptr && reserved_behavior == nullptr)
-    {
-        if (boost::type_erasure::typeid_of(*current_behavior) ==
-                typeid(RecentKeyAction) &&
-            boost::get<direction>(current_behavior->get_params().at(0)) ==
-                RecentKeyDirection)
-        {
-            current_behavior->cancel();
-            current_behavior.reset(new_crt operation::behavior_concept{
-                character::attack{a_character}});
-        }
-        else
-        {
-            reserved_behavior.reset(new_crt operation::behavior_concept{
-                character::attack{a_character}});
-        }
-    }
-    else
-    {
-        reserved_behavior.reset(new_crt operation::behavior_concept{
-            character::attack{a_character}});
-    }
-}
+*/
 
 } // namespace early_go 
