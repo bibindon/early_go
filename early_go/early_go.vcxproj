@@ -231,8 +231,9 @@ resource_importer.bat
       <Command>tools\post-build_event.bat $(PlatformTarget) $(Configuration)</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>cd $(SolutionDir)\early_go\tools\
+resource_importer.bat
+</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
