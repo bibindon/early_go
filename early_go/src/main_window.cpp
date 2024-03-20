@@ -85,6 +85,8 @@ main_window::main_window(const HINSTANCE &hinstance)
         hinstance,
         nullptr)};
 
+    hwnd_ = hwnd;
+
     ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);
 
@@ -269,13 +271,18 @@ int main_window::operator()()
 {
     while (msg_.message != WM_QUIT)
     {
-        if (::PeekMessage(&msg_, nullptr, 0, 0, PM_REMOVE))
+        if (PeekMessage(&msg_, nullptr, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg_);
             DispatchMessage(&msg_);
         }
         else
         {
+            HWND hwnd = GetActiveWindow();
+            if (hwnd_ != hwnd)
+            {
+                continue;
+            }
             if (key::update())
             {
                 // TODO

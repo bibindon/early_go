@@ -68,6 +68,7 @@ private:
     std::shared_ptr<hud> hud_;
 
     std::shared_ptr<novel> novel_;
+    HWND hwnd_;
 };
 } // namespace early_go 
 #endif

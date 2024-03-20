@@ -273,3 +273,4 @@ doc/html/
 !sqlite3/Lib/x86
 /.vscode
 early_go/.res
+test/.res

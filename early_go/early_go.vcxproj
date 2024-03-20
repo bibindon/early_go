@@ -238,6 +238,7 @@ resource_importer.bat
   <ItemGroup>
     <ClCompile Include="src\animation_mesh.cpp" />
     <ClCompile Include="src\abstract_mesh.cpp" />
+    <ClCompile Include="src\error_dialog.cpp" />
     <ClCompile Include="src\main_window.cpp" />
     <ClCompile Include="src\animation_mesh_allocator.cpp" />
     <ClCompile Include="src\camera.cpp" />
@@ -255,7 +256,7 @@ resource_importer.bat
     <ClCompile Include="src\skinned_animation_mesh.cpp" />
     <ClCompile Include="src\skinned_animation_mesh_allocator.cpp" />
     <ClCompile Include="src\hud.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
