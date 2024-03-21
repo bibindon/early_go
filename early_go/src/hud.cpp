@@ -12,6 +12,8 @@ using std::vector;
 using std::string;
 using std::shared_ptr;
 using std::find_if;
+using std::make_shared;
+using std::fill;
 
 namespace early_go
 {
@@ -175,7 +177,7 @@ void hud::add_message(const string &id, const string &message, const cv::Rect &r
     textures_.emplace_back(temp_texture);
 
     shared_ptr<message_writer> writer(
-        std::make_shared<message_writer>(
+        make_shared<message_writer>(
             d3d_device_,
             textures_.back().value_,
             message,
@@ -246,7 +248,7 @@ void hud::add_frame(const string &id, const cv::Rect &rect, const cv::Scalar &co
                       --textures_.end(),
                       cv::Point(rect.width, rect.height),
                       color,
-                      std::make_shared<frame_animator>(frame_animator{})});
+                      make_shared<frame_animator>(frame_animator{})});
 }
 
 void hud::delete_frame(const string &id)
@@ -367,7 +369,7 @@ void hud::show_HP_info()
             D3DLOCKED_RECT locked_rect{};
             temp_texture->LockRect(0, &locked_rect, nullptr, D3DLOCK_DISCARD);
 
-            std::fill(static_cast<int *>(locked_rect.pBits),
+            fill(static_cast<int *>(locked_rect.pBits),
                       static_cast<int *>(locked_rect.pBits) +
                           static_cast<size_t>(locked_rect.Pitch) *
                               HP_info::TEXTURE_SIZE.height / sizeof(int),
@@ -383,7 +385,7 @@ void hud::show_HP_info()
                 cv::Rect(cv::Point(0), HP_info::TEXTURE_SIZE)});
 
         HP_info_.reset(new_crt HP_info{*this, --textures_.end(),
-                                       std::make_shared<HP_info_animator>(HP_info_animator{})});
+                                       make_shared<HP_info_animator>(HP_info_animator{})});
     }
     {
         LPDIRECT3DTEXTURE9 temp_texture{};
@@ -402,7 +404,7 @@ void hud::show_HP_info()
             D3DLOCKED_RECT locked_rect{};
             temp_texture->LockRect(0, &locked_rect, nullptr, D3DLOCK_DISCARD);
 
-            std::fill(static_cast<int *>(locked_rect.pBits),
+            fill(static_cast<int *>(locked_rect.pBits),
                       static_cast<int *>(locked_rect.pBits) +
                           static_cast<size_t>(locked_rect.Pitch) *
                               HP_info::TEXTURE_SIZE.height / sizeof(int),
@@ -418,7 +420,7 @@ void hud::show_HP_info()
                 cv::Rect(cv::Point(0), HP_info::TEXTURE_SIZE)});
 
         HP_info2_.reset(new_crt HP_info2{*this, --textures_.end(),
-                                         std::make_shared<HP_info_animator2>(HP_info_animator2{})});
+                                         make_shared<HP_info_animator2>(HP_info_animator2{})});
     }
 }
 
@@ -819,7 +821,7 @@ void hud::HP_info_drawer::operator()()
 hud::HP_info_drawer::~HP_info_drawer()
 {
     finish_request_ = true;
-    std::fill(&idle_[0], &idle_[THREAD_NUM], false);
+    fill(&idle_[0], &idle_[THREAD_NUM], false);
     cond_.notify_all();
     std::for_each(&drawer_[0], &drawer_[THREAD_NUM],
                   [](auto x)
@@ -1335,7 +1337,7 @@ void hud::HP_info_animator2::operator()(HP_info2 &hp_info, main_window &window)
 
     HP_info_drawer2_->set_count(count + 1);
     HP_info_drawer2_->set_charge_func_index(0);
-    std::fill(HP_info_drawer2_->get_idles(),
+    fill(HP_info_drawer2_->get_idles(),
               HP_info_drawer2_->get_idles() + HP_info_drawer2::THREAD_NUM,
               false);
     HP_info_drawer2_->get_idle_condition_variable().notify_all();
@@ -1428,7 +1430,7 @@ void hud::HP_info_animator::operator()(HP_info &hp_info, main_window &window)
 
     HP_info_drawer_->set_count(count + 1);
     HP_info_drawer_->set_charge_func_index(0);
-    std::fill(HP_info_drawer_->get_idles(),
+    fill(HP_info_drawer_->get_idles(),
               HP_info_drawer_->get_idles() + HP_info_drawer::THREAD_NUM,
               false);
     HP_info_drawer_->get_idle_condition_variable().notify_all();
@@ -1889,7 +1891,7 @@ void hud::HP_info_drawer2::operator()()
 hud::HP_info_drawer2::~HP_info_drawer2()
 {
     finish_request_ = true;
-    std::fill(&idle_[0], &idle_[THREAD_NUM], false);
+    fill(&idle_[0], &idle_[THREAD_NUM], false);
     cond_.notify_all();
     std::for_each(&drawer_[0], &drawer_[THREAD_NUM], [](auto x)
                   { x->join(); });
