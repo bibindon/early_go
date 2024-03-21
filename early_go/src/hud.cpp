@@ -10,6 +10,8 @@
 
 using std::vector;
 using std::string;
+using std::shared_ptr;
+using std::find_if;
 
 namespace early_go
 {
@@ -19,7 +21,7 @@ void create_bezier_curve(cv::Mat *image,
                          const int &line_thickness);
 
 const int hud::EDGE_CIRCLE_RADIUS{3};
-hud::hud(const std::shared_ptr<IDirect3DDevice9> &d3d_device)
+hud::hud(const shared_ptr<IDirect3DDevice9> &d3d_device)
     : d3d_device_{d3d_device}
 {
     LPD3DXSPRITE temp_sprite{nullptr};
@@ -35,9 +37,7 @@ void hud::create_round_rect(LPDIRECT3DTEXTURE9 &texture,
 {
     int width_next_pow_2{get_next_pow_2(size.x)};
     int height_next_pow_2{get_next_pow_2(size.y)};
-    cv::Mat round_rect{cv::Mat::zeros(width_next_pow_2,
-                                      width_next_pow_2,
-                                      CV_8UC4)};
+    cv::Mat round_rect{cv::Mat::zeros(width_next_pow_2, width_next_pow_2, CV_8UC4)};
 
     cv::circle(round_rect,
                cv::Point(EDGE_CIRCLE_RADIUS, EDGE_CIRCLE_RADIUS),
@@ -72,8 +72,7 @@ void hud::create_round_rect(LPDIRECT3DTEXTURE9 &texture,
     vector<uchar> cv_buffer{};
 
     cv_buffer.reserve(
-        static_cast<decltype(cv_buffer)::size_type>(round_rect.rows) *
-        round_rect.cols * 4);
+        static_cast<decltype(cv_buffer)::size_type>(round_rect.rows) * round_rect.cols * 4);
 
     cv::imencode(".bmp", round_rect, cv_buffer);
     if (FAILED(D3DXCreateTextureFromFileInMemory(
@@ -86,13 +85,13 @@ void hud::create_round_rect(LPDIRECT3DTEXTURE9 &texture,
     }
 }
 
-void hud::add_image(const string &id,
-                    const string &filename,
-                    const cv::Point &position)
+void hud::add_image(const string &id, const string &filename, const cv::Point &position)
 {
-    auto it{std::find_if(textures_.begin(), textures_.end(),
-                         [&](auto &&x)
-                         { return x.id_ == id; })};
+    auto it{find_if(textures_.begin(), textures_.end(),
+                    [&](auto &&x)
+                    {
+                        return x.id_ == id;
+                    })};
 
     if (it != textures_.end())
     {
@@ -120,17 +119,19 @@ void hud::add_image(const string &id,
     textures_.emplace_back(
         texture{
             id,
-            std::shared_ptr<IDirect3DTexture9>(temp_texture, custom_deleter{}),
+            shared_ptr<IDirect3DTexture9>(temp_texture, custom_deleter{}),
             cv::Rect(position.x, position.y,
                      width_next_pow_2, height_next_pow_2)});
 }
 
 void hud::delete_image(const string &id)
 {
-    decltype(textures_)::iterator it{
-        std::find_if(textures_.begin(), textures_.end(),
-                     [&](auto &&x)
-                     { return x.id_ == id; })};
+    decltype(textures_)::iterator it(
+        find_if(textures_.begin(), textures_.end(),
+                [&](auto &&x)
+                {
+                    return x.id_ == id;
+                }));
     if (it != textures_.end())
     {
         textures_.erase(it);
@@ -141,9 +142,11 @@ void hud::add_message_in_frame(const string &message_id,
                                const string &frame_id,
                                const string &message)
 {
-    auto it{std::find_if(textures_.begin(), textures_.end(),
-                         [&](auto &&x)
-                         { return x.id_ == frame_id; })};
+    auto it{find_if(textures_.begin(), textures_.end(),
+                    [&](auto &&x)
+                    {
+                        return x.id_ == frame_id;
+                    })};
 
     if (it == textures_.end())
     {
@@ -155,25 +158,23 @@ void hud::add_message_in_frame(const string &message_id,
                          it->rect_.width - 20, it->rect_.height - 20));
 }
 
-void hud::add_message(const string &id,
-                      const string &message,
-                      const cv::Rect &rect)
+void hud::add_message(const string &id, const string &message, const cv::Rect &rect)
 {
-    auto it{std::find_if(textures_.begin(), textures_.end(),
-                         [&](auto &&x)
-                         { return x.id_ == id; })};
+    auto it(find_if(textures_.begin(), textures_.end(),
+                    [&](auto &&x)
+                    {
+                        return x.id_ == id;
+                    }));
 
     if (it != textures_.end())
     {
         return;
     }
 
-    texture temp_texture{id,
-                         std::shared_ptr<IDirect3DTexture9>(),
-                         rect};
+    texture temp_texture{id, shared_ptr<IDirect3DTexture9>(), rect};
     textures_.emplace_back(temp_texture);
 
-    std::shared_ptr<message_writer> writer(
+    shared_ptr<message_writer> writer(
         std::make_shared<message_writer>(
             d3d_device_,
             textures_.back().value_,
@@ -197,27 +198,32 @@ void hud::add_message(const string &id,
 
 void hud::delete_message(const string &id)
 {
-    decltype(textures_)::iterator it{
-        std::find_if(textures_.begin(), textures_.end(),
-                     [&](auto &&x)
-                     { return x.id_ == id; })};
+    decltype(textures_)::iterator it(
+        find_if(textures_.begin(), textures_.end(),
+                [&](auto &&x)
+                {
+                    return x.id_ == id;
+                }));
     if (it != textures_.end())
     {
-        decltype(message_list_)::iterator message{
-            std::find_if(message_list_.begin(), message_list_.end(),
-                         [&](auto &&x)
-                         { return x.texture_ == it; })};
+        decltype(message_list_)::iterator message(
+            find_if(message_list_.begin(), message_list_.end(),
+                    [&](auto &&x)
+                    {
+                        return x.texture_ == it;
+                    }));
         message_list_.erase(message);
         textures_.erase(it);
     }
 }
 
-void hud::add_frame(
-    const string &id, const cv::Rect &rect, const cv::Scalar &color)
+void hud::add_frame(const string &id, const cv::Rect &rect, const cv::Scalar &color)
 {
-    auto it{std::find_if(textures_.begin(), textures_.end(),
-                         [&](auto &&x)
-                         { return x.id_ == id; })};
+    auto it(find_if(textures_.begin(), textures_.end(),
+                    [&](auto &&x)
+                    {
+                        return x.id_ == id;
+                    }));
 
     if (it != textures_.end())
     {
@@ -232,7 +238,7 @@ void hud::add_frame(
     textures_.emplace_back(
         texture{
             id,
-            std::shared_ptr<IDirect3DTexture9>(temp_texture, custom_deleter{}),
+            shared_ptr<IDirect3DTexture9>(temp_texture, custom_deleter{}),
             rect});
 
     frame_list_.emplace_back(
@@ -245,17 +251,21 @@ void hud::add_frame(
 
 void hud::delete_frame(const string &id)
 {
-    decltype(textures_)::iterator it{
-        std::find_if(textures_.begin(), textures_.end(),
-                     [&](auto &&x)
-                     { return x.id_ == id; })};
+    decltype(textures_)::iterator it(
+        find_if(textures_.begin(), textures_.end(),
+                [&](auto &&x)
+                {
+                    return x.id_ == id;
+                }));
 
     if (it != textures_.end())
     {
-        decltype(frame_list_)::iterator frame{
-            std::find_if(frame_list_.begin(), frame_list_.end(),
-                         [&](auto &&x)
-                         { return x.texture_ == it; })};
+        decltype(frame_list_)::iterator frame(
+            find_if(frame_list_.begin(), frame_list_.end(),
+                    [&](auto &&x)
+                    {
+                        return x.texture_ == it;
+                    }));
         frame->frame_animator_.reset(new_crt frame_animator_delete{});
     }
 }
@@ -369,7 +379,7 @@ void hud::show_HP_info()
         textures_.emplace_back(
             texture{
                 "early_HP",
-                std::shared_ptr<IDirect3DTexture9>(temp_texture, custom_deleter{}),
+                shared_ptr<IDirect3DTexture9>(temp_texture, custom_deleter{}),
                 cv::Rect(cv::Point(0), HP_info::TEXTURE_SIZE)});
 
         HP_info_.reset(new_crt HP_info{*this, --textures_.end(),
@@ -404,7 +414,7 @@ void hud::show_HP_info()
         textures_.emplace_back(
             texture{
                 "enemy_HP",
-                std::shared_ptr<IDirect3DTexture9>(temp_texture, custom_deleter{}),
+                shared_ptr<IDirect3DTexture9>(temp_texture, custom_deleter{}),
                 cv::Rect(cv::Point(0), HP_info::TEXTURE_SIZE)});
 
         HP_info2_.reset(new_crt HP_info2{*this, --textures_.end(),
@@ -413,7 +423,7 @@ void hud::show_HP_info()
 }
 
 void hud::HP_info_drawer::draw_text_stage_number_1(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+    const shared_ptr<message_writer_for_thread> &writer)
 {
     if (CIRCLE_2_IN_ANIMATION_END <= count_ &&
         count_ < CIRCLE_2_IN_ANIMATION_END + LETTER_FADE_DURATION)
@@ -441,7 +451,7 @@ void hud::HP_info_drawer::draw_text_stage_number_1(
 }
 
 void hud::HP_info_drawer::draw_text_stage_number_2(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+    const shared_ptr<message_writer_for_thread> &writer)
 {
     if (CIRCLE_2_IN_ANIMATION_END <= count_ &&
         count_ < CIRCLE_2_IN_ANIMATION_END + LETTER_FADE_DURATION)
@@ -467,8 +477,7 @@ void hud::HP_info_drawer::draw_text_stage_number_2(
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer::copy_text(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer::copy_text( const shared_ptr<message_writer_for_thread> &writer)
 {
     const cv::Point &start_point = writer->start_point_;
     const cv::Size &canvas_size = writer->canvas_size_;
@@ -485,8 +494,7 @@ void hud::HP_info_drawer::copy_text(
                        });
     }
 }
-void hud::HP_info_drawer::draw_text_time_1(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer::draw_text_time_1(const shared_ptr<message_writer_for_thread> &writer)
 {
     if (TIME_BAR_BACK_ANIMATION_END <= count_ &&
         count_ < TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION)
@@ -498,18 +506,15 @@ void hud::HP_info_drawer::draw_text_time_1(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]))};
 
-        writer->add_text("Time", BASE_POINT.at(5) + cv::Point(-18, -19),
-                         letter_color);
+        writer->add_text("Time", BASE_POINT.at(5) + cv::Point(-18, -19), letter_color);
     }
     else if (TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text("Time", BASE_POINT.at(5) + cv::Point(-18, -19),
-                         LETTER_COLOR);
+        writer->add_text("Time", BASE_POINT.at(5) + cv::Point(-18, -19), LETTER_COLOR);
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer::draw_text_time_2(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer::draw_text_time_2( const shared_ptr<message_writer_for_thread> &writer)
 {
     if (TIME_BAR_BACK_ANIMATION_END <= count_ &&
         count_ < TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION)
@@ -521,18 +526,15 @@ void hud::HP_info_drawer::draw_text_time_2(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]))};
 
-        writer->add_text("99", BASE_POINT.at(5) + cv::Point(-12, -2),
-                         letter_color);
+        writer->add_text("99", BASE_POINT.at(5) + cv::Point(-12, -2), letter_color);
     }
     else if (TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text("99", BASE_POINT.at(5) + cv::Point(-12, -2),
-                         LETTER_COLOR);
+        writer->add_text("99", BASE_POINT.at(5) + cv::Point(-12, -2), LETTER_COLOR);
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer::draw_text_strength_1(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer::draw_text_strength_1(const shared_ptr<message_writer_for_thread> &writer)
 {
     string text{""};
     if (!main_chara_ || main_chara_->get_normal_move().empty())
@@ -541,9 +543,8 @@ void hud::HP_info_drawer::draw_text_strength_1(
     }
     text = main_chara_->get_normal_move().at(0);
     text += ":";
-    text += std::to_string(main_chara_->get_normal_move_power(
-                                          main_chara_->get_normal_move().at(0))
-                               .first);
+    text += std::to_string(
+        main_chara_->get_normal_move_power( main_chara_->get_normal_move().at(0)) .first);
     if (TIME_BAR_BACK_ANIMATION_START + 5 <= count_ &&
         count_ < TIME_BAR_BACK_ANIMATION_START + 5 + LETTER_FADE_DURATION)
     {
@@ -559,13 +560,11 @@ void hud::HP_info_drawer::draw_text_strength_1(
     }
     else if (TIME_BAR_BACK_ANIMATION_START + 5 + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, -60 - 9),
-                         LETTER_COLOR);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, -60 - 9), LETTER_COLOR);
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer::draw_text_strength_2(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer::draw_text_strength_2(const shared_ptr<message_writer_for_thread> &writer)
 {
     string text{""};
     if (!main_chara_ || main_chara_->get_normal_move().size() < 2)
@@ -574,9 +573,8 @@ void hud::HP_info_drawer::draw_text_strength_2(
     }
     text = main_chara_->get_normal_move().at(1);
     text += ":";
-    text += std::to_string(main_chara_->get_normal_move_power(
-                                          main_chara_->get_normal_move().at(1))
-                               .first);
+    text += std::to_string(
+        main_chara_->get_normal_move_power( main_chara_->get_normal_move().at(1)) .first);
     if (TIME_BAR_BACK_ANIMATION_START + 10 <= count_ &&
         count_ < TIME_BAR_BACK_ANIMATION_START + 10 + LETTER_FADE_DURATION)
     {
@@ -587,18 +585,15 @@ void hud::HP_info_drawer::draw_text_strength_2(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]))};
 
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(50, -9),
-                         letter_color);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(50, -9), letter_color);
     }
     else if (TIME_BAR_BACK_ANIMATION_START + 5 + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(50, -9),
-                         LETTER_COLOR);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(50, -9), LETTER_COLOR);
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer::draw_text_strength_3(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer::draw_text_strength_3(const shared_ptr<message_writer_for_thread> &writer)
 {
     string text{""};
     if (!main_chara_ || main_chara_->get_normal_move().size() < 3)
@@ -607,9 +602,8 @@ void hud::HP_info_drawer::draw_text_strength_3(
     }
     text = main_chara_->get_normal_move().at(2);
     text += ":";
-    text += std::to_string(main_chara_->get_normal_move_power(
-                                          main_chara_->get_normal_move().at(2))
-                               .first);
+    text += std::to_string(
+        main_chara_->get_normal_move_power( main_chara_->get_normal_move().at(2)) .first);
     if (TIME_BAR_BACK_ANIMATION_START + 15 <= count_ &&
         count_ < TIME_BAR_BACK_ANIMATION_START + 15 + LETTER_FADE_DURATION)
     {
@@ -620,18 +614,15 @@ void hud::HP_info_drawer::draw_text_strength_3(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]))};
 
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, 60 - 9),
-                         letter_color);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, 60 - 9), letter_color);
     }
     else if (TIME_BAR_BACK_ANIMATION_START + 5 + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, 60 - 9),
-                         LETTER_COLOR);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, 60 - 9), LETTER_COLOR);
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer::draw_text_strength_4(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer::draw_text_strength_4(const shared_ptr<message_writer_for_thread> &writer)
 {
     string text{""};
     if (!main_chara_ || main_chara_->get_normal_move().size() < 4)
@@ -640,9 +631,8 @@ void hud::HP_info_drawer::draw_text_strength_4(
     }
     text = main_chara_->get_normal_move().at(3);
     text += ":";
-    text += std::to_string(main_chara_->get_normal_move_power(
-                                          main_chara_->get_normal_move().at(3))
-                               .first);
+    text += std::to_string(
+        main_chara_->get_normal_move_power( main_chara_->get_normal_move().at(3)) .first);
     if (TIME_BAR_BACK_ANIMATION_START + 20 <= count_ &&
         count_ < TIME_BAR_BACK_ANIMATION_START + 20 + LETTER_FADE_DURATION)
     {
@@ -653,21 +643,17 @@ void hud::HP_info_drawer::draw_text_strength_4(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]))};
 
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-140, -9),
-                         letter_color);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-140, -9), letter_color);
     }
     else if (TIME_BAR_BACK_ANIMATION_START + 5 + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-140, -9),
-                         LETTER_COLOR);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-140, -9), LETTER_COLOR);
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer::draw_text_HP_1(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer::draw_text_HP_1( const shared_ptr<message_writer_for_thread> &writer)
 {
-    if (LINE_4_ANIMATION_END <= count_ &&
-        count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION)
+    if (LINE_4_ANIMATION_END <= count_ && count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION)
     {
         const int count{count_ - LINE_4_ANIMATION_END};
         DWORD letter_color = D3DCOLOR_ARGB(
@@ -676,18 +662,15 @@ void hud::HP_info_drawer::draw_text_HP_1(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]));
 
-        writer->add_text("HP", BASE_POINT.at(4) + cv::Point(-10, -30),
-                         letter_color);
+        writer->add_text("HP", BASE_POINT.at(4) + cv::Point(-10, -30), letter_color);
     }
     else if (LINE_4_ANIMATION_END + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text("HP", BASE_POINT.at(4) + cv::Point(-10, -30),
-                         LETTER_COLOR);
+        writer->add_text("HP", BASE_POINT.at(4) + cv::Point(-10, -30), LETTER_COLOR);
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer::draw_text_HP_2(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer::draw_text_HP_2( const shared_ptr<message_writer_for_thread> &writer)
 {
     if (!main_chara_)
     {
@@ -696,8 +679,7 @@ void hud::HP_info_drawer::draw_text_HP_2(
     const int health = main_chara_->get_health();
     const string sz_health{boost::lexical_cast<string>(health)};
 
-    if (LINE_4_ANIMATION_END <= count_ &&
-        count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION)
+    if (LINE_4_ANIMATION_END <= count_ && count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION)
     {
         const int count{count_ - LINE_4_ANIMATION_END};
         DWORD letter_color = D3DCOLOR_ARGB(
@@ -706,29 +688,25 @@ void hud::HP_info_drawer::draw_text_HP_2(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]));
 
-        writer->add_text(sz_health, BASE_POINT.at(4) + cv::Point(-33, -10),
-                         letter_color);
+        writer->add_text(sz_health, BASE_POINT.at(4) + cv::Point(-33, -10), letter_color);
     }
     else if (LINE_4_ANIMATION_END + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text(sz_health, BASE_POINT.at(4) + cv::Point(-33, -10),
-                         LETTER_COLOR);
+        writer->add_text(sz_health, BASE_POINT.at(4) + cv::Point(-33, -10), LETTER_COLOR);
     }
     copy_text(writer);
 }
 void hud::HP_info_drawer::draw_text_HP_3(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+    const shared_ptr<message_writer_for_thread> &writer)
 {
     if (!main_chara_)
     {
         return;
     }
     const int max_health = main_chara_->get_max_health();
-    const string sz_max_health{
-        "/ " + boost::lexical_cast<string>(max_health)};
+    const string sz_max_health{ "/ " + boost::lexical_cast<string>(max_health)};
 
-    if (LINE_4_ANIMATION_END <= count_ &&
-        count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION)
+    if (LINE_4_ANIMATION_END <= count_ && count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION)
     {
         const int count{count_ - LINE_4_ANIMATION_END};
         DWORD letter_color = D3DCOLOR_ARGB(
@@ -737,13 +715,11 @@ void hud::HP_info_drawer::draw_text_HP_3(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]));
 
-        writer->add_text(sz_max_health, BASE_POINT.at(4) + cv::Point(-20, 10),
-                         letter_color);
+        writer->add_text(sz_max_health, BASE_POINT.at(4) + cv::Point(-20, 10), letter_color);
     }
     else if (LINE_4_ANIMATION_END + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text(sz_max_health, BASE_POINT.at(4) + cv::Point(-20, 10),
-                         LETTER_COLOR);
+        writer->add_text(sz_max_health, BASE_POINT.at(4) + cv::Point(-20, 10), LETTER_COLOR);
     }
     copy_text(writer);
 }
@@ -760,92 +736,83 @@ void hud::HP_info_drawer::operator()()
     funcs_.push_back([&] { draw_line_5(); });
     funcs_.push_back([&] { draw_circle_2(); });
     funcs_.push_back([&] { draw_HP_bar(); });
-    std::shared_ptr<message_writer_for_thread> temp_writer{
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{100, 20}}};
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_stage_number_1(temp_writer); });
+    shared_ptr<message_writer_for_thread> temp_writer{
+        new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{100, 20}}};
+    funcs_.push_back([&, temp_writer] { draw_text_stage_number_1(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_stage_number_2(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_stage_number_2(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{40, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_time_1(temp_writer); });
+    temp_writer.reset(new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{40, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_time_1(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 30, cv::Size{30, 30}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_time_2(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 30, cv::Size{30, 30}});
+    funcs_.push_back([&, temp_writer] { draw_text_time_2(temp_writer); }); 
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_strength_1(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_strength_1(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_strength_2(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_strength_2(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_strength_3(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_strength_3(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_strength_4(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_strength_4(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_HP_1(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_HP_1(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{50, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_HP_2(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{50, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_HP_2(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{70, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_HP_3(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{70, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_HP_3(temp_writer); });
 
     for (int i = 0; i < THREAD_NUM; ++i)
     {
-        drawer_[i].reset(new std::thread([&, i]
-                                         {
-  while(true) {
-    if (finish_request_) {
-      break;
-    }
-    int charge_func_index = 0;
-    // block scope for mutex
-    {
-      std::lock_guard<std::mutex> lock(charge_func_index_mtx_);
-      charge_func_index = charge_func_index_;
+        drawer_[i].reset(new_crt std::thread(
+            [&, i]
+            {
+                while(true)
+                {
+                    if (finish_request_)
+                    {
+                        break;
+                    }
+                    int charge_func_index = 0;
+                    // block scope for mutex
+                    {
+                        std::lock_guard<std::mutex> lock(charge_func_index_mtx_);
+                        charge_func_index = charge_func_index_;
 
-//          early_go::log_liner() << "i: " << i
-//              << "  charge_func_index_mtx_: " << charge_func_index;
-      if (charge_func_index < funcs_.size()) {
-        ++charge_func_index_;
-      }
-    }
-    if (charge_func_index < funcs_.size()) {
-      funcs_[charge_func_index]();
-    } else {
-      // block scope for mutex
-      {
-        std::unique_lock<std::mutex> lock(idle_mtx_);
-        idle_[i] = true;
-        cond_.wait(lock, [this, i]{return idle_[i] == false;});
-      }
-    }
-  } }));
+                        //          early_go::log_liner() << "i: " << i
+                        //              << "  charge_func_index_mtx_: " << charge_func_index;
+                        if (charge_func_index < funcs_.size())
+                        {
+                            ++charge_func_index_;
+                        }
+                    }
+                    if (charge_func_index < funcs_.size())
+                    {
+                        funcs_[charge_func_index]();
+                    }
+                    else
+                    {
+                        // block scope for mutex
+                        {
+                            std::unique_lock<std::mutex> lock(idle_mtx_);
+                            idle_[i] = true;
+                            cond_.wait(lock,
+                                       [this, i]
+                                       {
+                                           return idle_[i] == false;
+                                       });
+                        }
+                    }
+                }
+            }));
     }
 }
 
@@ -854,8 +821,11 @@ hud::HP_info_drawer::~HP_info_drawer()
     finish_request_ = true;
     std::fill(&idle_[0], &idle_[THREAD_NUM], false);
     cond_.notify_all();
-    std::for_each(&drawer_[0], &drawer_[THREAD_NUM], [](auto x)
-                  { x->join(); });
+    std::for_each(&drawer_[0], &drawer_[THREAD_NUM],
+                  [](auto x)
+                  {
+                      x->join();
+                  });
 }
 
 hud::HP_info_drawer::HP_info_drawer()
@@ -921,8 +891,7 @@ void hud::HP_info_drawer::draw_line_2()
     {
         const int count{count_ - LINE_2_ANIMATION_START};
         const cv::Point LINE_2_LENGTH{LINE_2_DEST - LINE_2_START};
-        const cv::Point LINE_2_LENGTH_DELTA{
-            LINE_2_LENGTH * count / LINE_2_ANIMATION_LENGTH};
+        const cv::Point LINE_2_LENGTH_DELTA{LINE_2_LENGTH * count / LINE_2_ANIMATION_LENGTH};
 
         cv::line(image_,
                  LINE_2_START,
@@ -971,8 +940,7 @@ void hud::HP_info_drawer::draw_line_4()
     {
         const int count{count_ - LINE_4_ANIMATION_START};
         const cv::Point LINE_4_LENGTH{LINE_4_DEST - LINE_4_START};
-        const cv::Point LINE_4_LENGTH_DELTA{
-            LINE_4_LENGTH * count / LINE_4_ANIMATION_LENGTH};
+        const cv::Point LINE_4_LENGTH_DELTA{LINE_4_LENGTH * count / LINE_4_ANIMATION_LENGTH};
         cv::line(image_,
                  LINE_4_START,
                  LINE_4_START + LINE_4_LENGTH_DELTA,
@@ -992,8 +960,7 @@ void hud::HP_info_drawer::draw_line_5()
     {
         const int count{count_ - LINE_3_ANIMATION_START};
         const cv::Point LINE_5_LENGTH{LINE_5_DEST - LINE_5_START};
-        const cv::Point LINE_5_LENGTH_DELTA{
-            LINE_5_LENGTH * count / LINE_5_ANIMATION_LENGTH};
+        const cv::Point LINE_5_LENGTH_DELTA{LINE_5_LENGTH * count / LINE_5_ANIMATION_LENGTH};
 
         cv::line(image_,
                  LINE_5_START,
@@ -1043,8 +1010,7 @@ void hud::HP_info_drawer::draw_circle_2()
 }
 void hud::HP_info_drawer::draw_HP_bar()
 {
-    if (HP_BAR_BACK_ANIMATION_START <= count_ &&
-        count_ <= HP_BAR_BACK_ANIMATION_END)
+    if (HP_BAR_BACK_ANIMATION_START <= count_ && count_ <= HP_BAR_BACK_ANIMATION_END)
     {
         const int count{count_ - HP_BAR_BACK_ANIMATION_START};
         cv::ellipse(image_,
@@ -1072,8 +1038,7 @@ void hud::HP_info_drawer::draw_HP_bar()
                     cv::Scalar(0), -1, CV_AA);
     }
     // HP bar foreground
-    if (HP_BAR_FORE_ANIMATION_START <= count_ &&
-        count_ <= HP_BAR_FORE_ANIMATION_END)
+    if (HP_BAR_FORE_ANIMATION_START <= count_ && count_ <= HP_BAR_FORE_ANIMATION_END)
     {
         const int count{count_ - HP_BAR_FORE_ANIMATION_START};
         cv::ellipse(image_,
@@ -1127,8 +1092,7 @@ void hud::HP_info_drawer::draw_Time_bar()
         return;
     }
     // Strength bar
-    if (TIME_BAR_BACK_ANIMATION_START <= count_ &&
-        count_ <= TIME_BAR_BACK_ANIMATION_END)
+    if (TIME_BAR_BACK_ANIMATION_START <= count_ && count_ <= TIME_BAR_BACK_ANIMATION_END)
     {
         const int count = count_ - TIME_BAR_BACK_ANIMATION_START;
 
@@ -1201,8 +1165,7 @@ void hud::HP_info_drawer::draw_Time_bar()
                     cv::Scalar{0}, -1, CV_AA);
     }
 
-    if (TIME_BAR_FORE_ANIMATION_START <= count_ &&
-        count_ <= TIME_BAR_FORE_ANIMATION_END)
+    if (TIME_BAR_FORE_ANIMATION_START <= count_ && count_ <= TIME_BAR_FORE_ANIMATION_END)
     {
         const int count{count_ - TIME_BAR_FORE_ANIMATION_START};
 
@@ -1279,39 +1242,40 @@ void hud::HP_info_drawer::draw_Time_bar()
 void hud::remove_HP_info()
 {
     {
-        decltype(textures_)::iterator it{
-            std::find_if(textures_.begin(), textures_.end(),
-                         [&](auto &&x)
-                         { return x.id_ == "early_HP"; })};
+        decltype(textures_)::iterator it(
+            find_if(textures_.begin(), textures_.end(),
+                    [&](auto &&x)
+                    {
+                        return x.id_ == "early_HP";
+                    }));
         if (it != textures_.end())
         {
             textures_.erase(it);
         }
-
         HP_info_.reset();
     }
-
     {
-        decltype(textures_)::iterator it{
-            std::find_if(textures_.begin(), textures_.end(),
-                         [&](auto &&x)
-                         { return x.id_ == "enemy_HP"; })};
+        decltype(textures_)::iterator it(
+            find_if(textures_.begin(), textures_.end(),
+                    [&](auto &&x)
+                    {
+                        return x.id_ == "enemy_HP";
+                    }));
         if (it != textures_.end())
         {
             textures_.erase(it);
         }
-
         HP_info2_.reset();
     }
 }
 
 hud::HP_info_animator::HP_info_animator()
-    : HP_info_drawer_{new HP_info_drawer{}}
+    : HP_info_drawer_{new_crt HP_info_drawer{}}
 {
     (*HP_info_drawer_)();
 }
 hud::HP_info_animator2::HP_info_animator2()
-    : HP_info_drawer2_{new HP_info_drawer2{}}
+    : HP_info_drawer2_{new_crt HP_info_drawer2{}}
 {
     (*HP_info_drawer2_)();
 }
@@ -1323,7 +1287,9 @@ void hud::HP_info_animator2::operator()(HP_info2 &hp_info, main_window &window)
         bool all_idle = std::all_of(HP_info_drawer2_->get_idles(),
                                     HP_info_drawer2_->get_idles() + HP_info_drawer2::THREAD_NUM,
                                     [](const auto x)
-                                    { return x; });
+                                    {
+                                        return x;
+                                    });
         if (all_idle)
         {
             break;
@@ -1342,8 +1308,8 @@ void hud::HP_info_animator2::operator()(HP_info2 &hp_info, main_window &window)
 
     hp_info.texture_->value_->UnlockRect(0);
 
-    const std::shared_ptr<character> &main_chara{window.get_main_character()};
-    const std::shared_ptr<character> &enemy{window.get_enemy_character()};
+    const shared_ptr<character> &main_chara{window.get_main_character()};
+    const shared_ptr<character> &enemy{window.get_enemy_character()};
 
     HP_info_drawer2_->main_chara_ = main_chara;
     HP_info_drawer2_->enemy_ = enemy;
@@ -1357,8 +1323,7 @@ void hud::HP_info_animator2::operator()(HP_info2 &hp_info, main_window &window)
     D3DXVECTOR3 position{enemy->get_position()};
     position.y += 1.0f;
     const cv::Point coodinate{window.get_screen_coodinate(position)};
-    const cv::Point CENTER{HP_info2::TEXTURE_SIZE.width / 2,
-                           HP_info2::TEXTURE_SIZE.height / 2};
+    const cv::Point CENTER{HP_info2::TEXTURE_SIZE.width / 2, HP_info2::TEXTURE_SIZE.height / 2};
     hp_info.texture_->rect_.x = coodinate.x - CENTER.x;
     hp_info.texture_->rect_.y = coodinate.y - CENTER.y;
 
@@ -1416,8 +1381,7 @@ void hud::HP_info_animator::operator()(HP_info &hp_info, main_window &window)
     {
         bool all_idle = std::all_of(HP_info_drawer_->get_idles(),
                                     HP_info_drawer_->get_idles() + HP_info_drawer::THREAD_NUM,
-                                    [](const auto x)
-                                    { return x; });
+                                    [](const auto x) { return x; });
         if (all_idle)
         {
             break;
@@ -1436,8 +1400,8 @@ void hud::HP_info_animator::operator()(HP_info &hp_info, main_window &window)
 
     hp_info.texture_->value_->UnlockRect(0);
 
-    const std::shared_ptr<character> &main_chara{window.get_main_character()};
-    const std::shared_ptr<character> &enemy{window.get_enemy_character()};
+    const shared_ptr<character> &main_chara{window.get_main_character()};
+    const shared_ptr<character> &enemy{window.get_enemy_character()};
 
     HP_info_drawer_->main_chara_ = main_chara;
     HP_info_drawer_->enemy_ = enemy;
@@ -1511,8 +1475,7 @@ void hud::operator()(main_window &a_main_window)
     }
 
     sprite_->Begin(D3DXSPRITE_ALPHABLEND);
-    for (decltype(textures_)::iterator it = textures_.begin();
-         it != textures_.end(); ++it)
+    for (decltype(textures_)::iterator it = textures_.begin(); it != textures_.end(); ++it)
     {
         RECT rect = {0, 0, it->rect_.width, it->rect_.height};
         D3DXVECTOR3 center(0, 0, 0);
@@ -1525,7 +1488,7 @@ void hud::operator()(main_window &a_main_window)
     sprite_->End();
 }
 void hud::HP_info_drawer2::draw_text_stage_number_1(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+    const shared_ptr<message_writer_for_thread> &writer)
 {
     if (CIRCLE_2_IN_ANIMATION_END <= count_ &&
         count_ < CIRCLE_2_IN_ANIMATION_END + LETTER_FADE_DURATION)
@@ -1553,7 +1516,7 @@ void hud::HP_info_drawer2::draw_text_stage_number_1(
 }
 
 void hud::HP_info_drawer2::draw_text_stage_number_2(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+    const shared_ptr<message_writer_for_thread> &writer)
 {
     if (CIRCLE_2_IN_ANIMATION_END <= count_ &&
         count_ < CIRCLE_2_IN_ANIMATION_END + LETTER_FADE_DURATION)
@@ -1579,8 +1542,7 @@ void hud::HP_info_drawer2::draw_text_stage_number_2(
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer2::copy_text(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer2::copy_text(const shared_ptr<message_writer_for_thread> &writer)
 {
     const cv::Point &start_point = writer->start_point_;
     const cv::Size &canvas_size = writer->canvas_size_;
@@ -1589,7 +1551,10 @@ void hud::HP_info_drawer2::copy_text(
     {
         DWORD *row = image_.ptr<DWORD>(static_cast<int>(j + start_point.y));
         row += start_point.x;
-        std::transform(text_image_[j].cbegin(), text_image_[j].cend(), row, row,
+        std::transform(text_image_[j].cbegin(),
+                       text_image_[j].cend(),
+                       row,
+                       row,
                        [](const auto &src, const auto &dst)
                        {
                            return (src & 0xff000000UL) != 0 ? src : dst;
@@ -1598,7 +1563,7 @@ void hud::HP_info_drawer2::copy_text(
     }
 }
 void hud::HP_info_drawer2::draw_text_time_1(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+    const shared_ptr<message_writer_for_thread> &writer)
 {
     if (TIME_BAR_BACK_ANIMATION_END <= count_ &&
         count_ < TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION)
@@ -1610,18 +1575,16 @@ void hud::HP_info_drawer2::draw_text_time_1(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]))};
 
-        writer->add_text("Time", BASE_POINT.at(5) + cv::Point(-18, -19),
-                         letter_color);
+        writer->add_text("Time", BASE_POINT.at(5) + cv::Point(-18, -19), letter_color);
     }
     else if (TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text("Time", BASE_POINT.at(5) + cv::Point(-18, -19),
-                         LETTER_COLOR);
+        writer->add_text("Time", BASE_POINT.at(5) + cv::Point(-18, -19), LETTER_COLOR);
     }
     copy_text(writer);
 }
 void hud::HP_info_drawer2::draw_text_time_2(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+    const shared_ptr<message_writer_for_thread> &writer)
 {
     if (TIME_BAR_BACK_ANIMATION_END <= count_ &&
         count_ < TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION)
@@ -1633,18 +1596,16 @@ void hud::HP_info_drawer2::draw_text_time_2(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]))};
 
-        writer->add_text("99", BASE_POINT.at(5) + cv::Point(-12, -2),
-                         letter_color);
+        writer->add_text("99", BASE_POINT.at(5) + cv::Point(-12, -2), letter_color);
     }
     else if (TIME_BAR_BACK_ANIMATION_END + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text("99", BASE_POINT.at(5) + cv::Point(-12, -2),
-                         LETTER_COLOR);
+        writer->add_text("99", BASE_POINT.at(5) + cv::Point(-12, -2), LETTER_COLOR);
     }
     copy_text(writer);
 }
 void hud::HP_info_drawer2::draw_text_strength_1(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+    const shared_ptr<message_writer_for_thread> &writer)
 {
     string text{""};
     if (!main_chara_ || main_chara_->get_normal_move().empty())
@@ -1653,9 +1614,9 @@ void hud::HP_info_drawer2::draw_text_strength_1(
     }
     text = main_chara_->get_normal_move().at(0);
     text += ":";
-    text += std::to_string(main_chara_->get_normal_move_power(
-                                          main_chara_->get_normal_move().at(0))
-                               .first);
+    text += std::to_string(
+        main_chara_->get_normal_move_power(main_chara_->get_normal_move().at(0)).first);
+
     if (TIME_BAR_BACK_ANIMATION_START + 5 <= count_ &&
         count_ < TIME_BAR_BACK_ANIMATION_START + 5 + LETTER_FADE_DURATION)
     {
@@ -1666,18 +1627,16 @@ void hud::HP_info_drawer2::draw_text_strength_1(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]))};
 
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, -60 - 9),
-                         letter_color);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, -60 - 9), letter_color);
     }
     else if (TIME_BAR_BACK_ANIMATION_START + 5 + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, -60 - 9),
-                         LETTER_COLOR);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, -60 - 9), LETTER_COLOR);
     }
     copy_text(writer);
 }
 void hud::HP_info_drawer2::draw_text_strength_2(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+    const shared_ptr<message_writer_for_thread> &writer)
 {
     string text{""};
     if (!main_chara_ || main_chara_->get_normal_move().size() < 2)
@@ -1686,9 +1645,8 @@ void hud::HP_info_drawer2::draw_text_strength_2(
     }
     text = main_chara_->get_normal_move().at(1);
     text += ":";
-    text += std::to_string(main_chara_->get_normal_move_power(
-                                          main_chara_->get_normal_move().at(1))
-                               .first);
+    text += std::to_string(
+        main_chara_->get_normal_move_power( main_chara_->get_normal_move().at(1)).first);
     if (TIME_BAR_BACK_ANIMATION_START + 10 <= count_ &&
         count_ < TIME_BAR_BACK_ANIMATION_START + 10 + LETTER_FADE_DURATION)
     {
@@ -1699,18 +1657,16 @@ void hud::HP_info_drawer2::draw_text_strength_2(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]))};
 
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(50, -9),
-                         letter_color);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(50, -9), letter_color);
     }
     else if (TIME_BAR_BACK_ANIMATION_START + 5 + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(50, -9),
-                         LETTER_COLOR);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(50, -9), LETTER_COLOR);
     }
     copy_text(writer);
 }
 void hud::HP_info_drawer2::draw_text_strength_3(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+    const shared_ptr<message_writer_for_thread> &writer)
 {
     string text{""};
     if (!main_chara_ || main_chara_->get_normal_move().size() < 3)
@@ -1719,9 +1675,8 @@ void hud::HP_info_drawer2::draw_text_strength_3(
     }
     text = main_chara_->get_normal_move().at(2);
     text += ":";
-    text += std::to_string(main_chara_->get_normal_move_power(
-                                          main_chara_->get_normal_move().at(2))
-                               .first);
+    text += std::to_string(
+        main_chara_->get_normal_move_power(main_chara_->get_normal_move().at(2)).first);
     if (TIME_BAR_BACK_ANIMATION_START + 15 <= count_ &&
         count_ < TIME_BAR_BACK_ANIMATION_START + 15 + LETTER_FADE_DURATION)
     {
@@ -1732,18 +1687,16 @@ void hud::HP_info_drawer2::draw_text_strength_3(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]))};
 
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, 60 - 9),
-                         letter_color);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, 60 - 9), letter_color);
     }
     else if (TIME_BAR_BACK_ANIMATION_START + 5 + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, 60 - 9),
-                         LETTER_COLOR);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-30, 60 - 9), LETTER_COLOR);
     }
     copy_text(writer);
 }
 void hud::HP_info_drawer2::draw_text_strength_4(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+    const shared_ptr<message_writer_for_thread> &writer)
 {
     string text{""};
     if (!main_chara_ || main_chara_->get_normal_move().size() < 4)
@@ -1752,9 +1705,8 @@ void hud::HP_info_drawer2::draw_text_strength_4(
     }
     text = main_chara_->get_normal_move().at(3);
     text += ":";
-    text += std::to_string(main_chara_->get_normal_move_power(
-                                          main_chara_->get_normal_move().at(3))
-                               .first);
+    text += std::to_string(
+        main_chara_->get_normal_move_power(main_chara_->get_normal_move().at(3)).first);
     if (TIME_BAR_BACK_ANIMATION_START + 20 <= count_ &&
         count_ < TIME_BAR_BACK_ANIMATION_START + 20 + LETTER_FADE_DURATION)
     {
@@ -1765,21 +1717,17 @@ void hud::HP_info_drawer2::draw_text_strength_4(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]))};
 
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-140, -9),
-                         letter_color);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-140, -9), letter_color);
     }
     else if (TIME_BAR_BACK_ANIMATION_START + 5 + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-140, -9),
-                         LETTER_COLOR);
+        writer->add_text(text, BASE_POINT.at(5) + cv::Point(-140, -9), LETTER_COLOR);
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer2::draw_text_HP_1(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer2::draw_text_HP_1( const shared_ptr<message_writer_for_thread> &writer)
 {
-    if (LINE_4_ANIMATION_END <= count_ &&
-        count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION)
+    if (LINE_4_ANIMATION_END <= count_ && count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION)
     {
         const int count{count_ - LINE_4_ANIMATION_END};
         DWORD letter_color = D3DCOLOR_ARGB(
@@ -1788,18 +1736,15 @@ void hud::HP_info_drawer2::draw_text_HP_1(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]));
 
-        writer->add_text("HP", BASE_POINT.at(4) + cv::Point(-10, -30),
-                         letter_color);
+        writer->add_text("HP", BASE_POINT.at(4) + cv::Point(-10, -30), letter_color);
     }
     else if (LINE_4_ANIMATION_END + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text("HP", BASE_POINT.at(4) + cv::Point(-10, -30),
-                         LETTER_COLOR);
+        writer->add_text("HP", BASE_POINT.at(4) + cv::Point(-10, -30), LETTER_COLOR);
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer2::draw_text_HP_2(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer2::draw_text_HP_2(const shared_ptr<message_writer_for_thread> &writer)
 {
     if (!main_chara_ || !enemy_)
     {
@@ -1818,26 +1763,22 @@ void hud::HP_info_drawer2::draw_text_HP_2(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]));
 
-        writer->add_text(sz_health, BASE_POINT.at(4) + cv::Point(-33, -10),
-                         letter_color);
+        writer->add_text(sz_health, BASE_POINT.at(4) + cv::Point(-33, -10), letter_color);
     }
     else if (LINE_4_ANIMATION_END + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text(sz_health, BASE_POINT.at(4) + cv::Point(-33, -10),
-                         LETTER_COLOR);
+        writer->add_text(sz_health, BASE_POINT.at(4) + cv::Point(-33, -10), LETTER_COLOR);
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer2::draw_text_HP_3(
-    const std::shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer2::draw_text_HP_3(const shared_ptr<message_writer_for_thread> &writer)
 {
     if (!main_chara_ || !enemy_)
     {
         return;
     }
     const int max_health = enemy_->get_max_health();
-    const string sz_max_health{
-        "/ " + boost::lexical_cast<string>(max_health)};
+    const string sz_max_health{"/ " + boost::lexical_cast<string>(max_health)};
 
     if (LINE_4_ANIMATION_END <= count_ &&
         count_ < LINE_4_ANIMATION_END + LETTER_FADE_DURATION)
@@ -1849,126 +1790,99 @@ void hud::HP_info_drawer2::draw_text_HP_3(
             static_cast<int>(BASIC_COLOR[1]),
             static_cast<int>(BASIC_COLOR[0]));
 
-        writer->add_text(sz_max_health, BASE_POINT.at(4) + cv::Point(-20, 10),
-                         letter_color);
+        writer->add_text(sz_max_health, BASE_POINT.at(4) + cv::Point(-20, 10), letter_color);
     }
     else if (LINE_4_ANIMATION_END + LETTER_FADE_DURATION <= count_)
     {
-        writer->add_text(sz_max_health, BASE_POINT.at(4) + cv::Point(-20, 10),
-                         LETTER_COLOR);
+        writer->add_text(sz_max_health, BASE_POINT.at(4) + cv::Point(-20, 10), LETTER_COLOR);
     }
     copy_text(writer);
 }
 void hud::HP_info_drawer2::operator()()
 {
-    funcs_.push_back([&]
-                     { draw_Time_bar(); });
-    funcs_.push_back([&]
-                     { draw_center_circle(); });
-    funcs_.push_back([&]
-                     { draw_line_1(); });
-    funcs_.push_back([&]
-                     { draw_curve_1(); });
-    funcs_.push_back([&]
-                     { draw_line_2(); });
-    funcs_.push_back([&]
-                     { draw_line_3(); });
-    funcs_.push_back([&]
-                     { draw_curve_2(); });
-    funcs_.push_back([&]
-                     { draw_line_4(); });
-    funcs_.push_back([&]
-                     { draw_line_5(); });
-    funcs_.push_back([&]
-                     { draw_circle_2(); });
-    funcs_.push_back([&]
-                     { draw_HP_bar(); });
-    std::shared_ptr<message_writer_for_thread> temp_writer{
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{100, 20}}};
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_stage_number_1(temp_writer); });
+    funcs_.push_back([&] { draw_Time_bar(); });
+    funcs_.push_back([&] { draw_center_circle(); });
+    funcs_.push_back([&] { draw_line_1(); });
+    funcs_.push_back([&] { draw_curve_1(); });
+    funcs_.push_back([&] { draw_line_2(); });
+    funcs_.push_back([&] { draw_line_3(); });
+    funcs_.push_back([&] { draw_curve_2(); });
+    funcs_.push_back([&] { draw_line_4(); });
+    funcs_.push_back([&] { draw_line_5(); });
+    funcs_.push_back([&] { draw_circle_2(); });
+    funcs_.push_back([&] { draw_HP_bar(); });
+    shared_ptr<message_writer_for_thread> temp_writer{
+        new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{100, 20}}};
+    funcs_.push_back([&, temp_writer] { draw_text_stage_number_1(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_stage_number_2(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_stage_number_2(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{40, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_time_1(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{40, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_time_1(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 30, cv::Size{30, 30}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_time_2(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 30, cv::Size{30, 30}});
+    funcs_.push_back([&, temp_writer] { draw_text_time_2(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_strength_1(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_strength_1(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_strength_2(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_strength_2(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_strength_3(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_strength_3(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_strength_4(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_strength_4(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_HP_1(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_HP_1(temp_writer); });
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{50, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_HP_2(temp_writer); });
+    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{50, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_HP_2(temp_writer); }); 
 
-    temp_writer.reset(
-        new message_writer_for_thread{"游ゴシック", 20, cv::Size{70, 20}});
-    funcs_.push_back([&, temp_writer]
-                     { draw_text_HP_3(temp_writer); });
+    temp_writer.reset(new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{70, 20}});
+    funcs_.push_back([&, temp_writer] { draw_text_HP_3(temp_writer); });
 
     for (int i = 0; i < THREAD_NUM; ++i)
     {
-        drawer_[i].reset(new std::thread([&, i]
-                                         {
-  while(true) {
-    if (finish_request_) {
-      break;
-    }
-    int charge_func_index = 0;
-    // block scope for mutex
-    {
-      std::lock_guard<std::mutex> lock(charge_func_index_mtx_);
-      charge_func_index = charge_func_index_;
-
-//          early_go::log_liner() << "i: " << i
-//              << "  charge_func_index_mtx_: " << charge_func_index;
-      if (charge_func_index < funcs_.size()) {
-        ++charge_func_index_;
-      }
-    }
-    if (charge_func_index < funcs_.size()) {
-      funcs_[charge_func_index]();
-    } else {
-      // block scope for mutex
-      {
-        std::unique_lock<std::mutex> lock(idle_mtx_);
-        idle_[i] = true;
-        cond_.wait(lock, [this, i]{return idle_[i] == false;});
-      }
-    }
-  } }));
+        drawer_[i].reset(new_crt std::thread(
+            [&, i]
+            {
+                while (true)
+                {
+                    if (finish_request_)
+                    {
+                        break;
+                    }
+                    int charge_func_index = 0;
+                    // block scope for mutex
+                    {
+                        std::lock_guard<std::mutex> lock(charge_func_index_mtx_);
+                        charge_func_index = charge_func_index_; 
+                        //          early_go::log_liner() << "i: " << i
+                        //              << "  charge_func_index_mtx_: " << charge_func_index; 
+                        if (charge_func_index < funcs_.size())
+                        {
+                            ++charge_func_index_;
+                        }
+                    }
+                    if (charge_func_index < funcs_.size())
+                    {
+                        funcs_[charge_func_index]();
+                    }
+                    else
+                    {
+                        // block scope for mutex
+                        {
+                            std::unique_lock<std::mutex> lock(idle_mtx_);
+                            idle_[i] = true;
+                            cond_.wait(lock, [this, i]{return idle_[i] == false;});
+                        }
+                    }
+                }
+            }));
     }
 }
 
@@ -2066,8 +1980,7 @@ void hud::HP_info_drawer2::draw_line_3()
     {
         const int count{count_ - LINE_3_ANIMATION_START};
         const cv::Point LINE_3_LENGTH{LINE_3_DEST - LINE_3_START};
-        const cv::Point LINE_3_LENGTH_DELTA{
-            LINE_3_LENGTH * count / LINE_3_ANIMATION_LENGTH};
+        const cv::Point LINE_3_LENGTH_DELTA{ LINE_3_LENGTH * count / LINE_3_ANIMATION_LENGTH};
         cv::line(image_,
                  LINE_3_START,
                  LINE_3_START + LINE_3_LENGTH_DELTA,
@@ -2094,8 +2007,7 @@ void hud::HP_info_drawer2::draw_line_4()
     {
         const int count{count_ - LINE_4_ANIMATION_START};
         const cv::Point LINE_4_LENGTH{LINE_4_DEST - LINE_4_START};
-        const cv::Point LINE_4_LENGTH_DELTA{
-            LINE_4_LENGTH * count / LINE_4_ANIMATION_LENGTH};
+        const cv::Point LINE_4_LENGTH_DELTA{ LINE_4_LENGTH * count / LINE_4_ANIMATION_LENGTH};
         cv::line(image_,
                  LINE_4_START,
                  LINE_4_START + LINE_4_LENGTH_DELTA,
@@ -2115,8 +2027,7 @@ void hud::HP_info_drawer2::draw_line_5()
     {
         const int count{count_ - LINE_3_ANIMATION_START};
         const cv::Point LINE_5_LENGTH{LINE_5_DEST - LINE_5_START};
-        const cv::Point LINE_5_LENGTH_DELTA{
-            LINE_5_LENGTH * count / LINE_5_ANIMATION_LENGTH};
+        const cv::Point LINE_5_LENGTH_DELTA{ LINE_5_LENGTH * count / LINE_5_ANIMATION_LENGTH};
 
         cv::line(image_,
                  LINE_5_START,
@@ -2166,8 +2077,7 @@ void hud::HP_info_drawer2::draw_circle_2()
 }
 void hud::HP_info_drawer2::draw_HP_bar()
 {
-    if (HP_BAR_BACK_ANIMATION_START <= count_ &&
-        count_ <= HP_BAR_BACK_ANIMATION_END)
+    if (HP_BAR_BACK_ANIMATION_START <= count_ && count_ <= HP_BAR_BACK_ANIMATION_END)
     {
         const int count{count_ - HP_BAR_BACK_ANIMATION_START};
         cv::ellipse(image_,
@@ -2195,8 +2105,7 @@ void hud::HP_info_drawer2::draw_HP_bar()
                     cv::Scalar(0), -1, CV_AA);
     }
     // HP bar foreground
-    if (HP_BAR_FORE_ANIMATION_START <= count_ &&
-        count_ <= HP_BAR_FORE_ANIMATION_END)
+    if (HP_BAR_FORE_ANIMATION_START <= count_ && count_ <= HP_BAR_FORE_ANIMATION_END)
     {
         const int count{count_ - HP_BAR_FORE_ANIMATION_START};
         cv::ellipse(image_,
@@ -2250,8 +2159,7 @@ void hud::HP_info_drawer2::draw_Time_bar()
         return;
     }
     // Strength bar
-    if (TIME_BAR_BACK_ANIMATION_START <= count_ &&
-        count_ <= TIME_BAR_BACK_ANIMATION_END)
+    if (TIME_BAR_BACK_ANIMATION_START <= count_ && count_ <= TIME_BAR_BACK_ANIMATION_END)
     {
         const int count = count_ - TIME_BAR_BACK_ANIMATION_START;
 
@@ -2324,8 +2232,7 @@ void hud::HP_info_drawer2::draw_Time_bar()
                     cv::Scalar{0}, -1, CV_AA);
     }
 
-    if (TIME_BAR_FORE_ANIMATION_START <= count_ &&
-        count_ <= TIME_BAR_FORE_ANIMATION_END)
+    if (TIME_BAR_FORE_ANIMATION_START <= count_ && count_ <= TIME_BAR_FORE_ANIMATION_END)
     {
         const int count{count_ - TIME_BAR_FORE_ANIMATION_START};
 

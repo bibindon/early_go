@@ -22,8 +22,7 @@ public:
     void delete_message(const std::string &);
     void add_frame(const std::string &, const cv::Rect &, const cv::Scalar &);
     void delete_frame(const std::string &);
-    void add_message_in_frame(const std::string &,
-                              const std::string &, const std::string &);
+    void add_message_in_frame(const std::string &, const std::string &, const std::string &);
     void show_HP_info();
     void remove_HP_info();
     void operator()(main_window &);
@@ -160,8 +159,7 @@ private:
         void draw_center_circle();
 
         const int LINE_1_ANIMATION_TIME{10};
-        const cv::Point LINE_1_DEST{
-            BASE_POINT.at(1) - cv::Point{BEZIER_LENGTH, BEZIER_LENGTH}};
+        const cv::Point LINE_1_DEST{ BASE_POINT.at(1) - cv::Point{BEZIER_LENGTH, BEZIER_LENGTH}};
         void draw_line_1();
 
         const std::array<cv::Point, 3> BEZIER_COOD_1{
@@ -174,17 +172,14 @@ private:
         const cv::Point LINE_2_DEST{BASE_POINT.at(2)};
         const int LINE_2_ANIMATION_START{11};
         const int LINE_2_ANIMATION_END{20};
-        const int LINE_2_ANIMATION_LENGTH{
-            LINE_2_ANIMATION_END - LINE_2_ANIMATION_START + 1};
+        const int LINE_2_ANIMATION_LENGTH{ LINE_2_ANIMATION_END - LINE_2_ANIMATION_START + 1};
         void draw_line_2();
 
         const cv::Point LINE_3_START{BASE_POINT.at(2)};
-        const cv::Point LINE_3_DEST{
-            BASE_POINT.at(3) + cv::Point(-BEZIER_LENGTH, BEZIER_LENGTH)};
+        const cv::Point LINE_3_DEST{ BASE_POINT.at(3) + cv::Point(-BEZIER_LENGTH, BEZIER_LENGTH)};
         const int LINE_3_ANIMATION_START{21};
         const int LINE_3_ANIMATION_END{30};
-        const int LINE_3_ANIMATION_LENGTH{
-            LINE_3_ANIMATION_END - LINE_3_ANIMATION_START + 1};
+        const int LINE_3_ANIMATION_LENGTH{ LINE_3_ANIMATION_END - LINE_3_ANIMATION_START + 1};
         void draw_line_3();
 
         const std::array<cv::Point, 3> BEZIER_COOD_2{
@@ -197,16 +192,14 @@ private:
         const cv::Point LINE_4_DEST{BASE_POINT.at(4)};
         const int LINE_4_ANIMATION_START{31};
         const int LINE_4_ANIMATION_END{40};
-        const int LINE_4_ANIMATION_LENGTH{
-            LINE_4_ANIMATION_END - LINE_4_ANIMATION_START + 1};
+        const int LINE_4_ANIMATION_LENGTH{ LINE_4_ANIMATION_END - LINE_4_ANIMATION_START + 1};
         void draw_line_4();
 
         const int LINE_5_ANIMATION_START{21};
         const cv::Point LINE_5_START{BASE_POINT.at(2)};
         const cv::Point LINE_5_DEST{BASE_POINT.at(5)};
         const int LINE_5_ANIMATION_END{30};
-        const int LINE_5_ANIMATION_LENGTH{
-            LINE_5_ANIMATION_END - LINE_5_ANIMATION_START + 1};
+        const int LINE_5_ANIMATION_LENGTH{ LINE_5_ANIMATION_END - LINE_5_ANIMATION_START + 1};
         void draw_line_5();
 
         const int CIRCLE_2_RADIUS_OUT{15};
@@ -332,8 +325,7 @@ private:
                           static_cast<int>(BASIC_COLOR[2]),
                           static_cast<int>(BASIC_COLOR[1]),
                           static_cast<int>(BASIC_COLOR[0]))};
-        const cv::Point CENTER{HP_info::TEXTURE_SIZE.width / 2,
-                               HP_info::TEXTURE_SIZE.height / 2};
+        const cv::Point CENTER{HP_info::TEXTURE_SIZE.width / 2, HP_info::TEXTURE_SIZE.height / 2};
         const int LINE_THICKNESS{2};
         const int BEZIER_LENGTH{20};
         const std::vector<cv::Point> BASE_POINT{
@@ -350,8 +342,7 @@ private:
         void draw_center_circle();
 
         const int LINE_1_ANIMATION_TIME{10};
-        const cv::Point LINE_1_DEST{
-            BASE_POINT.at(1) - cv::Point{BEZIER_LENGTH, BEZIER_LENGTH}};
+        const cv::Point LINE_1_DEST{ BASE_POINT.at(1) - cv::Point{BEZIER_LENGTH, BEZIER_LENGTH}};
         void draw_line_1();
 
         const std::array<cv::Point, 3> BEZIER_COOD_1{
@@ -368,8 +359,7 @@ private:
         void draw_line_2();
 
         const cv::Point LINE_3_START{BASE_POINT.at(2)};
-        const cv::Point LINE_3_DEST{
-            BASE_POINT.at(3) + cv::Point(-BEZIER_LENGTH, BEZIER_LENGTH)};
+        const cv::Point LINE_3_DEST{ BASE_POINT.at(3) + cv::Point(-BEZIER_LENGTH, BEZIER_LENGTH)};
         const int LINE_3_ANIMATION_START{21};
         const int LINE_3_ANIMATION_END{30};
         const int LINE_3_ANIMATION_LENGTH{LINE_3_ANIMATION_END - LINE_3_ANIMATION_START + 1};
