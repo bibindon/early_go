@@ -274,3 +274,4 @@ doc/html/
 /.vscode
 early_go/.res
 test/.res
+.VSCodeCounter/
