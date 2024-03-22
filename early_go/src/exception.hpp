@@ -12,32 +12,30 @@ extern boost::exception_ptr exception_reserve;
 using additional_info = boost::error_info<struct tag_stacktrace, std::string>;
 using traced = boost::error_info<struct tag_stacktrace, boost::stacktrace::stacktrace>;
 
-/// <summary>
-/// A utilities of exception.
-///
-/// Usage
-///
-///     void f()
-///     {
-///         THROW_WITH_TRACE("aiueo");
-///     }
-///
-///     void g()
-///     {
-///         try {
-///             f();
-///         } catch (boost::exception& e) {
-///             e << additional_info("aiueo");
-///             throw;
-///         }
-///     }
-///
-///     try {
-///         void g();
-///     } catch (const std::exception& e) {
-///         early_go::log_liner{} << boost::diagnostic_information(e);
-///     }
-/// </summary>
+// A utilities of exception.
+//
+// Usage
+//
+//     void f()
+//     {
+//         THROW_WITH_TRACE("aiueo");
+//     }
+//
+//     void g()
+//     {
+//         try {
+//             f();
+//         } catch (boost::exception& e) {
+//             e << additional_info("aiueo");
+//             throw;
+//         }
+//     }
+//
+//     try {
+//         void g();
+//     } catch (const std::exception& e) {
+//         early_go::log_liner{} << boost::diagnostic_information(e);
+//     }
 class custom_exception : virtual public boost::exception, virtual public std::exception
 {
 public:

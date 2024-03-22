@@ -8,9 +8,7 @@ namespace early_go
 
 class skinned_animation_mesh_allocator;
 
-/// <summary>
-/// A class that provides operations for a mesh file having animations.
-/// </summary>
+// A class that provides operations for a mesh file having animations.
 class skinned_animation_mesh : public abstract_mesh
 {
 public:
@@ -24,11 +22,9 @@ public:
 
 private:
     void render_impl(const D3DXMATRIX &, const D3DXMATRIX &) override;
-    /// <summary>
-    /// A struct which deletes the root 'LPD3DXFRAME' object. The reason why the
-    /// following struct is not a prototype declaration is necessary for the
-    /// declaration of the following variable using std::unique_ptr.
-    /// </summary>
+    // A struct which deletes the root 'LPD3DXFRAME' object. The reason why the
+    // following struct is not a prototype declaration is necessary for the
+    // declaration of the following variable using std::unique_ptr.
     struct frame_root_deleter_object
     {
         std::shared_ptr<skinned_animation_mesh_allocator> allocator_;
@@ -45,9 +41,7 @@ private:
     D3DXVECTOR3 center_coodinate_;
     float scale_;
 
-    /// <summary>
-    /// For effect.
-    /// </summary>
+    // For effect.
     D3DXHANDLE view_projection_handle_;
     D3DXHANDLE scale_handle_;
 

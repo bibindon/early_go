@@ -8,11 +8,9 @@ using std::shared_ptr;
 
 namespace early_go
 {
-/// <summary>
-/// i.e. {"early", "center", true}
-///      {"shiho", "left", false}
-///      {"suo", "right", true}
-/// </summary>
+// i.e. {"early", "center", true}
+//      {"shiho", "left", false}
+//      {"suo", "right", true}
 struct novel::portrait
 {
     std::string filename_;

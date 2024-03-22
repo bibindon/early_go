@@ -4,18 +4,14 @@
 
 namespace early_go
 {
-/// <summary>
-/// A struct inheriting the 'D3DXFRAME' for owing a transform matrix.
-/// </summary>
+// A struct inheriting the 'D3DXFRAME' for owing a transform matrix.
 struct skinned_animation_mesh_frame : public D3DXFRAME
 {
     D3DXMATRIX combined_matrix_;
     explicit skinned_animation_mesh_frame(const std::string &);
 };
 
-/// <summary>
-/// A struct inheriting the 'D3DXMESHCONTAINER' for owing textures.
-/// </summary>
+// A struct inheriting the 'D3DXMESHCONTAINER' for owing textures.
 struct skinned_animation_mesh_container : public D3DXMESHCONTAINER
 {
     std::vector<std::unique_ptr<IDirect3DTexture9, custom_deleter> > texture_;
@@ -45,9 +41,7 @@ struct skinned_animation_mesh_container : public D3DXMESHCONTAINER
     void initialize_vertex_element();
 };
 
-/// <summary>
-/// A class inheriting the 'ID3DXAllocateHierarchy' for implementing an animation mesh.
-/// </summary>
+// A class inheriting the 'ID3DXAllocateHierarchy' for implementing an animation mesh.
 class skinned_animation_mesh_allocator : public ID3DXAllocateHierarchy
 {
 public:

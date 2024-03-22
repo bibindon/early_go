@@ -22,11 +22,9 @@ public:
 private:
     void render_impl(const D3DXMATRIX &, const D3DXMATRIX &) override;
 
-    /// <summary>
-    /// A struct which deletes the root 'LPD3DXFRAME' object. The reason why the
-    /// following struct is not a prototype declaration is necessary for the
-    /// declaration of the following variable using std::unique_ptr.
-    /// </summary>
+    // A struct which deletes the root 'LPD3DXFRAME' object. The reason why the
+    // following struct is not a prototype declaration is necessary for the
+    // declaration of the following variable using std::unique_ptr.
     struct frame_root_deleter_object
     {
         std::shared_ptr<animation_mesh_allocator> allocator_;
