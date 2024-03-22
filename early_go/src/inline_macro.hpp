@@ -44,19 +44,17 @@ inline void safe_release(T *&p)
         p = nullptr;
     }
 }
-/*
- * A custom deleter for smart-pointer. The reason why a function object not
- * a template function is because not to have to write a type.
- *
- * Usages:
- *
- *   void sample()
- *   {
- *     LPDIRECT3D9 _p_direct3d9{Direct3DCreate9(D3D_SDK_VERSION)};
- *     std::unique_ptr<LPDIRECT3D9, custom_deleter> up{
- *         _p_direct3d9, custom_deleter{}};
- *   }
- */
+// A custom deleter for smart-pointer. The reason why a function object not
+// a template function is because not to have to write a type.
+//
+// Usages:
+//
+//   void sample()
+//   {
+//     LPDIRECT3D9 _p_direct3d9{Direct3DCreate9(D3D_SDK_VERSION)};
+//     std::unique_ptr<LPDIRECT3D9, custom_deleter> up{
+//         _p_direct3d9, custom_deleter{}};
+//   }
 struct custom_deleter
 {
     template <typename T>

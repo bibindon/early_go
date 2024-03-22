@@ -14,6 +14,7 @@
 #include "hud.hpp"
 #include "novel.hpp"
 #include "resource.h"
+#include "sprite_anim.hpp"
 
 #include <thread>
 
@@ -258,6 +259,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     //  AddFontResource("chogokubosogothic_5.ttf");
 
     hud_ = std::make_shared<hud>(d3d_device_);
+    sprite_anim_ = std::make_shared<sprite_anim>(d3d_device_, "image/sprite_anim_test1.png");
     novel_ = std::make_shared<novel>();
 }
 
@@ -663,7 +665,9 @@ erto's book, Programming in Lua.\n\
     {
         early_->set_shake_texture(constants::EARLY_BODY);
     }
-
+    if (key::is_down('G'))
+    {
+    }
     // if (key::is_down('W')) {
     //   early_->set_dynamic_message(constants::EARLY_BODY, 1,
     //       "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
@@ -700,6 +704,7 @@ void main_window::render()
         early_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
         suo_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
 
+        (*sprite_anim_)();
         (*hud_)(*this);
 
         d3d_device_->EndScene();
