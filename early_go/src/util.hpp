@@ -15,6 +15,7 @@ public:
         const std::string& model_name, const std::string& texture_name);
     static std::vector<char> get_shader_resource(const std::string& shader_name);
     static std::vector<char> get_image_resource(const std::string& image_name);
+    static std::vector<char> get_lua_resource(const std::string& filename);
 };
 }
 #endif

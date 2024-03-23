@@ -3,6 +3,7 @@
 #include "main_window.hpp"
 
 using std::string;
+using std::vector;
 using std::remove_if;
 using std::shared_ptr;
 
@@ -13,8 +14,8 @@ namespace early_go
 //      {"suo", "right", true}
 struct novel::portrait
 {
-    std::string filename_;
-    std::string position_;
+    string filename_;
+    string position_;
     bool is_flip;
 };
 main_window *novel::window_ = nullptr;
@@ -206,7 +207,9 @@ void novel::operator()(main_window &window)
         lua_pushcfunction(lua_state_, glue_draw_text);
         lua_setglobal(lua_state_, "draw_text");
 
-        if (luaL_loadfile(lua_state_, "test.lua"))
+        //if (luaL_loadfile(lua_state_, "test.lua"))
+        vector<char> buff = util::get_lua_resource("script/test.lua");
+        if (luaL_loadbuffer(lua_state_, &buff.at(0), buff.size(), "script/test.lua"))
         {
             log_liner{} << "cannot load file.";
             lua_close(lua_state_);
