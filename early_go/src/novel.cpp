@@ -207,7 +207,6 @@ void novel::operator()(main_window &window)
         lua_pushcfunction(lua_state_, glue_draw_text);
         lua_setglobal(lua_state_, "draw_text");
 
-        //if (luaL_loadfile(lua_state_, "test.lua"))
         vector<char> buff = util::get_lua_resource("script/test.lua");
         if (luaL_loadbuffer(lua_state_, &buff.at(0), buff.size(), "script/test.lua"))
         {
@@ -218,7 +217,7 @@ void novel::operator()(main_window &window)
 
         if (lua_pcall(lua_state_, 0, 0, 0) != 0)
         {
-            log_liner{} << "hoge";
+            log_liner{} << "failed lua_pcall";
             lua_close(lua_state_);
             return;
         }

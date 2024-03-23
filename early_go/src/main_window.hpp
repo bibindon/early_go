@@ -1,5 +1,10 @@
 #ifndef BASIC_WINDOW_HPP
 #define BASIC_WINDOW_HPP
+
+#include <lua.hpp>
+#include <lauxlib.h>
+#include <lualib.h>
+
 #include "stdafx.hpp"
 
 namespace early_go
@@ -71,6 +76,16 @@ private:
 
     std::shared_ptr<novel> novel_;
     HWND hwnd_;
+
+    //----------------------------------------
+    // Lua area
+    //----------------------------------------
+
+    lua_State *lua_state_;
+    void init_lua();
+    static main_window* main_window_;
+    static int glue_place_mesh(lua_State *);
+    std::vector<std::shared_ptr<abstract_mesh> > meshes_lua_;
 };
 } // namespace early_go 
 #endif

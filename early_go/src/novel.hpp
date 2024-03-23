@@ -20,7 +20,6 @@ public:
     bool get_is_novel_part() const { return is_novel_part_; }
     void set_is_novel_part(const bool val) { is_novel_part_ = val; }
     void operator()(main_window &);
-    lua_State *lua_state_;
 
 private:
     static int glue_draw_background(lua_State *);
@@ -33,6 +32,7 @@ private:
     static int glue_draw_text(lua_State *);
     //  static int glue_shake(lua_State*);
     static void redraw_portrait();
+    lua_State *lua_state_;
     bool is_novel_part_;
     static main_window *window_;
     struct portrait;

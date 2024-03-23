@@ -19,6 +19,9 @@
 #include <thread>
 
 using std::chrono::system_clock;
+using std::shared_ptr;
+using std::vector;
+using std::string;
 
 namespace early_go
 {
@@ -92,6 +95,8 @@ main_window::main_window(const HINSTANCE &hinstance)
     UpdateWindow(hwnd);
 
     initialize_direct3d(hwnd);
+
+    init_lua();
 }
 
 void main_window::initialize_direct3d(const HWND &hwnd)
@@ -703,6 +708,11 @@ void main_window::render()
         mesh2_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
         early_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
         suo_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
+        for (int i = 0; i < meshes_lua_.size(); ++i)
+        {
+            meshes_lua_.at(i)->render(
+                view_matrix, projection_matrix, light_direction, light_brightness_);
+        }
 
         (*sprite_anim_)();
         (*hud_)(*this);
@@ -739,8 +749,81 @@ void main_window::render()
     d3d_device_->Present(nullptr, nullptr, nullptr, nullptr);
 }
 
+void main_window::init_lua()
+{
+    main_window_ = this;
+    lua_state_ = luaL_newstate();
+    luaopen_base(lua_state_);
+    luaL_openlibs(lua_state_);
+
+    lua_pushcfunction(lua_state_, glue_place_mesh);
+    lua_setglobal(lua_state_, "place_mesh");
+
+    vector<char> buff = util::get_lua_resource("script/init.lua");
+    if (luaL_loadbuffer(lua_state_, &buff.at(0), buff.size(), "script/init.lua"))
+    {
+        log_liner{} << "cannot load file.";
+        lua_close(lua_state_);
+        return;
+    }
+    // The lua_pcall calling is necessary before calling a function in lua file.
+    if (lua_pcall(lua_state_, 0, 0, 0) != 0)
+    {
+        log_liner{} << "failed lua_pcall";
+        lua_close(lua_state_);
+        return;
+    }
+    int result = lua_getglobal(lua_state_, "init");
+    if (lua_pcall(lua_state_, 0, 0, 0) != 0)
+    {
+        log_liner{} << "failed to call lua function";
+        lua_close(lua_state_);
+        return;
+    }
+}
+
+main_window* main_window::main_window_;
+
+int main_window::glue_place_mesh(lua_State* L)
+{
+    const char *filename = lua_tostring(L, -4);
+
+    lua_rawgeti(L, -3, 1);
+    float pos_x = static_cast<float>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
+    lua_rawgeti(L, -3, 2);
+    float pos_y = static_cast<float>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
+    lua_rawgeti(L, -3, 3);
+    float pos_z = static_cast<float>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
+    lua_rawgeti(L, -2, 1);
+    float rotate_x = static_cast<float>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
+    lua_rawgeti(L, -2, 2);
+    float rotate_y = static_cast<float>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
+    lua_rawgeti(L, -2, 3);
+    float rotate_z = static_cast<float>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
+    float scale = static_cast<float>(lua_tonumber(L, -1));
+    main_window_->meshes_lua_.push_back(shared_ptr<abstract_mesh>(new_crt mesh{
+        main_window_->d3d_device_,
+        filename,
+        D3DXVECTOR3{pos_x, pos_y, pos_z},
+        D3DXVECTOR3{rotate_x, rotate_y, rotate_z},
+        scale }));
+    return 0;
+}
+
 void main_window::render_string_object::render_string(
-    const std::string &message, const int &x, const int &y)
+    const string &message, const int &x, const int &y)
 {
     std::shared_ptr<ID3DXFont> font{render_string_object::weak_font_.lock()};
 
