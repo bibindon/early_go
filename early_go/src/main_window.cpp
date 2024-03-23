@@ -485,6 +485,7 @@ void main_window::debug()
     {
         early_->set_dynamic_texture(
             constants::EARLY_BODY, "image/back_ground.png", 0, abstract_mesh::combine_type::NORMAL);
+        init_lua();
     }
     if (key::is_down('U'))
     {
@@ -742,12 +743,14 @@ void main_window::init_lua()
         return;
     }
     int result = lua_getglobal(lua_state_, "init");
+    main_window_->meshes_lua_.clear();
     if (lua_pcall(lua_state_, 0, 0, 0) != 0)
     {
         log_liner{} << "failed to call lua function";
         lua_close(lua_state_);
         return;
     }
+    lua_close(lua_state_);
 }
 
 main_window* main_window::main_window_;
