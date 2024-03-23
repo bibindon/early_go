@@ -38,11 +38,6 @@ main_window::main_window(const HINSTANCE &hinstance)
       light_brightness_{1.0f},
       camera_{new_crt camera{{0.0f, 1.3f, -1.1639f * 3}, {0.0f, 1.3f, 0.0f}}},
       operation_{new_crt operation{camera_}},
-      animation_mesh_{},
-      skinned_animation_mesh_{},
-      skinned_animation_mesh2_{},
-      mesh_{},
-      mesh2_{},
       early_{new_crt character{d3d_device_, operation_, {0, 0, 0}, direction::FRONT, 1.0f}},
       suo_{new_crt character{d3d_device_, operation_, {0, 0, 2}, direction::BACK, 1.0f}}
 {
@@ -158,36 +153,6 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     }
     // lazy initialization 
     d3d_device_.reset(d3d_device9, custom_deleter{});
-    animation_mesh_.reset(new_crt animation_mesh{
-        d3d_device_,
-        constants::ANIMATION_MESH_FILE_NAME,
-        D3DXVECTOR3{0.0f, 0.0f, 10.0f},
-        D3DXVECTOR3{0.0f, 0.0f, 0.0f},
-        1.0f});
-    skinned_animation_mesh_.reset(new_crt skinned_animation_mesh{
-        d3d_device_,
-        constants::SKINNED_ANIMATION_MESH_FILE_NAME,
-        D3DXVECTOR3{1.0f, 0.0f, 0.0f},
-        D3DXVECTOR3{0.0f, 0.0f, 0.0f},
-        1.0f});
-    skinned_animation_mesh2_.reset(new_crt skinned_animation_mesh{
-        d3d_device_,
-        constants::SKINNED_ANIMATION_MESH_FILE_NAME2,
-        D3DXVECTOR3{-1.0f, 0.0f, 0.0f},
-        D3DXVECTOR3{0.0f, 0.0f, 0.0f},
-        0.003f});
-    mesh_.reset(new_crt mesh{
-        d3d_device_,
-        constants::MESH_FILE_NAME,
-        D3DXVECTOR3{2.5f, 2.0f, 1.0f},
-        D3DXVECTOR3{0.0f, 0.0f, 0.0f},
-        1.0f});
-    mesh2_.reset(new_crt mesh{
-        d3d_device_,
-        constants::MESH_FILE_NAME2,
-        D3DXVECTOR3{0.5f, 0.0f, 2.0f},
-        D3DXVECTOR3{0.0f, 0.0f, 0.0f},
-        1.0f});
 
     early_->set_position(cv::Point3i{0, 0, 0});
     early_->set_max_health(9999);
@@ -483,13 +448,13 @@ void main_window::debug()
     {
         early_->set_animation("Step_Left");
         suo_->set_animation("Step_Left");
-        skinned_animation_mesh_->set_animation("Wolf_Idle_");
+        meshes_lua_.at(4)->set_animation("Wolf_Idle_");
     }
     if (key::is_down('6'))
     {
         early_->set_animation("Step_Right");
         suo_->set_animation("Step_Right");
-        skinned_animation_mesh_->set_animation("Wolf_Run_Cycle_");
+        meshes_lua_.at(4)->set_animation("Wolf_Run_Cycle_");
     }
     if (key::is_down('7'))
     {
@@ -543,8 +508,9 @@ void main_window::debug()
     if (key::is_down('C'))
     {
         early_->set_fade_in(constants::EARLY_BODY);
-        mesh_->set_fade_in();
-        animation_mesh_->set_fade_in();
+        meshes_lua_.at(0)->set_fade_in();
+        meshes_lua_.at(1)->set_fade_in();
+        meshes_lua_.at(3)->set_fade_in();
     }
     //  if (key::is_hold('4')) {
     //    hud_->add_image("test3", "image/board2.png", cv::Point(300, 400));
@@ -628,8 +594,9 @@ erto's book, Programming in Lua.\n\
     if (key::is_down('V'))
     {
         early_->set_fade_out(constants::EARLY_BODY);
-        mesh_->set_fade_out();
-        animation_mesh_->set_fade_out();
+        meshes_lua_.at(0)->set_fade_out();
+        meshes_lua_.at(1)->set_fade_out();
+        meshes_lua_.at(3)->set_fade_out();
 //        static float f = D3DX_PI / 2;
 //        f += 0.1f;
 //        early_->set_dynamic_texture_opacity(
@@ -637,7 +604,7 @@ erto's book, Programming in Lua.\n\
     }
     if (key::is_down('B'))
     {
-        mesh_->set_dynamic_message(
+        meshes_lua_.at(0)->set_dynamic_message(
             1,
             "1234567890", false,
             {1000, 1000, 2048, 2048},
@@ -701,11 +668,6 @@ void main_window::render()
         0);
     if (SUCCEEDED(d3d_device_->BeginScene()))
     {
-        animation_mesh_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
-        skinned_animation_mesh_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
-        skinned_animation_mesh2_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
-        mesh_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
-        mesh2_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
         early_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
         suo_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
         for (int i = 0; i < meshes_lua_.size(); ++i)
@@ -759,6 +721,12 @@ void main_window::init_lua()
     lua_pushcfunction(lua_state_, glue_place_mesh);
     lua_setglobal(lua_state_, "place_mesh");
 
+    lua_pushcfunction(lua_state_, glue_place_anim_mesh);
+    lua_setglobal(lua_state_, "place_anim_mesh");
+
+    lua_pushcfunction(lua_state_, glue_place_skin_mesh);
+    lua_setglobal(lua_state_, "place_skin_mesh");
+
     vector<char> buff = util::get_lua_resource("script/init.lua");
     if (luaL_loadbuffer(lua_state_, &buff.at(0), buff.size(), "script/init.lua"))
     {
@@ -786,40 +754,90 @@ main_window* main_window::main_window_;
 
 int main_window::glue_place_mesh(lua_State* L)
 {
-    const char *filename = lua_tostring(L, -4);
+    string filename;
+    D3DXVECTOR3 pos;
+    D3DXVECTOR3 rotate;
+    float scale{};
+    get_mesh_info_from_lua(L, &filename, &pos, &rotate, &scale);
 
-    lua_rawgeti(L, -3, 1);
-    float pos_x = static_cast<float>(lua_tonumber(L, -1));
-    lua_pop(L, 1);
-
-    lua_rawgeti(L, -3, 2);
-    float pos_y = static_cast<float>(lua_tonumber(L, -1));
-    lua_pop(L, 1);
-
-    lua_rawgeti(L, -3, 3);
-    float pos_z = static_cast<float>(lua_tonumber(L, -1));
-    lua_pop(L, 1);
-
-    lua_rawgeti(L, -2, 1);
-    float rotate_x = static_cast<float>(lua_tonumber(L, -1));
-    lua_pop(L, 1);
-
-    lua_rawgeti(L, -2, 2);
-    float rotate_y = static_cast<float>(lua_tonumber(L, -1));
-    lua_pop(L, 1);
-
-    lua_rawgeti(L, -2, 3);
-    float rotate_z = static_cast<float>(lua_tonumber(L, -1));
-    lua_pop(L, 1);
-
-    float scale = static_cast<float>(lua_tonumber(L, -1));
     main_window_->meshes_lua_.push_back(shared_ptr<abstract_mesh>(new_crt mesh{
         main_window_->d3d_device_,
         filename,
-        D3DXVECTOR3{pos_x, pos_y, pos_z},
-        D3DXVECTOR3{rotate_x, rotate_y, rotate_z},
+        D3DXVECTOR3{pos.x, pos.y, pos.z},
+        D3DXVECTOR3{rotate.x, rotate.y, rotate.z},
         scale }));
     return 0;
+}
+
+int main_window::glue_place_anim_mesh(lua_State* L)
+{
+    string filename;
+    D3DXVECTOR3 pos;
+    D3DXVECTOR3 rotate;
+    float scale{};
+    get_mesh_info_from_lua(L, &filename, &pos, &rotate, &scale);
+
+    main_window_->meshes_lua_.push_back(shared_ptr<abstract_mesh>(new_crt animation_mesh{
+        main_window_->d3d_device_,
+        filename,
+        D3DXVECTOR3{pos.x, pos.y, pos.z},
+        D3DXVECTOR3{rotate.x, rotate.y, rotate.z},
+        scale }));
+    return 0;
+}
+
+int main_window::glue_place_skin_mesh(lua_State* L)
+{
+    string filename;
+    D3DXVECTOR3 pos;
+    D3DXVECTOR3 rotate;
+    float scale{};
+    get_mesh_info_from_lua(L, &filename, &pos, &rotate, &scale);
+
+    main_window_->meshes_lua_.push_back(shared_ptr<abstract_mesh>(new_crt skinned_animation_mesh{
+        main_window_->d3d_device_,
+        filename,
+        D3DXVECTOR3{pos.x, pos.y, pos.z},
+        D3DXVECTOR3{rotate.x, rotate.y, rotate.z},
+        scale }));
+    return 0;
+}
+
+void main_window::get_mesh_info_from_lua(
+    lua_State* L,
+    string* filename,
+    D3DXVECTOR3* pos,
+    D3DXVECTOR3* rotate,
+    float* scale)
+{
+    const char *tempfilename = lua_tostring(L, -4);
+    *filename = tempfilename;
+
+    lua_rawgeti(L, -3, 1);
+    pos->x = static_cast<float>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
+    lua_rawgeti(L, -3, 2);
+    pos->y = static_cast<float>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
+    lua_rawgeti(L, -3, 3);
+    pos->z = static_cast<float>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
+    lua_rawgeti(L, -2, 1);
+    rotate->x = static_cast<float>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
+    lua_rawgeti(L, -2, 2);
+    rotate->y = static_cast<float>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
+    lua_rawgeti(L, -2, 3);
+    rotate->z = static_cast<float>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+
+    *scale = static_cast<float>(lua_tonumber(L, -1));
 }
 
 void main_window::render_string_object::render_string(

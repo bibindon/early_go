@@ -65,12 +65,6 @@ private:
 
     std::shared_ptr<operation> operation_;
 
-    std::shared_ptr<abstract_mesh> animation_mesh_;
-    std::shared_ptr<abstract_mesh> skinned_animation_mesh_;
-    std::shared_ptr<abstract_mesh> skinned_animation_mesh2_;
-    std::shared_ptr<abstract_mesh> mesh_;
-    std::shared_ptr<abstract_mesh> mesh2_;
-
     std::shared_ptr<hud> hud_;
     std::shared_ptr<sprite_anim> sprite_anim_;
 
@@ -85,6 +79,10 @@ private:
     void init_lua();
     static main_window* main_window_;
     static int glue_place_mesh(lua_State *);
+    static int glue_place_anim_mesh(lua_State *);
+    static int glue_place_skin_mesh(lua_State *);
+    static void get_mesh_info_from_lua(
+        lua_State*, std::string*, D3DXVECTOR3*, D3DXVECTOR3*, float*);
     std::vector<std::shared_ptr<abstract_mesh> > meshes_lua_;
 };
 } // namespace early_go 
