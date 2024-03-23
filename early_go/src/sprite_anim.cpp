@@ -36,7 +36,7 @@ sprite_anim::sprite_anim(const shared_ptr<IDirect3DDevice9>& d3d_device, string 
         THROW_WITH_TRACE("Failed to create a texture.");
     }
 
-    texture_.reset(temp_texture);
+    texture_.reset(temp_texture, custom_deleter());
 }
 void sprite_anim::operator()()
 {
