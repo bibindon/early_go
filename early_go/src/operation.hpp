@@ -57,6 +57,8 @@ private:
     std::unordered_map<int, std::unordered_map<int, bool>> offensive_area_;
 
     int current_stage_;
+
+    void cancel_removed_by_simul_push();
 };
 } // namespace early_go 
 #endif

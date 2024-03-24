@@ -43,8 +43,8 @@ bool key::is_down(const int& keycode)
     {
         return false;
     }
-    if (!(key_deque_.at(1)->key_table_[keycode] & 0x8000) &&
-        (key_deque_.at(0)->key_table_[keycode] & 0x8000))
+    if (!(key_deque_.at(1)->key_table_[keycode] & 0x0001) &&
+        (key_deque_.at(0)->key_table_[keycode] & 0x0001))
     {
         return true;
     }
@@ -62,7 +62,7 @@ bool key::is_down(const system_clock::time_point& time_point, const int& keycode
     shared_ptr<key_info> _key = *it;
     shared_ptr<key_info> _previous_key = *(it + 1);
 
-    if (!(_previous_key->key_table_[keycode] & 0x8000) && (_key->key_table_[keycode] & 0x8000))
+    if (!(_previous_key->key_table_[keycode] & 0x0001) && (_key->key_table_[keycode] & 0x0001))
     {
         return true;
     }
@@ -75,7 +75,7 @@ bool key::is_hold(const int& keycode)
     {
         return false;
     }
-    if (key_deque_.at(0)->key_table_[keycode] & 0x8000)
+    if (key_deque_.at(0)->key_table_[keycode] & 0x0001)
     {
         return true;
     }
@@ -88,8 +88,8 @@ bool key::is_up(const int& keycode)
     {
         return false;
     }
-    if ((key_deque_.at(1)->key_table_[keycode] & 0x8000) &&
-        !(key_deque_.at(0)->key_table_[keycode] & 0x8000))
+    if ((key_deque_.at(1)->key_table_[keycode] & 0x0001) &&
+        !(key_deque_.at(0)->key_table_[keycode] & 0x0001))
     {
         return true;
     }

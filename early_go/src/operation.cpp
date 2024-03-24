@@ -48,10 +48,6 @@ shared_ptr<camera> operation::get_camera() const
 
 void operation::operator()(main_window &a_main_window)
 {
-    shared_ptr<character> main_character2 = a_main_window.get_main_character();
-    character &main_character{*(main_character2)};
-//    character &main_character{*(a_main_window.get_main_character())};
-
     if (key::is_down('Q'))
     {
         PostQuitMessage(0);
@@ -63,31 +59,31 @@ void operation::operator()(main_window &a_main_window)
         if (key::check_simultaneous('A'))
         {
             reserved_behavior_->action_type_ = action_type::ATTACK;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('I'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::FRONT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('J'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::LEFT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('K'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::BACK;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('L'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::RIGHT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else
         {
@@ -101,31 +97,31 @@ void operation::operator()(main_window &a_main_window)
         if (key::check_simultaneous('W'))
         {
             reserved_behavior_->action_type_ = action_type::ATTACK;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('I'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::FRONT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('J'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::LEFT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('K'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::BACK;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('L'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::RIGHT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else
         {
@@ -140,25 +136,25 @@ void operation::operator()(main_window &a_main_window)
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::FRONT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('J'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::LEFT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('K'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::BACK;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('L'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::RIGHT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else
         {
@@ -173,25 +169,25 @@ void operation::operator()(main_window &a_main_window)
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::FRONT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('J'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::LEFT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('K'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::BACK;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('L'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::RIGHT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else
         {
@@ -206,25 +202,25 @@ void operation::operator()(main_window &a_main_window)
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::FRONT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('A'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::LEFT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('S'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::BACK;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('D'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::RIGHT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else
         {
@@ -239,25 +235,25 @@ void operation::operator()(main_window &a_main_window)
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::FRONT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('A'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::LEFT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('S'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::BACK;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('D'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::RIGHT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else
         {
@@ -272,25 +268,25 @@ void operation::operator()(main_window &a_main_window)
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::FRONT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('A'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::LEFT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('S'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::BACK;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('D'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::RIGHT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else
         {
@@ -305,25 +301,25 @@ void operation::operator()(main_window &a_main_window)
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::FRONT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('A'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::LEFT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('S'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::BACK;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else if (key::check_simultaneous('D'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::RIGHT;
-            current_behavior_->state_ = behavior_state::CANCEL;
+            cancel_removed_by_simul_push();
         }
         else
         {
@@ -340,42 +336,48 @@ void operation::operator()(main_window &a_main_window)
         }
     }
 
+    shared_ptr<character> _main_character = a_main_window.get_main_character();
+
     if (current_behavior_->state_ == behavior_state::READY)
     {
         current_behavior_->state_ = behavior_state::PLAY;
         if (current_behavior_->action_type_ == action_type::STEP)
         {
-            main_character2->set_action_step(current_behavior_->step_dir_);
+            _main_character->set_action_step(current_behavior_->step_dir_);
         }
         else if (current_behavior_->action_type_ == action_type::ROTATE)
         {
-            main_character2->set_action_rotate(current_behavior_->rotate_dir_);
+            _main_character->set_action_rotate(current_behavior_->rotate_dir_);
         }
         else if (current_behavior_->action_type_ == action_type::STEP_AND_ROTATE)
         {
-            main_character2->set_action_step_and_rotate(
+            _main_character->set_action_step_and_rotate(
                 current_behavior_->step_dir_, current_behavior_->rotate_dir_);
         }
         else if (current_behavior_->action_type_ == action_type::ATTACK)
         {
-            main_character2->set_action_attack();
+            _main_character->set_action_attack();
         }
     }
     else if (current_behavior_->state_ == behavior_state::PLAY)
     {
-        if (main_character2->get_action_state() == behavior_state::FINISH)
+        if (reserved_behavior_->action_type_ != action_type::NO_ACTION)
+        {
+            reserved_behavior_->state_ = behavior_state::READY;
+        }
+        if (_main_character->get_action_state() == behavior_state::FINISH)
         {
             current_behavior_->state_ = behavior_state::FINISH;
         }
-        else if (main_character2->get_action_state() == behavior_state::ALLOW_NEXT_ACTION)
+        else if (_main_character->get_action_state() == behavior_state::ALLOW_NEXT_ACTION)
         {
             current_behavior_->state_ = behavior_state::ALLOW_NEXT_ACTION;
         }
     }
     else if (current_behavior_->state_ == behavior_state::CANCEL)
     {
-            main_character2->cancel_action();
-            current_behavior_->state_ = behavior_state::FINISH;
+        _main_character->cancel_action();
+        current_behavior_->state_ = behavior_state::FINISH;
     }
 
     if (current_behavior_->state_ == behavior_state::FINISH ||
@@ -401,7 +403,7 @@ void operation::operator()(main_window &a_main_window)
     if (offensive_area_.at(relative_z).at(enemy_pos.x))
     {
 //        current_behavior_->cancel();
-        main_character2->cancel_action();
+        _main_character->cancel_action();
         int enemy_health = enemy->get_health();
         if (1 <= enemy_health - 1)
         {
@@ -415,11 +417,31 @@ void operation::operator()(main_window &a_main_window)
         }
         else
         {
-            cv::Point3i grid_pos{main_character.get_grid_position()};
+            cv::Point3i grid_pos{_main_character->get_grid_position()};
             D3DXVECTOR3 pos{grid_pos.x * constants::GRID_LENGTH, 0.0f,
                             grid_pos.z * constants::GRID_LENGTH};
             camera_->set_to_close_up_animation(pos);
         }
+    }
+}
+
+void operation::cancel_removed_by_simul_push()
+{
+    // When simultaneous push is detected, there is necessary that a previous push is
+    // canceled.
+    // i.e. A->J   "Step left" should be canceld and "Step and rotate" should be set.
+    if (
+       // reserved_behavior_->state_ == behavior_state::NO_STATE &&
+        (current_behavior_->action_type_ == action_type::STEP ||
+            current_behavior_->action_type_ == action_type::ROTATE))
+    {
+        current_behavior_->state_ = behavior_state::CANCEL;
+    }
+    // When reserved_behavior_ is reserved, reserved_behavior_ should be canceled.
+    // i.e. A->J->->D->L   When L is pushed, D input should be canceled.
+    else
+    {
+        //reserved_behavior_->state_ = behavior_state::CANCEL;
     }
 }
 

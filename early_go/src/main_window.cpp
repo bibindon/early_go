@@ -44,18 +44,19 @@ main_window::main_window(const HINSTANCE &hinstance)
     WNDCLASSEX wndclassex{};
     wndclassex.cbSize = sizeof(wndclassex);
     wndclassex.style = CS_HREDRAW | CS_VREDRAW;
-    wndclassex.lpfnWndProc = [](::HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) -> LRESULT
-    {
-        if (msg == WM_CLOSE)
+    wndclassex.lpfnWndProc =
+        [](::HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) -> LRESULT
         {
-            PostQuitMessage(0);
-        }
-        else
-        {
-            return DefWindowProc(hwnd, msg, wparam, lparam);
-        }
-        return 0;
-    };
+            if (msg == WM_CLOSE)
+            {
+                PostQuitMessage(0);
+            }
+            else
+            {
+                return DefWindowProc(hwnd, msg, wparam, lparam);
+            }
+            return 0;
+        };
     wndclassex.cbClsExtra = 0;
     wndclassex.cbWndExtra = 0;
     wndclassex.hInstance = hinstance;

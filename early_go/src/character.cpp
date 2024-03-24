@@ -55,8 +55,7 @@ void character::set_default_animation(const std::string &animation_name)
 {
     for (const auto &x : mesh_map_)
     {
-        std::string animation_fullname{
-            create_animation_fullname(animation_name, x.first)};
+        std::string animation_fullname{ create_animation_fullname(animation_name, x.first)};
 
         x.second->set_default_animation(animation_fullname);
     }
@@ -70,8 +69,7 @@ void character::set_animation_config(
     duration_map_.emplace(animation_name, duration);
     for (const auto &x : mesh_map_)
     {
-        std::string animation_fullname{
-            create_animation_fullname(animation_name, x.first)};
+        std::string animation_fullname{ create_animation_fullname(animation_name, x.first)};
 
         x.second->set_animation_config(animation_fullname, loop, duration);
     }
@@ -240,8 +238,7 @@ void character::set_animation(const std::string &animation_set)
 {
     for (const auto &x : mesh_map_)
     {
-        std::string animation_fullname{
-            create_animation_fullname(animation_set, x.first)};
+        std::string animation_fullname{ create_animation_fullname(animation_set, x.first)};
 
         x.second->set_animation(animation_fullname);
     }
@@ -489,23 +486,19 @@ operation::behavior_state character::step::operator()()
         switch (boost::get<direction>(params_.at(0)))
         {
         case direction::FRONT:
-            camera->move_position(
-                D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
+            camera->move_position( D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
             outer_.grid_position_.z += 1;
             break;
         case direction::LEFT:
-            camera->move_position(
-                D3DXVECTOR3{-constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
+            camera->move_position( D3DXVECTOR3{-constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
             outer_.grid_position_.x -= 1;
             break;
         case direction::BACK:
-            camera->move_position(
-                D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
+            camera->move_position( D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
             outer_.grid_position_.z -= 1;
             break;
         case direction::RIGHT:
-            camera->move_position(
-                D3DXVECTOR3{constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
+            camera->move_position( D3DXVECTOR3{constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
             outer_.grid_position_.x += 1;
             break;
         }
@@ -526,8 +519,7 @@ operation::behavior_state character::step::operator()()
         }
     }
     if (constants::ACTION_INTERVAL_FRAME <= count_ &&
-        (count_)*constants::ANIMATION_SPEED <
-            outer_.duration_map_.at("Step_Left"))
+        (count_)*constants::ANIMATION_SPEED < outer_.duration_map_.at("Step_Left"))
     {
         ++count_;
         return operation::behavior_state::ALLOW_NEXT_ACTION;
@@ -580,23 +572,19 @@ void character::step::cancel()
         switch (boost::get<direction>(params_.at(0)))
         {
         case direction::FRONT:
-            camera->move_position(
-                D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
+            camera->move_position( D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
             outer_.grid_position_.z -= 1;
             break;
         case direction::LEFT:
-            camera->move_position(
-                D3DXVECTOR3{constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
+            camera->move_position( D3DXVECTOR3{constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
             outer_.grid_position_.x += 1;
             break;
         case direction::BACK:
-            camera->move_position(
-                D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
+            camera->move_position( D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
             outer_.grid_position_.z += 1;
             break;
         case direction::RIGHT:
-            camera->move_position(
-                D3DXVECTOR3{-constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
+            camera->move_position( D3DXVECTOR3{-constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
             outer_.grid_position_.x -= 1;
             break;
         }
@@ -703,14 +691,12 @@ operation::behavior_state character::rotate::operator()()
         }
     }
     if (constants::ACTION_INTERVAL_FRAME <= count_ &&
-        (count_)*constants::ANIMATION_SPEED <
-            outer_.duration_map_.at("Rotate_Left"))
+        (count_)*constants::ANIMATION_SPEED < outer_.duration_map_.at("Rotate_Left"))
     {
         ++count_;
         return operation::behavior_state::ALLOW_NEXT_ACTION;
     }
-    else if (outer_.duration_map_.at("Rotate_Left") <=
-             (count_)*constants::ANIMATION_SPEED)
+    else if (outer_.duration_map_.at("Rotate_Left") <= (count_)*constants::ANIMATION_SPEED)
     {
         return operation::behavior_state::FINISH;
     }
@@ -790,8 +776,7 @@ operation::behavior_state character::attack::operator()()
     {
         outer_.set_animation("Attack");
     }
-    if ((count_)*constants::ANIMATION_SPEED >=
-        outer_.duration_map_.at("Attack"))
+    if ((count_)*constants::ANIMATION_SPEED >= outer_.duration_map_.at("Attack"))
     {
         return operation::behavior_state::FINISH;
     }
