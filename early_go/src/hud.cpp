@@ -185,7 +185,7 @@ void hud::add_message(const string &id, const string &message, const cv::Rect &r
             cv::Rect(0, 0, rect.width, rect.height),
             cv::Size(get_next_pow_2(rect.width), get_next_pow_2(rect.height)),
             D3DCOLOR_ARGB(128, 190, 190, 210),
-            "游ゴシック",
+            "MS_Gothic",
             //          "Consolas",
             //          "Ricty Diminished",
             //          "ＭＳ　Ｐゴシック",
@@ -739,37 +739,37 @@ void hud::HP_info_drawer::operator()()
     funcs_.push_back([&] { draw_circle_2(); });
     funcs_.push_back([&] { draw_HP_bar(); });
     shared_ptr<message_writer_for_thread> temp_writer{
-        new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{100, 20}}};
+        new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{100, 20}}};
     funcs_.push_back([&, temp_writer] { draw_text_stage_number_1(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{30, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_stage_number_2(temp_writer); });
 
-    temp_writer.reset(new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{40, 20}});
+    temp_writer.reset(new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{40, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_time_1(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 30, cv::Size{30, 30}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 30, cv::Size{30, 30}});
     funcs_.push_back([&, temp_writer] { draw_text_time_2(temp_writer); }); 
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{90, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_strength_1(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{90, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_strength_2(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{90, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_strength_3(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{90, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_strength_4(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{30, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_HP_1(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{50, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{50, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_HP_2(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{70, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{70, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_HP_3(temp_writer); });
 
     for (int i = 0; i < THREAD_NUM; ++i)
@@ -1814,37 +1814,37 @@ void hud::HP_info_drawer2::operator()()
     funcs_.push_back([&] { draw_circle_2(); });
     funcs_.push_back([&] { draw_HP_bar(); });
     shared_ptr<message_writer_for_thread> temp_writer{
-        new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{100, 20}}};
+        new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{100, 20}}};
     funcs_.push_back([&, temp_writer] { draw_text_stage_number_1(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{30, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_stage_number_2(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{40, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{40, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_time_1(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 30, cv::Size{30, 30}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 30, cv::Size{30, 30}});
     funcs_.push_back([&, temp_writer] { draw_text_time_2(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{90, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_strength_1(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{90, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_strength_2(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{90, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_strength_3(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{90, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{90, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_strength_4(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{30, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{30, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_HP_1(temp_writer); });
 
-    temp_writer.reset( new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{50, 20}});
+    temp_writer.reset( new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{50, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_HP_2(temp_writer); }); 
 
-    temp_writer.reset(new_crt message_writer_for_thread{"游ゴシック", 20, cv::Size{70, 20}});
+    temp_writer.reset(new_crt message_writer_for_thread{"MS_Gothic", 20, cv::Size{70, 20}});
     funcs_.push_back([&, temp_writer] { draw_text_HP_3(temp_writer); });
 
     for (int i = 0; i < THREAD_NUM; ++i)

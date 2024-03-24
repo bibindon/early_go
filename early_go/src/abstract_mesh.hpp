@@ -53,7 +53,7 @@ public:
             constants::TEXTURE_PIXEL_SIZE - 1,
             constants::TEXTURE_PIXEL_SIZE - 1},
         const DWORD & = D3DCOLOR_ARGB(0xff, 0xff, 0xff, 0xff),
-        const std::string & = "ü‡ÉSÉVÉbÉN",
+        const std::string & = "MS_Gothic",
         const int & = 40,
         const int & = 0,
         const BYTE & = SHIFTJIS_CHARSET,

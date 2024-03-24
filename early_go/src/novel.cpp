@@ -135,7 +135,7 @@ int novel::glue_draw_text(lua_State *L)
         message, true,
         {200, 620, 1400, 800},
         D3DCOLOR_ARGB(255, 255, 255, 255),
-        "ü‡ÉSÉVÉbÉN",
+        "MS_Gothic",
         32,
         FW_NORMAL,
         SHIFTJIS_CHARSET,
