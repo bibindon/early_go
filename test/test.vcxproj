@@ -116,7 +116,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>gtestd.lib;gtest_maind.lib;legacy_stdio_definitions.lib;abstract_mesh.obj;animation_mesh.obj;animation_mesh_allocator.obj;camera.obj;character.obj;constants.obj;hud.obj;key.obj;main_window.obj;mesh.obj;novel.obj;operation.obj;skinned_animation_mesh.obj;skinned_animation_mesh_allocator.obj;text.obj;text_thread_ver.obj;util.obj;error_dialog.obj;sprite_anim.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gtestd.lib;gtest_maind.lib;legacy_stdio_definitions.lib;abstract_mesh.obj;animation_mesh.obj;animation_mesh_allocator.obj;camera.obj;character.obj;constants.obj;hud.obj;key.obj;main_window.obj;mesh.obj;novel.obj;operation.obj;skinned_animation_mesh.obj;skinned_animation_mesh_allocator.obj;text.obj;text_thread_ver.obj;util.obj;error_dialog.obj;sprite_anim.obj;sprite.obj;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.3\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Debug;../early_go/x64/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -159,7 +159,7 @@ COPY /Y $(SolutionDir)early_go\.res $(OutputPath)
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>gtest.lib;gtest_main.lib;legacy_stdio_definitions.lib;abstract_mesh.obj;animation_mesh.obj;animation_mesh_allocator.obj;camera.obj;character.obj;constants.obj;hud.obj;key.obj;main_window.obj;mesh.obj;novel.obj;operation.obj;skinned_animation_mesh.obj;skinned_animation_mesh_allocator.obj;text.obj;text_thread_ver.obj;util.obj;error_dialog.obj;sprite_anim.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gtest.lib;gtest_main.lib;legacy_stdio_definitions.lib;abstract_mesh.obj;animation_mesh.obj;animation_mesh_allocator.obj;camera.obj;character.obj;constants.obj;hud.obj;key.obj;main_window.obj;mesh.obj;novel.obj;operation.obj;skinned_animation_mesh.obj;skinned_animation_mesh_allocator.obj;text.obj;text_thread_ver.obj;util.obj;error_dialog.obj;sprite_anim.obj;sprite.obj;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.3\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Release;$(SolutionDir)\packages\opencv.win.native.320.1.1-vs141\build\native\lib\x64\v141\Release;../early_go/x64/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>

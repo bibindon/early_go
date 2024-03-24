@@ -15,6 +15,7 @@
 #include "novel.hpp"
 #include "resource.h"
 #include "sprite_anim.hpp"
+#include "sprite.hpp"
 
 #include <thread>
 
@@ -641,6 +642,7 @@ erto's book, Programming in Lua.\n\
     if (key::is_down('G'))
     {
         sprite_anim_ = std::make_shared<sprite_anim>(d3d_device_, "image/sprite_anim_test1.png");
+        sprite_ = std::make_shared<sprite>(d3d_device_, "image/sprite_test1.png");
     }
     // if (key::is_down('W')) {
     //   early_->set_dynamic_message(constants::EARLY_BODY, 1,
@@ -681,6 +683,16 @@ void main_window::render()
         if (sprite_anim_.get() != nullptr)
         {
             (*sprite_anim_)();
+        }
+        if (sprite_.get() != nullptr)
+        {
+            D3DXVECTOR3 pos{};
+            static float work = 0.0f;
+            work += 1.0f;
+            pos.x = work;
+            pos.y = work;
+            pos.z = 0.0f;
+            (*sprite_)(pos);
         }
         (*hud_)(*this);
 

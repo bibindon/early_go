@@ -20,6 +20,7 @@ class operation;
 class hud;
 class sprite_anim;
 class novel;
+class sprite;
 
 /*
  * A class that handles basic window processings.
@@ -67,6 +68,7 @@ private:
 
     std::shared_ptr<hud> hud_;
     std::shared_ptr<sprite_anim> sprite_anim_;
+    std::shared_ptr<sprite> sprite_;
 
     std::shared_ptr<novel> novel_;
     HWND hwnd_;
