@@ -55,7 +55,6 @@ void operation::operator()(main_window &a_main_window)
     else if (key::is_down('W'))
     {
         reserved_behavior_->step_dir_ = direction::FRONT;
-        reserved_behavior_->state_ = behavior_state::READY;
         if (key::check_simultaneous('A'))
         {
             reserved_behavior_->action_type_ = action_type::ATTACK;
@@ -93,7 +92,6 @@ void operation::operator()(main_window &a_main_window)
     else if (key::is_down('A'))
     {
         reserved_behavior_->step_dir_ = direction::LEFT;
-        reserved_behavior_->state_ = behavior_state::READY;
         if (key::check_simultaneous('W'))
         {
             reserved_behavior_->action_type_ = action_type::ATTACK;
@@ -131,7 +129,6 @@ void operation::operator()(main_window &a_main_window)
     else if (key::is_down('S'))
     {
         reserved_behavior_->step_dir_ = direction::BACK;
-        reserved_behavior_->state_ = behavior_state::READY;
         if (key::check_simultaneous('I'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
@@ -164,7 +161,6 @@ void operation::operator()(main_window &a_main_window)
     else if (key::is_down('D'))
     {
         reserved_behavior_->step_dir_ = direction::RIGHT;
-        reserved_behavior_->state_ = behavior_state::READY;
         if (key::check_simultaneous('I'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
@@ -197,7 +193,6 @@ void operation::operator()(main_window &a_main_window)
     else if (key::is_down('I'))
     {
         reserved_behavior_->rotate_dir_ = direction::FRONT;
-        reserved_behavior_->state_ = behavior_state::READY;
         if (key::check_simultaneous('W'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
@@ -230,7 +225,6 @@ void operation::operator()(main_window &a_main_window)
     else if (key::is_down('J'))
     {
         reserved_behavior_->rotate_dir_ = direction::LEFT;
-        reserved_behavior_->state_ = behavior_state::READY;
         if (key::check_simultaneous('W'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
@@ -263,7 +257,6 @@ void operation::operator()(main_window &a_main_window)
     else if (key::is_down('K'))
     {
         reserved_behavior_->rotate_dir_ = direction::BACK;
-        reserved_behavior_->state_ = behavior_state::READY;
         if (key::check_simultaneous('W'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
@@ -296,7 +289,6 @@ void operation::operator()(main_window &a_main_window)
     else if (key::is_down('L'))
     {
         reserved_behavior_->rotate_dir_ = direction::RIGHT;
-        reserved_behavior_->state_ = behavior_state::READY;
         if (key::check_simultaneous('W'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
@@ -336,11 +328,29 @@ void operation::operator()(main_window &a_main_window)
         }
     }
 
+    if (current_behavior_->state_ == behavior_state::FINISH ||
+        current_behavior_->state_ == behavior_state::ALLOW_NEXT_ACTION ||
+        current_behavior_->state_ == behavior_state::NO_STATE)
+    {
+        if (reserved_behavior_->action_type_ != action_type::NO_ACTION)
+        {
+            *current_behavior_ = *reserved_behavior_;
+            current_behavior_->state_ = behavior_state::READY;
+
+            reserved_behavior_->action_type_ = action_type::NO_ACTION;
+            reserved_behavior_->step_dir_ = direction::NONE;
+            reserved_behavior_->rotate_dir_ = direction::NONE;
+            reserved_behavior_->state_ = behavior_state::NO_STATE;
+        }
+    }
+
     shared_ptr<character> _main_character = a_main_window.get_main_character();
 
+    static int _cancelable_counter = 0;
     if (current_behavior_->state_ == behavior_state::READY)
     {
-        current_behavior_->state_ = behavior_state::PLAY;
+        current_behavior_->state_ = behavior_state::PLAY_CANCELABLE;
+        _cancelable_counter = 0;
         if (current_behavior_->action_type_ == action_type::STEP)
         {
             _main_character->set_action_step(current_behavior_->step_dir_);
@@ -359,12 +369,21 @@ void operation::operator()(main_window &a_main_window)
             _main_character->set_action_attack();
         }
     }
-    else if (current_behavior_->state_ == behavior_state::PLAY)
+    else if (current_behavior_->state_ == behavior_state::PLAY_CANCELABLE)
     {
         if (reserved_behavior_->action_type_ != action_type::NO_ACTION)
         {
             reserved_behavior_->state_ = behavior_state::READY;
         }
+        ++_cancelable_counter;
+        if (_cancelable_counter > key::SIMULTANEOUS_ALLOW_FRAME)
+        {
+            _cancelable_counter = 0;
+            current_behavior_->state_ = behavior_state::PLAY;
+        }
+    }
+    else if (current_behavior_->state_ == behavior_state::PLAY)
+    {
         if (_main_character->get_action_state() == behavior_state::FINISH)
         {
             current_behavior_->state_ = behavior_state::FINISH;
@@ -378,21 +397,6 @@ void operation::operator()(main_window &a_main_window)
     {
         _main_character->cancel_action();
         current_behavior_->state_ = behavior_state::FINISH;
-    }
-
-    if (current_behavior_->state_ == behavior_state::FINISH ||
-        current_behavior_->state_ == behavior_state::ALLOW_NEXT_ACTION ||
-        current_behavior_->state_ == behavior_state::NO_STATE)
-    {
-        if (reserved_behavior_->action_type_ != action_type::NO_ACTION)
-        {
-            *current_behavior_ = *reserved_behavior_;
-
-            reserved_behavior_->action_type_ = action_type::NO_ACTION;
-            reserved_behavior_->step_dir_ = direction::NONE;
-            reserved_behavior_->rotate_dir_ = direction::NONE;
-            reserved_behavior_->state_ = behavior_state::NO_STATE;
-        }
     }
 
     // collision detection
@@ -430,8 +434,7 @@ void operation::cancel_removed_by_simul_push()
     // When simultaneous push is detected, there is necessary that a previous push is
     // canceled.
     // i.e. A->J   "Step left" should be canceld and "Step and rotate" should be set.
-    if (
-       // reserved_behavior_->state_ == behavior_state::NO_STATE &&
+    if (current_behavior_->state_ == behavior_state::PLAY_CANCELABLE &&
         (current_behavior_->action_type_ == action_type::STEP ||
             current_behavior_->action_type_ == action_type::ROTATE))
     {

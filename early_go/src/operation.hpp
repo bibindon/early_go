@@ -19,6 +19,7 @@ public:
     {
         NO_STATE,
         READY,
+        PLAY_CANCELABLE,
         PLAY,
         STOP,
         ALLOW_NEXT_ACTION,
