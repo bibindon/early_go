@@ -37,15 +37,56 @@ sprite_anim::sprite_anim(const shared_ptr<IDirect3DDevice9>& d3d_device, string 
     }
 
     texture_.reset(temp_texture, custom_deleter());
+
+    // Read ini file.
+    // ini file is a text like a following.
+    //
+    // width, 64
+    // height, 64
+    // max_frame, 10
+
+    string inifilename = filename;
+    size_t index = inifilename.find_last_of('.');
+    inifilename.erase(index);
+    inifilename += ".ini";
+    vector<char> inibuffer = util::get_image_resource(inifilename);
+    string inifile(inibuffer.begin(), inibuffer.end());
+    
+    size_t seek_begin = inifile.find(",");
+    size_t seek_end = inifile.find("\r\n");
+    string work = string(
+        inifile.begin() + seek_begin + 1,
+        inifile.begin() + seek_end);
+    width_ = std::stoi(work);
+
+    seek_begin = inifile.find(",", seek_end + 2);
+    seek_end = inifile.find("\r\n", seek_begin);
+    work = string(
+        inifile.begin() + seek_begin + 1,
+        inifile.begin() + seek_end);
+    height_ = std::stoi(work);
+
+    seek_begin = inifile.find(",", seek_end + 2);
+    seek_end = inifile.find("\r\n", seek_begin);
+    work = string(
+        inifile.begin() + seek_begin + 1,
+        inifile.begin() + seek_end);
+    max_frame_ = std::stoi(work);
 }
 void sprite_anim::operator()()
 {
-    static int frame = 0;
-    frame++;
-    int left = (frame/10)%10;
+    frame_++;
+    if (frame_ >= max_frame_)
+    {
+        frame_ = max_frame_-1;
+    }
 
     sprite_->Begin(D3DXSPRITE_ALPHABLEND);
-    RECT rect = {left*64, 0, (left*64)+64, 64};
+    RECT rect = {
+        frame_ * width_,
+        0,
+        (frame_ * width_) + height_,
+        height_};
     D3DXVECTOR3 center(0, 0, 0);
     D3DXVECTOR3 position(0, 0, 0);
     sprite_->Draw(

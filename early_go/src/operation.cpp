@@ -440,12 +440,6 @@ void operation::cancel_removed_by_simul_push()
     {
         current_behavior_->state_ = behavior_state::CANCEL;
     }
-    // When reserved_behavior_ is reserved, reserved_behavior_ should be canceled.
-    // i.e. A->J->->D->L   When L is pushed, D input should be canceled.
-    else
-    {
-        //reserved_behavior_->state_ = behavior_state::CANCEL;
-    }
 }
 
 /*

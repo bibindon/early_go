@@ -230,7 +230,6 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     //  AddFontResource("chogokubosogothic_5.ttf");
 
     hud_ = std::make_shared<hud>(d3d_device_);
-    sprite_anim_ = std::make_shared<sprite_anim>(d3d_device_, "image/sprite_anim_test1.png");
     novel_ = std::make_shared<novel>();
 }
 
@@ -641,6 +640,7 @@ erto's book, Programming in Lua.\n\
     }
     if (key::is_down('G'))
     {
+        sprite_anim_ = std::make_shared<sprite_anim>(d3d_device_, "image/sprite_anim_test1.png");
     }
     // if (key::is_down('W')) {
     //   early_->set_dynamic_message(constants::EARLY_BODY, 1,
@@ -678,7 +678,10 @@ void main_window::render()
                 view_matrix, projection_matrix, light_direction, light_brightness_);
         }
 
-        (*sprite_anim_)();
+        if (sprite_anim_.get() != nullptr)
+        {
+            (*sprite_anim_)();
+        }
         (*hud_)(*this);
 
         d3d_device_->EndScene();

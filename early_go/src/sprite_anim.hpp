@@ -16,6 +16,11 @@ private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
     std::shared_ptr<ID3DXSprite> sprite_;
     std::shared_ptr<IDirect3DTexture9> texture_;
+
+    int width_{};
+    int height_{};
+    int max_frame_{};
+    int frame_{};
 };
 } // namespace early_go 
 #endif
