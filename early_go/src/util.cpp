@@ -76,16 +76,16 @@ vector<char> util::get_image_resource(const string& image_name)
 }
 vector<char> util::get_lua_resource(const string& filename)
 {
-    // Read from database.
-#ifndef DEBUG || _DEBUG
-    vector<char> buffer =
-        get_resource("SELECT DATA FROM SCRIPT WHERE FILENAME = '" + filename + "';");
-    // Read from local file.
-#else
+// Read from local file.
+#if defined(DEBUG) || defined(_DEBUG)
     string filepath = "./res/" + filename;
     std::ifstream ifs(filepath);
     string work((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
     vector<char> buffer(work.begin(), work.end());
+// Read from database.
+#else
+    vector<char> buffer =
+        get_resource("SELECT DATA FROM SCRIPT WHERE FILENAME = '" + filename + "';");
 #endif
     return buffer;
 }

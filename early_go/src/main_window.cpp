@@ -34,7 +34,7 @@ main_window::main_window(const HINSTANCE &hinstance)
       d3d_present_parameters_{},
       d3d_device_{},
       font_{},
-      light_direction_{-1.0f, 0.0f, 0.0f},
+      light_direction_{-1.0f, 1.0f, -1.0f},
       light_brightness_{1.0f},
       camera_{new_crt camera{{0.0f, 1.3f, -1.1639f * 3}, {0.0f, 1.3f, 0.0f}}},
       operation_{new_crt operation{camera_}},
