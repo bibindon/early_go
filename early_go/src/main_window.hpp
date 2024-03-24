@@ -18,6 +18,7 @@ class character;
 class abstract_mesh;
 class operation;
 class hud;
+class hud2;
 class sprite_anim;
 class novel;
 class sprite;
@@ -67,6 +68,7 @@ private:
     std::shared_ptr<operation> operation_;
 
     std::shared_ptr<hud> hud_;
+    std::shared_ptr<hud2> hud2_;
     std::shared_ptr<sprite_anim> sprite_anim_;
     std::shared_ptr<sprite> sprite_;
 

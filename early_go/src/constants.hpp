@@ -37,6 +37,8 @@ struct constants
     const static std::string SUO_BODY;
     const static std::string SUO_ARMOR;
     const static std::string SUO_SABER;
+
+    const static std::string FONT_NAME;
 };
 
 enum class direction

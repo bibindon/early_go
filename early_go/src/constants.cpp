@@ -42,6 +42,8 @@ const std::string constants::SUO_BODY  = "model/suo_tentative/body.x";
 const std::string constants::SUO_SABER = "model/suo_tentative/saber.x";
 const std::string constants::SUO_ARMOR = "model/suo_tentative/armor.x";
 
+const std::string constants::FONT_NAME = "Rounded M+ 2m regular";
+
 float get_sine_curve(const float& animation_count, const float& duration)
 {
   float sine_curve{std::sin(animation_count/duration*D3DX_PI-D3DX_PI/2)};

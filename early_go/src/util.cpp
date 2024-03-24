@@ -89,4 +89,10 @@ vector<char> util::get_lua_resource(const string& filename)
 #endif
     return buffer;
 }
+vector<char> util::get_font_resource(const string& resname)
+{
+    vector<char> buffer =
+        get_resource("SELECT DATA FROM FONT WHERE FILENAME = '" + resname + "';");
+    return buffer;
+}
 }

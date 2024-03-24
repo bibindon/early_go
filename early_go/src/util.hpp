@@ -16,6 +16,7 @@ public:
     static std::vector<char> get_shader_resource(const std::string& shader_name);
     static std::vector<char> get_image_resource(const std::string& image_name);
     static std::vector<char> get_lua_resource(const std::string& filename);
+    static std::vector<char> get_font_resource(const std::string& filename);
 };
 }
 #endif

@@ -135,8 +135,8 @@ int novel::glue_draw_text(lua_State *L)
         message, true,
         {200, 620, 1400, 800},
         D3DCOLOR_ARGB(255, 255, 255, 255),
-        "MS_Gothic",
-        32,
+        constants::FONT_NAME,
+        40,
         FW_NORMAL,
         SHIFTJIS_CHARSET,
         true);

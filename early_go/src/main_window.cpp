@@ -12,6 +12,7 @@
 #include "key.hpp"
 #include "operation.hpp"
 #include "hud.hpp"
+#include "hud2.hpp"
 #include "novel.hpp"
 #include "resource.h"
 #include "sprite_anim.hpp"
@@ -23,6 +24,7 @@ using std::chrono::system_clock;
 using std::shared_ptr;
 using std::vector;
 using std::string;
+using std::make_shared;
 
 namespace early_go
 {
@@ -206,6 +208,14 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     suo_->set_animation_config("Damaged", false, 1.0f);
     // ~ Create a Direct3D Device object. 
 
+    vector<char> font_buf = util::get_font_resource("font/rounded-mplus-2m-regular.ttf");
+    DWORD font_num = 0;
+    AddFontMemResourceEx(
+        &font_buf.at(0),
+        static_cast<DWORD>(font_buf.size()),
+        nullptr,
+        &font_num);
+
     // Create font. ~ 
     LPD3DXFONT font{};
     if (FAILED(D3DXCreateFont(
@@ -219,7 +229,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
         OUT_DEFAULT_PRECIS,
         PROOF_QUALITY,
         FIXED_PITCH | FF_MODERN,
-        "MS_Gothic",
+        constants::FONT_NAME.c_str(),
         &font)))
     {
         THROW_WITH_TRACE("Failed to create a font.");
@@ -228,10 +238,9 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     render_string_object::weak_font_ = font_;
     // ~ Creates font. 
 
-    //  AddFontResource("chogokubosogothic_5.ttf");
-
-    hud_ = std::make_shared<hud>(d3d_device_);
-    novel_ = std::make_shared<novel>();
+//    hud_ = make_shared<hud>(d3d_device_);
+    hud2_ = make_shared<hud2>(d3d_device_);
+    novel_ = make_shared<novel>();
 }
 
 main_window::~main_window()
@@ -352,13 +361,13 @@ void main_window::debug()
         fps_show = !fps_show;
         if (!fps_show)
         {
-            hud_->delete_message("fps");
+            //hud_->delete_message("fps");
         }
     }
     if (fps_show)
     {
-        hud_->delete_message("fps");
-        hud_->add_message("fps", std::to_string(fps), cv::Rect(30, 10, 64, 32));
+        //hud_->delete_message("fps");
+        //hud_->add_message("fps", std::to_string(fps), cv::Rect(30, 10, 64, 32));
     }
 
     //  if (key::is_hold('I')) {
@@ -523,18 +532,19 @@ void main_window::debug()
     //  }
     if (key::is_down('4'))
     {
-        hud_->show_HP_info();
+        //hud_->show_HP_info();
     }
     if (key::is_down('5'))
     {
         //    hud_->delete_image("test3");
-        hud_->remove_HP_info();
+//        hud_->remove_HP_info();
     }
     if (key::is_down('6'))
     {
         //    hud_->add_image("image/board.png");
         //    hud_->add_message("UŒ‚‚ªƒqƒbƒgB“G‚Ì‘Ì—Í‚ª30Œ¸‚è‚Ü‚µ‚½B",
         //                      cv::Rect(100, 100, 200, 100));
+        /*
         hud_->add_message_in_frame(
             "test4", "test1",
             "\
@@ -574,23 +584,23 @@ on of the decisions behind the design of Lua, see the technical papers availabl\
 e at Lua's web site. For a detailed introduction to programming in Lua, see Rob\
 erto's book, Programming in Lua.\n\
 ");
+*/
         // hud_->add_message("Enemy: 30 damage.", cv::Point(100, 300));
     }
 
     if (key::is_down('7'))
     {
-        hud_->add_frame(
-            "test1", cv::Rect(250, 300, 600, 450), cv::Scalar(30, 20, 20, 150));
+//        hud_->add_frame( "test1", cv::Rect(250, 300, 600, 450), cv::Scalar(30, 20, 20, 150));
     }
 
     if (key::is_down('8'))
     {
-        hud_->delete_frame("test1");
+//        hud_->delete_frame("test1");
     }
 
     if (key::is_down('9'))
     {
-        hud_->delete_message("test4");
+//        hud_->delete_message("test4");
     }
 
     if (key::is_down('V'))
@@ -611,7 +621,7 @@ erto's book, Programming in Lua.\n\
             "1234567890", false,
             {1000, 1000, 2048, 2048},
             D3DCOLOR_ARGB(255, 255, 64, 64),
-            "MS_Gothic",
+            constants::FONT_NAME,
             300,
             FW_NORMAL,
             SHIFTJIS_CHARSET,
@@ -621,7 +631,7 @@ erto's book, Programming in Lua.\n\
             "ccccccccccccc", false,
             {210, 270, 2048, 2048},
             D3DCOLOR_ARGB(255, 255, 255, 255),
-            "MS_Gothic",
+            constants::FONT_NAME,
             120,
             FW_NORMAL,
             SHIFTJIS_CHARSET,
@@ -641,8 +651,8 @@ erto's book, Programming in Lua.\n\
     }
     if (key::is_down('G'))
     {
-        sprite_anim_ = std::make_shared<sprite_anim>(d3d_device_, "image/sprite_anim_test1.png");
-        sprite_ = std::make_shared<sprite>(d3d_device_, "image/sprite_test1.png");
+        sprite_anim_ = make_shared<sprite_anim>(d3d_device_, "image/sprite_anim_test1.png");
+        sprite_ = make_shared<sprite>(d3d_device_, "image/sprite_test1.png");
     }
     // if (key::is_down('W')) {
     //   early_->set_dynamic_message(constants::EARLY_BODY, 1,
@@ -694,7 +704,8 @@ void main_window::render()
             pos.z = 0.0f;
             (*sprite_)(pos);
         }
-        (*hud_)(*this);
+//        (*hud_)(*this);
+        (*hud2_)();
 
         d3d_device_->EndScene();
     }

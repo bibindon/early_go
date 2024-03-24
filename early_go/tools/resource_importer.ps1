@@ -67,7 +67,7 @@ try {
         }
         
         $table_directory = $RESOURCE_DIRECTORY + "\" + $table_name
-        $relative_paths = Get-ChildItem -Recurse -File $table_directory | Resolve-Path -Relative
+        $relative_paths = @(Get-ChildItem -Recurse -File $table_directory | Resolve-Path -Relative)
     
         # Upsert files.
         for ($j=0; $j -lt $relative_paths.Length; $j++) {
