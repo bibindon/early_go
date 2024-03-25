@@ -16,7 +16,6 @@ public:
 
     static bool update();
     static bool is_down(const int &);
-    static bool is_down(const std::chrono::system_clock::time_point &, const int &);
     static bool is_down(const int&, const int &);
     static bool is_hold(const int &);
     static bool is_up(const int &);

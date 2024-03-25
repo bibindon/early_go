@@ -17,6 +17,7 @@
 #include "resource.h"
 #include "sprite_anim.hpp"
 #include "sprite.hpp"
+#include "text_d3dxfont.hpp"
 
 #include <thread>
 
@@ -218,7 +219,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
 
     // Create font. ~ 
     LPD3DXFONT font{};
-    if (FAILED(D3DXCreateFont(
+    if (FAILED( D3DXCreateFont(
         d3d_device_.get(),
         0,
         10,
@@ -229,7 +230,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
         OUT_DEFAULT_PRECIS,
         PROOF_QUALITY,
         FIXED_PITCH | FF_MODERN,
-        constants::FONT_NAME.c_str(),
+        "MS_Gothic",
         &font)))
     {
         THROW_WITH_TRACE("Failed to create a font.");
@@ -515,6 +516,8 @@ void main_window::debug()
     if (key::is_down('T'))
     {
         early_->clear_dynamic_texture(constants::EARLY_BODY, 1);
+
+        text_d3dxfont_ = make_shared<text_d3dxfont>(d3d_device_);
     }
     if (key::is_down('C'))
     {
@@ -707,6 +710,31 @@ void main_window::render()
 //        (*hud_)(*this);
         (*hud2_)();
 
+        //render_string_object::render_string("aaa", 0, 0);
+        if (text_d3dxfont_.get() != nullptr)
+        {
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 0, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 50, D3DCOLOR_ARGB(55, 100, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 100, D3DCOLOR_ARGB(155, 200, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 150, D3DCOLOR_ARGB(255, 0, 0, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 200, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 250, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 300, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 350, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 400, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 450, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 500, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 550, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 600, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 650, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 700, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 750, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 800, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 850, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 900, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 950, D3DCOLOR_ARGB(255, 0, 100, 200));
+        }
+
         d3d_device_->EndScene();
     }
 
@@ -893,7 +921,7 @@ void main_window::render_string_object::render_string(
             -1,
             &rect,
             DT_LEFT | DT_BOTTOM,
-            0xff00ff00);
+            0xff80ff80);
     }
 }
 

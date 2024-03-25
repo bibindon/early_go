@@ -22,6 +22,7 @@ class hud2;
 class sprite_anim;
 class novel;
 class sprite;
+class text_d3dxfont;
 
 /*
  * A class that handles basic window processings.
@@ -71,6 +72,7 @@ private:
     std::shared_ptr<hud2> hud2_;
     std::shared_ptr<sprite_anim> sprite_anim_;
     std::shared_ptr<sprite> sprite_;
+    std::shared_ptr<text_d3dxfont> text_d3dxfont_ { };
 
     std::shared_ptr<novel> novel_;
     HWND hwnd_;

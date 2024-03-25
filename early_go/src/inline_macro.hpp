@@ -5,33 +5,27 @@
 
 namespace early_go
 {
-/*
- * If a custom deleter for smart-pointer is necessary, use the following
- * 'custom_deleter' instead of these.
- *
- * These template function, like a safe_*****, is for freeing memory. The reason
- * why the argument is pointer-reference is because of executing the line of
- * "p = nullptr;" and what executing the line makes the arguments of a client
- * which uses this function effected. The real purpose of "p = nullptr;" line is
- * to prevent from a double-free and being used the argument by the client.
- */
+// If a custom deleter for smart-pointer is necessary, use the following
+// 'custom_deleter' instead of these.
+//
+// These template function, like a safe_*****, is for freeing memory. The reason
+// why the argument is pointer-reference is because of executing the line of
+// "p = nullptr;" and what executing the line makes the arguments of a client
+// which uses this function effected. The real purpose of "p = nullptr;" line is
+// to prevent from a double-free and being used the argument by the client.
 template <typename T>
 inline void safe_delete(T *&p)
 {
-    /*
-     * A null check is not necessary because the behavior is defined by standards
-     * which to execute 'delete' to nullptr does not do anything.
-     */
+    // A null check is not necessary because the behavior is defined by standards
+    // which to execute 'delete' to nullptr does not do anything.
     delete p;
     p = nullptr;
 }
 template <typename T>
 inline void safe_delete_array(T *&p)
 {
-    /*
-     * A null check is not necessary because the behavior is defined by standards
-     * which to execute 'delete' to nullptr does not do anything.
-     */
+    // A null check is not necessary because the behavior is defined by standards
+    // which to execute 'delete' to nullptr does not do anything.
     delete[] p;
     p = nullptr;
 }
@@ -60,22 +54,18 @@ struct custom_deleter
     template <typename T>
     void operator()(T p)
     {
-        /*
-         * A null assignment is not necessary because a null assignment is for
-         * preventing from a segmentation fault by a double-free and a smart pointer
-         * does not free only once and that behavior is the reason why this is used.
-         */
+        // A null assignment is not necessary because a null assignment is for
+        // preventing from a segmentation fault by a double-free and a smart pointer
+        // does not free only once and that behavior is the reason why this is used.
         p->Release();
     }
 };
 
-/*
- * A class making logging simple.
- *
- * Usages:
- *   early_go::log_liner{} << 42 << std::to_string(42); // 'std::endl' is added
- *                                                      // automatically.
- */
+//  A class making logging simple.
+// 
+//  Usages:
+//    early_go::log_liner{} << 42 << std::to_string(42); // 'std::endl' is added
+//                                                       // automatically.
 struct log_liner
 {
 #if defined(DEBUG) || defined(_DEBUG)

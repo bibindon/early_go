@@ -698,8 +698,7 @@ void hud::HP_info_drawer::draw_text_HP_2( const shared_ptr<message_writer_for_th
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer::draw_text_HP_3(
-    const shared_ptr<message_writer_for_thread> &writer)
+void hud::HP_info_drawer::draw_text_HP_3(const shared_ptr<message_writer_for_thread> &writer)
 {
     if (!main_chara_)
     {
