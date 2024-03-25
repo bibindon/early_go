@@ -784,6 +784,10 @@ void main_window::init_lua()
     lua_setglobal(lua_state_, "place_skin_mesh");
 
     vector<char> buff = util::get_lua_resource("script/init.lua");
+    if (buff.size() == 0)
+    {
+        THROW_WITH_TRACE("Failed to load lua script.: script/init.lua");
+    }
     if (luaL_loadbuffer(lua_state_, &buff.at(0), buff.size(), "script/init.lua"))
     {
         log_liner{} << "cannot load file.";

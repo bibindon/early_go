@@ -24,3 +24,4 @@ TEST(main_window_test, main_window_test)
     _window();
     _thread.join();
 }
+
