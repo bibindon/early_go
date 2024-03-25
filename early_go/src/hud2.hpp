@@ -15,8 +15,8 @@ private:
     std::shared_ptr<ID3DXSprite> sprite_;
     std::shared_ptr<IDirect3DTexture9> texture_;
 
-    UINT width_{};
-    UINT height_{};
+    UINT width_ { 0 };
+    UINT height_ { 0 };
 };
 } // namespace early_go 
 #endif

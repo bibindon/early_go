@@ -51,13 +51,13 @@ public:
 
 private:
     std::shared_ptr<camera> camera_;
-    std::shared_ptr<behavior> current_behavior_;
-    std::shared_ptr<behavior> reserved_behavior_;
+    std::shared_ptr<behavior> current_behavior_ { new_crt behavior { } };
+    std::shared_ptr<behavior> reserved_behavior_ { new_crt behavior { } };
 
     // std::unordered_map is used because using minus index is necessary.
-    std::unordered_map<int, std::unordered_map<int, bool>> offensive_area_;
+    std::unordered_map<int, std::unordered_map<int, bool>> offensive_area_ { };
 
-    int current_stage_;
+    int current_stage_ { 0 };
 
     void cancel_removed_by_simul_push();
 };

@@ -8,20 +8,20 @@ using std::vector;
 namespace early_go
 {
 sprite::sprite(const shared_ptr<IDirect3DDevice9>& d3d_device, string filename)
-    : d3d_device_{d3d_device}
+    : d3d_device_ { d3d_device }
 {
     // sprite setup
-    LPD3DXSPRITE temp_sprite = nullptr;
-    if (FAILED(D3DXCreateSprite(d3d_device_.get(), &temp_sprite)))
+    LPD3DXSPRITE temp_sprite { nullptr };
+    if (FAILED( D3DXCreateSprite(d3d_device_.get(), &temp_sprite)))
     {
         THROW_WITH_TRACE("Failed to create a sprite.");
     }
-    sprite_.reset(temp_sprite, custom_deleter());
+    sprite_.reset(temp_sprite, custom_deleter { });
 
     // texture setup
-    vector<char> buffer = util::get_image_resource(filename);
+    vector<char> buffer { util::get_image_resource(filename) };
     LPDIRECT3DTEXTURE9 temp_texture = nullptr;
-    if (FAILED(D3DXCreateTextureFromFileInMemory(
+    if (FAILED( D3DXCreateTextureFromFileInMemory(
         d3d_device_.get(),
         &buffer[0],
         static_cast<UINT>(buffer.size()),
@@ -30,13 +30,13 @@ sprite::sprite(const shared_ptr<IDirect3DDevice9>& d3d_device, string filename)
         THROW_WITH_TRACE("Failed to create a texture.");
     }
 
-    D3DSURFACE_DESC desc{};
+    D3DSURFACE_DESC desc { };
     if (FAILED(temp_texture->GetLevelDesc(0, &desc)))
     {
         THROW_WITH_TRACE("Failed to create a texture.");
     }
 
-    texture_.reset(temp_texture, custom_deleter());
+    texture_.reset(temp_texture, custom_deleter { });
 
     width_ = desc.Width;
     height_ = desc.Height;
@@ -49,7 +49,7 @@ void sprite::operator()(const D3DXVECTOR3& pos)
         0,
         static_cast<LONG>(width_),
         static_cast<LONG>(height_)};
-    D3DXVECTOR3 center(0, 0, 0);
+    D3DXVECTOR3 center { 0, 0, 0 };
     sprite_->Draw(
         texture_.get(),
         &rect,

@@ -8,16 +8,12 @@ using std::shared_ptr;
 
 namespace early_go
 {
-
 operation::operation(const shared_ptr<camera> &camera)
-    : camera_{camera},
-      current_behavior_{ new_crt behavior{} },
-      reserved_behavior_{ new_crt behavior{} },
-      current_stage_{0}
+    : camera_{ camera }
 {
-    for (int z = 0; z < constants::GRID_NUM_HEIGHT; ++z)
+    for (int z { 0 }; z < constants::GRID_NUM_HEIGHT; ++z)
     {
-        for (int x = -(constants::GRID_NUM_WIDTH - 1) / 2;
+        for (int x { -(constants::GRID_NUM_WIDTH - 1) / 2 };
              x < (constants::GRID_NUM_WIDTH + 1) / 2; ++x)
         {
             offensive_area_[z][x] = false;
@@ -27,7 +23,7 @@ operation::operation(const shared_ptr<camera> &camera)
 
 void operation::set_offensive_position(const int &x, const int &z)
 {
-    const int current_stage_z = z % (constants::GRID_NUM_HEIGHT + 1);
+    const int current_stage_z { z % (constants::GRID_NUM_HEIGHT + 1) };
     // Check out of range(z).
     if (offensive_area_.find(current_stage_z) == offensive_area_.end())
     {
@@ -400,15 +396,15 @@ void operation::operator()(main_window &a_main_window)
     }
 
     // collision detection
-    shared_ptr<character> enemy = a_main_window.get_enemy_character();
+    shared_ptr<character> enemy { a_main_window.get_enemy_character() };
 
     cv::Point3i enemy_pos = enemy->get_grid_position();
-    const int relative_z = enemy_pos.z % (constants::GRID_NUM_HEIGHT + 1);
+    const int relative_z { enemy_pos.z % (constants::GRID_NUM_HEIGHT + 1) };
     if (offensive_area_.at(relative_z).at(enemy_pos.x))
     {
 //        current_behavior_->cancel();
         _main_character->cancel_action();
-        int enemy_health = enemy->get_health();
+        int enemy_health { enemy->get_health() };
         if (1 <= enemy_health - 1)
         {
             enemy->set_animation("Damaged");

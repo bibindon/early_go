@@ -8,20 +8,20 @@ using std::vector;
 namespace early_go
 {
 sprite_anim::sprite_anim(const shared_ptr<IDirect3DDevice9>& d3d_device, string filename)
-    : d3d_device_{d3d_device}
+    : d3d_device_ { d3d_device }
 {
     // sprite setup
-    LPD3DXSPRITE temp_sprite = nullptr;
-    if (FAILED(D3DXCreateSprite(d3d_device_.get(), &temp_sprite)))
+    LPD3DXSPRITE temp_sprite { nullptr };
+    if (FAILED( D3DXCreateSprite(d3d_device_.get(), &temp_sprite)))
     {
         THROW_WITH_TRACE("Failed to create a sprite.");
     }
-    sprite_.reset(temp_sprite, custom_deleter());
+    sprite_.reset(temp_sprite, custom_deleter { });
 
     // texture setup
-    vector<char> buffer = util::get_image_resource(filename);
-    LPDIRECT3DTEXTURE9 temp_texture = nullptr;
-    if (FAILED(D3DXCreateTextureFromFileInMemory(
+    vector<char> buffer { util::get_image_resource(filename) };
+    LPDIRECT3DTEXTURE9 temp_texture { nullptr };
+    if (FAILED( D3DXCreateTextureFromFileInMemory(
         d3d_device_.get(),
         &buffer[0],
         static_cast<UINT>(buffer.size()),
@@ -30,13 +30,13 @@ sprite_anim::sprite_anim(const shared_ptr<IDirect3DDevice9>& d3d_device, string 
         THROW_WITH_TRACE("Failed to create a texture.");
     }
 
-    D3DSURFACE_DESC desc{};
+    D3DSURFACE_DESC desc { };
     if (FAILED(temp_texture->GetLevelDesc(0, &desc)))
     {
         THROW_WITH_TRACE("Failed to create a texture.");
     }
 
-    texture_.reset(temp_texture, custom_deleter());
+    texture_.reset(temp_texture, custom_deleter { });
 
     // Read ini file.
     // ini file is a text like a following.
@@ -45,15 +45,15 @@ sprite_anim::sprite_anim(const shared_ptr<IDirect3DDevice9>& d3d_device, string 
     // height, 64
     // max_frame, 10
 
-    string inifilename = filename;
+    string inifilename { filename };
     size_t index = inifilename.find_last_of('.');
     inifilename.erase(index);
     inifilename += ".ini";
-    vector<char> inibuffer = util::get_image_resource(inifilename);
+    vector<char> inibuffer { util::get_image_resource(inifilename) };
     string inifile(inibuffer.begin(), inibuffer.end());
     
-    size_t seek_begin = inifile.find(",");
-    size_t seek_end = inifile.find("\r\n");
+    size_t seek_begin { inifile.find(",") };
+    size_t seek_end { inifile.find("\r\n") };
     string work = string(
         inifile.begin() + seek_begin + 1,
         inifile.begin() + seek_end);

@@ -10,7 +10,7 @@ namespace early_go
 vector<char> util::get_resource(const string& query)
 {
     vector<char> ret;
-    sqlite3 *db = nullptr;
+    sqlite3* db { nullptr };
     if (sqlite3_open(constants::DATABASE_NAME.c_str(), &db) != SQLITE_OK)
     {
         sqlite3_close(db);

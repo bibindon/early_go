@@ -17,27 +17,27 @@ mesh::mesh(
     const D3DXVECTOR3 &position,
     const D3DXVECTOR3 &rotation,
     const float &scale)
-    : abstract_mesh{d3d_device, SHADER_FILENAME, position, rotation},
-      d3dx_mesh_{nullptr, custom_deleter{}},
-      materials_count_{},
-      world_view_proj_handle_{},
-      colors_{},
-      textures_{},
-      center_coodinate_{0.0f, 0.0f, 0.0f},
-      radius_{},
-      scale_{}
+    : abstract_mesh { d3d_device, SHADER_FILENAME, position, rotation },
+      d3dx_mesh_ { nullptr, custom_deleter { } },
+      materials_count_ { },
+      world_view_proj_handle_ { },
+      colors_ { },
+      textures_ { },
+      center_coodinate_ { 0.0f, 0.0f, 0.0f },
+      radius_ { },
+      scale_ { }
 {
     mesh_name_ = x_filename;
     animation_strategy_.reset(new_crt no_animation);
 
-    HRESULT result{};
+    HRESULT result { };
     world_view_proj_handle_ = effect_->GetParameterByName(nullptr, "g_world_view_projection");
 
-    LPD3DXBUFFER adjacency_buffer{};
-    LPD3DXBUFFER material_buffer{};
-    LPD3DXMESH temp_mesh{};
+    LPD3DXBUFFER adjacency_buffer { };
+    LPD3DXBUFFER material_buffer { };
+    LPD3DXMESH temp_mesh { };
 
-    vector<char> buffer = util::get_model_resource(x_filename );
+    vector<char> buffer = util::get_model_resource(x_filename);
 
     result = D3DXLoadMeshFromXInMemory(
         &buffer[0],
@@ -119,13 +119,13 @@ mesh::mesh(
 
     D3DXMATERIAL *materials = static_cast<D3DXMATERIAL *>(material_buffer->GetBufferPointer());
 
-    for (DWORD i{}; i < materials_count_; ++i)
+    for (DWORD i { 0 }; i < materials_count_; ++i)
     {
         colors_.at(i) = materials[i].MatD3D.Diffuse;
         if (materials[i].pTextureFilename != nullptr)
         {
             buffer = util::get_model_texture_resource(x_filename, materials[i].pTextureFilename);
-            LPDIRECT3DTEXTURE9 temp_texture{};
+            LPDIRECT3DTEXTURE9 temp_texture { };
             if (FAILED(D3DXCreateTextureFromFileInMemory(
                 d3d_device_.get(),
                 &buffer[0],
@@ -151,10 +151,10 @@ mesh::~mesh()
 
 void mesh::render_impl(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
 {
-    D3DXMATRIX world_view_projection_matrix{};
+    D3DXMATRIX world_view_projection_matrix { };
     D3DXMatrixIdentity(&world_view_projection_matrix);
     {
-        D3DXMATRIX mat{};
+        D3DXMATRIX mat { };
 
         D3DXMatrixTranslation(
             &mat, -center_coodinate_.x, -center_coodinate_.y, -center_coodinate_.z);
@@ -176,17 +176,22 @@ void mesh::render_impl(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projecti
 
     effect_->Begin(nullptr, 0);
 
-    HRESULT result{};
+    HRESULT result { };
     if (FAILED(result = effect_->BeginPass(0)))
     {
         effect_->End();
         THROW_WITH_TRACE("Failed 'BeginPass' function.");
     }
 
-    for (DWORD i{}; i < materials_count_; ++i)
+    for (DWORD i { 0 }; i < materials_count_; ++i)
     {
         // TODO : remove redundant set****.
-        D3DXVECTOR4 vec4_color{colors_.at(i).r, colors_.at(i).g, colors_.at(i).b, colors_.at(i).a};
+        D3DXVECTOR4 vec4_color {
+            colors_.at(i).r,
+            colors_.at(i).g,
+            colors_.at(i).b,
+            colors_.at(i).a
+        };
         effect_->SetVector(diffuse_handle_, &vec4_color);
         effect_->SetTexture(mesh_texture_handle_, textures_.at(i).get());
         effect_->CommitChanges();

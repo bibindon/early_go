@@ -234,7 +234,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     {
         THROW_WITH_TRACE("Failed to create a font.");
     }
-    font_.reset(font, custom_deleter{});
+    font_.reset(font, custom_deleter { });
     render_string_object::weak_font_ = font_;
     // ~ Creates font. 
 

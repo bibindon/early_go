@@ -7,13 +7,6 @@ IF NOT %ERRORLEVEL% == 0 (
     COPY /Y sqlite3%1.dll sqlite3.dll > NUL
 )
 
-REM Copy the git hook script if it does not exist or it is different.
-COMP /M tools\pre-commit ..\.git\hooks\pre-commit > NUL
-IF NOT %ERRORLEVEL% == 0 (
-    ECHO Copy "tools\pre-commit" to "..\.git\hooks\pre-commit"
-    COPY /Y tools\pre-commit ..\.git\hooks\pre-commit > NUL
-)
-
 REM Copy dll
 
 IF %2==Debug (
