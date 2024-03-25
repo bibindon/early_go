@@ -3,6 +3,7 @@
 #include "mesh.hpp"
 
 using std::shared_ptr;
+using std::make_shared;
 using std::string;
 using std::unique_ptr;
 using std::vector;
@@ -12,32 +13,24 @@ namespace early_go
 const string mesh::SHADER_FILENAME = "mesh_shader.fx";
 
 mesh::mesh(
-    const shared_ptr<IDirect3DDevice9> &d3d_device,
-    const string &x_filename,
-    const D3DXVECTOR3 &position,
-    const D3DXVECTOR3 &rotation,
-    const float &scale)
-    : abstract_mesh { d3d_device, SHADER_FILENAME, position, rotation },
-      d3dx_mesh_ { nullptr, custom_deleter { } },
-      materials_count_ { },
-      world_view_proj_handle_ { },
-      colors_ { },
-      textures_ { },
-      center_coodinate_ { 0.0f, 0.0f, 0.0f },
-      radius_ { },
-      scale_ { }
+    const shared_ptr<IDirect3DDevice9>& d3d_device,
+    const string& x_filename,
+    const D3DXVECTOR3& position,
+    const D3DXVECTOR3& rotation,
+    const float& scale)
+    : abstract_mesh { d3d_device, SHADER_FILENAME, position, rotation }
 {
     mesh_name_ = x_filename;
-    animation_strategy_.reset(new_crt no_animation);
+    animation_strategy_.reset(new_crt no_animation { });
 
-    HRESULT result { };
+    HRESULT result { 0 };
     world_view_proj_handle_ = effect_->GetParameterByName(nullptr, "g_world_view_projection");
 
-    LPD3DXBUFFER adjacency_buffer { };
-    LPD3DXBUFFER material_buffer { };
-    LPD3DXMESH temp_mesh { };
+    LPD3DXBUFFER adjacency_buffer { nullptr };
+    LPD3DXBUFFER material_buffer { nullptr };
+    LPD3DXMESH temp_mesh { nullptr };
 
-    vector<char> buffer = util::get_model_resource(x_filename);
+    vector<char> buffer { util::get_model_resource(x_filename) };
 
     result = D3DXLoadMeshFromXInMemory(
         &buffer[0],
@@ -90,7 +83,7 @@ mesh::mesh(
         THROW_WITH_TRACE("Failed 'CloneMesh' function.");
     }
     d3dx_mesh_.reset(temp_mesh);
-    DWORD *word_buffer = static_cast<DWORD *>(adjacency_buffer->GetBufferPointer());
+    DWORD* word_buffer { static_cast<DWORD*>(adjacency_buffer->GetBufferPointer()) };
 
     result = D3DXComputeNormals(d3dx_mesh_.get(), word_buffer);
 
@@ -113,11 +106,11 @@ mesh::mesh(
         THROW_WITH_TRACE("Failed 'OptimizeInplace' function.");
     }
 
-    colors_.insert(begin(colors_), materials_count_, D3DCOLORVALUE{});
-    vector<unique_ptr<IDirect3DTexture9, custom_deleter>> temp_textures(materials_count_);
+    colors_.insert(begin(colors_), materials_count_, D3DCOLORVALUE { });
+    vector<unique_ptr<IDirect3DTexture9, custom_deleter>> temp_textures { materials_count_ };
     textures_.swap(temp_textures);
 
-    D3DXMATERIAL *materials = static_cast<D3DXMATERIAL *>(material_buffer->GetBufferPointer());
+    D3DXMATERIAL* materials { static_cast<D3DXMATERIAL*>(material_buffer->GetBufferPointer()) };
 
     for (DWORD i { 0 }; i < materials_count_; ++i)
     {
@@ -126,7 +119,7 @@ mesh::mesh(
         {
             buffer = util::get_model_texture_resource(x_filename, materials[i].pTextureFilename);
             LPDIRECT3DTEXTURE9 temp_texture { };
-            if (FAILED(D3DXCreateTextureFromFileInMemory(
+            if (FAILED( D3DXCreateTextureFromFileInMemory(
                 d3d_device_.get(),
                 &buffer[0],
                 static_cast<UINT>(buffer.size()),

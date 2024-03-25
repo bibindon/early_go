@@ -92,8 +92,8 @@ private:
         const float duration_;
         float radius_;
     };
-    std::queue<std::shared_ptr<key_animation>> animation_queue_;
-    std::shared_ptr<flexible_animation> flexible_animation_;
+    std::queue<std::shared_ptr<key_animation>> animation_queue_ { };
+    std::shared_ptr<flexible_animation> flexible_animation_ { };
 };
 }
 
