@@ -7,11 +7,6 @@ using std::shared_ptr;
 
 namespace early_go
 {
-struct key::key_info
-{
-    std::array<SHORT, key::KEY_TABLE_LENGTH> key_table_;
-};
-
 std::deque<shared_ptr<key::key_info> > key::key_deque_;
 const int key::SIMULTANEOUS_ALLOW_FRAME;
 
@@ -87,6 +82,10 @@ bool key::is_up(const int& keycode)
 
 bool key::check_simultaneous(const int& keycode)
 {
+    if (key_deque_.size() < SIMULTANEOUS_ALLOW_FRAME)
+    {
+        return false;
+    }
     for (int i = 0; i < SIMULTANEOUS_ALLOW_FRAME; ++i)
     {
         if (key_deque_.at(i)->key_table_[keycode] & 0x0001)

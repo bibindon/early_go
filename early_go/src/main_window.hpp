@@ -7,6 +7,8 @@
 
 #include "stdafx.hpp"
 
+#include "gtest/gtest_prod.h"
+
 namespace early_go
 {
 
@@ -90,6 +92,8 @@ private:
     static void get_mesh_info_from_lua(
         lua_State*, std::string*, D3DXVECTOR3*, D3DXVECTOR3*, float*);
     std::vector<std::shared_ptr<abstract_mesh> > meshes_lua_;
+
+    FRIEND_TEST(operation_test, operation_test);
 };
 } // namespace early_go 
 #endif

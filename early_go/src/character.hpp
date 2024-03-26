@@ -66,7 +66,7 @@ public:
     void set_shake_texture(const std::string &);
     void set_fade_in(const std::string &);
     void set_fade_out(const std::string &);
-    void set_action_step(const direction );
+    virtual void set_action_step(const direction );
     void set_action_rotate(const direction );
     void set_action_step_and_rotate(const direction , const direction );
     void set_action_attack();

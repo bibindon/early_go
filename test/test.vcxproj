@@ -52,9 +52,11 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="character_mock.hpp" />
     <ClCompile Include="inline_macro_test.cpp" />
     <ClCompile Include="main_window_test.cpp" />
     <ClCompile Include="mesh_test.cpp" />
+    <ClCompile Include="operation_test.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -80,6 +82,7 @@
     <Import Project="..\packages\lua.5.4.2\build\native\Lua.targets" Condition="Exists('..\packages\lua.5.4.2\build\native\Lua.targets')" />
     <Import Project="..\packages\boost.1.68.0.0\build\boost.targets" Condition="Exists('..\packages\boost.1.68.0.0\build\boost.targets')" />
     <Import Project="..\packages\boost_exception-vc141.1.68.0.0\build\boost_exception-vc141.targets" Condition="Exists('..\packages\boost_exception-vc141.1.68.0.0\build\boost_exception-vc141.targets')" />
+    <Import Project="..\packages\gmock.1.11.0\build\native\gmock.targets" Condition="Exists('..\packages\gmock.1.11.0\build\native\gmock.targets')" />
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -124,7 +127,7 @@
 COPY /Y $(ProjectDir)zlibd1.dll $(OutputPath)
 COPY /Y $(SolutionDir)early_go\.res $(ProjectDir)
 COPY /Y $(SolutionDir)early_go\.res $(OutputPath)
-MKDIR -p $(OutputPath)res\script
+MKDIR $(OutputPath)res\script 2&gt;NUL
 COPY /Y $(SolutionDir)early_go\res\script\* $(OutputPath)res\script
 </Command>
     </PostBuildEvent>
@@ -180,5 +183,6 @@ COPY /Y $(SolutionDir)early_go\.res $(OutputPath)</Command>
     <Error Condition="!Exists('..\packages\lua.5.4.2\build\native\Lua.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\lua.5.4.2\build\native\Lua.targets'))" />
     <Error Condition="!Exists('..\packages\boost.1.68.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.68.0.0\build\boost.targets'))" />
     <Error Condition="!Exists('..\packages\boost_exception-vc141.1.68.0.0\build\boost_exception-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_exception-vc141.1.68.0.0\build\boost_exception-vc141.targets'))" />
+    <Error Condition="!Exists('..\packages\gmock.1.11.0\build\native\gmock.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\gmock.1.11.0\build\native\gmock.targets'))" />
   </Target>
 </Project>
