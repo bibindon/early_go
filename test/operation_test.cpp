@@ -30,21 +30,86 @@ TEST(operation_test, operation_test)
     // Set character_mock.
     window.early_.reset(_chara_mock);
 
-    // "set_action_step" should be called with direction::FRONT of argument.
-    EXPECT_CALL(*_chara_mock, set_action_step(direction::FRONT)).Times(1);
-
-    // Set keyboard state for this test.
     {
-        shared_ptr<key::key_info> _key_info{ new_crt key::key_info { } };
-        key::key_deque_.push_front(_key_info);
+        // Set keyboard state for this test.
+        {
+            shared_ptr<key::key_info> _key_info{ new_crt key::key_info { } };
+            key::key_deque_.push_front(_key_info);
+        }
+        {
+            shared_ptr<key::key_info> _key_info{ new_crt key::key_info { } };
+            _key_info->key_table_['W'] = 0x0001;
+            key::key_deque_.push_front(_key_info);
+        }
+
+        // "set_action_step" should be called with direction::FRONT of argument.
+        EXPECT_CALL(*_chara_mock, set_action_step(direction::FRONT)).Times(1);
+
+        // Test operation::operator
+        (*ope)(window);
     }
     {
-        shared_ptr<key::key_info> _key_info{ new_crt key::key_info { } };
-        _key_info->key_table_['W'] = 0x0001;
-        key::key_deque_.push_front(_key_info);
-    }
+        ope.reset(new operation { camera } );
+        key::key_deque_.clear();
 
-    // Test operation::operator
-    (*ope)(window);
+        // Set keyboard state for this test.
+        {
+            shared_ptr<key::key_info> _key_info{ new_crt key::key_info { } };
+            key::key_deque_.push_front(_key_info);
+        }
+        {
+            shared_ptr<key::key_info> _key_info{ new_crt key::key_info { } };
+            _key_info->key_table_['A'] = 0x0001;
+            key::key_deque_.push_front(_key_info);
+        }
+
+        // "set_action_step" should be called with direction::FRONT of argument.
+        EXPECT_CALL(*_chara_mock, set_action_step(direction::LEFT)).Times(1);
+
+        // Test operation::operator
+        (*ope)(window);
+    }
+    {
+        ope.reset(new operation { camera } );
+        key::key_deque_.clear();
+
+        // Set keyboard state for this test.
+        {
+            shared_ptr<key::key_info> _key_info{ new_crt key::key_info { } };
+            key::key_deque_.push_front(_key_info);
+        }
+        {
+            shared_ptr<key::key_info> _key_info{ new_crt key::key_info { } };
+            _key_info->key_table_['S'] = 0x0001;
+            key::key_deque_.push_front(_key_info);
+        }
+
+        // "set_action_step" should be called with direction::FRONT of argument.
+        EXPECT_CALL(*_chara_mock, set_action_step(direction::BACK)).Times(1);
+
+        // Test operation::operator
+        (*ope)(window);
+    }
+    {
+        ope.reset(new operation { camera } );
+        key::key_deque_.clear();
+
+        // Set keyboard state for this test.
+        {
+            shared_ptr<key::key_info> _key_info{ new_crt key::key_info { } };
+            key::key_deque_.push_front(_key_info);
+        }
+        {
+            shared_ptr<key::key_info> _key_info{ new_crt key::key_info { } };
+            _key_info->key_table_['D'] = 0x0001;
+            key::key_deque_.push_front(_key_info);
+        }
+
+        // "set_action_step" should be called with direction::FRONT of argument.
+        EXPECT_CALL(*_chara_mock, set_action_step(direction::RIGHT)).Times(1);
+
+        // Test operation::operator
+        (*ope)(window);
+    }
 }
 }
