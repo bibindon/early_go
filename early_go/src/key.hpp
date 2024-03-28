@@ -4,7 +4,7 @@
 
 #include <chrono>
 
-#include "gtest/gtest_prod.h"
+#include <gtest/gtest_prod.h>
 
 namespace early_go
 {
