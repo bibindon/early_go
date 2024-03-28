@@ -2,6 +2,7 @@
 #include "hud2.hpp"
 #include "character.hpp"
 #include "text_d3dxfont.hpp"
+#include "camera.hpp"
 
 using std::shared_ptr;
 using std::string;
@@ -16,22 +17,37 @@ hud2::hud2(const shared_ptr<IDirect3DDevice9>& d3d_device)
     early_hp_.reset(new_crt text_d3dxfont { d3d_device, 30 });
     enemy_hp_.reset(new_crt text_d3dxfont { d3d_device, 30 });
 }
-void hud2::operator()(const shared_ptr<character>& _early, const shared_ptr<character>& _suo)
+void hud2::operator()(
+    const shared_ptr<character>& _early,
+    const shared_ptr<character>& _suo,
+    const shared_ptr<camera>& _camera)
 {
+    // Show early HP
     {
         int hp = _early->get_health();
         int max_hp = _early->get_max_health();
 
         string hp_text = to_string(hp) + "/" + to_string(max_hp);
-        early_hp_->set_param(hp_text, 800, 500, 0xA0ffffff);
+
+        D3DXVECTOR3 position { _early->get_position() };
+        position.y += 1.0f;
+        const POINT coodinate { _camera->get_screen_coordinate(position) };
+
+        early_hp_->set_param(hp_text, coodinate.x, coodinate.y, 0xA0A0ffff);
         (*early_hp_)();
     }
+    // Show enemy HP
     {
         int hp = _suo->get_health();
         int max_hp = _suo->get_max_health();
 
         string hp_text = to_string(hp) + "/" + to_string(max_hp);
-        enemy_hp_->set_param(hp_text, 200, 200, 0xA0ffffff);
+
+        D3DXVECTOR3 position { _suo->get_position() };
+        position.y += 1.0f;
+        const POINT coodinate { _camera->get_screen_coordinate(position) };
+
+        enemy_hp_->set_param(hp_text, coodinate.x, coodinate.y, 0xA0ffA0A0);
         (*enemy_hp_)();
     }
 }

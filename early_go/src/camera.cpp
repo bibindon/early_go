@@ -196,6 +196,23 @@ void camera::set_to_close_up_animation(const D3DXVECTOR3 &pos)
     animation_queue_.push(tmp);
 }
 
+POINT camera::get_screen_coordinate(const D3DXVECTOR3& world)
+{
+    const D3DXMATRIX view_matrix { get_view_matrix() };
+    const D3DXMATRIX projection_matrix { get_projection_matrix() };
+    static const D3DXMATRIX viewport_matrix {
+        constants::WINDOW_WIDTH / 2.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, -constants::WINDOW_HEIGHT / 2.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        constants::WINDOW_WIDTH / 2.0f, constants::WINDOW_HEIGHT / 2.0f, 0.0f, 1.0f };
+    D3DXMATRIX matrix {};
+    D3DXMatrixTranslation(&matrix, world.x, world.y, world.z);
+    matrix = matrix * view_matrix * projection_matrix * viewport_matrix;
+    return POINT {
+        static_cast<int>(matrix._41 / std::abs(matrix._44)),
+        static_cast<int>(matrix._42 / std::abs(matrix._44)) };
+}
+
 camera::teleport::teleport(const D3DXVECTOR3 &eye_position,
                            const D3DXVECTOR3 &look_at_position,
                            const float &view_angle)

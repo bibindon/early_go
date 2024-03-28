@@ -1321,6 +1321,7 @@ void hud::HP_info_animator2::operator()(HP_info2 &hp_info, main_window &window)
     HP_info_drawer2_->power_ = main_chara->get_normal_move_power(
         main_chara->get_normal_move().at(0));
 
+    /*
     D3DXVECTOR3 position{enemy->get_position()};
     position.y += 1.0f;
     const cv::Point coodinate{window.get_screen_coodinate(position)};
@@ -1340,6 +1341,7 @@ void hud::HP_info_animator2::operator()(HP_info2 &hp_info, main_window &window)
               HP_info_drawer2_->get_idles() + HP_info_drawer2::THREAD_NUM,
               false);
     HP_info_drawer2_->get_idle_condition_variable().notify_all();
+    */
 
     return;
 }
@@ -1413,6 +1415,7 @@ void hud::HP_info_animator::operator()(HP_info &hp_info, main_window &window)
     HP_info_drawer_->power_ = main_chara->get_normal_move_power(
         main_chara->get_normal_move().at(0));
 
+    /*
     D3DXVECTOR3 position{main_chara->get_position()};
     position.y += 1.0f;
     const cv::Point coodinate{window.get_screen_coodinate(position)};
@@ -1434,6 +1437,7 @@ void hud::HP_info_animator::operator()(HP_info &hp_info, main_window &window)
               false);
     HP_info_drawer_->get_idle_condition_variable().notify_all();
 
+    */
     return;
 }
 

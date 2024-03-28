@@ -19,6 +19,7 @@ public:
     void set_to_behind_animation();
     void set_to_close_up_animation();
     void set_to_close_up_animation(const D3DXVECTOR3 &);
+    POINT get_screen_coordinate(const D3DXVECTOR3& world);
 
 private:
     const static D3DXVECTOR3 UPWARD;

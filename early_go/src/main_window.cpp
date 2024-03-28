@@ -302,22 +302,6 @@ std::shared_ptr<character> main_window::get_enemy_character()
     return suo_;
 }
 
-cv::Point main_window::get_screen_coodinate(const D3DXVECTOR3 &world)
-{
-    const D3DXMATRIX view_matrix{camera_->get_view_matrix()};
-    const D3DXMATRIX projection_matrix{camera_->get_projection_matrix()};
-    static const D3DXMATRIX viewport_matrix{
-        constants::WINDOW_WIDTH / 2.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, -constants::WINDOW_HEIGHT / 2.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        constants::WINDOW_WIDTH / 2.0f, constants::WINDOW_HEIGHT / 2.0f, 0.0f, 1.0f};
-    D3DXMATRIX matrix{};
-    D3DXMatrixTranslation(&matrix, world.x, world.y, world.z);
-    matrix = matrix * view_matrix * projection_matrix * viewport_matrix;
-    return cv::Point(static_cast<int>(matrix._41 / std::abs(matrix._44)),
-                     static_cast<int>(matrix._42 / std::abs(matrix._44)));
-}
-
 void main_window::debug()
 {
     if (key::is_down(VK_UP))
@@ -710,7 +694,7 @@ void main_window::render()
             pos.z = 0.0f;
             (*sprite_)(pos);
         }
-        (*hud2_)(early_, suo_);
+        (*hud2_)(early_, suo_, camera_);
 
         //render_string_object::render_string("aaa", 0, 0);
         if (text_d3dxfont_.get() != nullptr)
