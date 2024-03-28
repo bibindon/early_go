@@ -59,6 +59,9 @@ private:
 
     int current_stage_ { 0 };
 
+    // Prevent continues frame damage.
+    bool ignore_attack_judge_ { false };
+
     void cancel_removed_by_simul_push();
 };
 } // namespace early_go 

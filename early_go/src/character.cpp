@@ -776,6 +776,12 @@ operation::behavior_state character::attack::operator()()
     {
         outer_.set_animation("Attack");
     }
+    if (constants::ACTION_INTERVAL_FRAME <= count_ &&
+        (count_)*constants::ANIMATION_SPEED < outer_.duration_map_.at("Attack"))
+    {
+        ++count_;
+        return operation::behavior_state::ALLOW_NEXT_ACTION;
+    }
     if ((count_)*constants::ANIMATION_SPEED >= outer_.duration_map_.at("Attack"))
     {
         return operation::behavior_state::FINISH;

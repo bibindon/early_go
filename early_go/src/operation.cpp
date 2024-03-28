@@ -23,18 +23,22 @@ operation::operation(const shared_ptr<camera> &camera)
 
 void operation::set_offensive_position(const int &x, const int &z)
 {
-    const int current_stage_z { z % (constants::GRID_NUM_HEIGHT + 1) };
-    // Check out of range(z).
-    if (offensive_area_.find(current_stage_z) == offensive_area_.end())
+    if (ignore_attack_judge_ == false)
     {
-        return;
+        const int current_stage_z { z % (constants::GRID_NUM_HEIGHT + 1) };
+        // Check out of range(z).
+        if (offensive_area_.find(current_stage_z) == offensive_area_.end())
+        {
+            return;
+        }
+        // Check out of range(x).
+        if (offensive_area_.at(current_stage_z).find(x) == offensive_area_.at(current_stage_z).end())
+        {
+            return;
+        }
+        offensive_area_.at(current_stage_z).at(x) = true;
+        ignore_attack_judge_ = true;
     }
-    // Check out of range(x).
-    if (offensive_area_.at(current_stage_z).find(x) == offensive_area_.at(current_stage_z).end())
-    {
-        return;
-    }
-    offensive_area_.at(current_stage_z).at(x) = true;
 }
 
 shared_ptr<camera> operation::get_camera() const
@@ -316,15 +320,6 @@ void operation::operator()(
         }
     }
 
-    // Clear offensive_area_
-    for (auto &&z : offensive_area_)
-    {
-        for (auto &&x : z.second)
-        {
-            x.second = false;
-        }
-    }
-
     if (current_behavior_->state_ == behavior_state::CANCEL)
     {
         _main_character->cancel_action();
@@ -344,6 +339,7 @@ void operation::operator()(
             reserved_behavior_->step_dir_ = direction::NONE;
             reserved_behavior_->rotate_dir_ = direction::NONE;
             reserved_behavior_->state_ = behavior_state::NO_STATE;
+            ignore_attack_judge_ = false;
         }
     }
 
@@ -388,10 +384,19 @@ void operation::operator()(
         if (_main_character->get_action_state() == behavior_state::FINISH)
         {
             current_behavior_->state_ = behavior_state::FINISH;
+            ignore_attack_judge_ = false;
         }
         else if (_main_character->get_action_state() == behavior_state::ALLOW_NEXT_ACTION)
         {
             current_behavior_->state_ = behavior_state::ALLOW_NEXT_ACTION;
+        }
+    }
+    else if (current_behavior_->state_ == behavior_state::ALLOW_NEXT_ACTION)
+    {
+        if (_main_character->get_action_state() == behavior_state::FINISH)
+        {
+            current_behavior_->state_ = behavior_state::FINISH;
+            ignore_attack_judge_ = false;
         }
     }
 
@@ -401,8 +406,6 @@ void operation::operator()(
     const int relative_z { enemy_pos.z % (constants::GRID_NUM_HEIGHT + 1) };
     if (offensive_area_.at(relative_z).at(enemy_pos.x))
     {
-//        current_behavior_->cancel();
-        _main_character->cancel_action();
         int enemy_health { enemy->get_health() };
         if (1 <= enemy_health - 1)
         {
@@ -420,6 +423,15 @@ void operation::operator()(
             D3DXVECTOR3 pos{grid_pos.x * constants::GRID_LENGTH, 0.0f,
                             grid_pos.z * constants::GRID_LENGTH};
             camera_->set_to_close_up_animation(pos);
+        }
+    }
+
+    // Clear offensive_area_
+    for (auto &&z : offensive_area_)
+    {
+        for (auto &&x : z.second)
+        {
+            x.second = false;
         }
     }
 }
