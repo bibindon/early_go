@@ -13,7 +13,7 @@ class operation
 {
 public:
     operation(const std::shared_ptr<camera> &);
-    void operator()(main_window &);
+    void operator()(const std::shared_ptr<character>&, const std::shared_ptr<character>&);
 
     enum class behavior_state
     {

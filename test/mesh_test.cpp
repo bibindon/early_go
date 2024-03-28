@@ -3,6 +3,7 @@
 
 #include "pch.h"
 #include "src/mesh.hpp"
+#include "src/key.hpp"
 
 TCHAR gName[100] = "初期化サンプルプログラム";
 LRESULT CALLBACK WndProc(HWND hWnd, UINT mes, WPARAM wParam, LPARAM lParam)
@@ -14,6 +15,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT mes, WPARAM wParam, LPARAM lParam)
     }
     return DefWindowProc(hWnd, mes, wParam, lParam);
 }
+namespace early_go
+{
 TEST(mesh_test, mesh_ctor_test)
 {
     HINSTANCE hInstance = nullptr;
@@ -56,7 +59,7 @@ TEST(mesh_test, mesh_ctor_test)
         NULL)))
     {
         GTEST_FAIL();
-        return ;
+        return;
     }
 
     LPDIRECT3D9 g_pD3D;
@@ -64,7 +67,7 @@ TEST(mesh_test, mesh_ctor_test)
     if (!(g_pD3D = Direct3DCreate9(D3D_SDK_VERSION)))
     {
         GTEST_FAIL();
-        return ;
+        return;
     }
 
     D3DPRESENT_PARAMETERS d3dpp = {
@@ -80,7 +83,7 @@ TEST(mesh_test, mesh_ctor_test)
         TRUE,
         D3DFMT_D24S8,
         0,
-        0};
+        0 };
 
     if (FAILED(g_pD3D->CreateDevice(
         D3DADAPTER_DEFAULT,
@@ -116,7 +119,7 @@ TEST(mesh_test, mesh_ctor_test)
                 {
                     g_pD3D->Release();
                     GTEST_FAIL();
-                    return ;
+                    return;
                 }
             }
         }
@@ -125,17 +128,18 @@ TEST(mesh_test, mesh_ctor_test)
     ShowWindow(hWnd, SW_SHOW);
 
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
-    d3d_device_.reset(g_pD3DDev, early_go::custom_deleter{});
+    d3d_device_.reset(g_pD3DDev, early_go::custom_deleter {});
     {
         early_go::mesh m(
-                d3d_device_,
-                "model/tiger/tiger.x",
-                D3DXVECTOR3{2.5f, 2.0f, 1.0f},
-                D3DXVECTOR3{0.0f, 0.0f, 0.0f},
-                1.0f);
+            d3d_device_,
+            "model/tiger/tiger.x",
+            D3DXVECTOR3 { 2.5f, 2.0f, 1.0f },
+            D3DXVECTOR3 { 0.0f, 0.0f, 0.0f },
+            1.0f);
     }
     // CRT feature can be used only debug mode.
 #ifdef DEBUG
+    early_go::key::key_deque_.clear();
     HANDLE hLog = CreateFile(
         "log.txt",
         GENERIC_WRITE,
@@ -157,8 +161,7 @@ TEST(mesh_test, mesh_ctor_test)
     }
     std::string txt((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
     ifs.close();
-    BOOL b = DeleteFile("log.txt");
-    if (!b || txt.empty())
+    if (txt.empty())
     {
         GTEST_FAIL();
     }
@@ -168,5 +171,11 @@ TEST(mesh_test, mesh_ctor_test)
     {
         GTEST_FAIL();
     }
+    BOOL b = DeleteFile("log.txt");
+    if (b == FALSE)
+    {
+        GTEST_FAIL();
+    }
 #endif // DEBUG
+}
 }

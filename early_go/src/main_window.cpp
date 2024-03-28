@@ -275,7 +275,7 @@ int main_window::operator()()
                 }
                 else
                 {
-                    (*operation_)(*this);
+                    (*operation_)(get_main_character(), get_enemy_character());
                 }
             }
             // #if (defined(DEBUG) || defined(_DEBUG))

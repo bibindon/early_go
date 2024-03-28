@@ -7,12 +7,12 @@ using std::shared_ptr;
 
 namespace early_go
 {
-std::deque<shared_ptr<key::key_info> > key::key_deque_;
+std::deque<key::key_info> key::key_deque_;
 const int key::SIMULTANEOUS_ALLOW_FRAME;
 
 bool key::update()
 {
-    shared_ptr<key_info> _key_info{ new_crt key_info{} };
+    key_info _key_info { };
 
 //    _key_info->time_point_ = system_clock::now();
 
@@ -20,7 +20,7 @@ bool key::update()
     // using with cv::flip function.
     for (int i = 0; i < KEY_TABLE_LENGTH; ++i)
     {
-        _key_info->key_table_.at(i) = GetAsyncKeyState(i);
+        _key_info.key_table_.at(i) = GetAsyncKeyState(i);
     }
     key_deque_.push_front(_key_info);
 
@@ -37,8 +37,8 @@ bool key::is_down(const int& keycode)
     {
         return false;
     }
-    if (!(key_deque_.at(1)->key_table_[keycode] & 0x0001) &&
-        (key_deque_.at(0)->key_table_[keycode] & 0x0001))
+    if (!(key_deque_.at(1).key_table_[keycode] & 0x0001) &&
+        (key_deque_.at(0).key_table_[keycode] & 0x0001))
     {
         return true;
     }
@@ -46,7 +46,7 @@ bool key::is_down(const int& keycode)
 }
 bool key::is_down(const int& frame, const int& keycode)
 {
-    if (key_deque_.at(frame)->key_table_[keycode] & 0x0001)
+    if (key_deque_.at(frame).key_table_[keycode] & 0x0001)
     {
         return true;
     }
@@ -55,11 +55,11 @@ bool key::is_down(const int& frame, const int& keycode)
 
 bool key::is_hold(const int& keycode)
 {
-    if (key_deque_.size() < 2)
+    if (key_deque_.size() <= 1)
     {
         return false;
     }
-    if (key_deque_.at(0)->key_table_[keycode] & 0x8000)
+    if (key_deque_.at(0).key_table_[keycode] & 0x8000)
     {
         return true;
     }
@@ -68,12 +68,12 @@ bool key::is_hold(const int& keycode)
 
 bool key::is_up(const int& keycode)
 {
-    if (key_deque_.size() < 2)
+    if (key_deque_.size() <= 1)
     {
         return false;
     }
-    if ((key_deque_.at(1)->key_table_[keycode] & 0x0001) &&
-        !(key_deque_.at(0)->key_table_[keycode] & 0x0001))
+    if ((key_deque_.at(1).key_table_[keycode] & 0x0001) &&
+        !(key_deque_.at(0).key_table_[keycode] & 0x0001))
     {
         return true;
     }
@@ -82,13 +82,13 @@ bool key::is_up(const int& keycode)
 
 bool key::check_simultaneous(const int& keycode)
 {
-    if (key_deque_.size() < SIMULTANEOUS_ALLOW_FRAME)
-    {
-        return false;
-    }
     for (int i = 0; i < SIMULTANEOUS_ALLOW_FRAME; ++i)
     {
-        if (key_deque_.at(i)->key_table_[keycode] & 0x0001)
+        if (i >= key_deque_.size())
+        {
+            break;
+        }
+        if (key_deque_.at(i).key_table_[keycode] & 0x0001)
         {
             return true;
         }

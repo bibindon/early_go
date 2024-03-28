@@ -31,9 +31,19 @@ private:
         std::array<SHORT, key::KEY_TABLE_LENGTH> key_table_;
     };
 
-    static std::deque<std::shared_ptr<key_info>> key_deque_;
+    static std::deque<key_info> key_deque_;
 
-    FRIEND_TEST(operation_test, operation_test);
+    FRIEND_TEST(mesh_test, mesh_ctor_test);
+    FRIEND_TEST(operation_test, operation_test01);
+    FRIEND_TEST(operation_test, operation_test02);
+    FRIEND_TEST(operation_test, operation_test03);
+    FRIEND_TEST(operation_test, operation_test04);
+    FRIEND_TEST(operation_test, operation_test05);
+    FRIEND_TEST(operation_test, operation_test06);
+    FRIEND_TEST(operation_test, operation_test07);
+    FRIEND_TEST(operation_test, operation_test08);
+    FRIEND_TEST(operation_test, operation_test09);
+    FRIEND_TEST(operation_test, operation_test10);
 };
 } // namespace early_go 
 #endif

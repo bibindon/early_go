@@ -17,5 +17,8 @@ public:
     {
     }
     MOCK_METHOD(void, set_action_step, (const early_go::direction));
+    MOCK_METHOD(void, set_action_rotate, (const early_go::direction));
+    MOCK_METHOD(void, set_action_step_and_rotate, (const early_go::direction, const early_go::direction));
+    MOCK_METHOD(void, set_action_attack, ());
 };
 

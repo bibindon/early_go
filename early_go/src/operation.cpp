@@ -42,7 +42,8 @@ shared_ptr<camera> operation::get_camera() const
     return camera_;
 }
 
-void operation::operator()(main_window &a_main_window)
+void operation::operator()(
+    const shared_ptr<character>& _main_character, const shared_ptr<character>& enemy)
 {
     if (key::is_down('Q'))
     {
@@ -324,6 +325,12 @@ void operation::operator()(main_window &a_main_window)
         }
     }
 
+    if (current_behavior_->state_ == behavior_state::CANCEL)
+    {
+        _main_character->cancel_action();
+        current_behavior_->state_ = behavior_state::FINISH;
+    }
+
     if (current_behavior_->state_ == behavior_state::FINISH ||
         current_behavior_->state_ == behavior_state::ALLOW_NEXT_ACTION ||
         current_behavior_->state_ == behavior_state::NO_STATE)
@@ -339,8 +346,6 @@ void operation::operator()(main_window &a_main_window)
             reserved_behavior_->state_ = behavior_state::NO_STATE;
         }
     }
-
-    shared_ptr<character> _main_character = a_main_window.get_main_character();
 
     static int _cancelable_counter = 0;
     if (current_behavior_->state_ == behavior_state::READY)
@@ -389,14 +394,8 @@ void operation::operator()(main_window &a_main_window)
             current_behavior_->state_ = behavior_state::ALLOW_NEXT_ACTION;
         }
     }
-    else if (current_behavior_->state_ == behavior_state::CANCEL)
-    {
-        _main_character->cancel_action();
-        current_behavior_->state_ = behavior_state::FINISH;
-    }
 
     // collision detection
-    shared_ptr<character> enemy { a_main_window.get_enemy_character() };
 
     cv::Point3i enemy_pos = enemy->get_grid_position();
     const int relative_z { enemy_pos.z % (constants::GRID_NUM_HEIGHT + 1) };

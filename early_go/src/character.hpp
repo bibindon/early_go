@@ -67,9 +67,9 @@ public:
     void set_fade_in(const std::string &);
     void set_fade_out(const std::string &);
     virtual void set_action_step(const direction );
-    void set_action_rotate(const direction );
-    void set_action_step_and_rotate(const direction , const direction );
-    void set_action_attack();
+    virtual void set_action_rotate(const direction );
+    virtual void set_action_step_and_rotate(const direction , const direction );
+    virtual void set_action_attack();
     operation::behavior_state get_action_state();
     void cancel_action();
     direction get_direction() const;
