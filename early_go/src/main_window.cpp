@@ -710,8 +710,7 @@ void main_window::render()
             pos.z = 0.0f;
             (*sprite_)(pos);
         }
-//        (*hud_)(*this);
-        (*hud2_)();
+        (*hud2_)(early_, suo_);
 
         //render_string_object::render_string("aaa", 0, 0);
         if (text_d3dxfont_.get() != nullptr)
