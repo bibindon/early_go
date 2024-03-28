@@ -299,6 +299,12 @@ void character::set_action_attack()
     current_action_.reset(new_crt attack{*this});
 }
 
+void character::set_action_move_next_stage()
+{
+    current_action_.reset(); // call dtor.
+    current_action_.reset(new_crt move_next_stage { *this } );
+}
+
 operation::behavior_state character::get_action_state()
 {
     return action_state_;
@@ -871,6 +877,37 @@ character::normal_move::normal_move(
 character::special_move::special_move(
     const std::string &name, const int &power, const int &max_power)
     : normal_move{name, power, max_power}
+{
+}
+
+character::move_next_stage::move_next_stage(character& outer)
+    : action { outer, direction::NONE }
+{
+}
+
+operation::behavior_state character::move_next_stage::operator()()
+{
+    if (count_ == 0)
+    {
+        outer_.set_animation("Step_Back");
+    }
+    if (outer_.duration_map_.at("Step_Back") <= (count_)*constants::ANIMATION_SPEED)
+    {
+        return operation::behavior_state::FINISH;
+    }
+    ++count_;
+    D3DXVECTOR3 position{outer_.position_};
+    position.z += 0.25f;
+    outer_.set_position(position);
+
+    return operation::behavior_state::PLAY;
+}
+
+void character::move_next_stage::cancel()
+{
+}
+
+character::move_next_stage::~move_next_stage()
 {
 }
 

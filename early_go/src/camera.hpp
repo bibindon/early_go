@@ -19,6 +19,7 @@ public:
     void set_to_behind_animation();
     void set_to_close_up_animation();
     void set_to_close_up_animation(const D3DXVECTOR3 &);
+    void set_move_next_stage_anim(const D3DXVECTOR3 &);
     POINT get_screen_coordinate(const D3DXVECTOR3& world);
 
 private:
@@ -57,9 +58,14 @@ private:
     };
     struct transfer : key_animation
     {
-        transfer(const D3DXVECTOR3 &, const D3DXVECTOR3 &, const float &,
-                 const D3DXVECTOR3 &, const D3DXVECTOR3 &, const float &,
-                 const float &);
+        transfer(
+            const D3DXVECTOR3 & start_eye_position,
+            const D3DXVECTOR3 & start_look_at_position,
+            const float & start_view_angle,
+            const D3DXVECTOR3 & goal_eye_position,
+            const D3DXVECTOR3 & goal_look_at_position,
+            const float & goal_view_angle,
+            const float & duration);
         bool operator()(camera &) override;
 
     private:

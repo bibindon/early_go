@@ -70,6 +70,7 @@ public:
     virtual void set_action_rotate(const direction );
     virtual void set_action_step_and_rotate(const direction , const direction );
     virtual void set_action_attack();
+    virtual void set_action_move_next_stage();
     operation::behavior_state get_action_state();
     void cancel_action();
     direction get_direction() const;
@@ -127,6 +128,13 @@ public:
         void cancel() override;
         ~attack();
         bool availability_;
+    };
+    struct move_next_stage : public action
+    {
+        move_next_stage(character &);
+        operation::behavior_state operator()() override;
+        void cancel() override;
+        ~move_next_stage();
     };
 
     int get_health() const;

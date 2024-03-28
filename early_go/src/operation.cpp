@@ -365,6 +365,12 @@ void operation::operator()(
         {
             _main_character->set_action_attack();
         }
+        else if (current_behavior_->action_type_ == action_type::MOVE_NEXT_STAGE)
+        {
+            _main_character->set_action_move_next_stage();
+            enemy->set_action_move_next_stage();
+            camera_->set_move_next_stage_anim(D3DXVECTOR3 { 0.0f, 0.0f, 0.0f });
+        }
     }
     else if (current_behavior_->state_ == behavior_state::PLAY_CANCELABLE)
     {
@@ -401,27 +407,28 @@ void operation::operator()(
     }
 
     // collision detection
-
     cv::Point3i enemy_pos = enemy->get_grid_position();
     const int relative_z { enemy_pos.z % (constants::GRID_NUM_HEIGHT + 1) };
     if (offensive_area_.at(relative_z).at(enemy_pos.x))
     {
         int enemy_health { enemy->get_health() };
-        if (1 <= enemy_health - 1)
+        if (enemy_health >= 2)
         {
             enemy->set_animation("Damaged");
             enemy->set_health(enemy_health - 1);
         }
-        else if (current_stage_ != constants::MAX_STAGE_NUMBER - 1)
+        if (enemy_health == 1)
         {
-        //    current_behavior_.reset(new_crt behavior_concept{
-        //        move_next_stage(*this, a_main_window)});
+            reserved_behavior_->action_type_ = action_type::MOVE_NEXT_STAGE;
         }
-        else
+        if (current_stage_ == constants::MAX_STAGE_NUMBER - 1)
         {
             cv::Point3i grid_pos{_main_character->get_grid_position()};
-            D3DXVECTOR3 pos{grid_pos.x * constants::GRID_LENGTH, 0.0f,
-                            grid_pos.z * constants::GRID_LENGTH};
+            D3DXVECTOR3 pos {
+                grid_pos.x * constants::GRID_LENGTH,
+                0.0f,
+                grid_pos.z * constants::GRID_LENGTH };
+
             camera_->set_to_close_up_animation(pos);
         }
     }
