@@ -242,6 +242,8 @@ void main_window::initialize_direct3d(const HWND &hwnd)
 //    hud_ = make_shared<hud>(d3d_device_);
     hud2_ = make_shared<hud2>(d3d_device_);
     novel_ = make_shared<novel>();
+
+    text_d3dxfont_ = make_shared<text_d3dxfont>(d3d_device_, 40);
 }
 
 main_window::~main_window()
@@ -369,6 +371,8 @@ void main_window::debug()
     {
         //hud_->delete_message("fps");
         //hud_->add_message("fps", std::to_string(fps), cv::Rect(30, 10, 64, 32));
+        string fps_text { "fps: " + std::to_string(fps) };
+        text_d3dxfont_->set_param(fps_text, 0, 0, D3DCOLOR_ARGB(127, 200, 200, 200));
     }
 
     //  if (key::is_hold('I')) {
@@ -517,7 +521,6 @@ void main_window::debug()
     {
         early_->clear_dynamic_texture(constants::EARLY_BODY, 1);
 
-        text_d3dxfont_ = make_shared<text_d3dxfont>(d3d_device_);
     }
     if (key::is_down('C'))
     {
@@ -713,26 +716,7 @@ void main_window::render()
         //render_string_object::render_string("aaa", 0, 0);
         if (text_d3dxfont_.get() != nullptr)
         {
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 0, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 50, D3DCOLOR_ARGB(55, 100, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 100, D3DCOLOR_ARGB(155, 200, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 150, D3DCOLOR_ARGB(255, 0, 0, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 200, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 250, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 300, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 350, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 400, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 450, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 500, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 550, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 600, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 650, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 700, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 750, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 800, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 850, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 900, D3DCOLOR_ARGB(255, 0, 100, 200));
-            (*text_d3dxfont_)("Œá”y‚Í”L‚Å‚ ‚éB–¼‘O‚Í‚Ü‚¾–³‚¢B‚Ç‚±‚Å¶‚ê‚½‚©‚Æ‚ñ‚ÆŒ©“–‚ª‚Â‚©‚ÊB", 0, 950, D3DCOLOR_ARGB(255, 0, 100, 200));
+            (*text_d3dxfont_)();
         }
 
         d3d_device_->EndScene();

@@ -5,12 +5,12 @@ using std::string;
 
 namespace early_go
 {
-text_d3dxfont::text_d3dxfont(const shared_ptr<IDirect3DDevice9>& d3d_device)
+text_d3dxfont::text_d3dxfont(const shared_ptr<IDirect3DDevice9>& d3d_device, const INT _height)
 {
     LPD3DXFONT d3dxfont { };
 
     D3DXFONT_DESC desc;
-    desc.Height = 50;
+    desc.Height = _height;
     desc.Width = 0;
     desc.Weight = FW_NORMAL;
     desc.MipLevels = 0;
@@ -30,14 +30,22 @@ text_d3dxfont::text_d3dxfont(const shared_ptr<IDirect3DDevice9>& d3d_device)
     d3dxfont_.reset(d3dxfont, custom_deleter { });
 }
 
-void text_d3dxfont::operator()(const std::string& message, const int& x, const int& y,
-    const DWORD& color)
+void text_d3dxfont::set_param(
+    const std::string& message, const int& x, const int& y, const DWORD& color)
 {
-    RECT rect { x, y, 0 , 0};
+    message_ = message;
+    x_ = x;
+    y_ = y;
+    color_ = color;
+}
+
+void text_d3dxfont::operator()()
+{
+    RECT rect { x_, y_, 0 , 0};
 
     d3dxfont_->DrawText(
         NULL,
-        message.c_str(),
+        message_.c_str(),
         -1,
         &rect,
         DT_CALCRECT,
@@ -45,11 +53,11 @@ void text_d3dxfont::operator()(const std::string& message, const int& x, const i
 
     d3dxfont_->DrawText(
         NULL,
-        message.c_str(),
+        message_.c_str(),
         -1,
         &rect,
         DT_LEFT | DT_BOTTOM,
-        color);
+        color_);
 }
 
 }
