@@ -21,7 +21,10 @@ private:
     void operator=(const bgm_player&) { }
 
     bool open_wave(
-        const std::string& filepath, WAVEFORMATEX& waveFormatEx, char** ppData, DWORD& dataSize);
+        const std::string& filepath,
+        WAVEFORMATEX& waveFormatEx,
+        std::vector<char>* ppData,
+        DWORD& dataSize);
 
     std::shared_ptr<IDirectSound8> dx8sound_ { };
     std::shared_ptr<IDirectSoundBuffer8> dx8sound_buffer_ { };

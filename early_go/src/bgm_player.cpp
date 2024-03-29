@@ -28,7 +28,7 @@ bool bgm_player::load(HWND hwnd, const std::string& filename)
 {
     // Open wave file.
     WAVEFORMATEX _waveformatex { };
-    char* _wave_data { nullptr };
+    vector<char> _wave_data;
     DWORD _wave_size { 0 };
     if (!open_wave(filename, _waveformatex, &_wave_data, _wave_size))
     {
@@ -67,10 +67,9 @@ bool bgm_player::load(HWND hwnd, const std::string& filename)
     if (DS_OK == dx8sound_buffer_->Lock(
         0, 0, &secondary_buffer, &_length, nullptr, nullptr, DSBLOCK_ENTIREBUFFER))
     {
-        memcpy(secondary_buffer, _wave_data, _length);
+        memcpy(secondary_buffer, &_wave_data.at(0), _length);
         dx8sound_buffer_->Unlock(secondary_buffer, _length, nullptr, 0);
     }
-    delete[] _wave_data;
 
     return true;
 }
@@ -89,7 +88,7 @@ bgm_player::bgm_player()
 {
 }
 bool bgm_player::open_wave(
-    const std::string& filepath, WAVEFORMATEX& waveformatex, char** buff, DWORD& wave_size)
+    const std::string& filepath, WAVEFORMATEX& waveformatex, vector<char>* buff, DWORD& wave_size)
 {
     if (filepath.empty())
     {
@@ -149,11 +148,10 @@ bool bgm_player::open_wave(
         mmioClose(_hmmio, 0);
         return false;
     }
-    *buff = new_crt char[data_chunk.cksize];
-    size = mmioRead(_hmmio, (HPSTR)*buff, data_chunk.cksize);
+    buff->resize(data_chunk.cksize);
+    size = mmioRead(_hmmio, (HPSTR)buff->data(), data_chunk.cksize);
     if (size != data_chunk.cksize)
     {
-        delete[] * buff;
         return false;
     }
     wave_size = size;
