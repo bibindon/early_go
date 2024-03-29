@@ -97,4 +97,10 @@ vector<char> util::get_font_resource(const string& resname)
         get_resource("SELECT DATA FROM FONT WHERE FILENAME = '" + resname + "';") };
     return buffer;
 }
+vector<char> util::get_sound_resource(const string& resname)
+{
+    vector<char> buffer {
+        get_resource("SELECT DATA FROM SOUND WHERE FILENAME = '" + resname + "';") };
+    return buffer;
+}
 }

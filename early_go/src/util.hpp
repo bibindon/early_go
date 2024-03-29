@@ -17,6 +17,7 @@ public:
     static std::vector<char> get_image_resource(const std::string& image_name);
     static std::vector<char> get_lua_resource(const std::string& filename);
     static std::vector<char> get_font_resource(const std::string& filename);
+    static std::vector<char> get_sound_resource(const std::string& filename);
 };
 }
 #endif

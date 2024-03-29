@@ -18,6 +18,7 @@
 #include "sprite_anim.hpp"
 #include "sprite.hpp"
 #include "text_d3dxfont.hpp"
+#include "bgm_player.hpp"
 
 #include <thread>
 
@@ -479,6 +480,11 @@ void main_window::debug()
     {
         early_->set_animation("Damaged");
         suo_->set_animation("Damaged");
+
+        if (bgm_player::get_ton()->load(hwnd_, "sound/letsgo.wav"))
+        {
+            bgm_player::get_ton()->play();
+        }
     }
     if (key::is_down('Z'))
     {
