@@ -84,6 +84,7 @@ private:
 
     lua_State *lua_state_;
     void init_lua();
+    void init_se();
     static main_window* main_window_;
     static int glue_place_mesh(lua_State *);
     static int glue_place_anim_mesh(lua_State *);

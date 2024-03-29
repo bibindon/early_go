@@ -3,6 +3,7 @@
 #include "character.hpp"
 #include "operation.hpp"
 #include "camera.hpp"
+#include "se_player.hpp"
 
 using std::shared_ptr;
 
@@ -364,6 +365,7 @@ void operation::operator()(
         else if (current_behavior_->action_type_ == action_type::ATTACK)
         {
             _main_character->set_action_attack();
+            se_player::get_ton()->play("sound/attack01.wav");
         }
         else if (current_behavior_->action_type_ == action_type::MOVE_NEXT_STAGE)
         {
@@ -416,6 +418,7 @@ void operation::operator()(
         {
             enemy->set_animation("Damaged");
             enemy->set_health(enemy_health - 1);
+            se_player::get_ton()->play("sound/damage01.wav");
         }
         if (enemy_health == 1)
         {

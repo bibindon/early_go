@@ -19,6 +19,7 @@
 #include "sprite.hpp"
 #include "text_d3dxfont.hpp"
 #include "bgm_player.hpp"
+#include "se_player.hpp"
 
 #include <thread>
 
@@ -98,6 +99,9 @@ main_window::main_window(const HINSTANCE &hinstance)
     initialize_direct3d(hwnd);
 
     init_lua();
+
+    init_se();
+    bgm_player::initialize(hwnd);
 }
 
 void main_window::initialize_direct3d(const HWND &hwnd)
@@ -481,7 +485,7 @@ void main_window::debug()
         early_->set_animation("Damaged");
         suo_->set_animation("Damaged");
 
-        if (bgm_player::get_ton()->load(hwnd_, "sound/letsgo.wav"))
+        if (bgm_player::get_ton()->load("sound/letsgo.wav"))
         {
             bgm_player::get_ton()->play();
         }
@@ -783,6 +787,12 @@ void main_window::init_lua()
         return;
     }
     lua_close(lua_state_);
+}
+void main_window::init_se()
+{
+    se_player::initialize(hwnd_);
+    se_player::get_ton()->load("sound/attack01.wav");
+    se_player::get_ton()->load("sound/damage01.wav");
 }
 
 main_window* main_window::main_window_;

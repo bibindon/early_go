@@ -10,13 +10,14 @@ class bgm_player
 public:
     static std::shared_ptr<bgm_player> single_ton_;
     static std::shared_ptr<bgm_player> get_ton();
+    static void initialize(HWND hwnd);
 
-    bool load(HWND hwnd, const std::string& filename);
+    bool load(const std::string& filename);
     void play();
     void stop();
 private:
     // hide ctor
-    bgm_player();
+    bgm_player(HWND hwnd);
     bgm_player(const bgm_player&) { }
     void operator=(const bgm_player&) { }
 

@@ -15,16 +15,24 @@ namespace early_go
 std::shared_ptr<bgm_player> bgm_player::single_ton_;
 std::shared_ptr<bgm_player> bgm_player::get_ton()
 {
+    if (single_ton_.get() != nullptr)
+    {
+        return single_ton_;
+    }
+    return nullptr;
+}
+
+void bgm_player::initialize(HWND hwnd)
+{
     if (single_ton_.get() == nullptr)
     {
-        single_ton_.reset(new_crt bgm_player { });
+        single_ton_.reset(new_crt bgm_player { hwnd });
     }
-    return single_ton_;
 }
 
 // Reference
 // http://marupeke296.com/DSSMP_No2_GetSoundFromWave.html
-bool bgm_player::load(HWND hwnd, const std::string& filename)
+bool bgm_player::load(const std::string& filename)
 {
     // Open wave file.
     WAVEFORMATEX _waveformatex { };
@@ -34,12 +42,6 @@ bool bgm_player::load(HWND hwnd, const std::string& filename)
     {
         return false;
     }
-
-    // Create sound device.
-    LPDIRECTSOUND8 _dx8sound { nullptr };
-    DirectSoundCreate8(nullptr, &_dx8sound, nullptr);
-    dx8sound_.reset(_dx8sound, custom_deleter { });
-    dx8sound_->SetCooperativeLevel(hwnd, DSSCL_PRIORITY);
 
     DSBUFFERDESC DSBufferDesc { };
     DSBufferDesc.dwSize = sizeof(DSBUFFERDESC);
@@ -84,8 +86,13 @@ void bgm_player::stop()
     dx8sound_buffer_->Stop();
 }
 
-bgm_player::bgm_player()
+bgm_player::bgm_player(HWND hwnd)
 {
+    // Create sound device.
+    LPDIRECTSOUND8 _dx8sound { nullptr };
+    DirectSoundCreate8(nullptr, &_dx8sound, nullptr);
+    dx8sound_.reset(_dx8sound, custom_deleter { });
+    dx8sound_->SetCooperativeLevel(hwnd, DSSCL_PRIORITY);
 }
 bool bgm_player::open_wave(
     const std::string& filepath, WAVEFORMATEX& waveformatex, vector<char>* buff, DWORD& wave_size)
