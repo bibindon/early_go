@@ -4,12 +4,68 @@
 #include "pch.h"
 #include "src/operation.hpp"
 #include "character_mock.hpp"
+#include "src/se_player.hpp"
 
 using std::shared_ptr;
 
 // FRIEND_TEST macro needs same namespace.
 namespace early_go
 {
+TCHAR gName[100] = "初期化サンプルプログラム";
+LRESULT CALLBACK WndProc(HWND hWnd, UINT mes, WPARAM wParam, LPARAM lParam)
+{
+    if (mes == WM_DESTROY)
+    {
+        PostQuitMessage(0);
+        return 0;
+    }
+    return DefWindowProc(hWnd, mes, wParam, lParam);
+}
+
+HWND get_window_handle()
+{
+    HINSTANCE hInstance = nullptr;
+    HWND hWnd;
+    WNDCLASSEX wcex = {
+        sizeof(WNDCLASSEX),
+        CS_HREDRAW | CS_VREDRAW,
+        WndProc,
+        0,
+        0,
+        hInstance,
+        NULL,
+        NULL,
+        (HBRUSH)(COLOR_WINDOW + 1),
+        NULL,
+        (TCHAR*)gName,
+        NULL };
+    if (!RegisterClassEx(&wcex))
+    {
+        return nullptr;
+    }
+
+    int w = 640;
+    int h = 480;
+    RECT clientRect = { 0, 0, w, h };
+    ::AdjustWindowRect(&clientRect, WS_OVERLAPPEDWINDOW, FALSE);
+
+    if (!(hWnd = CreateWindow(
+        gName,
+        gName,
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT,
+        0,
+        clientRect.right - clientRect.left,
+        clientRect.bottom - clientRect.top,
+        NULL,
+        NULL,
+        hInstance,
+        NULL)))
+    {
+        return nullptr;
+    }
+    return hWnd;
+}
 TEST(operation_test, operation_test01)
 {
     // Create character_moc object;
@@ -22,15 +78,15 @@ TEST(operation_test, operation_test01)
 
     {
         // Set keyboard state for this test.
-        key::key_deque_.clear();
+        keyboard::key_deque_.clear();
         {
-            key::key_info _key_info = { 0 };
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_info _key_info = { 0 };
+            keyboard::key_deque_.push_front(_key_info);
         }
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['W'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
 
         // "set_action_step" should be called with direction::FRONT of argument.
@@ -53,15 +109,15 @@ TEST(operation_test, operation_test02)
 
     {
         // Set keyboard state for this test.
-        key::key_deque_.clear();
+        keyboard::key_deque_.clear();
         {
-            key::key_info _key_info = { 0 };
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_info _key_info = { 0 };
+            keyboard::key_deque_.push_front(_key_info);
         }
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['A'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
 
         // "set_action_step" should be called.
@@ -84,15 +140,15 @@ TEST(operation_test, operation_test03)
 
     {
         // Set keyboard state for this test.
-        key::key_deque_.clear();
+        keyboard::key_deque_.clear();
         {
-            key::key_info _key_info = { 0 };
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_info _key_info = { 0 };
+            keyboard::key_deque_.push_front(_key_info);
         }
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['S'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
 
         // "set_action_step" should be called.
@@ -115,15 +171,15 @@ TEST(operation_test, operation_test04)
 
     {
         // Set keyboard state for this test.
-        key::key_deque_.clear();
+        keyboard::key_deque_.clear();
         {
-            key::key_info _key_info = { 0 };
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_info _key_info = { 0 };
+            keyboard::key_deque_.push_front(_key_info);
         }
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['D'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
 
         // "set_action_step" should be called.
@@ -145,16 +201,16 @@ TEST(operation_test, operation_test05)
 
     {
         // Set keyboard state for this test.
-        key::key_deque_.clear();
+        keyboard::key_deque_.clear();
         {
-            key::key_info _key_info = { 0 };
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_info _key_info = { 0 };
+            keyboard::key_deque_.push_front(_key_info);
         }
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['W'] = 0x0001;
             _key_info.key_table_['I'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
 
         // "set_action_step" should be called.
@@ -177,21 +233,21 @@ TEST(operation_test, operation_test06)
 
     {
         // Set keyboard state for this test.
-        key::key_deque_.clear();
+        keyboard::key_deque_.clear();
         {
-            key::key_info _key_info = { 0 };
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_info _key_info = { 0 };
+            keyboard::key_deque_.push_front(_key_info);
         }
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['W'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
         (*ope)(_early, _enemy);
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['I'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
 
         // "set_action_step" should be called.
@@ -214,21 +270,21 @@ TEST(operation_test, operation_test07)
 
     {
         // Set keyboard state for this test.
-        key::key_deque_.clear();
+        keyboard::key_deque_.clear();
         {
-            key::key_info _key_info = { 0 };
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_info _key_info = { 0 };
+            keyboard::key_deque_.push_front(_key_info);
         }
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['I'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
         (*ope)(_early, _enemy);
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['W'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
 
         // "set_action_step" should be called.
@@ -251,27 +307,27 @@ TEST(operation_test, operation_test08)
 
     {
         // Set keyboard state for this test.
-        key::key_deque_.clear();
+        keyboard::key_deque_.clear();
         {
-            key::key_info _key_info = { 0 };
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_info _key_info = { 0 };
+            keyboard::key_deque_.push_front(_key_info);
         }
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['I'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
         (*ope)(_early, _enemy);
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['W'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
         (*ope)(_early, _enemy);
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['D'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
 
         // "set_action_step" should not be called.
@@ -294,21 +350,21 @@ TEST(operation_test, operation_test09)
 
     {
         // Set keyboard state for this test.
-        key::key_deque_.clear();
+        keyboard::key_deque_.clear();
         {
-            key::key_info _key_info = { 0 };
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_info _key_info = { 0 };
+            keyboard::key_deque_.push_front(_key_info);
         }
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['W'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
         (*ope)(_early, _enemy);
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['W'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
 
         // "set_action_step" should not be called.
@@ -328,23 +384,27 @@ TEST(operation_test, operation_test10)
     shared_ptr<character> _early { _chara_mock };
     shared_ptr<character> _enemy { new character{d3d_device, ope, {0, 0, 2}, direction::BACK, 1.0f } };
 
+    HWND hwnd = get_window_handle();
+    se_player::initialize(hwnd);
+    se_player::get_ton()->load("sound/attack01.wav");
+
     {
         // Set keyboard state for this test.
-        key::key_deque_.clear();
+        keyboard::key_deque_.clear();
         {
-            key::key_info _key_info = { 0 };
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_info _key_info = { 0 };
+            keyboard::key_deque_.push_front(_key_info);
         }
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['W'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
         (*ope)(_early, _enemy);
         {
-            key::key_info _key_info = { 0 };
+            keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['A'] = 0x0001;
-            key::key_deque_.push_front(_key_info);
+            keyboard::key_deque_.push_front(_key_info);
         }
 
         // "set_action_step" should not be called.
@@ -355,5 +415,7 @@ TEST(operation_test, operation_test10)
         // Test operation::operator
         (*ope)(_early, _enemy);
     }
+
+    se_player::finalize();
 }
 }

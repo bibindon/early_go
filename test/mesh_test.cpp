@@ -3,7 +3,9 @@
 
 #include "pch.h"
 #include "src/mesh.hpp"
-#include "src/key.hpp"
+#include "src/keyboard.hpp"
+#include "src/bgm_player.hpp"
+#include "src/se_player.hpp"
 
 TCHAR gName[100] = "初期化サンプルプログラム";
 LRESULT CALLBACK WndProc(HWND hWnd, UINT mes, WPARAM wParam, LPARAM lParam)
@@ -139,7 +141,9 @@ TEST(mesh_test, mesh_ctor_test)
     }
     // CRT feature can be used only debug mode.
 #ifdef DEBUG
-    early_go::key::key_deque_.clear();
+    early_go::keyboard::key_deque_.clear();
+    early_go::bgm_player::finalize();
+    early_go::se_player::finalize();
     HANDLE hLog = CreateFile(
         "log.txt",
         GENERIC_WRITE,

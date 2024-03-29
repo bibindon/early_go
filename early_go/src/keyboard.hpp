@@ -9,7 +9,7 @@
 namespace early_go
 {
 // Monostate pattern.
-class key
+class keyboard
 {
 public:
     static constexpr int KEY_TABLE_LENGTH{256};
@@ -28,7 +28,7 @@ private:
     // be visible from the operation_test.
     struct key_info
     {
-        std::array<SHORT, key::KEY_TABLE_LENGTH> key_table_;
+        std::array<SHORT, keyboard::KEY_TABLE_LENGTH> key_table_;
     };
 
     static std::deque<key_info> key_deque_;

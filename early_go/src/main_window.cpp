@@ -9,7 +9,7 @@
 #include "camera.hpp"
 #include "character.hpp"
 #include "abstract_mesh.hpp"
-#include "key.hpp"
+#include "keyboard.hpp"
 #include "operation.hpp"
 #include "hud.hpp"
 #include "hud2.hpp"
@@ -273,7 +273,7 @@ int main_window::operator()()
             {
                 continue;
             }
-            if (key::update())
+            if (keyboard::update())
             {
                 // TODO
                 if (novel_->get_is_novel_part())
@@ -309,19 +309,19 @@ std::shared_ptr<character> main_window::get_enemy_character()
 
 void main_window::debug()
 {
-    if (key::is_down(VK_UP))
+    if (keyboard::is_down(VK_UP))
     {
         suo_->set_action_step(direction::FRONT);
     }
-    if (key::is_down(VK_LEFT))
+    if (keyboard::is_down(VK_LEFT))
     {
         suo_->set_action_step(direction::LEFT);
     }
-    if (key::is_down(VK_DOWN))
+    if (keyboard::is_down(VK_DOWN))
     {
         suo_->set_action_step(direction::BACK);
     }
-    if (key::is_down(VK_RIGHT))
+    if (keyboard::is_down(VK_RIGHT))
     {
         suo_->set_action_step(direction::RIGHT);
     }
@@ -348,7 +348,7 @@ void main_window::debug()
     ++frame_count;
 
     static bool fps_show{true};
-    if (key::is_down('F'))
+    if (keyboard::is_down('F'))
     {
         fps_show = !fps_show;
         if (!fps_show)
@@ -364,123 +364,123 @@ void main_window::debug()
         text_d3dxfont_->set_param(fps_text, 0, 0, D3DCOLOR_ARGB(127, 200, 200, 200));
     }
 
-    //  if (key::is_hold('I')) {
+    //  if (keyboard::is_hold('I')) {
     //    camera_->move_position({0.0f, 0.0f, 0.02f});
     ////    early_->add_mesh<animation_mesh>(constants::EARLY_LANCE);
     ////    early_->set_default_animation("Ready");
     //  }
-    //  if (key::is_hold('J')) {
+    //  if (keyboard::is_hold('J')) {
     //    camera_->move_position({-0.02f, 0.0f, 0.0f});
     //  }
-    //  if (key::is_hold('K')) {
+    //  if (keyboard::is_hold('K')) {
     //    camera_->move_position({0.0f, 0.0f, -0.02f});
     //  }
-    //  if (key::is_hold('L')) {
+    //  if (keyboard::is_hold('L')) {
     //    camera_->move_position({0.02f, 0.0f, 0.0f});
     //  }
-    if (key::is_down('H'))
+    if (keyboard::is_down('H'))
     {
         camera_->move_position({0.0f, 0.00f, 0.02f});
     }
-    if (key::is_hold('N'))
+    if (keyboard::is_hold('N'))
     {
         camera_->move_position({0.0f, -0.02f, 0.0f});
     }
 
-    //  if (key::is_hold('F')) {
+    //  if (keyboard::is_hold('F')) {
     //    light_direction_.x += 0.2f;
     //    if (light_direction_.x >= 1.0f) {
     //      light_direction_.x = 1.0f;
     //    }
     //  }
-    //  if (key::is_hold('S')) {
+    //  if (keyboard::is_hold('S')) {
     //    light_direction_.x -= 0.2f;
     //    if (light_direction_.x <= -1.0f) {
     //      light_direction_.x = -1.0f;
     //    }
     //  }
-    //  if (key::is_hold('E')) {
+    //  if (keyboard::is_hold('E')) {
     //    light_direction_.z += 0.2f;
     //    if (light_direction_.z >= 1.0f) {
     //      light_direction_.z = 1.0f;
     //    }
     //  }
-    //  if (key::is_hold('D')) {
+    //  if (keyboard::is_hold('D')) {
     //    light_direction_.z -= 0.2f;
     //    if (light_direction_.z <= -1.0f) {
     //      light_direction_.z = -1.0f;
     //    }
     //  }
-    //  if (key::is_hold('T')) {
+    //  if (keyboard::is_hold('T')) {
     //    light_direction_.y += 0.2f;
     //    if (light_direction_.y >= 1.0f) {
     //      light_direction_.y = 1.0f;
     //    }
     //  }
-    //  if (key::is_hold('G')) {
+    //  if (keyboard::is_hold('G')) {
     //    light_direction_.y -= 0.2f;
     //    if (light_direction_.y <= -1.0f) {
     //      light_direction_.y = -1.0f;
     //    }
     //  }
-    //  if (key::is_hold('R')) {
+    //  if (keyboard::is_hold('R')) {
     //    light_direction_.x = 0.0f;
     //    light_direction_.y = 0.0f;
     //    light_direction_.z = 0.0f;
     //  }
-    if (key::is_down('1'))
+    if (keyboard::is_down('1'))
     {
         early_->set_animation("Idle");
         suo_->set_animation("Idle");
     }
-    if (key::is_down('2'))
+    if (keyboard::is_down('2'))
     {
         early_->set_animation("Ready");
         suo_->set_animation("Ready");
     }
-    if (key::is_down('3'))
+    if (keyboard::is_down('3'))
     {
         early_->set_animation("Step_Front");
         suo_->set_animation("Step_Front");
     }
-    if (key::is_down('4'))
+    if (keyboard::is_down('4'))
     {
         early_->set_animation("Step_Back");
         suo_->set_animation("Step_Back");
     }
-    if (key::is_down('5'))
+    if (keyboard::is_down('5'))
     {
         early_->set_animation("Step_Left");
         suo_->set_animation("Step_Left");
         meshes_lua_.at(4)->set_animation("Wolf_Idle_");
     }
-    if (key::is_down('6'))
+    if (keyboard::is_down('6'))
     {
         early_->set_animation("Step_Right");
         suo_->set_animation("Step_Right");
         meshes_lua_.at(4)->set_animation("Wolf_Run_Cycle_");
     }
-    if (key::is_down('7'))
+    if (keyboard::is_down('7'))
     {
         early_->set_animation("Rotate_Back");
         suo_->set_animation("Rotate_Back");
     }
-    if (key::is_down('8'))
+    if (keyboard::is_down('8'))
     {
         early_->set_animation("Rotate_Left");
         suo_->set_animation("Rotate_Left");
     }
-    if (key::is_down('9'))
+    if (keyboard::is_down('9'))
     {
         early_->set_animation("Rotate_Right");
         suo_->set_animation("Rotate_Right");
     }
-    if (key::is_down('0'))
+    if (keyboard::is_down('0'))
     {
         early_->set_animation("Attack");
         suo_->set_animation("Attack");
     }
-    if (key::is_down('P'))
+    if (keyboard::is_down('P'))
     {
         early_->set_animation("Damaged");
         suo_->set_animation("Damaged");
@@ -490,56 +490,56 @@ void main_window::debug()
             bgm_player::get_ton()->play();
         }
     }
-    if (key::is_down('Z'))
+    if (keyboard::is_down('Z'))
     {
         early_->set_dynamic_texture(
             constants::EARLY_BODY, "image/back_ground.png", 0, abstract_mesh::combine_type::NORMAL);
         init_lua();
     }
-    if (key::is_down('U'))
+    if (keyboard::is_down('U'))
     {
         novel_->set_is_novel_part(true);
         //  early_->set_dynamic_texture(constants::EARLY_BODY,
         //      "image/settings_window.png", 0, abstract_mesh::combine_type::NORMAL);
     }
-    if (key::is_down('X'))
+    if (keyboard::is_down('X'))
     {
         early_->set_dynamic_texture(
             constants::EARLY_BODY, "image/test1.bmp", 0, abstract_mesh::combine_type::ADDITION);
     }
-    if (key::is_down('R'))
+    if (keyboard::is_down('R'))
     {
         early_->flip_dynamic_texture(constants::EARLY_BODY, 1);
     }
-    if (key::is_down('T'))
+    if (keyboard::is_down('T'))
     {
         early_->clear_dynamic_texture(constants::EARLY_BODY, 1);
 
     }
-    if (key::is_down('C'))
+    if (keyboard::is_down('C'))
     {
         early_->set_fade_in(constants::EARLY_BODY);
         meshes_lua_.at(0)->set_fade_in();
         meshes_lua_.at(1)->set_fade_in();
         meshes_lua_.at(3)->set_fade_in();
     }
-    //  if (key::is_hold('4')) {
+    //  if (keyboard::is_hold('4')) {
     //    hud_->add_image("test3", "image/board2.png", cv::Point(300, 400));
     //    static float f = 0.0f;
     //    f -= 0.01f;
     //    early_->set_dynamic_texture_position(constants::EARLY_BODY, 1, {f, f} );
     //    mesh_->set_dynamic_texture_position(1, {f, f} );
     //  }
-    if (key::is_down('4'))
+    if (keyboard::is_down('4'))
     {
         //hud_->show_HP_info();
     }
-    if (key::is_down('5'))
+    if (keyboard::is_down('5'))
     {
         //    hud_->delete_image("test3");
 //        hud_->remove_HP_info();
     }
-    if (key::is_down('6'))
+    if (keyboard::is_down('6'))
     {
         //    hud_->add_image("image/board.png");
         //    hud_->add_message("UŒ‚‚ªƒqƒbƒgB“G‚Ì‘Ì—Í‚ª30Œ¸‚è‚Ü‚µ‚½B",
@@ -588,22 +588,22 @@ erto's book, Programming in Lua.\n\
         // hud_->add_message("Enemy: 30 damage.", cv::Point(100, 300));
     }
 
-    if (key::is_down('7'))
+    if (keyboard::is_down('7'))
     {
 //        hud_->add_frame( "test1", cv::Rect(250, 300, 600, 450), cv::Scalar(30, 20, 20, 150));
     }
 
-    if (key::is_down('8'))
+    if (keyboard::is_down('8'))
     {
 //        hud_->delete_frame("test1");
     }
 
-    if (key::is_down('9'))
+    if (keyboard::is_down('9'))
     {
 //        hud_->delete_message("test4");
     }
 
-    if (key::is_down('V'))
+    if (keyboard::is_down('V'))
     {
         early_->set_fade_out(constants::EARLY_BODY);
         meshes_lua_.at(0)->set_fade_out();
@@ -614,7 +614,7 @@ erto's book, Programming in Lua.\n\
 //        early_->set_dynamic_texture_opacity(
 //            constants::EARLY_BODY, 1, std::sin(f) / 2 + 0.5f);
     }
-    if (key::is_down('B'))
+    if (keyboard::is_down('B'))
     {
         meshes_lua_.at(0)->set_dynamic_message(
             1,
@@ -637,24 +637,24 @@ erto's book, Programming in Lua.\n\
             SHIFTJIS_CHARSET,
             true);
     }
-    if (key::is_down('M'))
+    if (keyboard::is_down('M'))
     {
         camera_->set_to_close_up_animation();
     }
-    if (key::is_down(VK_OEM_COMMA))
+    if (keyboard::is_down(VK_OEM_COMMA))
     {
         camera_->set_to_behind_animation();
     }
-    if (key::is_down(VK_OEM_PERIOD))
+    if (keyboard::is_down(VK_OEM_PERIOD))
     {
         early_->set_shake_texture(constants::EARLY_BODY);
     }
-    if (key::is_down('G'))
+    if (keyboard::is_down('G'))
     {
         sprite_anim_ = make_shared<sprite_anim>(d3d_device_, "image/sprite_anim_test1.png");
         sprite_ = make_shared<sprite>(d3d_device_, "image/sprite_test1.png");
     }
-    // if (key::is_down('W')) {
+    // if (keyboard::is_down('W')) {
     //   early_->set_dynamic_message(constants::EARLY_BODY, 1,
     //       "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
     // }

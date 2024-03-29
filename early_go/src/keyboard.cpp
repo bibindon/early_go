@@ -1,5 +1,5 @@
 #include "stdafx.hpp"
-#include "key.hpp"
+#include "keyboard.hpp"
 
 using std::chrono::system_clock;
 using std::find_if;
@@ -7,10 +7,10 @@ using std::shared_ptr;
 
 namespace early_go
 {
-std::deque<key::key_info> key::key_deque_;
-const int key::SIMULTANEOUS_ALLOW_FRAME;
+std::deque<keyboard::key_info> keyboard::key_deque_;
+const int keyboard::SIMULTANEOUS_ALLOW_FRAME;
 
-bool key::update()
+bool keyboard::update()
 {
     key_info _key_info { };
 
@@ -31,7 +31,7 @@ bool key::update()
     return true;
 }
 
-bool key::is_down(const int& keycode)
+bool keyboard::is_down(const int& keycode)
 {
     if (key_deque_.size() <= 1)
     {
@@ -44,7 +44,7 @@ bool key::is_down(const int& keycode)
     }
     return false;
 }
-bool key::is_down(const int& frame, const int& keycode)
+bool keyboard::is_down(const int& frame, const int& keycode)
 {
     if (key_deque_.at(frame).key_table_[keycode] & 0x0001)
     {
@@ -53,7 +53,7 @@ bool key::is_down(const int& frame, const int& keycode)
     return false;
 }
 
-bool key::is_hold(const int& keycode)
+bool keyboard::is_hold(const int& keycode)
 {
     if (key_deque_.size() <= 1)
     {
@@ -66,7 +66,7 @@ bool key::is_hold(const int& keycode)
     return false;
 }
 
-bool key::is_up(const int& keycode)
+bool keyboard::is_up(const int& keycode)
 {
     if (key_deque_.size() <= 1)
     {
@@ -80,7 +80,7 @@ bool key::is_up(const int& keycode)
     return false;
 }
 
-bool key::check_simultaneous(const int& keycode)
+bool keyboard::check_simultaneous(const int& keycode)
 {
     for (int i = 0; i < SIMULTANEOUS_ALLOW_FRAME; ++i)
     {

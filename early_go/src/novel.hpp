@@ -6,7 +6,7 @@
 #include <lualib.h>
 
 #include "stdafx.hpp"
-#include "key.hpp"
+#include "keyboard.hpp"
 #include "main_window.hpp"
 
 namespace early_go

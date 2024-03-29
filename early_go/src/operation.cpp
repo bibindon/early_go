@@ -1,5 +1,5 @@
 #include "stdafx.hpp"
-#include "key.hpp"
+#include "keyboard.hpp"
 #include "character.hpp"
 #include "operation.hpp"
 #include "camera.hpp"
@@ -50,37 +50,37 @@ shared_ptr<camera> operation::get_camera() const
 void operation::operator()(
     const shared_ptr<character>& _main_character, const shared_ptr<character>& enemy)
 {
-    if (key::is_down('Q'))
+    if (keyboard::is_down('Q'))
     {
         PostQuitMessage(0);
     }
-    else if (key::is_down('W'))
+    else if (keyboard::is_down('W'))
     {
         reserved_behavior_->step_dir_ = direction::FRONT;
-        if (key::check_simultaneous('A'))
+        if (keyboard::check_simultaneous('A'))
         {
             reserved_behavior_->action_type_ = action_type::ATTACK;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('I'))
+        else if (keyboard::check_simultaneous('I'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::FRONT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('J'))
+        else if (keyboard::check_simultaneous('J'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::LEFT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('K'))
+        else if (keyboard::check_simultaneous('K'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::BACK;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('L'))
+        else if (keyboard::check_simultaneous('L'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::RIGHT;
@@ -91,33 +91,33 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::STEP;
         }
     }
-    else if (key::is_down('A'))
+    else if (keyboard::is_down('A'))
     {
         reserved_behavior_->step_dir_ = direction::LEFT;
-        if (key::check_simultaneous('W'))
+        if (keyboard::check_simultaneous('W'))
         {
             reserved_behavior_->action_type_ = action_type::ATTACK;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('I'))
+        else if (keyboard::check_simultaneous('I'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::FRONT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('J'))
+        else if (keyboard::check_simultaneous('J'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::LEFT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('K'))
+        else if (keyboard::check_simultaneous('K'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::BACK;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('L'))
+        else if (keyboard::check_simultaneous('L'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::RIGHT;
@@ -128,28 +128,28 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::STEP;
         }
     }
-    else if (key::is_down('S'))
+    else if (keyboard::is_down('S'))
     {
         reserved_behavior_->step_dir_ = direction::BACK;
-        if (key::check_simultaneous('I'))
+        if (keyboard::check_simultaneous('I'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::FRONT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('J'))
+        else if (keyboard::check_simultaneous('J'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::LEFT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('K'))
+        else if (keyboard::check_simultaneous('K'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::BACK;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('L'))
+        else if (keyboard::check_simultaneous('L'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::RIGHT;
@@ -160,28 +160,28 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::STEP;
         }
     }
-    else if (key::is_down('D'))
+    else if (keyboard::is_down('D'))
     {
         reserved_behavior_->step_dir_ = direction::RIGHT;
-        if (key::check_simultaneous('I'))
+        if (keyboard::check_simultaneous('I'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::FRONT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('J'))
+        else if (keyboard::check_simultaneous('J'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::LEFT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('K'))
+        else if (keyboard::check_simultaneous('K'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::BACK;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('L'))
+        else if (keyboard::check_simultaneous('L'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->rotate_dir_ = direction::RIGHT;
@@ -192,28 +192,28 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::STEP;
         }
     }
-    else if (key::is_down('I'))
+    else if (keyboard::is_down('I'))
     {
         reserved_behavior_->rotate_dir_ = direction::FRONT;
-        if (key::check_simultaneous('W'))
+        if (keyboard::check_simultaneous('W'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::FRONT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('A'))
+        else if (keyboard::check_simultaneous('A'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::LEFT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('S'))
+        else if (keyboard::check_simultaneous('S'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::BACK;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('D'))
+        else if (keyboard::check_simultaneous('D'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::RIGHT;
@@ -224,28 +224,28 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::ROTATE;
         }
     }
-    else if (key::is_down('J'))
+    else if (keyboard::is_down('J'))
     {
         reserved_behavior_->rotate_dir_ = direction::LEFT;
-        if (key::check_simultaneous('W'))
+        if (keyboard::check_simultaneous('W'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::FRONT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('A'))
+        else if (keyboard::check_simultaneous('A'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::LEFT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('S'))
+        else if (keyboard::check_simultaneous('S'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::BACK;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('D'))
+        else if (keyboard::check_simultaneous('D'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::RIGHT;
@@ -256,28 +256,28 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::ROTATE;
         }
     }
-    else if (key::is_down('K'))
+    else if (keyboard::is_down('K'))
     {
         reserved_behavior_->rotate_dir_ = direction::BACK;
-        if (key::check_simultaneous('W'))
+        if (keyboard::check_simultaneous('W'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::FRONT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('A'))
+        else if (keyboard::check_simultaneous('A'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::LEFT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('S'))
+        else if (keyboard::check_simultaneous('S'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::BACK;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('D'))
+        else if (keyboard::check_simultaneous('D'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::RIGHT;
@@ -288,28 +288,28 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::ROTATE;
         }
     }
-    else if (key::is_down('L'))
+    else if (keyboard::is_down('L'))
     {
         reserved_behavior_->rotate_dir_ = direction::RIGHT;
-        if (key::check_simultaneous('W'))
+        if (keyboard::check_simultaneous('W'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::FRONT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('A'))
+        else if (keyboard::check_simultaneous('A'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::LEFT;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('S'))
+        else if (keyboard::check_simultaneous('S'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::BACK;
             cancel_removed_by_simul_push();
         }
-        else if (key::check_simultaneous('D'))
+        else if (keyboard::check_simultaneous('D'))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
             reserved_behavior_->step_dir_ = direction::RIGHT;
@@ -381,7 +381,7 @@ void operation::operator()(
             reserved_behavior_->state_ = behavior_state::READY;
         }
         ++_cancelable_counter;
-        if (_cancelable_counter > key::SIMULTANEOUS_ALLOW_FRAME)
+        if (_cancelable_counter > keyboard::SIMULTANEOUS_ALLOW_FRAME)
         {
             _cancelable_counter = 0;
             current_behavior_->state_ = behavior_state::PLAY;

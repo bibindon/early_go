@@ -30,6 +30,11 @@ void se_player::initialize(HWND hwnd)
     }
 }
 
+void se_player::finalize()
+{
+    single_ton_ = nullptr;
+}
+
 // Reference
 // http://marupeke296.com/DSSMP_No2_GetSoundFromWave.html
 bool se_player::load(const std::string& filename)

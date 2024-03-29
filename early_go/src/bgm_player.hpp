@@ -11,6 +11,7 @@ public:
     static std::shared_ptr<bgm_player> single_ton_;
     static std::shared_ptr<bgm_player> get_ton();
     static void initialize(HWND hwnd);
+    static void finalize(); // For memory leak check.
 
     bool load(const std::string& filename);
     void play();

@@ -11,6 +11,7 @@ public:
     static std::shared_ptr<se_player> single_ton_;
     static std::shared_ptr<se_player> get_ton();
     static void initialize(HWND hwnd);
+    static void finalize(); // For memory leak check.
 
     bool load(const std::string& filename);
     void play(const std::string& filename, const int a_volume = 100);

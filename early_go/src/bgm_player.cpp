@@ -30,6 +30,11 @@ void bgm_player::initialize(HWND hwnd)
     }
 }
 
+void bgm_player::finalize()
+{
+    single_ton_ = nullptr;
+}
+
 // Reference
 // http://marupeke296.com/DSSMP_No2_GetSoundFromWave.html
 bool bgm_player::load(const std::string& filename)

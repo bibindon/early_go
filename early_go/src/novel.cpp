@@ -184,7 +184,7 @@ void novel::operator()(main_window &window)
 {
     window_ = &window;
 
-    if (key::is_down('J'))
+    if (keyboard::is_down('J'))
     {
 
         lua_state_ = luaL_newstate();
@@ -230,7 +230,7 @@ void novel::operator()(main_window &window)
         // lua_getglobal(L, "num");
         // double num = lua_tonumber(L, -1);
     }
-    if (key::is_down('K'))
+    if (keyboard::is_down('K'))
     {
         bool tex_animation_all_finished = true;
         for (int i = 0; i < 8; ++i)
@@ -249,13 +249,13 @@ void novel::operator()(main_window &window)
         }
     }
 
-    if (key::is_down(' ') || key::is_down('\r'))
+    if (keyboard::is_down(' ') || keyboard::is_down('\r'))
     {
         // TODO next page
         int i;
         int ret = lua_resume(co, nullptr, 0, &i);
     }
-    else if (key::is_down(27 /*Esc key*/))
+    else if (keyboard::is_down(27 /*Esc key*/))
     {
         // TODO menu screen
         window_->get_main_character()->set_dynamic_texture(
@@ -266,7 +266,7 @@ void novel::operator()(main_window &window)
         window_->get_main_character()->set_dynamic_texture_position(
             constants::EARLY_BODY, 6, {-0.25f, 0.0f});
     }
-    else if (key::is_down('I'))
+    else if (keyboard::is_down('I'))
     {
         // For Debug
         // TODO enable to restart lua script

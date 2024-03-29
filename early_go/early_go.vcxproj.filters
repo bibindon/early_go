@@ -51,7 +51,7 @@
     <ClCompile Include="src\camera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="src\key.cpp">
+    <ClCompile Include="src\keyboard.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="src\operation.cpp">
@@ -146,7 +146,7 @@
     <ClInclude Include="src\camera.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="src\key.hpp">
+    <ClInclude Include="src\keyboard.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="src\operation.hpp">
