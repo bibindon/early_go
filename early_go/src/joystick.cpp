@@ -46,8 +46,8 @@ bool joystick::initialize(HWND hwnd)
     // Create device.
     if (!create_device(hwnd))
     {
+        // It's not problem failing to create input device.
         finalize();
-        THROW_WITH_TRACE("Failed to create direct input device.");
         return false;
     }
     return true;
