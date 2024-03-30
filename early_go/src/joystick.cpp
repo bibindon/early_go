@@ -5,12 +5,12 @@
 
 namespace early_go
 {
-BOOL CALLBACK DeviceFindCallBack(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef);
-BOOL SetUpGamePadProperty(LPDIRECTINPUTDEVICE8 device);
+BOOL CALLBACK device_find_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef);
+BOOL setup_gamepad_property(LPDIRECTINPUTDEVICE8 device);
 
-LPDIRECTINPUT8 joystick::g_InputInterface;
-LPDIRECTINPUTDEVICE8 joystick::g_GamePadDevice;
-joystick::ButtonState joystick::g_ButtonStates[ButtonKind::ButtonKindMax];
+LPDIRECTINPUT8 joystick::direct_input8_;
+LPDIRECTINPUTDEVICE8 joystick::input_device8_;
+joystick::button_state_type joystick::button_states_[button_kind_type::BUTTON_KIND_MAX];
 
 bool joystick::initialize()
 {
@@ -19,7 +19,7 @@ bool joystick::initialize()
         GetModuleHandle(nullptr),
         DIRECTINPUT_VERSION,
         IID_IDirectInput8,
-        (void**)&g_InputInterface,
+        (void**)&direct_input8_,
         nullptr) };
 
     if (FAILED(result))
@@ -37,9 +37,9 @@ bool joystick::initialize()
     }
 
     // 入力情報の初期化
-    for (int i = 0; i < ButtonKind::ButtonKindMax; i++)
+    for (int i = 0; i < button_kind_type::BUTTON_KIND_MAX; i++)
     {
-        g_ButtonStates[i] = ButtonState::ButtonStateNone;
+        button_states_[i] = button_state_type::BUTTON_STATE_NONE;
     }
 
     return true;
@@ -48,45 +48,46 @@ bool joystick::initialize()
 void joystick::finalize()
 {
     // デバイスの解放
-    if (g_GamePadDevice != nullptr)
+    if (input_device8_ != nullptr)
     {
         // 制御を停止
-        g_GamePadDevice->Unacquire();
-        g_GamePadDevice->Release();
-        g_GamePadDevice = nullptr;
+        input_device8_->Unacquire();
+        input_device8_->Release();
+        input_device8_ = nullptr;
     }
 
     // インターフェースの解放
-    if (g_InputInterface != nullptr)
+    if (direct_input8_ != nullptr)
     {
-        g_InputInterface->Release();
-        g_InputInterface = nullptr;
+        direct_input8_->Release();
+        direct_input8_ = nullptr;
     }
 }
 
 //ゲームパッドデバイスの作成-デバイス列挙の結果を受け取る構造体
-struct DeviceEnumParameter
+struct device_enum_param
 {
-    LPDIRECTINPUTDEVICE8* input_device8_;
+    LPDIRECTINPUTDEVICE8* arg_input_device8_;
     int find_count_;
 };
 
-BOOL joystick::StartGamePadControl()
+
+BOOL joystick::start_game_pad_control()
 {
     // デバイスが生成されてない
-    if (g_GamePadDevice == nullptr)
+    if (input_device8_ == nullptr)
     {
         return false;
     }
 
     // 制御開始
-    if (FAILED(g_GamePadDevice->Acquire()))
+    if (FAILED(input_device8_->Acquire()))
     {
         return false;
     }
 
     DIDEVCAPS cap;
-    g_GamePadDevice->GetCapabilities(&cap);
+    input_device8_->GetCapabilities(&cap);
     // ポーリング判定
     if (cap.dwFlags & DIDC_POLLEDDATAFORMAT)
     {
@@ -97,7 +98,7 @@ BOOL joystick::StartGamePadControl()
             Acquireの前で実行すると失敗したので
             後で実行するようにした
         */
-        if (FAILED(g_GamePadDevice->Poll()))
+        if (FAILED(input_device8_->Poll()))
         {
             return false;
         }
@@ -106,7 +107,259 @@ BOOL joystick::StartGamePadControl()
     return true;
 }
 
-BOOL SetUpGamePadProperty(LPDIRECTINPUTDEVICE8 device)
+BOOL CALLBACK device_find_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
+{
+    device_enum_param* parameter { (device_enum_param*)pvRef };
+    LPDIRECTINPUTDEVICE8 device { nullptr };
+
+    // Finish if already found.
+    if (parameter->find_count_ >= 1)
+    {
+        return DIENUM_STOP;
+    }
+
+    // デバイス生成
+    HRESULT hresult { joystick::direct_input8_->CreateDevice(
+        lpddi->guidInstance,
+        parameter->arg_input_device8_,
+        nullptr) };
+
+    if (FAILED(hresult))
+    {
+        return DIENUM_STOP;
+    }
+
+    // 入力フォーマットの指定
+    device = *parameter->arg_input_device8_;
+    hresult = device->SetDataFormat(&c_dfDIJoystick);
+
+    if (FAILED(hresult))
+    {
+        return DIENUM_STOP;
+    }
+
+    // プロパティの設定
+    if (setup_gamepad_property(device) == false)
+    {
+        return DIENUM_STOP;
+    }
+
+    // TODO hwnd
+    // Set Cooperative level
+    if (FAILED( device->SetCooperativeLevel(
+        FindWindow(constants::APP_NAME.c_str(), nullptr),
+        DISCL_EXCLUSIVE | DISCL_FOREGROUND)))
+    {
+        return DIENUM_STOP;
+    }
+
+    ++parameter->find_count_;
+
+    return DIENUM_CONTINUE;
+}
+
+
+
+void joystick::update()
+{
+    if (input_device8_ == nullptr)
+    {
+        return;
+    }
+
+    DIJOYSTATE pad_data;
+
+    // デバイス取得
+    HRESULT hr = input_device8_->GetDeviceState(sizeof(DIJOYSTATE), &pad_data);
+    if (FAILED(hr))
+    {
+        // 再度制御開始
+        if (FAILED(input_device8_->Acquire()))
+        {
+            for (int i = 0; i < button_kind_type::BUTTON_KIND_MAX; i++)
+            {
+                button_states_[i] = button_state_type::BUTTON_STATE_NONE;
+            }
+            input_device8_->Poll();
+        }
+        return;
+    }
+
+    bool is_push[button_kind_type::BUTTON_KIND_MAX];
+    // スティック判定
+    int unresponsive_range = 200;
+    if (pad_data.lX < -unresponsive_range)
+    {
+        is_push[button_kind_type::LEFT_BUTTON] = true;
+    }
+    else if (pad_data.lX > unresponsive_range)
+    {
+        is_push[button_kind_type::RIGHT_BUTTON] = true;
+    }
+
+    if (pad_data.lY < -unresponsive_range)
+    {
+        is_push[button_kind_type::UP_BUTTON] = true;
+    }
+    else if (pad_data.lY > unresponsive_range)
+    {
+        is_push[button_kind_type::DOWN_BUTTON] = true;
+    }
+
+    // 十字キー判定
+    if (pad_data.rgdwPOV[0] != 0xFFFFFFFF)
+    {
+        float rad = D3DXToRadian((pad_data.rgdwPOV[0] / 100.0f));
+        // 本来はxがcos、yがsinだけど、rgdwPOVは0が上から始まるので、
+        // cosとsinを逆にした方が都合がいい
+        float x = sinf(rad);
+        float y = cosf(rad);
+
+        if (x < -0.01f)
+        {
+            is_push[button_kind_type::LEFT_BUTTON] = true;
+        }
+        else if (x > 0.01f)
+        {
+            is_push[button_kind_type::RIGHT_BUTTON] = true;
+        }
+
+        if (y > 0.01f)
+        {
+            is_push[button_kind_type::UP_BUTTON] = true;
+        }
+        else if (y < -0.01f)
+        {
+            is_push[button_kind_type::DOWN_BUTTON] = true;
+        }
+    }
+
+    // Check button.
+    for (int i = 0; i < 32; i++)
+    {
+        if (!(pad_data.rgbButtons[i] & 0x80))
+        {
+            continue;
+        }
+
+        switch (i)
+        {
+        case 0:
+            is_push[button_kind_type::BUTTON_X] = true;
+            break;
+        case 1:
+            is_push[button_kind_type::BUTTON_A] = true;
+            break;
+        case 2:
+            is_push[button_kind_type::BUTTON_B] = true;
+            break;
+        case 3:
+            is_push[button_kind_type::BUTTON_Y] = true;
+            break;
+        }
+    }
+
+    // 入力情報からボタンの状態を更新する
+    for (int i = 0; i < button_kind_type::BUTTON_KIND_MAX; i++)
+    {
+        if (is_push[i] == true)
+        {
+            if (button_states_[i] == button_state_type::BUTTON_STATE_NONE)
+            {
+                button_states_[i] = button_state_type::BUTTON_STATE_DOWN;
+            }
+            else
+            {
+                button_states_[i] = button_state_type::BUTTON_STATE_PUSH;
+            }
+        }
+        else
+        {
+            if (button_states_[i] == button_state_type::BUTTON_STATE_PUSH)
+            {
+                button_states_[i] = button_state_type::BUTTON_STATE_UP;
+            }
+            else
+            {
+                button_states_[i] = button_state_type::BUTTON_STATE_NONE;
+            }
+        }
+    }
+}
+
+bool joystick::is_hold(button_kind_type button)
+{
+    if (button_states_[button] == button_state_type::BUTTON_STATE_PUSH)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool joystick::is_up(button_kind_type button)
+{
+    if (button_states_[button] == button_state_type::BUTTON_STATE_UP)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool joystick::is_down(button_kind_type button)
+{
+    if (button_states_[button] == button_state_type::BUTTON_STATE_DOWN)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool joystick::create_device()
+{
+    device_enum_param parameter = { 0 };
+
+    parameter.arg_input_device8_ = &input_device8_;
+
+    // Search GAMEPAD
+    direct_input8_->EnumDevices(
+        DI8DEVTYPE_GAMEPAD,
+        device_find_callback,
+        &parameter,
+        DIEDFL_ATTACHEDONLY
+    );
+
+    // Search JOYSTICK
+    direct_input8_->EnumDevices(
+        DI8DEVTYPE_JOYSTICK,
+        device_find_callback,
+        &parameter,
+        DIEDFL_ATTACHEDONLY
+    );
+
+    if (parameter.find_count_ == 0)
+    {
+        return false;
+    }
+
+    int count = 0;
+    // 制御開始
+    while (start_game_pad_control() == false)
+    {
+        Sleep(100);
+        count++;
+        if (count >= 5)
+        {
+            break;
+        }
+    }
+
+    return true;
+}
+
+BOOL setup_gamepad_property(LPDIRECTINPUTDEVICE8 device)
 {
     // 軸モードを絶対値モードとして設定
     DIPROPDWORD diprop;
@@ -140,252 +393,6 @@ BOOL SetUpGamePadProperty(LPDIRECTINPUTDEVICE8 device)
     if (FAILED(device->SetProperty(DIPROP_RANGE, &diprg.diph)))
     {
         return false;
-    }
-
-    return true;
-}
-
-BOOL CALLBACK DeviceFindCallBack(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
-{
-    DeviceEnumParameter* parameter { (DeviceEnumParameter*)pvRef };
-    LPDIRECTINPUTDEVICE8 device { nullptr };
-
-    // Finish if already found.
-    if (parameter->find_count_ >= 1)
-    {
-        return DIENUM_STOP;
-    }
-
-    // デバイス生成
-    HRESULT hresult { joystick::g_InputInterface->CreateDevice(
-        lpddi->guidInstance,
-        parameter->input_device8_,
-        nullptr) };
-
-    if (FAILED(hresult))
-    {
-        return DIENUM_STOP;
-    }
-
-    // 入力フォーマットの指定
-    device = *parameter->input_device8_;
-    hresult = device->SetDataFormat(&c_dfDIJoystick);
-
-    if (FAILED(hresult))
-    {
-        return DIENUM_STOP;
-    }
-
-    // プロパティの設定
-    if (SetUpGamePadProperty(device) == false)
-    {
-        return DIENUM_STOP;
-    }
-
-    // TODO hwnd
-    // Set Cooperative level
-    if (FAILED( device->SetCooperativeLevel(
-        FindWindow(constants::APP_NAME.c_str(), nullptr),
-        DISCL_EXCLUSIVE | DISCL_FOREGROUND)))
-    {
-        return DIENUM_STOP;
-    }
-
-    ++parameter->find_count_;
-
-    return DIENUM_CONTINUE;
-}
-
-
-
-void joystick::update()
-{
-    if (g_GamePadDevice == nullptr)
-    {
-        return;
-    }
-
-    DIJOYSTATE pad_data;
-
-    // デバイス取得
-    HRESULT hr = g_GamePadDevice->GetDeviceState(sizeof(DIJOYSTATE), &pad_data);
-    if (FAILED(hr))
-    {
-        // 再度制御開始
-        if (FAILED(g_GamePadDevice->Acquire()))
-        {
-            for (int i = 0; i < ButtonKind::ButtonKindMax; i++)
-            {
-                g_ButtonStates[i] = ButtonState::ButtonStateNone;
-            }
-            g_GamePadDevice->Poll();
-        }
-        return;
-    }
-
-    bool is_push[ButtonKind::ButtonKindMax];
-    // スティック判定
-    int unresponsive_range = 200;
-    if (pad_data.lX < -unresponsive_range)
-    {
-        is_push[ButtonKind::LeftButton] = true;
-    }
-    else if (pad_data.lX > unresponsive_range)
-    {
-        is_push[ButtonKind::RightButton] = true;
-    }
-
-    if (pad_data.lY < -unresponsive_range)
-    {
-        is_push[ButtonKind::UpButton] = true;
-    }
-    else if (pad_data.lY > unresponsive_range)
-    {
-        is_push[ButtonKind::DownButton] = true;
-    }
-
-    // 十字キー判定
-    if (pad_data.rgdwPOV[0] != 0xFFFFFFFF)
-    {
-        float rad = D3DXToRadian((pad_data.rgdwPOV[0] / 100.0f));
-        // 本来はxがcos、yがsinだけど、rgdwPOVは0が上から始まるので、
-        // cosとsinを逆にした方が都合がいい
-        float x = sinf(rad);
-        float y = cosf(rad);
-
-        if (x < -0.01f)
-        {
-            is_push[ButtonKind::LeftButton] = true;
-        }
-        else if (x > 0.01f)
-        {
-            is_push[ButtonKind::RightButton] = true;
-        }
-
-        if (y > 0.01f)
-        {
-            is_push[ButtonKind::UpButton] = true;
-        }
-        else if (y < -0.01f)
-        {
-            is_push[ButtonKind::DownButton] = true;
-        }
-    }
-
-    // ボタン判定
-    for (int i = 0; i < 32; i++)
-    {
-        if (!(pad_data.rgbButtons[i] & 0x80))
-        {
-            continue;
-        }
-
-        switch (i)
-        {
-        case 0:
-            is_push[ButtonKind::Button01] = true;
-            break;
-        case 1:
-            is_push[ButtonKind::Button02] = true;
-            break;
-        }
-    }
-
-    // 入力情報からボタンの状態を更新する
-    for (int i = 0; i < ButtonKind::ButtonKindMax; i++)
-    {
-        if (is_push[i] == true)
-        {
-            if (g_ButtonStates[i] == ButtonState::ButtonStateNone)
-            {
-                g_ButtonStates[i] = ButtonState::ButtonStateDown;
-            }
-            else
-            {
-                g_ButtonStates[i] = ButtonState::ButtonStatePush;
-            }
-        }
-        else
-        {
-            if (g_ButtonStates[i] == ButtonState::ButtonStatePush)
-            {
-                g_ButtonStates[i] = ButtonState::ButtonStateUp;
-            }
-            else
-            {
-                g_ButtonStates[i] = ButtonState::ButtonStateNone;
-            }
-        }
-    }
-}
-
-bool joystick::is_hold(ButtonKind button)
-{
-    if (g_ButtonStates[button] == ButtonState::ButtonStatePush)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool joystick::is_up(ButtonKind button)
-{
-    if (g_ButtonStates[button] == ButtonState::ButtonStateUp)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool joystick::is_down(ButtonKind button)
-{
-    if (g_ButtonStates[button] == ButtonState::ButtonStateDown)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool joystick::create_device()
-{
-    DeviceEnumParameter parameter = { 0 };
-
-    parameter.input_device8_ = &g_GamePadDevice;
-
-    // Search GAMEPAD
-    g_InputInterface->EnumDevices(
-        DI8DEVTYPE_GAMEPAD,
-        DeviceFindCallBack,
-        &parameter,
-        DIEDFL_ATTACHEDONLY
-    );
-
-    // Search JOYSTICK
-    g_InputInterface->EnumDevices(
-        DI8DEVTYPE_JOYSTICK,
-        DeviceFindCallBack,
-        &parameter,
-        DIEDFL_ATTACHEDONLY
-    );
-
-    if (parameter.find_count_ == 0)
-    {
-        return false;
-    }
-
-    int count = 0;
-    // 制御開始
-    while (StartGamePadControl() == false)
-    {
-        Sleep(100);
-        count++;
-        if (count >= 5)
-        {
-            break;
-        }
     }
 
     return true;

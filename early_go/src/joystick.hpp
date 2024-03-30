@@ -11,43 +11,42 @@ namespace early_go
 class joystick
 {
 public:
-    enum ButtonKind
+    enum button_kind_type
     {
-        UpButton,
-        DownButton,
-        LeftButton,
-        RightButton,
-        Button01,
-        Button02,
-        // TODO Add Button03, Button04
-        ButtonKindMax,
+        UP_BUTTON,
+        DOWN_BUTTON,
+        LEFT_BUTTON,
+        RIGHT_BUTTON,
+        BUTTON_X,
+        BUTTON_Y,
+        BUTTON_A,
+        BUTTON_B,
+        BUTTON_KIND_MAX,
     };
 
-    enum ButtonState
+    enum button_state_type
     {
-        ButtonStateNone,
-        ButtonStateDown,
-        ButtonStatePush,
-        ButtonStateUp,
-        ButtonStateMax,
+        BUTTON_STATE_NONE,
+        BUTTON_STATE_DOWN,
+        BUTTON_STATE_PUSH,
+        BUTTON_STATE_UP,
+        BUTTON_STATE_MAX,
     };
 
-    bool initialize();
-    void finalize();
-    void update();
-    bool is_hold(ButtonKind button);
-    bool is_up(ButtonKind button);
-    bool is_down(ButtonKind button);
+    static bool initialize();
+    static void finalize();
+    static void update();
+    static bool is_hold(button_kind_type button);
+    static bool is_up(button_kind_type button);
+    static bool is_down(button_kind_type button);
 
-    static LPDIRECTINPUT8 g_InputInterface;
-    static LPDIRECTINPUTDEVICE8 g_GamePadDevice;
-    static ButtonState g_ButtonStates[ButtonKind::ButtonKindMax];
+    static LPDIRECTINPUT8 direct_input8_;
+    static LPDIRECTINPUTDEVICE8 input_device8_;
+    static button_state_type button_states_[button_kind_type::BUTTON_KIND_MAX];
+
 private:
-
-// ゲームパッドデバイスの作成
-bool create_device();
-
-BOOL StartGamePadControl();
+    static bool create_device();
+    static BOOL start_game_pad_control();
 
 };
 } // namespace early_go 

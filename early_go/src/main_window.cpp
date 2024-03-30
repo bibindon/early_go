@@ -103,6 +103,7 @@ main_window::main_window(const HINSTANCE &hinstance)
 
     init_se();
     bgm_player::initialize(hwnd);
+    joystick::initialize();
 }
 
 void main_window::initialize_direct3d(const HWND &hwnd)
@@ -270,21 +271,18 @@ int main_window::operator()()
         else
         {
             HWND hwnd = GetActiveWindow();
-            if (hwnd_ != hwnd)
+            if (hwnd_ == hwnd)
             {
-                continue;
+                keyboard::update();
+                joystick::update();
             }
-            if (keyboard::update())
+            if (novel_->get_is_novel_part())
             {
-                // TODO
-                if (novel_->get_is_novel_part())
-                {
-                    (*novel_)(*this);
-                }
-                else
-                {
-                    (*operation_)(get_main_character(), get_enemy_character());
-                }
+                (*novel_)(*this);
+            }
+            else
+            {
+                (*operation_)(get_main_character(), get_enemy_character());
             }
             // #if (defined(DEBUG) || defined(_DEBUG))
             if (!novel_->get_is_novel_part())
@@ -659,18 +657,26 @@ erto's book, Programming in Lua.\n\
     //   early_->set_dynamic_message(constants::EARLY_BODY, 1,
     //       "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
     // }
-    static bool joy { false };
 
-    static joystick _joystick {};
-    if (joy == false)
-    {
-        joy = true;
-        _joystick.initialize();
-    }
-    _joystick.update();
-    if (_joystick.is_down(joystick::UpButton))
+    if (joystick::is_down(joystick::UP_BUTTON))
     {
         se_player::get_ton()->play("sound/attack01.wav");
+    }
+    if (joystick::is_down(joystick::BUTTON_X))
+    {
+        se_player::get_ton()->play("sound/damage01.wav");
+    }
+    if (joystick::is_down(joystick::BUTTON_Y))
+    {
+        sprite_anim_ = make_shared<sprite_anim>(d3d_device_, "image/sprite_anim_test1.png");
+    }
+    if (joystick::is_down(joystick::BUTTON_A))
+    {
+        sprite_ = make_shared<sprite>(d3d_device_, "image/sprite_test1.png");
+    }
+    if (joystick::is_down(joystick::BUTTON_B))
+    {
+        sprite_anim_ = make_shared<sprite_anim>(d3d_device_, "image/sprite_anim_test1.png");
     }
 
 }
