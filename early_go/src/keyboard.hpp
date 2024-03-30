@@ -17,11 +17,10 @@ public:
     static constexpr int SIMULTANEOUS_ALLOW_FRAME{3};
 
     static bool update();
-    static bool is_down(const int &);
-    static bool is_down(const int&, const int &);
-    static bool is_hold(const int &);
-    static bool is_up(const int &);
-    static bool check_simultaneous(const int& keycode);
+    static bool is_down(const int);
+    static bool is_hold(const int);
+    static bool is_up(const int);
+    static bool check_simultaneous(const int keycode);
 
 private:
     // key_info must be defined in this header file, not in a cpp file because the key_info must

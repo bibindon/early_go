@@ -4,6 +4,7 @@
 #include "operation.hpp"
 #include "camera.hpp"
 #include "se_player.hpp"
+#include "input.hpp"
 
 using std::shared_ptr;
 
@@ -54,7 +55,8 @@ void operation::operator()(
     {
         PostQuitMessage(0);
     }
-    else if (keyboard::is_down('W'))
+    //else if (keyboard::is_down('W'))
+    else if (input::is_down(input_type::UP))
     {
         reserved_behavior_->step_dir_ = direction::FRONT;
         if (keyboard::check_simultaneous('A'))
@@ -91,7 +93,7 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::STEP;
         }
     }
-    else if (keyboard::is_down('A'))
+    else if (input::is_down(input_type::LEFT))
     {
         reserved_behavior_->step_dir_ = direction::LEFT;
         if (keyboard::check_simultaneous('W'))
@@ -128,7 +130,7 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::STEP;
         }
     }
-    else if (keyboard::is_down('S'))
+    else if (input::is_down(input_type::DOWN))
     {
         reserved_behavior_->step_dir_ = direction::BACK;
         if (keyboard::check_simultaneous('I'))
@@ -160,7 +162,7 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::STEP;
         }
     }
-    else if (keyboard::is_down('D'))
+    else if (input::is_down(input_type::RIGHT))
     {
         reserved_behavior_->step_dir_ = direction::RIGHT;
         if (keyboard::check_simultaneous('I'))
@@ -192,7 +194,7 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::STEP;
         }
     }
-    else if (keyboard::is_down('I'))
+    else if (input::is_down(input_type::Y))
     {
         reserved_behavior_->rotate_dir_ = direction::FRONT;
         if (keyboard::check_simultaneous('W'))
@@ -224,7 +226,7 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::ROTATE;
         }
     }
-    else if (keyboard::is_down('J'))
+    else if (input::is_down(input_type::X))
     {
         reserved_behavior_->rotate_dir_ = direction::LEFT;
         if (keyboard::check_simultaneous('W'))
@@ -256,7 +258,7 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::ROTATE;
         }
     }
-    else if (keyboard::is_down('K'))
+    else if (input::is_down(input_type::A))
     {
         reserved_behavior_->rotate_dir_ = direction::BACK;
         if (keyboard::check_simultaneous('W'))
@@ -288,7 +290,7 @@ void operation::operator()(
             reserved_behavior_->action_type_ = action_type::ROTATE;
         }
     }
-    else if (keyboard::is_down('L'))
+    else if (input::is_down(input_type::B))
     {
         reserved_behavior_->rotate_dir_ = direction::RIGHT;
         if (keyboard::check_simultaneous('W'))

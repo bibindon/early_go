@@ -29,7 +29,7 @@ bool keyboard::update()
     return true;
 }
 
-bool keyboard::is_down(const int& keycode)
+bool keyboard::is_down(const int keycode)
 {
     if (key_deque_.size() <= 1)
     {
@@ -42,16 +42,8 @@ bool keyboard::is_down(const int& keycode)
     }
     return false;
 }
-bool keyboard::is_down(const int& frame, const int& keycode)
-{
-    if (key_deque_.at(frame).key_table_[keycode] & 0x0001)
-    {
-        return true;
-    }
-    return false;
-}
 
-bool keyboard::is_hold(const int& keycode)
+bool keyboard::is_hold(const int keycode)
 {
     if (key_deque_.size() <= 1)
     {
@@ -64,7 +56,7 @@ bool keyboard::is_hold(const int& keycode)
     return false;
 }
 
-bool keyboard::is_up(const int& keycode)
+bool keyboard::is_up(const int keycode)
 {
     if (key_deque_.size() <= 1)
     {
@@ -78,7 +70,7 @@ bool keyboard::is_up(const int& keycode)
     return false;
 }
 
-bool keyboard::check_simultaneous(const int& keycode)
+bool keyboard::check_simultaneous(const int keycode)
 {
     for (int i = 0; i < SIMULTANEOUS_ALLOW_FRAME; ++i)
     {
