@@ -103,7 +103,7 @@ main_window::main_window(const HINSTANCE &hinstance)
 
     init_se();
     bgm_player::initialize(hwnd);
-    joystick::initialize();
+    joystick::initialize(hwnd);
 }
 
 void main_window::initialize_direct3d(const HWND &hwnd)
@@ -658,23 +658,23 @@ erto's book, Programming in Lua.\n\
     //       "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
     // }
 
-    if (joystick::is_down(joystick::UP_BUTTON))
+    if (joystick::is_down(joystick::button_kind_type::UP))
     {
         se_player::get_ton()->play("sound/attack01.wav");
     }
-    if (joystick::is_down(joystick::BUTTON_X))
+    if (joystick::is_down(joystick::button_kind_type::X))
     {
         se_player::get_ton()->play("sound/damage01.wav");
     }
-    if (joystick::is_down(joystick::BUTTON_Y))
+    if (joystick::is_down(joystick::button_kind_type::Y))
     {
         sprite_anim_ = make_shared<sprite_anim>(d3d_device_, "image/sprite_anim_test1.png");
     }
-    if (joystick::is_down(joystick::BUTTON_A))
+    if (joystick::is_down(joystick::button_kind_type::A))
     {
         sprite_ = make_shared<sprite>(d3d_device_, "image/sprite_test1.png");
     }
-    if (joystick::is_down(joystick::BUTTON_B))
+    if (joystick::is_down(joystick::button_kind_type::B))
     {
         sprite_anim_ = make_shared<sprite_anim>(d3d_device_, "image/sprite_anim_test1.png");
     }

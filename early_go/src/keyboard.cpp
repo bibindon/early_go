@@ -14,8 +14,6 @@ bool keyboard::update()
 {
     key_info _key_info { };
 
-//    _key_info->time_point_ = system_clock::now();
-
     // Do not use GetKeyboardState function because GetKeyboardState function does not work when
     // using with cv::flip function.
     for (int i = 0; i < KEY_TABLE_LENGTH; ++i)

@@ -11,29 +11,30 @@ namespace early_go
 class joystick
 {
 public:
-    enum button_kind_type
+    enum class button_kind_type
     {
-        UP_BUTTON,
-        DOWN_BUTTON,
-        LEFT_BUTTON,
-        RIGHT_BUTTON,
-        BUTTON_X,
-        BUTTON_Y,
-        BUTTON_A,
-        BUTTON_B,
-        BUTTON_KIND_MAX,
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT,
+        X,
+        Y,
+        A,
+        B,
+        UNKNOWN,
+    };
+    static constexpr int BUTTON_KIND_MAX { 8 };
+
+    enum class button_state_type
+    {
+        NONE,
+        DOWN,
+        PUSH,
+        UP,
+        MAX,
     };
 
-    enum button_state_type
-    {
-        BUTTON_STATE_NONE,
-        BUTTON_STATE_DOWN,
-        BUTTON_STATE_PUSH,
-        BUTTON_STATE_UP,
-        BUTTON_STATE_MAX,
-    };
-
-    static bool initialize();
+    static bool initialize(HWND hwnd);
     static void finalize();
     static void update();
     static bool is_hold(button_kind_type button);
@@ -42,10 +43,10 @@ public:
 
     static LPDIRECTINPUT8 direct_input8_;
     static LPDIRECTINPUTDEVICE8 input_device8_;
-    static button_state_type button_states_[button_kind_type::BUTTON_KIND_MAX];
+    static std::unordered_map<button_kind_type, button_state_type> button_states_;
 
 private:
-    static bool create_device();
+    static bool create_device(HWND hwnd);
     static BOOL start_game_pad_control();
 
 };
