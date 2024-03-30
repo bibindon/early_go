@@ -6,39 +6,70 @@
 namespace early_go
 {
 BOOL CALLBACK DeviceFindCallBack(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef);
-BOOL SetUpCooperativeLevel(LPDIRECTINPUTDEVICE8 device);
 BOOL SetUpGamePadProperty(LPDIRECTINPUTDEVICE8 device);
 
 LPDIRECTINPUT8 joystick::g_InputInterface;
 LPDIRECTINPUTDEVICE8 joystick::g_GamePadDevice;
 joystick::ButtonState joystick::g_ButtonStates[ButtonKind::ButtonKindMax];
 
-
 bool joystick::initialize()
 {
-    return false;
+    // Create input interface.
+    HRESULT result { DirectInput8Create(
+        GetModuleHandle(nullptr),
+        DIRECTINPUT_VERSION,
+        IID_IDirectInput8,
+        (void**)&g_InputInterface,
+        nullptr) };
+
+    if (FAILED(result))
+    {
+        THROW_WITH_TRACE("Failed to create direct input.");
+        return false;
+    }
+
+    // Create device.
+    if (!create_device())
+    {
+        finalize();
+        THROW_WITH_TRACE("Failed to create direct input device.");
+        return false;
+    }
+
+    // 入力情報の初期化
+    for (int i = 0; i < ButtonKind::ButtonKindMax; i++)
+    {
+        g_ButtonStates[i] = ButtonState::ButtonStateNone;
+    }
+
+    return true;
+}
+
+void joystick::finalize()
+{
+    // デバイスの解放
+    if (g_GamePadDevice != nullptr)
+    {
+        // 制御を停止
+        g_GamePadDevice->Unacquire();
+        g_GamePadDevice->Release();
+        g_GamePadDevice = nullptr;
+    }
+
+    // インターフェースの解放
+    if (g_InputInterface != nullptr)
+    {
+        g_InputInterface->Release();
+        g_InputInterface = nullptr;
+    }
 }
 
 //ゲームパッドデバイスの作成-デバイス列挙の結果を受け取る構造体
 struct DeviceEnumParameter
 {
-    LPDIRECTINPUTDEVICE8* GamePadDevice;
-    int FindCount;
+    LPDIRECTINPUTDEVICE8* input_device8_;
+    int find_count_;
 };
-
-BOOL SetUpCooperativeLevel(LPDIRECTINPUTDEVICE8 device)
-{
-    //協調モードの設定
-    if (FAILED(device->SetCooperativeLevel(
-        FindWindow(constants::APP_NAME.c_str(), nullptr),
-        DISCL_EXCLUSIVE | DISCL_FOREGROUND)
-    ))
-    {
-        return false;
-    }
-
-    return true;
-}
 
 BOOL joystick::StartGamePadControl()
 {
@@ -116,31 +147,31 @@ BOOL SetUpGamePadProperty(LPDIRECTINPUTDEVICE8 device)
 
 BOOL CALLBACK DeviceFindCallBack(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 {
-    DeviceEnumParameter* parameter = (DeviceEnumParameter*)pvRef;
-    LPDIRECTINPUTDEVICE8 device = nullptr;
+    DeviceEnumParameter* parameter { (DeviceEnumParameter*)pvRef };
+    LPDIRECTINPUTDEVICE8 device { nullptr };
 
-    // 既に発見しているなら終了
-    if (parameter->FindCount >= 1)
+    // Finish if already found.
+    if (parameter->find_count_ >= 1)
     {
         return DIENUM_STOP;
     }
 
     // デバイス生成
-    HRESULT hr = joystick::g_InputInterface->CreateDevice(
+    HRESULT hresult { joystick::g_InputInterface->CreateDevice(
         lpddi->guidInstance,
-        parameter->GamePadDevice,
-        NULL);
+        parameter->input_device8_,
+        nullptr) };
 
-    if (FAILED(hr))
+    if (FAILED(hresult))
     {
         return DIENUM_STOP;
     }
 
     // 入力フォーマットの指定
-    device = *parameter->GamePadDevice;
-    hr = device->SetDataFormat(&c_dfDIJoystick);
+    device = *parameter->input_device8_;
+    hresult = device->SetDataFormat(&c_dfDIJoystick);
 
-    if (FAILED(hr))
+    if (FAILED(hresult))
     {
         return DIENUM_STOP;
     }
@@ -151,160 +182,23 @@ BOOL CALLBACK DeviceFindCallBack(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
         return DIENUM_STOP;
     }
 
-    // 協調レベルの設定
-    if (SetUpCooperativeLevel(device) == false)
+    // TODO hwnd
+    // Set Cooperative level
+    if (FAILED( device->SetCooperativeLevel(
+        FindWindow(constants::APP_NAME.c_str(), nullptr),
+        DISCL_EXCLUSIVE | DISCL_FOREGROUND)))
     {
         return DIENUM_STOP;
     }
 
-    // 発見数をカウント
-    parameter->FindCount++;
+    ++parameter->find_count_;
 
     return DIENUM_CONTINUE;
 }
 
-bool joystick::InitInput()
-{
-    // インターフェース作成
-    if (CreateInputInterface() == false)
-    {
-        return false;
-    }
 
-    // デバイス作成
-    if (CreateGamePadDevice() == false)
-    {
-        ReleaseInput();
-        return false;
-    }
 
-    // 入力情報の初期化
-    for (int i = 0; i < ButtonKind::ButtonKindMax; i++)
-    {
-        g_ButtonStates[i] = ButtonState::ButtonStateNone;
-    }
-
-    return true;
-}
-
-void joystick::ReleaseInput()
-{
-    // デバイスの解放
-    if (g_GamePadDevice != nullptr)
-    {
-        // 制御を停止
-        g_GamePadDevice->Unacquire();
-        g_GamePadDevice->Release();
-        g_GamePadDevice = nullptr;
-    }
-
-    // インターフェースの解放
-    if (g_InputInterface != nullptr)
-    {
-        g_InputInterface->Release();
-        g_InputInterface = nullptr;
-    }
-}
-
-void joystick::UpdateInput()
-{
-    UpdateGamePad();
-}
-
-bool joystick::IsButtonPush(ButtonKind button)
-{
-    if (g_ButtonStates[button] == ButtonState::ButtonStatePush)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool joystick::IsButtonUp(ButtonKind button)
-{
-    if (g_ButtonStates[button] == ButtonState::ButtonStateUp)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool joystick::IsButtonDown(ButtonKind button)
-{
-    if (g_ButtonStates[button] == ButtonState::ButtonStateDown)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool joystick::CreateInputInterface()
-{
-    // インターフェース作成
-    HRESULT ret = DirectInput8Create(
-        GetModuleHandle(nullptr),	// インスタンスハンドル
-        DIRECTINPUT_VERSION,		// DirectInputのバージョン
-        IID_IDirectInput8,			// 使用する機能
-        (void**)&g_InputInterface,	// 作成されたインターフェース代入用
-        NULL						// NULL固定
-    );
-
-    if (FAILED(ret))
-    {
-        return false;
-    }
-
-    return true;
-}
-
-bool joystick::CreateGamePadDevice()
-{
-    DeviceEnumParameter parameter;
-
-    parameter.FindCount = 0;
-    parameter.GamePadDevice = &g_GamePadDevice;
-
-    // GAMEPADを調べる
-    g_InputInterface->EnumDevices(
-        DI8DEVTYPE_GAMEPAD,			// 検索するデバイスの種類
-        DeviceFindCallBack,			// 発見時に実行する関数
-        &parameter,					// 関数に渡す値
-        DIEDFL_ATTACHEDONLY			// 検索方法
-    );
-
-    // JOYSTICKを調べる
-    g_InputInterface->EnumDevices(
-        DI8DEVTYPE_JOYSTICK,
-        DeviceFindCallBack,
-        &parameter,
-        DIEDFL_ATTACHEDONLY
-    );
-
-    // どちらも見つけることが出来なかったら失敗
-    if (parameter.FindCount == 0)
-    {
-        return false;
-    }
-
-    int count = 0;
-    // 制御開始
-    while (StartGamePadControl() == false)
-    {
-        Sleep(100);
-        count++;
-        if (count >= 5)
-        {
-            break;
-        }
-    }
-
-    return true;
-}
-
-void joystick::UpdateGamePad()
+void joystick::update()
 {
     if (g_GamePadDevice == nullptr)
     {
@@ -423,6 +317,78 @@ void joystick::UpdateGamePad()
             }
         }
     }
+}
+
+bool joystick::is_hold(ButtonKind button)
+{
+    if (g_ButtonStates[button] == ButtonState::ButtonStatePush)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool joystick::is_up(ButtonKind button)
+{
+    if (g_ButtonStates[button] == ButtonState::ButtonStateUp)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool joystick::is_down(ButtonKind button)
+{
+    if (g_ButtonStates[button] == ButtonState::ButtonStateDown)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool joystick::create_device()
+{
+    DeviceEnumParameter parameter = { 0 };
+
+    parameter.input_device8_ = &g_GamePadDevice;
+
+    // Search GAMEPAD
+    g_InputInterface->EnumDevices(
+        DI8DEVTYPE_GAMEPAD,
+        DeviceFindCallBack,
+        &parameter,
+        DIEDFL_ATTACHEDONLY
+    );
+
+    // Search JOYSTICK
+    g_InputInterface->EnumDevices(
+        DI8DEVTYPE_JOYSTICK,
+        DeviceFindCallBack,
+        &parameter,
+        DIEDFL_ATTACHEDONLY
+    );
+
+    if (parameter.find_count_ == 0)
+    {
+        return false;
+    }
+
+    int count = 0;
+    // 制御開始
+    while (StartGamePadControl() == false)
+    {
+        Sleep(100);
+        count++;
+        if (count >= 5)
+        {
+            break;
+        }
+    }
+
+    return true;
 }
 
 }

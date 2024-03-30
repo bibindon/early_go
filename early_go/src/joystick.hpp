@@ -19,6 +19,7 @@ public:
         RightButton,
         Button01,
         Button02,
+        // TODO Add Button03, Button04
         ButtonKindMax,
     };
 
@@ -31,31 +32,20 @@ public:
         ButtonStateMax,
     };
 
-    static bool initialize();
-    static bool update();
-
-    bool InitInput();
-    void ReleaseInput();
-    void UpdateInput();
-    bool IsButtonPush(ButtonKind button);
-    bool IsButtonUp(ButtonKind button);
-    bool IsButtonDown(ButtonKind button);
+    bool initialize();
+    void finalize();
+    void update();
+    bool is_hold(ButtonKind button);
+    bool is_up(ButtonKind button);
+    bool is_down(ButtonKind button);
 
     static LPDIRECTINPUT8 g_InputInterface;
     static LPDIRECTINPUTDEVICE8 g_GamePadDevice;
     static ButtonState g_ButtonStates[ButtonKind::ButtonKindMax];
 private:
 
-
-
-// 入力インターフェースの作成
-bool CreateInputInterface();
-
 // ゲームパッドデバイスの作成
-bool CreateGamePadDevice();
-
-// ゲームパッドの更新
-void UpdateGamePad();
+bool create_device();
 
 BOOL StartGamePadControl();
 

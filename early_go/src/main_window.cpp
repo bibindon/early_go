@@ -665,10 +665,10 @@ erto's book, Programming in Lua.\n\
     if (joy == false)
     {
         joy = true;
-        _joystick.InitInput();
+        _joystick.initialize();
     }
-    _joystick.UpdateInput();
-    if (_joystick.IsButtonDown(joystick::UpButton))
+    _joystick.update();
+    if (_joystick.is_down(joystick::UpButton))
     {
         se_player::get_ton()->play("sound/attack01.wav");
     }
