@@ -255,7 +255,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
 
 main_window::~main_window()
 {
-    //  RemoveFontResource("chogokubosogothic_5.ttf");
+    joystick::finalize();
 }
 
 // windows main loop 

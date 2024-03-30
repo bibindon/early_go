@@ -41,8 +41,9 @@ public:
     static bool is_up(button_kind_type button);
     static bool is_down(button_kind_type button);
 
-    static LPDIRECTINPUT8 direct_input8_;
-    static LPDIRECTINPUTDEVICE8 input_device8_;
+    static std::shared_ptr<IDirectInput8> direct_input8_;
+    //static LPDIRECTINPUTDEVICE8 input_device8_;
+    static std::shared_ptr<IDirectInputDevice8> input_device8_;
     static std::unordered_map<button_kind_type, button_state_type> button_states_;
 
 private:

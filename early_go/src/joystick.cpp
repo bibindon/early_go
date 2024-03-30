@@ -4,14 +4,15 @@
 #include "joystick.hpp"
 
 using std::unordered_map;
+using std::shared_ptr;
 
 namespace early_go
 {
 BOOL CALLBACK device_find_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef);
 BOOL setup_gamepad_property(LPDIRECTINPUTDEVICE8 device);
 
-LPDIRECTINPUT8 joystick::direct_input8_;
-LPDIRECTINPUTDEVICE8 joystick::input_device8_;
+shared_ptr<IDirectInput8> joystick::direct_input8_;
+shared_ptr<IDirectInputDevice8> joystick::input_device8_;
 unordered_map<joystick::button_kind_type, joystick::button_state_type> joystick::button_states_
 {
     { joystick::button_kind_type::UP, joystick::button_state_type::NONE },
@@ -27,11 +28,12 @@ unordered_map<joystick::button_kind_type, joystick::button_state_type> joystick:
 bool joystick::initialize(HWND hwnd)
 {
     // Create input interface.
+    LPDIRECTINPUT8 temp_direct_input { nullptr };
     HRESULT result { DirectInput8Create(
         GetModuleHandle(nullptr),
         DIRECTINPUT_VERSION,
         IID_IDirectInput8,
-        (void**)&direct_input8_,
+        (void**)&temp_direct_input,
         nullptr) };
 
     if (FAILED(result))
@@ -39,6 +41,7 @@ bool joystick::initialize(HWND hwnd)
         THROW_WITH_TRACE("Failed to create direct input.");
         return false;
     }
+    direct_input8_.reset(temp_direct_input, custom_deleter { });
 
     // Create device.
     if (!create_device(hwnd))
@@ -52,17 +55,9 @@ bool joystick::initialize(HWND hwnd)
 
 void joystick::finalize()
 {
-    if (input_device8_ != nullptr)
+    if (input_device8_.get() != nullptr)
     {
         input_device8_->Unacquire();
-        input_device8_->Release();
-        input_device8_ = nullptr;
-    }
-
-    if (direct_input8_ != nullptr)
-    {
-        direct_input8_->Release();
-        direct_input8_ = nullptr;
     }
 }
 
@@ -76,7 +71,7 @@ struct device_enum_param
 
 BOOL joystick::start_game_pad_control()
 {
-    if (input_device8_ == nullptr)
+    if (input_device8_.get() == nullptr)
     {
         return false;
     }
@@ -153,7 +148,7 @@ BOOL CALLBACK device_find_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 
 void joystick::update()
 {
-    if (input_device8_ == nullptr)
+    if (input_device8_.get() == nullptr)
     {
         return;
     }
@@ -187,8 +182,8 @@ void joystick::update()
         { button_kind_type::B, false },
     };
 
-    // スティック判定
-    int unresponsive_range = 200;
+    // Check stick.
+    int unresponsive_range { 200 };
     if (pad_data.lX < -unresponsive_range)
     {
         is_push_map.at(button_kind_type::LEFT) = true;
@@ -317,7 +312,8 @@ bool joystick::create_device(HWND hwnd)
 {
     device_enum_param parameter = { 0 };
 
-    parameter.arg_input_device8_ = &input_device8_;
+    LPDIRECTINPUTDEVICE8 temp_device { nullptr };
+    parameter.arg_input_device8_ = &temp_device;
     parameter.hwnd_ = hwnd;
 
     // Search GAMEPAD
@@ -340,6 +336,8 @@ bool joystick::create_device(HWND hwnd)
     {
         return false;
     }
+
+    input_device8_.reset(temp_device, custom_deleter { });
 
     int count { 0 };
     while (start_game_pad_control() == false)
