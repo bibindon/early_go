@@ -22,6 +22,7 @@
 #include "se_player.hpp"
 
 #include <thread>
+#include "joystick.hpp"
 
 using std::chrono::system_clock;
 using std::shared_ptr;
@@ -658,6 +659,20 @@ erto's book, Programming in Lua.\n\
     //   early_->set_dynamic_message(constants::EARLY_BODY, 1,
     //       "aaaijijjjaa\n‚ ‚ ‚ ", true, { 210, 270, 511, 511 });
     // }
+    static bool joy { false };
+
+    static joystick _joystick {};
+    if (joy == false)
+    {
+        joy = true;
+        _joystick.InitInput();
+    }
+    _joystick.UpdateInput();
+    if (_joystick.IsButtonDown(joystick::UpButton))
+    {
+        se_player::get_ton()->play("sound/attack01.wav");
+    }
+
 }
 
 void main_window::render()

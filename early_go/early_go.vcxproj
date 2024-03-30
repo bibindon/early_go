@@ -242,6 +242,7 @@ resource_importer.bat
     <ClCompile Include="src\bgm_player.cpp" />
     <ClCompile Include="src\error_dialog.cpp" />
     <ClCompile Include="src\hud2.cpp" />
+    <ClCompile Include="src\joystick.cpp" />
     <ClCompile Include="src\se_player.cpp" />
     <ClCompile Include="src\sprite.cpp" />
     <ClCompile Include="src\sprite_anim.cpp" />
@@ -284,6 +285,7 @@ resource_importer.bat
     <ClInclude Include="src\abstract_mesh.hpp" />
     <ClInclude Include="src\bgm_player.hpp" />
     <ClInclude Include="src\hud2.hpp" />
+    <ClInclude Include="src\joystick.hpp" />
     <ClInclude Include="src\se_player.hpp" />
     <ClInclude Include="src\sprite.hpp" />
     <ClInclude Include="src\sprite_anim.hpp" />

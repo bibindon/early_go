@@ -88,6 +88,7 @@ bool se_player::load(const std::string& filename)
     return true;
 }
 
+// TODO take care when mash button
 void se_player::play(const string& filename, const int a_volume)
 {
     // Transform volume
