@@ -83,7 +83,7 @@ void character::render(
 {
     if (current_action_ != nullptr)
     {
-        action_state_ = (*current_action_)();
+        action_state_ = current_action_->update();
         if (action_state_ == operation::behavior_state::FINISH)
         {
             current_action_.reset();
@@ -484,7 +484,7 @@ character::step::step(character &outer, const direction &dir)
     }
 }
 
-operation::behavior_state character::step::operator()()
+operation::behavior_state character::step::update()
 {
     if (count_ == 0)
     {
@@ -676,7 +676,7 @@ character::rotate::rotate(character &outer, const direction &dir)
     }
 }
 
-operation::behavior_state character::rotate::operator()()
+operation::behavior_state character::rotate::update()
 {
     if (count_ == 0)
     {
@@ -730,10 +730,10 @@ character::step_and_rotate::step_and_rotate(
       step_{outer, step_dir},
       rotate_{outer, rotate_dir} {}
 
-operation::behavior_state character::step_and_rotate::operator()()
+operation::behavior_state character::step_and_rotate::update()
 {
-    step_();
-    operation::behavior_state result = rotate_();
+    step_.update();
+    operation::behavior_state result = rotate_.update();
     count_ = rotate_.count_;
     return result;
 }
@@ -754,7 +754,7 @@ character::attack::attack(character &outer)
 {
 }
 
-operation::behavior_state character::attack::operator()()
+operation::behavior_state character::attack::update()
 {
     if (availability_)
     {
@@ -885,7 +885,7 @@ character::move_next_stage::move_next_stage(character& outer)
 {
 }
 
-operation::behavior_state character::move_next_stage::operator()()
+operation::behavior_state character::move_next_stage::update()
 {
     if (count_ == 0)
     {

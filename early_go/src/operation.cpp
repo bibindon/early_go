@@ -48,7 +48,7 @@ shared_ptr<camera> operation::get_camera() const
     return camera_;
 }
 
-void operation::operator()(
+void operation::update(
     const shared_ptr<character>& _main_character, const shared_ptr<character>& enemy)
 {
     if (keyboard::is_down('Q'))
@@ -489,7 +489,7 @@ operation::move_next_stage::move_next_stage(
     delta_main_chara_z_ = goal_z - main_chara_z_;
 }
 
-operation::behavior_state operation::move_next_stage::operator()()
+operation::behavior_state operation::move_next_stage::update()
 {
     if (count_ == 0)
     {

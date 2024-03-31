@@ -278,7 +278,7 @@ hud::frame_animator::frame_animator() : count_{0}
 
 const float hud::frame_animator::LENGTH = 0.2f;
 
-bool hud::frame_animator::operator()(message_frame &frame)
+bool hud::frame_animator::update(message_frame &frame)
 {
     ++count_;
 
@@ -318,7 +318,7 @@ hud::frame_animator_delete::frame_animator_delete()
 {
 }
 
-bool hud::frame_animator_delete::operator()(message_frame &frame)
+bool hud::frame_animator_delete::update(message_frame &frame)
 {
     ++count_;
 
@@ -724,7 +724,7 @@ void hud::HP_info_drawer::draw_text_HP_3(const shared_ptr<message_writer_for_thr
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer::operator()()
+void hud::HP_info_drawer::update()
 {
     funcs_.push_back([&] { draw_Time_bar(); });
     funcs_.push_back([&] { draw_center_circle(); });
@@ -1273,15 +1273,15 @@ void hud::remove_HP_info()
 hud::HP_info_animator::HP_info_animator()
     : HP_info_drawer_{new_crt HP_info_drawer{}}
 {
-    (*HP_info_drawer_)();
+    HP_info_drawer_->update();
 }
 hud::HP_info_animator2::HP_info_animator2()
     : HP_info_drawer2_{new_crt HP_info_drawer2{}}
 {
-    (*HP_info_drawer2_)();
+    HP_info_drawer2_->update();
 }
 
-void hud::HP_info_animator2::operator()(HP_info2 &hp_info, main_window &window)
+void hud::HP_info_animator2::update(HP_info2 &hp_info, main_window &window)
 {
     while (true)
     {
@@ -1378,7 +1378,7 @@ void create_bezier_curve(cv::Mat *image,
     }
 }
 
-void hud::HP_info_animator::operator()(HP_info &hp_info, main_window &window)
+void hud::HP_info_animator::update(HP_info &hp_info, main_window &window)
 {
     while (true)
     {
@@ -1441,7 +1441,7 @@ void hud::HP_info_animator::operator()(HP_info &hp_info, main_window &window)
     return;
 }
 
-void hud::operator()(main_window &a_main_window)
+void hud::update(main_window &a_main_window)
 {
     vector<decltype(frame_list_)::iterator> abandon;
     for (decltype(frame_list_)::iterator frame{frame_list_.begin()};
@@ -1449,7 +1449,7 @@ void hud::operator()(main_window &a_main_window)
     {
         if (frame->frame_animator_ != nullptr)
         {
-            if (!(*frame->frame_animator_)(*frame))
+            if (!frame->frame_animator_->update(*frame))
             {
                 abandon.push_back(frame);
             }
@@ -1466,17 +1466,17 @@ void hud::operator()(main_window &a_main_window)
     {
         if (message.message_writer_ != nullptr)
         {
-            (*message.message_writer_)();
+            message.message_writer_->update();
         }
     }
 
     if (HP_info_ != nullptr && HP_info_->HP_info_animator_ != nullptr)
     {
-        (*HP_info_->HP_info_animator_)(*HP_info_, a_main_window);
+        HP_info_->HP_info_animator_->update(*HP_info_, a_main_window);
     }
     if (HP_info2_ != nullptr && HP_info2_->HP_info_animator_ != nullptr)
     {
-        (*HP_info2_->HP_info_animator_)(*HP_info2_, a_main_window);
+        HP_info2_->HP_info_animator_->update(*HP_info2_, a_main_window);
     }
 
     sprite_->Begin(D3DXSPRITE_ALPHABLEND);
@@ -1803,7 +1803,7 @@ void hud::HP_info_drawer2::draw_text_HP_3(const shared_ptr<message_writer_for_th
     }
     copy_text(writer);
 }
-void hud::HP_info_drawer2::operator()()
+void hud::HP_info_drawer2::update()
 {
     funcs_.push_back([&] { draw_Time_bar(); });
     funcs_.push_back([&] { draw_center_circle(); });

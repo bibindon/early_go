@@ -10,7 +10,7 @@ class camera
 public:
     camera(const D3DXVECTOR3 &,
            const D3DXVECTOR3 &);
-    void operator()();
+    void update();
     void move_position(const D3DXVECTOR3 &);
     void move_position(const D3DXVECTOR3 &, const float &);
     D3DXVECTOR3 get_position() const;
@@ -30,7 +30,7 @@ private:
 
     struct flexible_animation
     {
-        bool operator()(camera &);
+        bool update(camera &);
         int animation_count_;
         const D3DXVECTOR3 start_eye_position_;
         const D3DXVECTOR3 start_look_at_position_;
@@ -42,14 +42,14 @@ private:
     struct key_animation
     {
         // Return true when an animation is finished.
-        virtual bool operator()(camera &) = 0;
+        virtual bool update(camera &) = 0;
 
     private:
     };
     struct teleport : key_animation
     {
         teleport(const D3DXVECTOR3 &, const D3DXVECTOR3 &, const float &);
-        bool operator()(camera &) override;
+        bool update(camera &) override;
 
     private:
         const D3DXVECTOR3 eye_position_;
@@ -66,7 +66,7 @@ private:
             const D3DXVECTOR3 & goal_look_at_position,
             const float & goal_view_angle,
             const float & duration);
-        bool operator()(camera &) override;
+        bool update(camera &) override;
 
     private:
         int animation_count_;
@@ -84,7 +84,7 @@ private:
             const D3DXVECTOR3 &, const D3DXVECTOR3 &, const float &, const float &,
             const D3DXVECTOR3 &, const D3DXVECTOR3 &, const float &, const float &,
             const float &);
-        bool operator()(camera &) override;
+        bool update(camera &) override;
 
     private:
         int animation_count_;

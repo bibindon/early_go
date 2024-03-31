@@ -12,7 +12,7 @@ class hud2
 {
 public:
     hud2(const std::shared_ptr<IDirect3DDevice9>& d3d_device);
-    void operator()(
+    void update(
         const std::shared_ptr<character>& _early,
         const std::shared_ptr<character>& _suo,
         const std::shared_ptr<camera>& _camera);

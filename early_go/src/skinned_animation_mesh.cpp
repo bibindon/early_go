@@ -96,7 +96,7 @@ void skinned_animation_mesh::render_impl(
 
     effect_->SetMatrix(view_projection_handle_, &view_projection_matrix);
 
-    (*animation_strategy_)();
+    animation_strategy_->update();
 
     D3DXMATRIX world_matrix{};
     D3DXMatrixIdentity(&world_matrix);

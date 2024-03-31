@@ -10,7 +10,7 @@ class seq_title : public seq_interface
 {
 public:
     seq_title(const std::shared_ptr<IDirect3DDevice9>& d3d_device);
-    virtual void operator()() override;
+    virtual void update() override;
     virtual void render() override;
 private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;

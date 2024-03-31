@@ -43,8 +43,8 @@ struct message_writer
         const BYTE &,
         const bool &);
     ~message_writer();
-    bool operator()();                 // heavy
-    bool operator()(D3DLOCKED_RECT &); // light
+    bool update();                 // heavy
+    bool update(D3DLOCKED_RECT &); // light
     bool write_character(D3DLOCKED_RECT &);
 
 private:

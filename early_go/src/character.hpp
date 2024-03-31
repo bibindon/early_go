@@ -82,7 +82,7 @@ public:
     {
         action(character &outer, const direction &);
 
-        virtual operation::behavior_state operator()() = 0;
+        virtual operation::behavior_state update() = 0;
         virtual void cancel() = 0;
         virtual ~action() {}
         std::vector<boost::variant<direction>> params_;
@@ -97,7 +97,7 @@ public:
     struct step : public action
     {
         step(character &, const direction &);
-        operation::behavior_state operator()() override;
+        operation::behavior_state update() override;
         void cancel() override;
         ~step() override;
         std::vector<float> destinations_;
@@ -106,7 +106,7 @@ public:
     struct rotate : public action
     {
         rotate(character &, const direction &);
-        operation::behavior_state operator()() override;
+        operation::behavior_state update() override;
         void cancel() override;
         ~rotate() override;
         direction relative_direction_;
@@ -115,7 +115,7 @@ public:
     struct step_and_rotate : public action
     {
         step_and_rotate(character &, const direction &, const direction &);
-        operation::behavior_state operator()() override;
+        operation::behavior_state update() override;
         void cancel() override;
         ~step_and_rotate() override;
         step step_;
@@ -124,7 +124,7 @@ public:
     struct attack : public action
     {
         attack(character &);
-        operation::behavior_state operator()() override;
+        operation::behavior_state update() override;
         void cancel() override;
         ~attack();
         bool availability_;
@@ -132,7 +132,7 @@ public:
     struct move_next_stage : public action
     {
         move_next_stage(character &);
-        operation::behavior_state operator()() override;
+        operation::behavior_state update() override;
         void cancel() override;
         ~move_next_stage();
     };

@@ -16,18 +16,18 @@ camera::camera(const D3DXVECTOR3 &eye_position, const D3DXVECTOR3 &look_at_posit
 {
 }
 
-void camera::operator()()
+void camera::update()
 {
     if (flexible_animation_ != nullptr)
     {
-        if ((*flexible_animation_)(*this))
+        if (flexible_animation_->update(*this))
         {
             flexible_animation_.reset();
         }
     }
     else if (!animation_queue_.empty())
     {
-        if ((*animation_queue_.front())(*this))
+        if (animation_queue_.front()->update(*this))
         {
             animation_queue_.pop();
         }
@@ -63,7 +63,7 @@ void camera::move_position(const D3DXVECTOR3 &delta, const float &duration)
     );
 }
 
-bool camera::flexible_animation::operator()(camera &a_camera)
+bool camera::flexible_animation::update(camera &a_camera)
 {
     ++animation_count_;
     if (duration_ < animation_count_ * constants::ANIMATION_SPEED)
@@ -245,7 +245,7 @@ camera::teleport::teleport(const D3DXVECTOR3 &eye_position,
 {
 }
 
-bool camera::teleport::operator()(camera &camera)
+bool camera::teleport::update(camera &camera)
 {
     camera.eye_position_ = eye_position_;
     camera.look_at_position_ = look_at_position_;
@@ -271,7 +271,7 @@ camera::transfer::transfer(const D3DXVECTOR3 &start_eye_position,
 {
 }
 
-bool camera::transfer::operator()(camera &camera)
+bool camera::transfer::update(camera &camera)
 {
     ++animation_count_;
     if (animation_count_ * constants::ANIMATION_SPEED > duration_)
@@ -313,7 +313,7 @@ camera::orbit::orbit(
     radius_ = D3DXVec3Length(&length);
 }
 
-bool camera::orbit::operator()(camera &camera)
+bool camera::orbit::update(camera &camera)
 {
     ++animation_count_;
     if (animation_count_ * constants::ANIMATION_SPEED > duration_)

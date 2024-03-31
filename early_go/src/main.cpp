@@ -14,7 +14,7 @@ try
 #endif
 
     early_go::main_window window { hinstance };
-    return window();
+    return window.update();
 }
 catch (const std::exception &e)
 {

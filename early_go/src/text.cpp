@@ -170,7 +170,7 @@ message_writer::~message_writer()
     ReleaseDC(nullptr, hdc_);
 }
 
-bool message_writer::operator()()
+bool message_writer::update()
 {
     D3DLOCKED_RECT locked_rect{};
     texture_->LockRect(0, &locked_rect, nullptr, 0);
@@ -196,7 +196,7 @@ bool message_writer::operator()()
     return is_finished_;
 }
 
-bool message_writer::operator()(D3DLOCKED_RECT &locked_rect)
+bool message_writer::update(D3DLOCKED_RECT &locked_rect)
 {
     if (is_message_animated_)
     {
@@ -406,7 +406,7 @@ void message_writer::add_text(shared_ptr<IDirect3DTexture9> &texture,
 {
     message_writer writer{texture, text, false, rect, color,
                           fontname, size, weight, charset, proportional};
-    writer(locked_rect);
+    writer.update(locked_rect);
 }
 
 } // namespace early_go

@@ -8,9 +8,9 @@ sequence_switcher::sequence_switcher(const std::shared_ptr<IDirect3DDevice9>& d3
 {
     sequence_.reset(new_crt seq_title { d3d_device_ });
 }
-void sequence_switcher::operator()()
+void sequence_switcher::update()
 {
-    (*sequence_)();
+    sequence_->update();
 }
 void sequence_switcher::render()
 {

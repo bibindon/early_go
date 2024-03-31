@@ -13,7 +13,7 @@ class sequence_switcher
 {
 public:
     sequence_switcher(const std::shared_ptr<IDirect3DDevice9>& d3d_device);
-    void operator()();
+    void update();
     void render();
 private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;

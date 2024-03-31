@@ -93,7 +93,7 @@ TEST(operation_test, operation_test01)
         EXPECT_CALL(*_chara_mock, set_action_step(direction::FRONT)).Times(1);
 
         // Test operation::operator
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
     }
 }
 
@@ -124,7 +124,7 @@ TEST(operation_test, operation_test02)
         EXPECT_CALL(*_chara_mock, set_action_step(direction::LEFT)).Times(1);
 
         // Test operation::operator
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
     }
 }
 
@@ -155,7 +155,7 @@ TEST(operation_test, operation_test03)
         EXPECT_CALL(*_chara_mock, set_action_step(direction::BACK)).Times(1);
 
         // Test operation::operator
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
     }
 }
 
@@ -186,7 +186,7 @@ TEST(operation_test, operation_test04)
         EXPECT_CALL(*_chara_mock, set_action_step(direction::RIGHT)).Times(1);
 
         // Test operation::operator
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
     }
 }
 TEST(operation_test, operation_test05)
@@ -218,7 +218,7 @@ TEST(operation_test, operation_test05)
             set_action_step_and_rotate(direction::FRONT, direction::FRONT)).Times(1);
 
         // Test operation::operator
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
     }
 }
 TEST(operation_test, operation_test06)
@@ -243,7 +243,7 @@ TEST(operation_test, operation_test06)
             _key_info.key_table_['W'] = 0x0001;
             keyboard::key_deque_.push_front(_key_info);
         }
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
         {
             keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['I'] = 0x0001;
@@ -255,7 +255,7 @@ TEST(operation_test, operation_test06)
             set_action_step_and_rotate(direction::FRONT, direction::FRONT)).Times(1);
 
         // Test operation::operator
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
     }
 }
 TEST(operation_test, operation_test07)
@@ -280,7 +280,7 @@ TEST(operation_test, operation_test07)
             _key_info.key_table_['I'] = 0x0001;
             keyboard::key_deque_.push_front(_key_info);
         }
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
         {
             keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['W'] = 0x0001;
@@ -292,7 +292,7 @@ TEST(operation_test, operation_test07)
             set_action_step_and_rotate(direction::FRONT, direction::FRONT)).Times(1);
 
         // Test operation::operator
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
     }
 }
 TEST(operation_test, operation_test08)
@@ -317,13 +317,13 @@ TEST(operation_test, operation_test08)
             _key_info.key_table_['I'] = 0x0001;
             keyboard::key_deque_.push_front(_key_info);
         }
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
         {
             keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['W'] = 0x0001;
             keyboard::key_deque_.push_front(_key_info);
         }
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
         {
             keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['D'] = 0x0001;
@@ -335,7 +335,7 @@ TEST(operation_test, operation_test08)
             set_action_step_and_rotate(direction::RIGHT, direction::FRONT)).Times(0);
 
         // Test operation::operator
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
     }
 }
 TEST(operation_test, operation_test09)
@@ -360,7 +360,7 @@ TEST(operation_test, operation_test09)
             _key_info.key_table_['W'] = 0x0001;
             keyboard::key_deque_.push_front(_key_info);
         }
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
         {
             keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['W'] = 0x0001;
@@ -371,7 +371,7 @@ TEST(operation_test, operation_test09)
         EXPECT_CALL(*_chara_mock, set_action_step(direction::FRONT)).Times(0);
 
         // Test operation::operator
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
     }
 }
 TEST(operation_test, operation_test10)
@@ -400,7 +400,7 @@ TEST(operation_test, operation_test10)
             _key_info.key_table_['W'] = 0x0001;
             keyboard::key_deque_.push_front(_key_info);
         }
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
         {
             keyboard::key_info _key_info = { 0 };
             _key_info.key_table_['A'] = 0x0001;
@@ -413,7 +413,7 @@ TEST(operation_test, operation_test10)
         EXPECT_CALL(*_chara_mock, set_action_attack()).Times(1);
 
         // Test operation::operator
-        (*ope)(_early, _enemy);
+        ope->update(_early, _enemy);
     }
 
     se_player::finalize();

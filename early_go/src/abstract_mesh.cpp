@@ -33,7 +33,7 @@ struct abstract_mesh::dynamic_texture
 struct abstract_mesh::dynamic_texture::texture_shaker
 {
     texture_shaker();
-    void operator()(abstract_mesh&);
+    void update(abstract_mesh&);
 
 private:
     int count_;
@@ -55,7 +55,7 @@ struct abstract_mesh::dynamic_texture::texture_fader
         FADE_OUT,
     };
     texture_fader(const fade_type&);
-    void operator()(abstract_mesh&);
+    void update(abstract_mesh&);
 
 private:
     int count_;
@@ -404,11 +404,11 @@ void abstract_mesh::render(
 
     if (dynamic_texture_->texture_shaker_)
     {
-        (*dynamic_texture_->texture_shaker_)(*this);
+        dynamic_texture_->texture_shaker_->update(*this);
     }
     if (dynamic_texture_->texture_fader_)
     {
-        (*dynamic_texture_->texture_fader_)(*this);
+        dynamic_texture_->texture_fader_->update(*this);
     }
 
     effect_->SetVectorArray(
@@ -425,7 +425,7 @@ void abstract_mesh::render(
     {
         if (dynamic_texture_->writer_.at(i))
         {
-            bool is_finished = (*dynamic_texture_->writer_.at(i))();
+            bool is_finished = dynamic_texture_->writer_.at(i)->update();
             if (is_finished)
             {
                 dynamic_texture_->tex_animation_finished_.at(i) = true;
@@ -468,7 +468,7 @@ abstract_mesh::dynamic_texture::texture_shaker::texture_shaker()
       current_position_{0.0f, 0.0f},
       previous_position_{0.0f, 0.0f} {}
 
-void abstract_mesh::dynamic_texture::texture_shaker::operator()(abstract_mesh &abstract_mesh)
+void abstract_mesh::dynamic_texture::texture_shaker::update(abstract_mesh &abstract_mesh)
 {
     if (count_ > SHAKE_DURATION)
     {
@@ -535,7 +535,7 @@ abstract_mesh::dynamic_texture::texture_fader::texture_fader(
 {
 }
 
-void abstract_mesh::dynamic_texture::texture_fader::operator()(abstract_mesh &abstract_mesh)
+void abstract_mesh::dynamic_texture::texture_fader::update(abstract_mesh &abstract_mesh)
 {
     if (fade_type_ == fade_type::FADE_IN)
     {

@@ -41,7 +41,7 @@ sprite::sprite(const shared_ptr<IDirect3DDevice9>& d3d_device, string filename)
     width_ = desc.Width;
     height_ = desc.Height;
 }
-void sprite::operator()(const D3DXVECTOR3& pos)
+void sprite::update(const D3DXVECTOR3& pos)
 {
     sprite_->Begin(D3DXSPRITE_ALPHABLEND);
     RECT rect = {

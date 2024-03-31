@@ -180,7 +180,7 @@ void novel::redraw_portrait()
     }
 }
 lua_State *co;
-void novel::operator()(main_window &window)
+void novel::update(main_window &window)
 {
     window_ = &window;
 

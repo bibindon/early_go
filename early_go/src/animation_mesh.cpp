@@ -96,7 +96,7 @@ void animation_mesh::render_impl(
     view_matrix_ = view_matrix;
     projection_matrix_ = projection_matrix;
 
-    (*animation_strategy_)();
+    animation_strategy_->update();
 
     D3DXMATRIX world_matrix{};
     D3DXMatrixIdentity(&world_matrix);

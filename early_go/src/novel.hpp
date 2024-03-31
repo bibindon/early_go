@@ -19,7 +19,7 @@ class novel
 public:
     bool get_is_novel_part() const { return is_novel_part_; }
     void set_is_novel_part(const bool val) { is_novel_part_ = val; }
-    void operator()(main_window &);
+    void update(main_window &);
 
 private:
     static int glue_draw_background(lua_State *);

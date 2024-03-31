@@ -39,7 +39,7 @@ void text_d3dxfont::set_param(
     color_ = color;
 }
 
-void text_d3dxfont::operator()()
+void text_d3dxfont::update()
 {
     RECT rect { x_, y_, 0 , 0};
 

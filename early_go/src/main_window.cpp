@@ -263,7 +263,7 @@ main_window::~main_window()
 }
 
 // windows main loop 
-int main_window::operator()()
+int main_window::update()
 {
     while (msg_.message != WM_QUIT)
     {
@@ -281,15 +281,15 @@ int main_window::operator()()
             }
             if (sequence_switcher_.get() != nullptr)
             {
-                (*sequence_switcher_)();
+                sequence_switcher_->update();
             }
             if (novel_->get_is_novel_part())
             {
-                (*novel_)(*this);
+                novel_->update(*this);
             }
             else
             {
-                (*operation_)(get_main_character(), get_enemy_character());
+                operation_->update(get_main_character(), get_enemy_character());
             }
             // #if (defined(DEBUG) || defined(_DEBUG))
             if (!novel_->get_is_novel_part())
@@ -676,7 +676,7 @@ void main_window::render()
     light_direction.w = 1.0f;
     D3DXVec4Normalize(&light_direction, &light_direction);
 
-    (*camera_)();
+    camera_->update();
     D3DXMATRIX view_matrix{camera_->get_view_matrix()};
     D3DXMATRIX projection_matrix{camera_->get_projection_matrix()};
 
@@ -707,7 +707,7 @@ void main_window::render()
 
         if (sprite_anim_.get() != nullptr)
         {
-            (*sprite_anim_)();
+            sprite_anim_->update();
         }
         if (sprite_.get() != nullptr)
         {
@@ -717,14 +717,14 @@ void main_window::render()
             pos.x = work;
             pos.y = work;
             pos.z = 0.0f;
-            (*sprite_)(pos);
+            sprite_->update(pos);
         }
-        (*hud2_)(early_, suo_, camera_);
+        hud2_->update(early_, suo_, camera_);
 
         //render_string_object::render_string("aaa", 0, 0);
         if (text_d3dxfont_.get() != nullptr)
         {
-            (*text_d3dxfont_)();
+            text_d3dxfont_->update();
         }
 
         sequence_switcher_->render();

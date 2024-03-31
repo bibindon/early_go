@@ -25,7 +25,7 @@ public:
     void add_message_in_frame(const std::string &, const std::string &, const std::string &);
     void show_HP_info();
     void remove_HP_info();
-    void operator()(main_window &);
+    void update(main_window &);
 
 private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
@@ -63,7 +63,7 @@ private:
     struct frame_animator
     {
         frame_animator();
-        virtual bool operator()(message_frame &);
+        virtual bool update(message_frame &);
         virtual ~frame_animator(){};
         const static float LENGTH;
         int count_;
@@ -71,7 +71,7 @@ private:
     struct frame_animator_delete : frame_animator
     {
         frame_animator_delete();
-        virtual bool operator()(message_frame &);
+        virtual bool update(message_frame &);
     };
     const static int EDGE_CIRCLE_RADIUS;
 
@@ -96,7 +96,7 @@ private:
     struct HP_info_animator
     {
         HP_info_animator();
-        void operator()(HP_info &, main_window &);
+        void update(HP_info &, main_window &);
         //    void rotate(const type&, HP_info&);
         std::shared_ptr<HP_info_drawer> HP_info_drawer_;
     };
@@ -106,7 +106,7 @@ private:
         ~HP_info_drawer();
         const static int THREAD_NUM = 4;
         HP_info_drawer();
-        void operator()();
+        void update();
         cv::Mat &get_image() { return image_; }
         void set_charge_func_index(const int val) { charge_func_index_ = val; }
         std::mutex &get_charge_func_index_mutex() { return charge_func_index_mtx_; }
@@ -280,7 +280,7 @@ private:
     struct HP_info_animator2
     {
         HP_info_animator2();
-        void operator()(HP_info2 &, main_window &);
+        void update(HP_info2 &, main_window &);
         //    void rotate(const type&, HP_info&);
         std::shared_ptr<HP_info_drawer2> HP_info_drawer2_;
     };
@@ -290,7 +290,7 @@ private:
         ~HP_info_drawer2();
         const static int THREAD_NUM = 4;
         HP_info_drawer2();
-        void operator()();
+        void update();
         cv::Mat &get_image() { return image_; }
         void set_charge_func_index(const int val) { charge_func_index_ = val; }
         std::mutex &get_charge_func_index_mutex() { return charge_func_index_mtx_; }

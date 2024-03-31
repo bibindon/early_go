@@ -7,7 +7,7 @@ namespace early_go
 class animation_strategy
 {
 public:
-    virtual void operator()() = 0;
+    virtual void update() = 0;
     virtual void set_animation(const std::string &){};
     virtual void set_default_animation(const std::string &){};
     virtual void set_animation_config(const std::string &, const bool &, const float &){};
@@ -20,7 +20,7 @@ protected:
 class no_animation : public animation_strategy
 {
 public:
-    void operator()() override
+    void update() override
     {
         // do nothing
     };
@@ -82,7 +82,7 @@ public:
             playing_animation_ = animation_set;
         }
     };
-    void operator()() override
+    void update() override
     {
         animation_controller_->AdvanceTime(constants::ANIMATION_SPEED, nullptr);
         if (is_playing_)
