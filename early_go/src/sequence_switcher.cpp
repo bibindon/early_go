@@ -15,7 +15,19 @@ void sequence_switcher::update(
         const std::shared_ptr<character>& _suo,
         const std::shared_ptr<camera>& _camera)
 {
-    sequence_->update(_early, _suo, _camera);
+    seq_type _seq_type = sequence_->update(_early, _suo, _camera);
+    if (_seq_type == seq_type::EXIT)
+    {
+        PostQuitMessage(0);
+    }
+    else if (_seq_type == seq_type::NOVEL)
+    {
+
+    }
+    else if (_seq_type == seq_type::BATTLE)
+    {
+
+    }
 }
 void sequence_switcher::render(
     const shared_ptr<character>& _early,

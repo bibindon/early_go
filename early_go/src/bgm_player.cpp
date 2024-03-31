@@ -83,7 +83,7 @@ bool bgm_player::load(const std::string& filename)
 
 void bgm_player::play()
 {
-    dx8sound_buffer_->Play(0, 0, 0);
+    dx8sound_buffer_->Play(0, 0, DSBPLAY_LOOPING);
 }
 
 void bgm_player::stop()

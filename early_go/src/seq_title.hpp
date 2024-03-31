@@ -25,6 +25,7 @@ private:
     std::shared_ptr<sprite> title03_;
     D3DXVECTOR3 cursor_pos_ { 0.0f, 0.0f, 0.0f };
     int select_ { 0 };
-
+    int counter_ { 0 };
+    bool bgm_playing_ { false };
 };
 }

@@ -4,6 +4,7 @@
 #include "sprite.hpp"
 #include "camera.hpp"
 #include "se_player.hpp"
+#include "bgm_player.hpp"
 
 using std::make_shared;
 using std::shared_ptr;
@@ -19,6 +20,7 @@ seq_title::seq_title(const shared_ptr<IDirect3DDevice9>& d3d_device)
     cursor_pos_ = D3DXVECTOR3 { 930.0f, 400.0f, 0.0f };
     se_player::get_ton()->load("sound/cursor_move.wav");
     se_player::get_ton()->load("sound/cursor_confirm.wav");
+    bgm_player::get_ton()->load("sound/title.wav");
 }
 seq_type seq_title::update(
     const std::shared_ptr<character>& _early,
@@ -49,13 +51,14 @@ seq_type seq_title::update(
     }
     else if (input::is_down(input_type::A))
     {
-        se_player::get_ton()->play("sound/cursor_confirm.wav");
         if (select_ == 0)
         {
+            se_player::get_ton()->play("sound/cursor_confirm.wav");
             return seq_type::NOVEL;
         }
         else if (select_ == 1)
         {
+            se_player::get_ton()->play("sound/cursor_confirm.wav");
             return seq_type::BATTLE;
         }
         else if (select_ == 2)
@@ -75,6 +78,18 @@ seq_type seq_title::update(
     {
         cursor_pos_ = D3DXVECTOR3 { 1130.0f, 550.0f, 0.0f };
     }
+
+    ++counter_;
+    if (counter_ >= 600)
+    {
+        if (bgm_playing_ == false)
+        {
+            bgm_playing_ = true;
+            bgm_player::get_ton()->play();
+        }
+        counter_ = 600;
+    }
+
     return seq_type::TITLE;
 }
 

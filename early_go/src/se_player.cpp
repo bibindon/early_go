@@ -98,6 +98,7 @@ void se_player::play(const string& filename, const int a_volume)
     volume *= 100;
     volume -= 10000;
     dx8sound_buffers_.at(filename)->SetVolume(volume);
+    dx8sound_buffers_.at(filename)->SetCurrentPosition(0);
     dx8sound_buffers_.at(filename)->Play(0, 0, 0);
 }
 
