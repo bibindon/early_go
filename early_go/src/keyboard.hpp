@@ -8,14 +8,13 @@
 
 namespace early_go
 {
+static constexpr int KEY_TABLE_LENGTH { 256 };
+static constexpr int KEY_DEQUE_MAX_SIZE { 300 };
+static constexpr int SIMULTANEOUS_ALLOW_FRAME { 3 };
 // Monostate pattern.
 class keyboard
 {
 public:
-    static constexpr int KEY_TABLE_LENGTH{256};
-    static constexpr int KEY_DEQUE_MAX_SIZE{300};
-    static constexpr int SIMULTANEOUS_ALLOW_FRAME{3};
-
     static bool update();
     static bool is_down(const int);
     static bool is_hold(const int);
@@ -27,7 +26,7 @@ private:
     // be visible from the operation_test.
     struct key_info
     {
-        std::array<SHORT, keyboard::KEY_TABLE_LENGTH> key_table_;
+        std::array<SHORT, KEY_TABLE_LENGTH> key_table_;
     };
 
     static std::deque<key_info> key_deque_;

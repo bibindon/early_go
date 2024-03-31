@@ -2,9 +2,11 @@
 #pragma comment(lib, "dxguid.lib")
 
 #include "joystick.hpp"
+#include "keyboard.hpp"
 
 using std::unordered_map;
 using std::shared_ptr;
+using std::deque;
 
 namespace early_go
 {
@@ -13,17 +15,7 @@ BOOL setup_gamepad_property(LPDIRECTINPUTDEVICE8 device);
 
 shared_ptr<IDirectInput8> joystick::direct_input8_;
 shared_ptr<IDirectInputDevice8> joystick::input_device8_;
-unordered_map<joystick_button_type, joystick_button_state> joystick::button_states_
-{
-    { joystick_button_type::UP, joystick_button_state::NONE },
-    { joystick_button_type::DOWN, joystick_button_state::NONE },
-    { joystick_button_type::LEFT, joystick_button_state::NONE },
-    { joystick_button_type::RIGHT, joystick_button_state::NONE },
-    { joystick_button_type::X, joystick_button_state::NONE },
-    { joystick_button_type::Y, joystick_button_state::NONE },
-    { joystick_button_type::A, joystick_button_state::NONE },
-    { joystick_button_type::B, joystick_button_state::NONE },
-};
+deque<joystick::joystick_info> joystick::button_deque_;
 
 bool joystick::initialize(HWND hwnd)
 {
@@ -50,6 +42,21 @@ bool joystick::initialize(HWND hwnd)
         finalize();
         return false;
     }
+    // Init button_queue_
+    joystick_info temp { };
+    temp.button_states_.insert({ joystick_button_type::UP, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::DOWN, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::LEFT, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::RIGHT, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::X, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::Y, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::A, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::B, joystick_button_state::NONE });
+    button_deque_.push_back(temp);
+    button_deque_.push_back(temp);
+    button_deque_.push_back(temp);
+    button_deque_.push_back(temp);
+    button_deque_.push_back(temp);
     return true;
 }
 
@@ -156,19 +163,31 @@ void joystick::update()
     DIJOYSTATE pad_data { };
 
     // Get device.
-    HRESULT hr { input_device8_->GetDeviceState(sizeof(DIJOYSTATE), &pad_data) };
-    if (FAILED(hr))
+    HRESULT hresult { input_device8_->GetDeviceState(sizeof(DIJOYSTATE), &pad_data) };
+    if (FAILED(hresult))
     {
         // Start control again.
         if (FAILED(input_device8_->Acquire()))
         {
-            for (auto& x : button_states_)
-            {
-                x.second = joystick_button_state::NONE;
-            }
             input_device8_->Poll();
         }
         return;
+    }
+
+    joystick_info temp { };
+    temp.button_states_.insert({ joystick_button_type::UP, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::DOWN, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::LEFT, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::RIGHT, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::X, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::Y, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::A, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::B, joystick_button_state::NONE });
+    button_deque_.push_front(temp);
+
+    if (button_deque_.size() > KEY_DEQUE_MAX_SIZE)
+    {
+        button_deque_.erase(button_deque_.begin() + KEY_DEQUE_MAX_SIZE, button_deque_.end());
     }
 
     unordered_map<joystick_button_type, bool> is_push_map {
@@ -258,24 +277,24 @@ void joystick::update()
     {
         if (_is_push.second == true)
         {
-            if (button_states_.at(_is_push.first) == joystick_button_state::NONE)
+            if (button_deque_.at(1).button_states_.at(_is_push.first) == joystick_button_state::NONE)
             {
-                button_states_.at(_is_push.first) = joystick_button_state::DOWN;
+                button_deque_.at(0).button_states_.at(_is_push.first) = joystick_button_state::DOWN;
             }
             else
             {
-                button_states_.at(_is_push.first) = joystick_button_state::HOLD;
+                button_deque_.at(0).button_states_.at(_is_push.first) = joystick_button_state::HOLD;
             }
         }
         else
         {
-            if (button_states_.at(_is_push.first) == joystick_button_state::HOLD)
+            if (button_deque_.at(1).button_states_.at(_is_push.first) == joystick_button_state::HOLD)
             {
-                button_states_.at(_is_push.first) = joystick_button_state::UP;
+                button_deque_.at(0).button_states_.at(_is_push.first) = joystick_button_state::UP;
             }
             else
             {
-                button_states_.at(_is_push.first) = joystick_button_state::NONE;
+                button_deque_.at(0).button_states_.at(_is_push.first) = joystick_button_state::NONE;
             }
         }
     }
@@ -283,7 +302,7 @@ void joystick::update()
 
 bool joystick::is_hold(joystick_button_type button)
 {
-    if (button_states_.at(button) == joystick_button_state::HOLD)
+    if (button_deque_.at(0).button_states_.at(button) == joystick_button_state::HOLD)
     {
         return true;
     }
@@ -292,7 +311,7 @@ bool joystick::is_hold(joystick_button_type button)
 
 bool joystick::is_up(joystick_button_type button)
 {
-    if (button_states_.at(button) == joystick_button_state::UP)
+    if (button_deque_.at(0).button_states_.at(button) == joystick_button_state::UP)
     {
         return true;
     }
@@ -301,7 +320,7 @@ bool joystick::is_up(joystick_button_type button)
 
 bool joystick::is_down(joystick_button_type button)
 {
-    if (button_states_.at(button) == joystick_button_state::DOWN)
+    if (button_deque_.at(0).button_states_.at(button) == joystick_button_state::DOWN)
     {
         return true;
     }
@@ -310,6 +329,17 @@ bool joystick::is_down(joystick_button_type button)
 
 bool joystick::check_simultaneous(joystick_button_type button)
 {
+    for (int i = 0; i < SIMULTANEOUS_ALLOW_FRAME; ++i)
+    {
+        if (i >= button_deque_.size())
+        {
+            break;
+        }
+        if (button_deque_.at(i).button_states_.at(button) == joystick_button_state::DOWN)
+        {
+            return true;
+        }
+    }
     return false;
 }
 

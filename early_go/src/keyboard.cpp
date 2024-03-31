@@ -8,7 +8,6 @@ using std::shared_ptr;
 namespace early_go
 {
 std::deque<keyboard::key_info> keyboard::key_deque_;
-const int keyboard::SIMULTANEOUS_ALLOW_FRAME;
 
 bool keyboard::update()
 {

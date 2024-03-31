@@ -44,7 +44,11 @@ public:
 
     static std::shared_ptr<IDirectInput8> direct_input8_;
     static std::shared_ptr<IDirectInputDevice8> input_device8_;
-    static std::unordered_map<joystick_button_type, joystick_button_state> button_states_;
+    struct joystick_info
+    {
+        std::unordered_map<joystick_button_type, joystick_button_state> button_states_;
+    };
+    static std::deque<joystick_info> button_deque_;
 
 private:
     static bool create_device(HWND hwnd);
