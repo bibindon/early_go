@@ -29,6 +29,9 @@ using std::shared_ptr;
 using std::vector;
 using std::string;
 using std::make_shared;
+using std::make_pair;
+template <class T1, class T2>
+using ummap = std::unordered_multimap<T1, T2>;
 
 namespace early_go
 {
@@ -451,13 +454,13 @@ void main_window::debug()
     {
         early_->set_animation("Step_Left");
         suo_->set_animation("Step_Left");
-        meshes_lua_.at(4)->set_animation("Wolf_Idle_");
+        //meshes_lua_.at(4)->set_animation("Wolf_Idle_");
     }
     if (keyboard::is_down('6'))
     {
         early_->set_animation("Step_Right");
         suo_->set_animation("Step_Right");
-        meshes_lua_.at(4)->set_animation("Wolf_Run_Cycle_");
+        //meshes_lua_.at(4)->set_animation("Wolf_Run_Cycle_");
     }
     if (keyboard::is_down('7'))
     {
@@ -518,9 +521,9 @@ void main_window::debug()
     if (keyboard::is_down('C'))
     {
         early_->set_fade_in(constants::EARLY_BODY);
-        meshes_lua_.at(0)->set_fade_in();
-        meshes_lua_.at(1)->set_fade_in();
-        meshes_lua_.at(3)->set_fade_in();
+        //meshes_lua_.at(0)->set_fade_in();
+        //meshes_lua_.at(1)->set_fade_in();
+        //meshes_lua_.at(3)->set_fade_in();
     }
     //  if (keyboard::is_hold('4')) {
     //    hud_->add_image("test3", "image/board2.png", cv::Point(300, 400));
@@ -605,9 +608,9 @@ erto's book, Programming in Lua.\n\
     if (keyboard::is_down('V'))
     {
         early_->set_fade_out(constants::EARLY_BODY);
-        meshes_lua_.at(0)->set_fade_out();
-        meshes_lua_.at(1)->set_fade_out();
-        meshes_lua_.at(3)->set_fade_out();
+        //meshes_lua_.at(0)->set_fade_out();
+        //meshes_lua_.at(1)->set_fade_out();
+        //meshes_lua_.at(3)->set_fade_out();
 //        static float f = D3DX_PI / 2;
 //        f += 0.1f;
 //        early_->set_dynamic_texture_opacity(
@@ -615,16 +618,16 @@ erto's book, Programming in Lua.\n\
     }
     if (keyboard::is_down('B'))
     {
-        meshes_lua_.at(0)->set_dynamic_message(
-            1,
-            "1234567890", false,
-            {1000, 1000, 2048, 2048},
-            D3DCOLOR_ARGB(255, 255, 64, 64),
-            constants::FONT_NAME,
-            300,
-            FW_NORMAL,
-            SHIFTJIS_CHARSET,
-            true);
+//        meshes_lua_.at(0)->set_dynamic_message(
+//            1,
+//            "1234567890", false,
+//            {1000, 1000, 2048, 2048},
+//            D3DCOLOR_ARGB(255, 255, 64, 64),
+//            constants::FONT_NAME,
+//            300,
+//            FW_NORMAL,
+//            SHIFTJIS_CHARSET,
+//            true);
         early_->set_dynamic_message(
             constants::EARLY_BODY, 1,
             "ccccccccccccc", false,
@@ -684,10 +687,18 @@ void main_window::render()
     {
         early_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
         suo_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
-        for (int i = 0; i < meshes_lua_.size(); ++i)
+        for (auto& mesh_lua : meshes_lua_)
         {
-            meshes_lua_.at(i)->render(
-                view_matrix, projection_matrix, light_direction, light_brightness_);
+            auto range = mesh_info_map.equal_range(mesh_lua.first);
+            for (auto itr = range.first; itr != range.second; ++itr)
+            {
+                mesh_lua.second->set_position(itr->second.pos);
+                mesh_lua.second->set_rotation(itr->second.rotate);
+// TODO
+//                mesh_lua.second->set_scale(itr->second.scale);
+                mesh_lua.second->render(
+                    view_matrix, projection_matrix, light_direction, light_brightness_);
+            }
         }
 
         if (sprite_anim_.get() != nullptr)
@@ -797,6 +808,8 @@ void main_window::init_se()
 
 main_window* main_window::main_window_;
 
+ummap<string, mesh_info> main_window::mesh_info_map;
+
 int main_window::glue_place_mesh(lua_State* L)
 {
     string filename;
@@ -805,12 +818,19 @@ int main_window::glue_place_mesh(lua_State* L)
     float scale{};
     get_mesh_info_from_lua(L, &filename, &pos, &rotate, &scale);
 
-    main_window_->meshes_lua_.push_back(shared_ptr<abstract_mesh>(new_crt mesh{
-        main_window_->d3d_device_,
-        filename,
-        D3DXVECTOR3{pos.x, pos.y, pos.z},
-        D3DXVECTOR3{rotate.x, rotate.y, rotate.z},
-        scale }));
+    auto itr = mesh_info_map.find(filename);
+    if (itr == mesh_info_map.end())
+    {
+        shared_ptr<abstract_mesh> work { new_crt mesh {
+            main_window_->d3d_device_,
+            filename,
+            D3DXVECTOR3{pos.x, pos.y, pos.z},
+            D3DXVECTOR3{rotate.x, rotate.y, rotate.z},
+            scale } };
+        main_window_->meshes_lua_.insert(make_pair(filename, work));
+    }
+    mesh_info_map.insert(make_pair(filename, mesh_info{ pos, rotate, scale }));
+
     return 0;
 }
 
@@ -822,12 +842,19 @@ int main_window::glue_place_anim_mesh(lua_State* L)
     float scale{};
     get_mesh_info_from_lua(L, &filename, &pos, &rotate, &scale);
 
-    main_window_->meshes_lua_.push_back(shared_ptr<abstract_mesh>(new_crt animation_mesh{
-        main_window_->d3d_device_,
-        filename,
-        D3DXVECTOR3{pos.x, pos.y, pos.z},
-        D3DXVECTOR3{rotate.x, rotate.y, rotate.z},
-        scale }));
+    auto itr = mesh_info_map.find(filename);
+    if (itr == mesh_info_map.end())
+    {
+        shared_ptr<abstract_mesh> work { new_crt animation_mesh {
+            main_window_->d3d_device_,
+            filename,
+            D3DXVECTOR3{pos.x, pos.y, pos.z},
+            D3DXVECTOR3{rotate.x, rotate.y, rotate.z},
+            scale } };
+        main_window_->meshes_lua_.insert(make_pair(filename, work));
+    }
+    mesh_info_map.insert(make_pair(filename, mesh_info{ pos, rotate, scale }));
+
     return 0;
 }
 
@@ -839,12 +866,19 @@ int main_window::glue_place_skin_mesh(lua_State* L)
     float scale{};
     get_mesh_info_from_lua(L, &filename, &pos, &rotate, &scale);
 
-    main_window_->meshes_lua_.push_back(shared_ptr<abstract_mesh>(new_crt skinned_animation_mesh{
-        main_window_->d3d_device_,
-        filename,
-        D3DXVECTOR3{pos.x, pos.y, pos.z},
-        D3DXVECTOR3{rotate.x, rotate.y, rotate.z},
-        scale }));
+    auto itr = mesh_info_map.find(filename);
+    if (itr == mesh_info_map.end())
+    {
+        shared_ptr<abstract_mesh> work { new_crt skinned_animation_mesh {
+            main_window_->d3d_device_,
+            filename,
+            D3DXVECTOR3{pos.x, pos.y, pos.z},
+            D3DXVECTOR3{rotate.x, rotate.y, rotate.z},
+            scale } };
+        main_window_->meshes_lua_.insert(make_pair(filename, work));
+    }
+    mesh_info_map.insert(make_pair(filename, mesh_info{ pos, rotate, scale }));
+
     return 0;
 }
 

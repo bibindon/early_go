@@ -26,6 +26,13 @@ class novel;
 class sprite;
 class text_d3dxfont;
 
+struct mesh_info
+{
+    D3DXVECTOR3 pos;
+    D3DXVECTOR3 rotate;
+    float scale;
+};
+
 /*
  * A class that handles basic window processings.
  */
@@ -91,7 +98,9 @@ private:
     static int glue_place_skin_mesh(lua_State *);
     static void get_mesh_info_from_lua(
         lua_State*, std::string*, D3DXVECTOR3*, D3DXVECTOR3*, float*);
-    std::vector<std::shared_ptr<abstract_mesh> > meshes_lua_;
+    std::unordered_map<std::string, std::shared_ptr<abstract_mesh> > meshes_lua_;
+
+    static std::unordered_multimap<std::string, mesh_info> mesh_info_map;
 
 };
 } // namespace early_go 

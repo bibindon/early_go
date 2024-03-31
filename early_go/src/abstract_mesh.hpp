@@ -16,6 +16,7 @@ public:
     abstract_mesh(
         const std::shared_ptr<IDirect3DDevice9> &,
         const std::string &,
+        const std::string &,
         const D3DXVECTOR3 &,
         const D3DXVECTOR3 &);
     virtual ~abstract_mesh();
@@ -64,6 +65,7 @@ public:
     void set_shake_texture();
     void set_fade_in();
     void set_fade_out();
+    std::string get_mesh_name();
 
 protected:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
@@ -80,6 +82,7 @@ protected:
     std::array<D3DXHANDLE, LAYER_NUMBER> texture_handle_;
     D3DXVECTOR3 position_;
     D3DXVECTOR3 rotation_;
+    std::string mesh_name_;
 
 private:
     virtual void render_impl(const D3DXMATRIX &, const D3DXMATRIX &) = 0;

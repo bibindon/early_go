@@ -9,7 +9,7 @@ struct constants
 {
     const static int WINDOW_WIDTH;
     const static int WINDOW_HEIGHT;
-    const static int MAX_STAGE_NUMBER;
+    const static int MAX_ROOM_NUMBER;
     const static float ANIMATION_SPEED;
     const static LONG TEXTURE_PIXEL_SIZE;
     const static LONG EMPTY_TEXTURE_SIZE;

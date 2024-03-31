@@ -13,7 +13,7 @@ struct abstract_mesh::dynamic_texture
 {
     // Do not make dynamic_texture to array because it is necessary to transfer
     // position, opacity and color info to GPU.
-    static constexpr int FADE_LAYER{LAYER_NUMBER - 1};
+    static constexpr int FADE_LAYER { LAYER_NUMBER - 1 };
     std::array<shared_ptr<IDirect3DTexture9>, LAYER_NUMBER> textures_;
     std::array<string, LAYER_NUMBER> filename_;
     std::array<D3DXVECTOR4, LAYER_NUMBER> positions_;
@@ -33,16 +33,16 @@ struct abstract_mesh::dynamic_texture
 struct abstract_mesh::dynamic_texture::texture_shaker
 {
     texture_shaker();
-    void operator()(abstract_mesh &);
+    void operator()(abstract_mesh&);
 
 private:
     int count_;
     // A fixed value is used. That's because random value doesn't become
     // appropriate.
-    static constexpr int SHAKE_POSITIONS_SIZE{16};
+    static constexpr int SHAKE_POSITIONS_SIZE { 16 };
     const static std::array<D3DXVECTOR2, SHAKE_POSITIONS_SIZE> SHAKING_POSITIONS;
-    const static int SHAKE_FRAME{ 4 };
-    const static int SHAKE_DURATION{ 30 };
+    const static int SHAKE_FRAME { 4 };
+    const static int SHAKE_DURATION { 30 };
     D3DXVECTOR2 current_position_;
     D3DXVECTOR2 previous_position_;
 };
@@ -54,8 +54,8 @@ struct abstract_mesh::dynamic_texture::texture_fader
         FADE_IN,
         FADE_OUT,
     };
-    texture_fader(const fade_type &);
-    void operator()(abstract_mesh &);
+    texture_fader(const fade_type&);
+    void operator()(abstract_mesh&);
 
 private:
     int count_;
@@ -64,16 +64,18 @@ private:
 };
 
 abstract_mesh::abstract_mesh(
-    const shared_ptr<IDirect3DDevice9> &d3d_device,
-    const string &shader_filename,
-    const D3DXVECTOR3 &position,
-    const D3DXVECTOR3 &rotation)
-    : d3d_device_{d3d_device},
-      effect_{nullptr, custom_deleter{}},
-      animation_strategy_{nullptr},
-      dynamic_texture_{ new_crt dynamic_texture{} },
-      position_{position},
-      rotation_{rotation}
+    const shared_ptr<IDirect3DDevice9>& d3d_device,
+    const string& x_filename,
+    const string& shader_filename,
+    const D3DXVECTOR3& position,
+    const D3DXVECTOR3& rotation)
+    : d3d_device_ { d3d_device },
+    effect_ { nullptr, custom_deleter{} },
+    animation_strategy_ { nullptr },
+    dynamic_texture_ { new_crt dynamic_texture{} },
+    position_ { position },
+    rotation_ { rotation },
+    mesh_name_ { x_filename }
 {
     HRESULT result{NULL};
 
@@ -519,6 +521,11 @@ void abstract_mesh::set_fade_out()
     dynamic_texture_->texture_fader_.reset(
         new_crt dynamic_texture::texture_fader(
             dynamic_texture::texture_fader::fade_type::FADE_OUT));
+}
+
+string abstract_mesh::get_mesh_name()
+{
+    return mesh_name_;
 }
 
 abstract_mesh::dynamic_texture::texture_fader::texture_fader(

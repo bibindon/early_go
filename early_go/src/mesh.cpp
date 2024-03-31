@@ -18,9 +18,8 @@ mesh::mesh(
     const D3DXVECTOR3& position,
     const D3DXVECTOR3& rotation,
     const float& scale)
-    : abstract_mesh { d3d_device, SHADER_FILENAME, position, rotation }
+    : abstract_mesh { d3d_device, x_filename, SHADER_FILENAME, position, rotation }
 {
-    mesh_name_ = x_filename;
     animation_strategy_.reset(new_crt no_animation { });
 
     HRESULT result { 0 };

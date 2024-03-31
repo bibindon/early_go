@@ -425,7 +425,7 @@ void operation::operator()(
         {
             reserved_behavior_->action_type_ = action_type::MOVE_NEXT_STAGE;
         }
-        if (current_stage_ == constants::MAX_STAGE_NUMBER - 1)
+        if (current_stage_ == constants::MAX_ROOM_NUMBER - 1)
         {
             cv::Point3i grid_pos{_main_character->get_grid_position()};
             D3DXVECTOR3 pos {

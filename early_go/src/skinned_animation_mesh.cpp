@@ -47,7 +47,7 @@ skinned_animation_mesh::skinned_animation_mesh(
     const D3DXVECTOR3 &position,
     const D3DXVECTOR3 &rotation,
     const float &scale)
-    : abstract_mesh{d3d_device, SHADER_FILENAME, position, rotation},
+    : abstract_mesh{d3d_device, x_filename, SHADER_FILENAME, position, rotation},
       d3d_device_{d3d_device},
       allocator_{new_crt skinned_animation_mesh_allocator{x_filename}},
       frame_root_{nullptr, frame_root_deleter_object{allocator_}},
