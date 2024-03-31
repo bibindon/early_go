@@ -21,6 +21,8 @@
 #include "bgm_player.hpp"
 #include "se_player.hpp"
 #include "joystick.hpp"
+#include "input.hpp"
+#include "sequence_switcher.hpp"
 
 using std::chrono::system_clock;
 using std::shared_ptr;
@@ -105,6 +107,7 @@ main_window::main_window(const HINSTANCE &hinstance)
     init_se();
     bgm_player::initialize(hwnd);
     joystick::initialize(hwnd);
+    sequence_switcher_.reset(new_crt sequence_switcher { });
 }
 
 void main_window::initialize_direct3d(const HWND &hwnd)
@@ -274,8 +277,11 @@ int main_window::operator()()
             HWND hwnd = GetActiveWindow();
             if (hwnd_ == hwnd)
             {
-                keyboard::update();
-                joystick::update();
+                input::update();
+            }
+            if (sequence_switcher_.get() != nullptr)
+            {
+                (*sequence_switcher_)();
             }
             if (novel_->get_is_novel_part())
             {

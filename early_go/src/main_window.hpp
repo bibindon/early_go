@@ -25,6 +25,7 @@ class sprite_anim;
 class novel;
 class sprite;
 class text_d3dxfont;
+class sequence_switcher;
 
 struct mesh_info
 {
@@ -84,6 +85,8 @@ private:
 
     std::shared_ptr<novel> novel_;
     HWND hwnd_;
+
+    std::shared_ptr<sequence_switcher> sequence_switcher_ { };
 
     //----------------------------------------
     // Lua area
