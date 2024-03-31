@@ -12,9 +12,11 @@ class seq_interface;
 class sequence_switcher
 {
 public:
-    sequence_switcher();
+    sequence_switcher(const std::shared_ptr<IDirect3DDevice9>& d3d_device);
     void operator()();
+    void render();
 private:
+    std::shared_ptr<IDirect3DDevice9> d3d_device_;
     std::shared_ptr<seq_interface> sequence_;
 };
 }

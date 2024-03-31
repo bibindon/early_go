@@ -107,7 +107,7 @@ main_window::main_window(const HINSTANCE &hinstance)
     init_se();
     bgm_player::initialize(hwnd);
     joystick::initialize(hwnd);
-    sequence_switcher_.reset(new_crt sequence_switcher { });
+    sequence_switcher_.reset(new_crt sequence_switcher { d3d_device_ });
 }
 
 void main_window::initialize_direct3d(const HWND &hwnd)
@@ -727,6 +727,7 @@ void main_window::render()
             (*text_d3dxfont_)();
         }
 
+        sequence_switcher_->render();
         d3d_device_->EndScene();
     }
 
