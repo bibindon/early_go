@@ -11,6 +11,10 @@ public:
     camera(const D3DXVECTOR3 &,
            const D3DXVECTOR3 &);
     void update();
+    void set_position(
+        const D3DXVECTOR3 & eye_pos,
+        const D3DXVECTOR3 & look_at_pos,
+        const float view_angle);
     void move_position(const D3DXVECTOR3 &);
     void move_position(const D3DXVECTOR3 &, const float &);
     D3DXVECTOR3 get_position() const;

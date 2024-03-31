@@ -34,6 +34,13 @@ void camera::update()
     }
 }
 
+void camera::set_position(const D3DXVECTOR3& eye_pos, const D3DXVECTOR3& look_at_pos, const float view_angle)
+{
+    eye_position_ = eye_pos;
+    look_at_position_ = look_at_pos;
+    view_angle_ = view_angle;
+}
+
 // for debug
 void camera::move_position(const D3DXVECTOR3 &delta)
 {

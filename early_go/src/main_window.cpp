@@ -281,16 +281,16 @@ int main_window::update()
             }
             if (sequence_switcher_.get() != nullptr)
             {
-                sequence_switcher_->update();
+                sequence_switcher_->update(early_, suo_, camera_);
             }
-            if (novel_->get_is_novel_part())
-            {
-                novel_->update(*this);
-            }
-            else
-            {
-                operation_->update(get_main_character(), get_enemy_character());
-            }
+//            if (novel_->get_is_novel_part())
+//            {
+//                novel_->update(*this);
+//            }
+//            else
+//            {
+//                operation_->update(get_main_character(), get_enemy_character());
+//            }
             // #if (defined(DEBUG) || defined(_DEBUG))
             if (!novel_->get_is_novel_part())
             {
@@ -727,7 +727,7 @@ void main_window::render()
             text_d3dxfont_->render();
         }
 
-        sequence_switcher_->render();
+        sequence_switcher_->render(early_, suo_, camera_);
         d3d_device_->EndScene();
     }
 
