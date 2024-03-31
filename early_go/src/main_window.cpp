@@ -20,8 +20,6 @@
 #include "text_d3dxfont.hpp"
 #include "bgm_player.hpp"
 #include "se_player.hpp"
-
-#include <thread>
 #include "joystick.hpp"
 
 using std::chrono::system_clock;

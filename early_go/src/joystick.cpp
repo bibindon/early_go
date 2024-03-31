@@ -19,6 +19,22 @@ deque<joystick::joystick_info> joystick::button_deque_;
 
 bool joystick::initialize(HWND hwnd)
 {
+    // Init button_queue_
+    joystick_info temp { };
+    temp.button_states_.insert({ joystick_button_type::UP, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::DOWN, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::LEFT, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::RIGHT, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::X, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::Y, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::A, joystick_button_state::NONE });
+    temp.button_states_.insert({ joystick_button_type::B, joystick_button_state::NONE });
+    button_deque_.push_back(temp);
+    button_deque_.push_back(temp);
+    button_deque_.push_back(temp);
+    button_deque_.push_back(temp);
+    button_deque_.push_back(temp);
+
     // Create input interface.
     LPDIRECTINPUT8 temp_direct_input { nullptr };
     HRESULT result { DirectInput8Create(
@@ -42,21 +58,6 @@ bool joystick::initialize(HWND hwnd)
         finalize();
         return false;
     }
-    // Init button_queue_
-    joystick_info temp { };
-    temp.button_states_.insert({ joystick_button_type::UP, joystick_button_state::NONE });
-    temp.button_states_.insert({ joystick_button_type::DOWN, joystick_button_state::NONE });
-    temp.button_states_.insert({ joystick_button_type::LEFT, joystick_button_state::NONE });
-    temp.button_states_.insert({ joystick_button_type::RIGHT, joystick_button_state::NONE });
-    temp.button_states_.insert({ joystick_button_type::X, joystick_button_state::NONE });
-    temp.button_states_.insert({ joystick_button_type::Y, joystick_button_state::NONE });
-    temp.button_states_.insert({ joystick_button_type::A, joystick_button_state::NONE });
-    temp.button_states_.insert({ joystick_button_type::B, joystick_button_state::NONE });
-    button_deque_.push_back(temp);
-    button_deque_.push_back(temp);
-    button_deque_.push_back(temp);
-    button_deque_.push_back(temp);
-    button_deque_.push_back(temp);
     return true;
 }
 
