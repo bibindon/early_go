@@ -73,7 +73,7 @@ sprite_anim::sprite_anim(const shared_ptr<IDirect3DDevice9>& d3d_device, string 
         inifile.begin() + seek_end);
     max_frame_ = std::stoi(work);
 }
-void sprite_anim::update()
+void sprite_anim::render()
 {
     frame_++;
     if (frame_ >= max_frame_)

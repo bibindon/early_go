@@ -10,7 +10,7 @@ class sprite_anim
 {
 public:
     sprite_anim(const std::shared_ptr<IDirect3DDevice9>& d3d_device, std::string filename);
-    void update();
+    void render();
 
 private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;

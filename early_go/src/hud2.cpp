@@ -17,7 +17,7 @@ hud2::hud2(const shared_ptr<IDirect3DDevice9>& d3d_device)
     early_hp_.reset(new_crt text_d3dxfont { d3d_device, 30 });
     enemy_hp_.reset(new_crt text_d3dxfont { d3d_device, 30 });
 }
-void hud2::update(
+void hud2::render(
     const shared_ptr<character>& _early,
     const shared_ptr<character>& _suo,
     const shared_ptr<camera>& _camera)
@@ -34,7 +34,7 @@ void hud2::update(
         const POINT coodinate { _camera->get_screen_coordinate(position) };
 
         early_hp_->set_param(hp_text, coodinate.x, coodinate.y, 0xA0A0ffff);
-        early_hp_->update();
+        early_hp_->render();
     }
     // Show enemy HP
     {
@@ -48,7 +48,7 @@ void hud2::update(
         const POINT coodinate { _camera->get_screen_coordinate(position) };
 
         enemy_hp_->set_param(hp_text, coodinate.x, coodinate.y, 0xA0ffA0A0);
-        enemy_hp_->update();
+        enemy_hp_->render();
     }
 }
 }

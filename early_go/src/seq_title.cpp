@@ -19,7 +19,7 @@ void seq_title::update()
 
 void seq_title::render()
 {
-    sprite_->update(D3DXVECTOR3 { });
+    sprite_->render(D3DXVECTOR3 { });
 }
 
 }

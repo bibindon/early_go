@@ -707,7 +707,7 @@ void main_window::render()
 
         if (sprite_anim_.get() != nullptr)
         {
-            sprite_anim_->update();
+            sprite_anim_->render();
         }
         if (sprite_.get() != nullptr)
         {
@@ -717,14 +717,14 @@ void main_window::render()
             pos.x = work;
             pos.y = work;
             pos.z = 0.0f;
-            sprite_->update(pos);
+            sprite_->render(pos);
         }
-        hud2_->update(early_, suo_, camera_);
+        hud2_->render(early_, suo_, camera_);
 
         //render_string_object::render_string("aaa", 0, 0);
         if (text_d3dxfont_.get() != nullptr)
         {
-            text_d3dxfont_->update();
+            text_d3dxfont_->render();
         }
 
         sequence_switcher_->render();
