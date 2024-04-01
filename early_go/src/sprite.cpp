@@ -41,7 +41,7 @@ sprite::sprite(const shared_ptr<IDirect3DDevice9>& d3d_device, string filename)
     width_ = desc.Width;
     height_ = desc.Height;
 }
-void sprite::render(const D3DXVECTOR3& pos)
+void sprite::render(const D3DXVECTOR3& pos, const BYTE transparency)
 {
     sprite_->Begin(D3DXSPRITE_ALPHABLEND);
     RECT rect = {
@@ -55,7 +55,7 @@ void sprite::render(const D3DXVECTOR3& pos)
         &rect,
         &center,
         &pos,
-        D3DCOLOR_ARGB(255, 255, 255, 255));
+        D3DCOLOR_ARGB(transparency, 255, 255, 255));
     sprite_->End();
 }
 }

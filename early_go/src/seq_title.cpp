@@ -17,6 +17,7 @@ seq_title::seq_title(const shared_ptr<IDirect3DDevice9>& d3d_device)
     title01_ = make_shared<sprite>(d3d_device_, "image/title01.png");
     title02_ = make_shared<sprite>(d3d_device_, "image/title02.png");
     title03_ = make_shared<sprite>(d3d_device_, "image/title03.png");
+    title04_ = make_shared<sprite>(d3d_device_, "image/title04.png");
     cursor_pos_ = D3DXVECTOR3 { 930.0f, 400.0f, 0.0f };
     se_player::get_ton()->load("sound/cursor_move.wav");
     se_player::get_ton()->load("sound/cursor_confirm.wav");
@@ -51,19 +52,19 @@ seq_type seq_title::update(
     }
     else if (input::is_down(input_type::A))
     {
+        selection_confirmed_ = true;
+        se_player::get_ton()->play("sound/cursor_confirm.wav");
         if (select_ == 0)
         {
-            se_player::get_ton()->play("sound/cursor_confirm.wav");
-            return seq_type::NOVEL;
+            selected_seq_ = seq_type::NOVEL;
         }
         else if (select_ == 1)
         {
-            se_player::get_ton()->play("sound/cursor_confirm.wav");
-            return seq_type::BATTLE;
+            selected_seq_ = seq_type::BATTLE;
         }
         else if (select_ == 2)
         {
-            return seq_type::EXIT;
+            selected_seq_ = seq_type::EXIT;
         }
     }
     if (select_ == 0)
@@ -90,6 +91,16 @@ seq_type seq_title::update(
         counter_ = 600;
     }
 
+    if (selection_confirmed_)
+    {
+        fade_counter_ += 3;
+        if (fade_counter_ >= 255)
+        {
+            fade_counter_ = 255;
+            fade_finished_ = true;
+            return selected_seq_;
+        }
+    }
     return seq_type::TITLE;
 }
 
@@ -101,6 +112,7 @@ void seq_title::render(
     title01_->render(D3DXVECTOR3 { 630.0f, 0.0f, 0.0f });
     title02_->render(D3DXVECTOR3 { 930.0f, 400.0f, 0.0f });
     title03_->render(cursor_pos_);
+    title04_->render(D3DXVECTOR3 { 0.0f, 0.0f, 0.0f }, fade_counter_);
 }
 
 }

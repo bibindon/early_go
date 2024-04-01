@@ -23,9 +23,14 @@ private:
     std::shared_ptr<sprite> title01_;
     std::shared_ptr<sprite> title02_;
     std::shared_ptr<sprite> title03_;
+    std::shared_ptr<sprite> title04_;
     D3DXVECTOR3 cursor_pos_ { 0.0f, 0.0f, 0.0f };
     int select_ { 0 };
     int counter_ { 0 };
     bool bgm_playing_ { false };
+    bool selection_confirmed_ { false };
+    seq_type selected_seq_ { seq_type::UNKNOWN };
+    int fade_counter_ { 0 };
+    bool fade_finished_ { false };
 };
 }

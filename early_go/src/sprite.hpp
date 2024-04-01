@@ -10,7 +10,7 @@ class sprite
 public:
     sprite(const std::shared_ptr<IDirect3DDevice9>& d3d_device, std::string filename);
     // pos.x shows z-order. That should be 0.0f ~ 1.0f.
-    void render(const D3DXVECTOR3& pos);
+    void render(const D3DXVECTOR3& pos, const BYTE transparency = 255);
 private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
     std::shared_ptr<ID3DXSprite> sprite_;

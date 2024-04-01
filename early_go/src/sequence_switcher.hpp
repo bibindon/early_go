@@ -37,6 +37,7 @@ public:
 private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
     std::shared_ptr<seq_interface> sequence_;
+    seq_type seq_type_ { seq_type::TITLE };
 };
 }
 

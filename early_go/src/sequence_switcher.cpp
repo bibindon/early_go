@@ -15,18 +15,22 @@ void sequence_switcher::update(
         const std::shared_ptr<character>& _suo,
         const std::shared_ptr<camera>& _camera)
 {
-    seq_type _seq_type = sequence_->update(_early, _suo, _camera);
-    if (_seq_type == seq_type::EXIT)
+    seq_type _seq_type_result = sequence_->update(_early, _suo, _camera);
+    if (seq_type_ != _seq_type_result)
     {
-        PostQuitMessage(0);
-    }
-    else if (_seq_type == seq_type::NOVEL)
-    {
-
-    }
-    else if (_seq_type == seq_type::BATTLE)
-    {
-
+        seq_type_ = _seq_type_result;
+        if (_seq_type_result == seq_type::EXIT)
+        {
+            PostQuitMessage(0);
+        }
+        else if (_seq_type_result == seq_type::NOVEL)
+        {
+//            sequence_.reset(new_crt seq_novel { d3d_device_ });
+        }
+        else if (_seq_type_result == seq_type::BATTLE)
+        {
+//            sequence_.reset(new_crt seq_battle { d3d_device_ });
+        }
     }
 }
 void sequence_switcher::render(
