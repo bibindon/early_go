@@ -67,8 +67,6 @@ private:
     std::shared_ptr<character> early_;
     std::shared_ptr<character> suo_;
 
-    D3DXVECTOR3 light_direction_;
-    float light_brightness_;
     std::shared_ptr<camera> camera_;
 
     void initialize_direct3d(const HWND &);

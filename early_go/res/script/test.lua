@@ -1,15 +1,20 @@
 function step()
-    fade_out()
+    draw_background("image/back_ground.png")
+    fade_in()
 
+    draw_portrait("image/early/0.png", "center")
+
+    draw_message_window()
+    
     coroutine.yield()
 
-    fade_in()
-    draw_background("image/back_ground.png")
-    draw_portrait("image/early/0.png", "center")
+    draw_text([[aiueoあああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ]])
 
     coroutine.yield()
 
     draw_portrait("image/early/0.png", "right")
+
+    draw_text([[いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい]])
 
     coroutine.yield()
 
@@ -33,27 +38,50 @@ function step()
 
     coroutine.yield()
 
-    draw_message_window()
-
-    coroutine.yield()
-
-    draw_text([[aiueoあああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ]])
-
-    coroutine.yield()
-
     draw_text([[
-それらは今日けっしてその所有方という事のためを書いありある。
-毫もほかが享有屋ももうこの批評たなけれなどをしがみないがは発展しよないならから、
-たったには評したいたうまし。
+        メロスゎ走った……
+        セリヌンティウスが
+        まってる……
+        ]])
+    coroutine.yield()
+        
+    draw_text([[
+        でも……
+        もぅつかれちゃった…
+        ]])
+    coroutine.yield()
+        
+    draw_text([[
+        でも……
+        あきらめるの
+        ょくなぃって……
+        ]])
+    coroutine.yield()
+        
+    draw_text([[
+        メロスゎ……
+        ぉもって……
+        がんばった……
+        ]])
+    coroutine.yield()
+        
+    draw_text([[
+        でも……
+        ネイル…われて……
+        ]])
+    coroutine.yield()
+    
+    draw_text([[
+        イタイょ……ゴメン……
+        まにあわなかった……
+        ]])
+    coroutine.yield()
+        
+    draw_text([[
+        でも……メロスとセリヌンゎ……ズッ友だょ……！！ 
 ]])
     coroutine.yield()
 
-    draw_text([[
-顔がするです事はいやしくも毎日をとうていますないた。はなはだ嘉納さんを楽自分なぜ講演をあるた弟その気分あなたか関係からというご出立たないですますが、その結果もおれか教場右を読んて、ネルソンさんののを鈍痛の私をもちろんご講演とあるて何片仮名がお観察をできように勢いお妨害にありんべきて、たといよく勉
-]])
-
-coroutine.yield()
-
-draw_text([[あいうえおあいうえおあいうえお]])
+    draw_text([[あいうえおあいうえおあいうえお]])
 
 end

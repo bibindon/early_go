@@ -244,10 +244,11 @@ resource_importer.bat
     <ClCompile Include="src\hud2.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\joystick.cpp" />
+    <ClCompile Include="src\light.cpp" />
     <ClCompile Include="src\seq_battle.cpp" />
     <ClCompile Include="src\seq_ending.cpp" />
     <ClCompile Include="src\seq_interface.cpp" />
-    <ClCompile Include="src\seq_nobel.cpp" />
+    <ClCompile Include="src\seq_novel.cpp" />
     <ClCompile Include="src\sequence_switcher.cpp" />
     <ClCompile Include="src\seq_title.cpp" />
     <ClCompile Include="src\se_player.cpp" />
@@ -294,10 +295,11 @@ resource_importer.bat
     <ClInclude Include="src\hud2.hpp" />
     <ClInclude Include="src\input.hpp" />
     <ClInclude Include="src\joystick.hpp" />
+    <ClInclude Include="src\light.hpp" />
     <ClInclude Include="src\seq_battle.hpp" />
     <ClInclude Include="src\seq_ending.hpp" />
     <ClInclude Include="src\seq_interface.hpp" />
-    <ClInclude Include="src\seq_nobel.hpp" />
+    <ClInclude Include="src\seq_novel.hpp" />
     <ClInclude Include="src\sequence_switcher.hpp" />
     <ClInclude Include="src\seq_title.hpp" />
     <ClInclude Include="src\se_player.hpp" />

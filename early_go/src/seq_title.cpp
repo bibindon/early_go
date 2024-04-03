@@ -17,7 +17,7 @@ seq_title::seq_title(const shared_ptr<IDirect3DDevice9>& d3d_device)
     title01_ = make_shared<sprite>(d3d_device_, "image/title01.png");
     title02_ = make_shared<sprite>(d3d_device_, "image/title02.png");
     title03_ = make_shared<sprite>(d3d_device_, "image/title03.png");
-    title04_ = make_shared<sprite>(d3d_device_, "image/title04.png");
+    title04_ = make_shared<sprite>(d3d_device_, "image/black.png");
     cursor_pos_ = D3DXVECTOR3 { 930.0f, 400.0f, 0.0f };
     se_player::get_ton()->load("sound/cursor_move.wav");
     se_player::get_ton()->load("sound/cursor_confirm.wav");
@@ -114,5 +114,5 @@ void seq_title::render(
     title03_->render(cursor_pos_);
     title04_->render(D3DXVECTOR3 { 0.0f, 0.0f, 0.0f }, fade_counter_);
 }
-
 }
+

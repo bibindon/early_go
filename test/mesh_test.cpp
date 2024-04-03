@@ -6,6 +6,7 @@
 #include "src/keyboard.hpp"
 #include "src/bgm_player.hpp"
 #include "src/se_player.hpp"
+#include <src/light.hpp>
 
 TCHAR gName[100] = "初期化サンプルプログラム";
 LRESULT CALLBACK WndProc(HWND hWnd, UINT mes, WPARAM wParam, LPARAM lParam)
@@ -144,6 +145,7 @@ TEST(mesh_test, mesh_ctor_test)
     early_go::keyboard::key_deque_.clear();
     early_go::bgm_player::finalize();
     early_go::se_player::finalize();
+    early_go::light::finalize();
     HANDLE hLog = CreateFile(
         "log.txt",
         GENERIC_WRITE,

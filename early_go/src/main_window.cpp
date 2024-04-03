@@ -23,6 +23,7 @@
 #include "joystick.hpp"
 #include "input.hpp"
 #include "sequence_switcher.hpp"
+#include "light.hpp"
 
 using std::chrono::system_clock;
 using std::shared_ptr;
@@ -44,8 +45,6 @@ main_window::main_window(const HINSTANCE &hinstance)
       d3d_present_parameters_{},
       d3d_device_{},
       font_{},
-      light_direction_{-1.0f, 1.0f, -1.0f},
-      light_brightness_{1.0f},
       camera_{new_crt camera{{0.0f, 1.3f, -1.1639f * 3}, {0.0f, 1.3f, 0.0f}}},
       operation_{new_crt operation{camera_}},
       early_{new_crt character{d3d_device_, operation_, {0, 0, 0}, direction::FRONT, 1.0f}},
@@ -108,6 +107,8 @@ main_window::main_window(const HINSTANCE &hinstance)
     bgm_player::initialize(hwnd);
     joystick::initialize(hwnd);
     sequence_switcher_.reset(new_crt sequence_switcher { d3d_device_ });
+    light::get_ton()->set_direction(D3DXVECTOR3 { 1.0f, 1.0f, 1.0f });
+    light::get_ton()->set_brightness(1.0f);
 }
 
 void main_window::initialize_direct3d(const HWND &hwnd)
@@ -669,10 +670,11 @@ erto's book, Programming in Lua.\n\
 
 void main_window::render()
 {
+    shared_ptr<light> _light = light::get_ton();
     D3DXVECTOR4 light_direction{};
-    light_direction.x = light_direction_.x;
-    light_direction.y = light_direction_.y;
-    light_direction.z = light_direction_.z;
+    light_direction.x = _light->direction().x;
+    light_direction.y = _light->direction().y;
+    light_direction.z = _light->direction().z;
     light_direction.w = 1.0f;
     D3DXVec4Normalize(&light_direction, &light_direction);
 
@@ -689,8 +691,8 @@ void main_window::render()
         0);
     if (SUCCEEDED(d3d_device_->BeginScene()))
     {
-        early_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
-        suo_->render(view_matrix, projection_matrix, light_direction, light_brightness_);
+        early_->render(view_matrix, projection_matrix, light_direction, _light->brightness());
+        suo_->render(view_matrix, projection_matrix, light_direction, _light->brightness());
         for (auto& mesh_lua : meshes_lua_)
         {
             auto range = mesh_info_map.equal_range(mesh_lua.first);
@@ -701,7 +703,7 @@ void main_window::render()
 // TODO
 //                mesh_lua.second->set_scale(itr->second.scale);
                 mesh_lua.second->render(
-                    view_matrix, projection_matrix, light_direction, light_brightness_);
+                    view_matrix, projection_matrix, light_direction, _light->brightness());
             }
         }
 

@@ -14,6 +14,7 @@ namespace early_go
 class main_window;
 struct portrait;
 
+// TODO Delete
 class novel
 {
 public:
