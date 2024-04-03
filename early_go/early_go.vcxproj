@@ -261,7 +261,6 @@ resource_importer.bat
     <ClCompile Include="src\constants.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.hpp</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="src\novel.cpp" />
     <ClCompile Include="src\operation.cpp" />
     <ClCompile Include="src\keyboard.cpp" />
     <ClCompile Include="src\main.cpp">
@@ -312,7 +311,6 @@ resource_importer.bat
     <ClInclude Include="src\error_dialog.hpp" />
     <ClInclude Include="src\exception.hpp" />
     <ClInclude Include="src\inline_macro.hpp" />
-    <ClInclude Include="src\novel.hpp" />
     <ClInclude Include="src\operation.hpp" />
     <ClInclude Include="src\keyboard.hpp" />
     <ClInclude Include="src\mesh.hpp" />

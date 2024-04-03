@@ -13,7 +13,6 @@
 #include "operation.hpp"
 #include "hud.hpp"
 #include "hud2.hpp"
-#include "novel.hpp"
 #include "resource.h"
 #include "sprite_anim.hpp"
 #include "sprite.hpp"
@@ -253,7 +252,6 @@ void main_window::initialize_direct3d(const HWND &hwnd)
 
 //    hud_ = make_shared<hud>(d3d_device_);
     hud2_ = make_shared<hud2>(d3d_device_);
-    novel_ = make_shared<novel>();
 
     text_d3dxfont_ = make_shared<text_d3dxfont>(d3d_device_, 40);
 }
@@ -284,20 +282,9 @@ int main_window::update()
             {
                 sequence_switcher_->update(early_, suo_, camera_);
             }
-//            if (novel_->get_is_novel_part())
-//            {
-//                novel_->update(*this);
-//            }
-//            else
-//            {
-//                operation_->update(get_main_character(), get_enemy_character());
-//            }
-            // #if (defined(DEBUG) || defined(_DEBUG))
-            if (!novel_->get_is_novel_part())
             {
                 debug();
             }
-            // #endif
             render();
         }
     }
@@ -505,7 +492,6 @@ void main_window::debug()
     }
     if (keyboard::is_down('U'))
     {
-        novel_->set_is_novel_part(true);
         //  early_->set_dynamic_texture(constants::EARLY_BODY,
         //      "image/settings_window.png", 0, abstract_mesh::combine_type::NORMAL);
     }

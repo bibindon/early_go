@@ -68,6 +68,11 @@ seq_type seq_novel::update(
         {
             int i { 0 };
             int ret { lua_resume(coroutine_, 0, 0, &i) };
+            if (ret == 0)
+            {
+                goto_battle_seq_ = true;
+                _camera->set_to_behind_animation();
+            }
         }
     }
     // Reset lua.
@@ -89,6 +94,10 @@ seq_type seq_novel::update(
         init_lua();
         int i { 0 };
         int ret = lua_resume(coroutine_, 0, 0, &i);
+    }
+    if (goto_battle_seq_ && !_camera->get_animation_running())
+    {
+        return seq_type::BATTLE;
     }
     return seq_type::NOVEL;
 }

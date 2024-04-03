@@ -25,12 +25,14 @@ public:
     void set_to_close_up_animation(const D3DXVECTOR3 &);
     void set_move_next_stage_anim(const D3DXVECTOR3 &);
     POINT get_screen_coordinate(const D3DXVECTOR3& world);
+    bool get_animation_running();
 
 private:
     const static D3DXVECTOR3 UPWARD;
     D3DXVECTOR3 eye_position_;
     D3DXVECTOR3 look_at_position_;
     float view_angle_;
+    bool animation_running_ { false };
 
     struct flexible_animation
     {

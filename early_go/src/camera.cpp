@@ -20,6 +20,7 @@ void camera::update()
 {
     if (flexible_animation_ != nullptr)
     {
+        animation_running_ = true;
         if (flexible_animation_->update(*this))
         {
             flexible_animation_.reset();
@@ -27,10 +28,15 @@ void camera::update()
     }
     else if (!animation_queue_.empty())
     {
+        animation_running_ = true;
         if (animation_queue_.front()->update(*this))
         {
             animation_queue_.pop();
         }
+    }
+    else
+    {
+        animation_running_ = false;
     }
 }
 
@@ -115,6 +121,8 @@ D3DXMATRIX camera::get_projection_matrix()
 
 void camera::set_to_behind_animation()
 {
+    animation_running_ = true;
+
     queue<shared_ptr<key_animation>>().swap(animation_queue_); // clear
 
     shared_ptr<key_animation> tmp {
@@ -130,10 +138,24 @@ void camera::set_to_behind_animation()
             D3DXVECTOR3 { 0.0f, 1.2998f, 0.3f },
             D3DXVECTOR3 { 0.0f, 1.2998f, -1.0f },
             D3DX_PI / 100,
+            D3DXVECTOR3 { 0.0f, 1.2998f, 1.95f },
+            D3DXVECTOR3 { 0.0f, 1.2998f, 0.0f },
+            D3DX_PI / 60,
+            3.0f
+        }
+    );
+    animation_queue_.push(tmp);
+
+    tmp = shared_ptr<key_animation>(
+        new_crt transfer
+        {
+            D3DXVECTOR3 { 0.0f, 1.2998f, 1.95f },
+            D3DXVECTOR3 { 0.0f, 1.2998f, -1.0f },
+            D3DX_PI / 60,
             D3DXVECTOR3 { 0.0f, 2.0f, 3.95f },
             D3DXVECTOR3 { 0.0f, 1.2998f, 0.0f },
             D3DX_PI / 20,
-            4.0f
+            2.0f
         }
     );
     animation_queue_.push(tmp);
@@ -241,6 +263,11 @@ POINT camera::get_screen_coordinate(const D3DXVECTOR3& world)
     return POINT {
         static_cast<int>(matrix._41 / std::abs(matrix._44)),
         static_cast<int>(matrix._42 / std::abs(matrix._44)) };
+}
+
+bool camera::get_animation_running()
+{
+    return animation_running_;
 }
 
 camera::teleport::teleport(const D3DXVECTOR3 &eye_position,

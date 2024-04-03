@@ -52,5 +52,6 @@ private:
     lua_State *coroutine_;
 
     std::shared_ptr<sprite> black_image_;
+    bool goto_battle_seq_ { false };
 };
 }
