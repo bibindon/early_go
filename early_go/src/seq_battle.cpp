@@ -30,6 +30,11 @@ seq_type seq_battle::update(
     const std::shared_ptr<camera>& _camera)
 {
     operation_->update(_early, _suo);
+    // Goto ending
+    if (keyboard::is_down('R'))
+    {
+        return seq_type::ENDING;
+    }
     return seq_type::BATTLE;
 }
 

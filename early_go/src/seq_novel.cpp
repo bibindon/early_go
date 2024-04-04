@@ -71,6 +71,7 @@ seq_type seq_novel::update(
             if (ret == 0)
             {
                 goto_battle_seq_ = true;
+                bgm_player::get_ton()->stop();
                 _camera->set_to_behind_animation();
             }
         }

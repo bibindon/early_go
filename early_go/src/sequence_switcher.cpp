@@ -2,6 +2,7 @@
 #include "seq_title.hpp"
 #include "seq_novel.hpp"
 #include "seq_battle.hpp"
+#include "seq_ending.hpp"
 
 using std::shared_ptr;
 
@@ -25,6 +26,10 @@ void sequence_switcher::update(
         {
             PostQuitMessage(0);
         }
+        else if (_seq_type_result == seq_type::TITLE)
+        {
+            sequence_.reset(new_crt seq_title { d3d_device_ });
+        }
         else if (_seq_type_result == seq_type::NOVEL)
         {
             sequence_.reset(new_crt seq_novel { d3d_device_, _early });
@@ -32,6 +37,10 @@ void sequence_switcher::update(
         else if (_seq_type_result == seq_type::BATTLE)
         {
             sequence_.reset(new_crt seq_battle { d3d_device_, _camera });
+        }
+        else if (_seq_type_result == seq_type::ENDING)
+        {
+            sequence_.reset(new_crt seq_ending { d3d_device_, _camera });
         }
     }
 }
