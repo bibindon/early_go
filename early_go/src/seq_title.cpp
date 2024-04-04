@@ -28,10 +28,13 @@ seq_type seq_title::update(
     const std::shared_ptr<character>& _suo,
     const std::shared_ptr<camera>& _camera)
 {
-    _camera->set_position(
-        D3DXVECTOR3 { -0.7f, 1.35f, -0.2f },
-        D3DXVECTOR3 { 0.0f, 1.35f, -0.2f },
-        D3DX_PI / 4);
+    if (counter_ == 0)
+    {
+        _camera->set_position(
+            D3DXVECTOR3 { -0.7f, 1.35f, -0.2f },
+            D3DXVECTOR3 { 0.0f, 1.35f, -0.2f },
+            D3DX_PI / 4);
+    }
     if (input::is_down(input_type::DOWN))
     {
         ++select_;
