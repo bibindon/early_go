@@ -10,7 +10,6 @@
 #include "character.hpp"
 #include "abstract_mesh.hpp"
 #include "keyboard.hpp"
-#include "operation.hpp"
 #include "hud.hpp"
 #include "hud2.hpp"
 #include "resource.h"
@@ -45,9 +44,8 @@ main_window::main_window(const HINSTANCE &hinstance)
       d3d_device_{},
       font_{},
       camera_{new_crt camera{{0.0f, 1.3f, -1.1639f * 3}, {0.0f, 1.3f, 0.0f}}},
-      operation_{new_crt operation{camera_}},
-      early_{new_crt character{d3d_device_, operation_, {0, 0, 0}, direction::FRONT, 1.0f}},
-      suo_{new_crt character{d3d_device_, operation_, {0, 0, 2}, direction::BACK, 1.0f}}
+      early_{new_crt character{d3d_device_, {0, 0, 0}, direction::FRONT, 1.0f}},
+      suo_{new_crt character{d3d_device_, {0, 0, 2}, direction::BACK, 1.0f}}
 {
     WNDCLASSEX wndclassex{};
     wndclassex.cbSize = sizeof(wndclassex);
@@ -170,6 +168,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     // lazy initialization 
     d3d_device_.reset(d3d_device9, custom_deleter{});
 
+    early_->set_camera(camera_);
     early_->set_position(cv::Point3i{0, 0, 0});
     early_->set_max_health(9999);
     early_->set_health(4000);
@@ -199,6 +198,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     early_->set_animation_config("Attack", false, 1.0f);
     early_->set_animation_config("Damaged", false, 1.0f);
 
+    suo_->set_camera(camera_);
     suo_->set_position(cv::Point3i{-1, 0, 2});
     suo_->set_max_health(10);
     suo_->set_health(9);

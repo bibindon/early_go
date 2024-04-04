@@ -13,12 +13,10 @@ namespace early_go
 {
 character::character(
     const std::shared_ptr<IDirect3DDevice9> &d3d_device,
-    const std::shared_ptr<operation> &a_operation,
     const cv::Point3i &position,
     const direction &direction,
     const float &size)
     : d3d_device_{d3d_device},
-      operation_{a_operation},
       position_{position.x * constants::GRID_LENGTH,
                 position.y * constants::GRID_LENGTH,
                 position.z * constants::GRID_LENGTH},
@@ -334,6 +332,11 @@ D3DXVECTOR3 character::get_position() const
     return position_;
 }
 
+void character::set_camera(std::shared_ptr<camera> _camera)
+{
+    camera_ = _camera;
+}
+
 int character::get_health() const
 {
     return health_;
@@ -488,23 +491,22 @@ operation::behavior_state character::step::update()
 {
     if (count_ == 0)
     {
-        std::shared_ptr<camera> camera = outer_.operation_->get_camera();
         switch (boost::get<direction>(params_.at(0)))
         {
         case direction::FRONT:
-            camera->move_position( D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
+            outer_.camera_->move_position( D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
             outer_.grid_position_.z += 1;
             break;
         case direction::LEFT:
-            camera->move_position( D3DXVECTOR3{-constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
+            outer_.camera_->move_position( D3DXVECTOR3{-constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
             outer_.grid_position_.x -= 1;
             break;
         case direction::BACK:
-            camera->move_position( D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
+            outer_.camera_->move_position( D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
             outer_.grid_position_.z -= 1;
             break;
         case direction::RIGHT:
-            camera->move_position( D3DXVECTOR3{constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
+            outer_.camera_->move_position( D3DXVECTOR3{constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
             outer_.grid_position_.x += 1;
             break;
         }
@@ -574,23 +576,22 @@ void character::step::cancel()
 {
     if (count_ != 0)
     {
-        std::shared_ptr<camera> camera = outer_.operation_->get_camera();
         switch (boost::get<direction>(params_.at(0)))
         {
         case direction::FRONT:
-            camera->move_position( D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
+            outer_.camera_->move_position( D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
             outer_.grid_position_.z -= 1;
             break;
         case direction::LEFT:
-            camera->move_position( D3DXVECTOR3{constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
+            outer_.camera_->move_position( D3DXVECTOR3{constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
             outer_.grid_position_.x += 1;
             break;
         case direction::BACK:
-            camera->move_position( D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
+            outer_.camera_->move_position( D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
             outer_.grid_position_.z += 1;
             break;
         case direction::RIGHT:
-            camera->move_position( D3DXVECTOR3{-constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
+            outer_.camera_->move_position( D3DXVECTOR3{-constants::GRID_LENGTH, 0.0f, 0.0f}, 1.0f);
             outer_.grid_position_.x -= 1;
             break;
         }
@@ -775,7 +776,8 @@ operation::behavior_state character::attack::update()
             ++x;
             break;
         }
-        outer_.operation_->set_offensive_position(x, z);
+        // TODO
+        //outer_.operation_->set_offensive_position(x, z);
     }
 
     if (count_ == 0)

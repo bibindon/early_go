@@ -1,6 +1,7 @@
 #include "sequence_switcher.hpp"
 #include "seq_title.hpp"
 #include "seq_novel.hpp"
+#include "seq_battle.hpp"
 
 using std::shared_ptr;
 
@@ -30,7 +31,7 @@ void sequence_switcher::update(
         }
         else if (_seq_type_result == seq_type::BATTLE)
         {
-//            sequence_.reset(new_crt seq_battle { d3d_device_ });
+            sequence_.reset(new_crt seq_battle { d3d_device_, _camera });
         }
     }
 }

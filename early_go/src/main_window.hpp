@@ -18,7 +18,6 @@ class skinned_animation_mesh;
 class camera;
 class character;
 class abstract_mesh;
-class operation;
 class hud;
 class hud2;
 class sprite_anim;
@@ -72,8 +71,6 @@ private:
     void initialize_direct3d(const HWND &);
     void debug();
     void render();
-
-    std::shared_ptr<operation> operation_;
 
     std::shared_ptr<hud> hud_;
     std::shared_ptr<hud2> hud2_;
