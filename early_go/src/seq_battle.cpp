@@ -20,7 +20,7 @@ seq_battle::seq_battle(
     se_player::get_ton()->load("sound/damage01.wav");
     se_player::get_ton()->load("sound/attack01.wav");
     bgm_player::get_ton()->load("sound/letsgo.wav");
-    bgm_player::get_ton()->play();
+    bgm_player::get_ton()->play(10);
 
     operation_.reset(new_crt operation { _camera });
 }

@@ -89,7 +89,7 @@ seq_type seq_title::update(
         if (bgm_playing_ == false)
         {
             bgm_playing_ = true;
-            bgm_player::get_ton()->play();
+            bgm_player::get_ton()->play(30);
         }
         counter_ = 600;
     }

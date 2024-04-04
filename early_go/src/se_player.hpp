@@ -28,6 +28,8 @@ private:
         std::vector<char>* ppData,
         DWORD& dataSize);
 
+    int per_to_decibel(const int percent);
+
     std::shared_ptr<IDirectSound8> dx8sound_ { };
     std::unordered_map<std::string, std::shared_ptr<IDirectSoundBuffer8>> dx8sound_buffers_ { };
 };

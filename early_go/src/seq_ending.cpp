@@ -35,7 +35,7 @@ seq_type seq_ending::update(
         if (!bgm_played_)
         {
             bgm_played_ = true;
-            bgm_player::get_ton()->play();
+            bgm_player::get_ton()->play(30);
         }
     }
     if (counter_ <= 62 * 10)

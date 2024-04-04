@@ -14,7 +14,7 @@ public:
     static void finalize(); // For memory leak check.
 
     bool load(const std::string& filename);
-    void play();
+    void play(const int a_volume = 100);
     void stop();
 private:
     // hide ctor
@@ -27,6 +27,8 @@ private:
         WAVEFORMATEX& waveFormatEx,
         std::vector<char>* ppData,
         DWORD& dataSize);
+
+    int per_to_decibel(const int percent);
 
     std::shared_ptr<IDirectSound8> dx8sound_ { };
     std::shared_ptr<IDirectSoundBuffer8> dx8sound_buffer_ { };

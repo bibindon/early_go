@@ -50,7 +50,7 @@ bool bgm_player::load(const std::string& filename)
 
     DSBUFFERDESC DSBufferDesc { };
     DSBufferDesc.dwSize = sizeof(DSBUFFERDESC);
-    DSBufferDesc.dwFlags = 0;
+    DSBufferDesc.dwFlags = DSBCAPS_CTRLVOLUME;
     DSBufferDesc.dwBufferBytes = _wave_size;
     DSBufferDesc.dwReserved = 0;
     DSBufferDesc.lpwfxFormat = &_waveformatex;
@@ -81,8 +81,11 @@ bool bgm_player::load(const std::string& filename)
     return true;
 }
 
-void bgm_player::play()
+void bgm_player::play(const int a_volume)
 {
+    int volume { 0 };
+    volume = per_to_decibel(a_volume);
+    dx8sound_buffer_->SetVolume(volume);
     dx8sound_buffer_->Play(0, 0, DSBPLAY_LOOPING);
 }
 
@@ -171,5 +174,47 @@ bool bgm_player::open_wave(
     mmioClose(_hmmio, 0);
 
     return true;
+}
+// convert percent to decibel.
+// https://katze.hatenablog.jp/entry/2013/07/01/000343
+int bgm_player::per_to_decibel(int percent)
+{
+    int decibel { 0 };
+
+    // 0 ` -600
+    if (percent >= 50)
+    {
+        decibel = -600 + 600 * (percent - 50) / 50;
+    }
+    // -600 ` -1200
+    else if (percent >= 25)
+    {
+        decibel = -1200 + 600 * (percent - 25) / 25;
+    }
+    // -1200 ` -1800
+    else if (percent >= 12)
+    {
+        decibel = -1800 + 600 * (percent - 12) / 12;
+    }
+    // -1800 ` -2400
+    else if (percent >= 6)
+    {
+        decibel = -2400 + 600 * (percent - 6) / 6;
+    }
+    // -2400 ` -3000
+    else if (percent >= 3)
+    {
+        decibel = -3000 + 600 * (percent - 3) / 3;
+    }
+    // -3000`-3600
+    else if (percent >= 1)
+    {
+        decibel = -3600 + 600 * (percent - 1);
+    }
+    else
+    {
+        decibel = DSBVOLUME_MIN;
+    }
+    return decibel;
 }
 }

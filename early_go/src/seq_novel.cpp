@@ -28,7 +28,7 @@ seq_novel::seq_novel(
     early_ = _early;
 
     bgm_player::get_ton()->load("sound/novel.wav");
-    bgm_player::get_ton()->play();
+    bgm_player::get_ton()->play(30);
 
     init_lua();
 
