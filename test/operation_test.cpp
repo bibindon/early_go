@@ -72,9 +72,9 @@ TEST(operation_test, operation_test01)
     shared_ptr<camera> camera { };
     shared_ptr<IDirect3DDevice9> d3d_device;
     shared_ptr<operation> ope { new operation { camera } };
-    character_mock* _chara_mock = new character_mock { d3d_device, ope, { 0, 0, 0 }, direction::NONE, 0.0f };
+    character_mock* _chara_mock = new character_mock { d3d_device, { 0, 0, 0 }, direction::NONE, 0.0f };
     shared_ptr<character> _early { _chara_mock };
-    shared_ptr<character> _enemy { new character{d3d_device, ope, {0, 0, 2}, direction::BACK, 1.0f } };
+    shared_ptr<character> _enemy { new character{d3d_device, {0, 0, 2}, direction::BACK, 1.0f } };
 
     {
         // Set keyboard state for this test.
@@ -103,9 +103,9 @@ TEST(operation_test, operation_test02)
     shared_ptr<camera> camera { };
     shared_ptr<IDirect3DDevice9> d3d_device;
     shared_ptr<operation> ope { new operation { camera } };
-    character_mock* _chara_mock = new character_mock { d3d_device, ope, { 0, 0, 0 }, direction::NONE, 0.0f };
+    character_mock* _chara_mock = new character_mock { d3d_device, { 0, 0, 0 }, direction::NONE, 0.0f };
     shared_ptr<character> _early { _chara_mock };
-    shared_ptr<character> _enemy { new character{d3d_device, ope, {0, 0, 2}, direction::BACK, 1.0f } };
+    shared_ptr<character> _enemy { new character{d3d_device, {0, 0, 2}, direction::BACK, 1.0f } };
 
     {
         // Set keyboard state for this test.
@@ -134,9 +134,9 @@ TEST(operation_test, operation_test03)
     shared_ptr<camera> camera { };
     shared_ptr<IDirect3DDevice9> d3d_device;
     shared_ptr<operation> ope { new operation { camera } };
-    character_mock* _chara_mock = new character_mock { d3d_device, ope, { 0, 0, 0 }, direction::NONE, 0.0f };
+    character_mock* _chara_mock = new character_mock { d3d_device, { 0, 0, 0 }, direction::NONE, 0.0f };
     shared_ptr<character> _early { _chara_mock };
-    shared_ptr<character> _enemy { new character{d3d_device, ope, {0, 0, 2}, direction::BACK, 1.0f } };
+    shared_ptr<character> _enemy { new character{d3d_device, {0, 0, 2}, direction::BACK, 1.0f } };
 
     {
         // Set keyboard state for this test.
@@ -165,9 +165,9 @@ TEST(operation_test, operation_test04)
     shared_ptr<camera> camera { };
     shared_ptr<IDirect3DDevice9> d3d_device;
     shared_ptr<operation> ope { new operation { camera } };
-    character_mock* _chara_mock = new character_mock { d3d_device, ope, { 0, 0, 0 }, direction::NONE, 0.0f };
+    character_mock* _chara_mock = new character_mock { d3d_device, { 0, 0, 0 }, direction::NONE, 0.0f };
     shared_ptr<character> _early { _chara_mock };
-    shared_ptr<character> _enemy { new character{d3d_device, ope, {0, 0, 2}, direction::BACK, 1.0f } };
+    shared_ptr<character> _enemy { new character{d3d_device, {0, 0, 2}, direction::BACK, 1.0f } };
 
     {
         // Set keyboard state for this test.
@@ -195,9 +195,9 @@ TEST(operation_test, operation_test05)
     shared_ptr<camera> camera { };
     shared_ptr<IDirect3DDevice9> d3d_device;
     shared_ptr<operation> ope { new operation { camera } };
-    character_mock* _chara_mock = new character_mock { d3d_device, ope, { 0, 0, 0 }, direction::NONE, 0.0f };
+    character_mock* _chara_mock = new character_mock { d3d_device, { 0, 0, 0 }, direction::NONE, 0.0f };
     shared_ptr<character> _early { _chara_mock };
-    shared_ptr<character> _enemy { new character{d3d_device, ope, {0, 0, 2}, direction::BACK, 1.0f } };
+    shared_ptr<character> _enemy { new character{d3d_device, {0, 0, 2}, direction::BACK, 1.0f } };
 
     {
         // Set keyboard state for this test.
@@ -227,9 +227,9 @@ TEST(operation_test, operation_test06)
     shared_ptr<camera> camera { };
     shared_ptr<IDirect3DDevice9> d3d_device;
     shared_ptr<operation> ope { new operation { camera } };
-    character_mock* _chara_mock = new character_mock { d3d_device, ope, { 0, 0, 0 }, direction::NONE, 0.0f };
+    character_mock* _chara_mock = new character_mock { d3d_device, { 0, 0, 0 }, direction::NONE, 0.0f };
     shared_ptr<character> _early { _chara_mock };
-    shared_ptr<character> _enemy { new character{d3d_device, ope, {0, 0, 2}, direction::BACK, 1.0f } };
+    shared_ptr<character> _enemy { new character{d3d_device, {0, 0, 2}, direction::BACK, 1.0f } };
 
     {
         // Set keyboard state for this test.
@@ -264,9 +264,9 @@ TEST(operation_test, operation_test07)
     shared_ptr<camera> camera { };
     shared_ptr<IDirect3DDevice9> d3d_device;
     shared_ptr<operation> ope { new operation { camera } };
-    character_mock* _chara_mock = new character_mock { d3d_device, ope, { 0, 0, 0 }, direction::NONE, 0.0f };
+    character_mock* _chara_mock = new character_mock { d3d_device, { 0, 0, 0 }, direction::NONE, 0.0f };
     shared_ptr<character> _early { _chara_mock };
-    shared_ptr<character> _enemy { new character{d3d_device, ope, {0, 0, 2}, direction::BACK, 1.0f } };
+    shared_ptr<character> _enemy { new character{d3d_device, {0, 0, 2}, direction::BACK, 1.0f } };
 
     {
         // Set keyboard state for this test.
@@ -301,9 +301,9 @@ TEST(operation_test, operation_test08)
     shared_ptr<camera> camera { };
     shared_ptr<IDirect3DDevice9> d3d_device;
     shared_ptr<operation> ope { new operation { camera } };
-    character_mock* _chara_mock = new character_mock { d3d_device, ope, { 0, 0, 0 }, direction::NONE, 0.0f };
+    character_mock* _chara_mock = new character_mock { d3d_device, { 0, 0, 0 }, direction::NONE, 0.0f };
     shared_ptr<character> _early { _chara_mock };
-    shared_ptr<character> _enemy { new character{d3d_device, ope, {0, 0, 2}, direction::BACK, 1.0f } };
+    shared_ptr<character> _enemy { new character{d3d_device, {0, 0, 2}, direction::BACK, 1.0f } };
 
     {
         // Set keyboard state for this test.
@@ -344,9 +344,9 @@ TEST(operation_test, operation_test09)
     shared_ptr<camera> camera { };
     shared_ptr<IDirect3DDevice9> d3d_device;
     shared_ptr<operation> ope { new operation { camera } };
-    character_mock* _chara_mock = new character_mock { d3d_device, ope, { 0, 0, 0 }, direction::NONE, 0.0f };
+    character_mock* _chara_mock = new character_mock { d3d_device, { 0, 0, 0 }, direction::NONE, 0.0f };
     shared_ptr<character> _early { _chara_mock };
-    shared_ptr<character> _enemy { new character{d3d_device, ope, {0, 0, 2}, direction::BACK, 1.0f } };
+    shared_ptr<character> _enemy { new character{d3d_device, {0, 0, 2}, direction::BACK, 1.0f } };
 
     {
         // Set keyboard state for this test.
@@ -380,9 +380,9 @@ TEST(operation_test, operation_test10)
     shared_ptr<camera> camera { };
     shared_ptr<IDirect3DDevice9> d3d_device;
     shared_ptr<operation> ope { new operation { camera } };
-    character_mock* _chara_mock = new character_mock { d3d_device, ope, { 0, 0, 0 }, direction::NONE, 0.0f };
+    character_mock* _chara_mock = new character_mock { d3d_device, { 0, 0, 0 }, direction::NONE, 0.0f };
     shared_ptr<character> _early { _chara_mock };
-    shared_ptr<character> _enemy { new character{d3d_device, ope, {0, 0, 2}, direction::BACK, 1.0f } };
+    shared_ptr<character> _enemy { new character{d3d_device, {0, 0, 2}, direction::BACK, 1.0f } };
 
     HWND hwnd = get_window_handle();
     se_player::initialize(hwnd);
