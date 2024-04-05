@@ -16,15 +16,16 @@ character::character(
     const cv::Point3i &position,
     const direction &direction,
     const float &size)
-    : d3d_device_{d3d_device},
-      position_{position.x * constants::GRID_LENGTH,
-                position.y * constants::GRID_LENGTH,
-                position.z * constants::GRID_LENGTH},
-      grid_position_{position},
-      direction_{direction},
-      size_{size},
-      health_{1},
-      max_health_{100}
+    : d3d_device_ { d3d_device }
+    , position_ {
+            position.x * constants::GRID_LENGTH,
+            position.y * constants::GRID_LENGTH,
+            position.z * constants::GRID_LENGTH }
+    , grid_position_ { position }
+    , direction_ { direction }
+    , size_ { size }
+    , health_ { 1 }
+    , max_health_ { 100 }
 {
     switch (direction_)
     {
@@ -53,7 +54,7 @@ void character::set_default_animation(const std::string &animation_name)
 {
     for (const auto &x : mesh_map_)
     {
-        std::string animation_fullname{ create_animation_fullname(animation_name, x.first)};
+        std::string animation_fullname { create_animation_fullname(animation_name, x.first) };
 
         x.second->set_default_animation(animation_fullname);
     }
@@ -67,7 +68,7 @@ void character::set_animation_config(
     duration_map_.emplace(animation_name, duration);
     for (const auto &x : mesh_map_)
     {
-        std::string animation_fullname{ create_animation_fullname(animation_name, x.first)};
+        std::string animation_fullname { create_animation_fullname(animation_name, x.first) };
 
         x.second->set_animation_config(animation_fullname, loop, duration);
     }
@@ -97,14 +98,15 @@ void character::render(
 void character::set_position(const cv::Point3i &position)
 {
     grid_position_ = position;
-    set_position(D3DXVECTOR3{position.x * constants::GRID_LENGTH,
-                             position.y * constants::GRID_LENGTH,
-                             position.z * constants::GRID_LENGTH});
+    set_position(D3DXVECTOR3 {
+            position.x * constants::GRID_LENGTH,
+            position.y * constants::GRID_LENGTH,
+            position.z * constants::GRID_LENGTH });
 }
 
 void character::set_rotation(const direction &direction)
 {
-    D3DXVECTOR3 rotation;
+    D3DXVECTOR3 rotation { };
     switch (direction)
     {
     case direction::FRONT:
@@ -236,7 +238,7 @@ void character::set_animation(const std::string &animation_set)
 {
     for (const auto &x : mesh_map_)
     {
-        std::string animation_fullname{ create_animation_fullname(animation_set, x.first)};
+        std::string animation_fullname { create_animation_fullname(animation_set, x.first) };
 
         x.second->set_animation(animation_fullname);
     }
@@ -368,8 +370,7 @@ std::string character::create_animation_fullname(
 
     if (!std::regex_match(model_fullname, match, reg) || match.size() != 2)
     {
-        THROW_WITH_TRACE("A model filename doesn't match regular expression.: " +
-                         model_fullname);
+        THROW_WITH_TRACE("A model filename doesn't match regular expression.: " + model_fullname);
     }
     else
     {
@@ -383,16 +384,15 @@ std::string character::create_animation_fullname(
 }
 
 character::action::action(character &outer, const direction &direction)
-    : count_{},
-      outer_{outer}
+    : count_ { },
+      outer_ { outer }
 {
     params_.push_back(direction);
 }
 
 static float get_sine_curve(int theta, int duration)
 {
-    float sine_curve{
-        std::sin((static_cast<float>(theta) / duration * D3DX_PI) - (D3DX_PI / 2))};
+    float sine_curve { std::sin((static_cast<float>(theta) / duration * D3DX_PI) - (D3DX_PI / 2)) };
     sine_curve += 1.0f;
     sine_curve /= 2.0f;
     return sine_curve;
@@ -410,7 +410,7 @@ character::step::step(character &outer, const direction &dir)
 {
     for (int i{}; i < constants::ACTION_INTERVAL_FRAME + 1; ++i)
     {
-        float y{get_sine_curve(i, constants::ACTION_INTERVAL_FRAME) * constants::GRID_LENGTH};
+        float y { get_sine_curve(i, constants::ACTION_INTERVAL_FRAME) * constants::GRID_LENGTH };
 
         destinations_.push_back(y);
     }
@@ -532,13 +532,12 @@ operation::behavior_state character::step::update()
         ++count_;
         return operation::behavior_state::ALLOW_NEXT_ACTION;
     }
-    else if (outer_.duration_map_.at("Step_Left") <=
-             (count_)*constants::ANIMATION_SPEED)
+    else if (outer_.duration_map_.at("Step_Left") <= (count_)*constants::ANIMATION_SPEED)
     {
         return operation::behavior_state::FINISH;
     }
-    D3DXVECTOR3 position{outer_.position_};
-    float delta{0.0f};
+    D3DXVECTOR3 position { outer_.position_ };
+    float delta { 0.0f };
     size_t count_index{static_cast<size_t>(count_)};
     if (count_index + 1 < destinations_.size())
     {
@@ -600,9 +599,9 @@ void character::step::cancel()
 }
 
 character::rotate::rotate(character &outer, const direction &dir)
-    : action{outer, dir},
-      relative_direction_{direction::NONE},
-      back_up_direction_{outer.direction_}
+    : action { outer, dir }
+    , relative_direction_ { direction::NONE }
+    , back_up_direction_ { outer.direction_ }
 {
     switch (outer_.direction_)
     {
@@ -727,9 +726,11 @@ void character::rotate::cancel()
 
 character::step_and_rotate::step_and_rotate(
     character &outer, const direction &step_dir, const direction &rotate_dir)
-    : action{outer, direction::NONE},
-      step_{outer, step_dir},
-      rotate_{outer, rotate_dir} {}
+    : action { outer, direction::NONE }
+    , step_ { outer, step_dir }
+    , rotate_ { outer, rotate_dir }
+{
+}
 
 operation::behavior_state character::step_and_rotate::update()
 {
@@ -750,8 +751,8 @@ void character::step_and_rotate::cancel()
 }
 
 character::attack::attack(character &outer)
-    : action{outer, direction::NONE},
-      availability_{true}
+    : action { outer, direction::NONE },
+      availability_ { true }
 {
 }
 
@@ -810,12 +811,12 @@ character::attack::~attack()
 void character::set_normal_move(
     const std::string &name, const int &power, const int &max_power)
 {
-    normal_move_.emplace_back(normal_move{name, power, max_power});
+    normal_move_.emplace_back(normal_move { name, power, max_power });
 }
 
 std::vector<std::string> character::get_normal_move()
 {
-    std::vector<std::string> ret{};
+    std::vector<std::string> ret { };
     for (auto &&x : normal_move_)
     {
         ret.emplace_back(x.name_);
@@ -825,16 +826,16 @@ std::vector<std::string> character::get_normal_move()
 
 std::pair<int, int> character::get_normal_move_power(const std::string &name)
 {
-    decltype(normal_move_)::const_iterator it{
+    decltype(normal_move_)::const_iterator it {
         std::find_if(normal_move_.cbegin(), normal_move_.cend(),
-            [&](auto &&x) { return x.name_ == name; })};
+            [&](auto &&x) { return x.name_ == name; }) };
 
     return std::make_pair(it->power_, it->max_power_);
 }
 
 std::vector<std::string> character::get_special_move()
 {
-    std::vector<std::string> ret{};
+    std::vector<std::string> ret { };
     for (auto &&x : special_move_)
     {
         ret.emplace_back(x.name_);
@@ -850,10 +851,10 @@ void character::set_special_move(
 
 std::pair<int, int> character::get_special_move_power(const std::string &name)
 {
-    decltype(special_move_)::const_iterator it{
+    decltype(special_move_)::const_iterator it {
         std::find_if(special_move_.cbegin(), special_move_.cend(),
                      [&](auto &&x)
-                     { return x.name_ == name; })};
+                     { return x.name_ == name; }) };
 
     return std::make_pair(it->power_, it->max_power_);
 }
@@ -870,15 +871,15 @@ bool character::is_tex_animation_finished(
 
 character::normal_move::normal_move(
     const std::string &name, const int &power, const int &max_power)
-    : name_{name},
-      power_{power},
-      max_power_{max_power}
+    : name_ { name }
+    , power_ { power }
+    , max_power_ { max_power }
 {
 }
 
 character::special_move::special_move(
     const std::string &name, const int &power, const int &max_power)
-    : normal_move{name, power, max_power}
+    : normal_move { name, power, max_power }
 {
 }
 
@@ -898,7 +899,7 @@ operation::behavior_state character::move_next_stage::update()
         return operation::behavior_state::FINISH;
     }
     ++count_;
-    D3DXVECTOR3 position{outer_.position_};
+    D3DXVECTOR3 position { outer_.position_ };
     position.z += 0.25f;
     outer_.set_position(position);
 

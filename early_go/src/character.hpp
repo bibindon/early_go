@@ -23,7 +23,7 @@ public:
     void add_mesh(const std::string &xfile_name)
     {
         mesh_map_.emplace(xfile_name,
-                          new_crt T{d3d_device_, xfile_name, position_, rotation_, size_});
+                          new_crt T { d3d_device_, xfile_name, position_, rotation_, size_ });
     }
     void set_default_animation(const std::string &);
     void set_animation_config(const std::string &, const bool &, const float &);
