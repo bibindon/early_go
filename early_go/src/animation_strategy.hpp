@@ -8,10 +8,10 @@ class animation_strategy
 {
 public:
     virtual void update() = 0;
-    virtual void set_animation(const std::string &){};
-    virtual void set_default_animation(const std::string &){};
-    virtual void set_animation_config(const std::string &, const bool &, const float &){};
-    virtual ~animation_strategy(){};
+    virtual void set_animation(const std::string &) { };
+    virtual void set_default_animation(const std::string &) { };
+    virtual void set_animation_config(const std::string &, const bool &, const float &) { };
+    virtual ~animation_strategy() { };
 protected:
     std::vector<std::unique_ptr<ID3DXAnimationSet, custom_deleter> > animation_sets_;
     std::unique_ptr<ID3DXAnimationController, custom_deleter> animation_controller_;
@@ -30,22 +30,22 @@ class normal_animation : public animation_strategy
 {
 public:
     normal_animation(LPD3DXANIMATIONCONTROLLER controller)
-        : default_animation_{""},
-          animation_time_{},
-          is_playing_{false},
-          playing_animation_{""}
+        : default_animation_ { "" },
+          animation_time_ { },
+          is_playing_ { false },
+          playing_animation_ { "" }
     {
         animation_controller_.reset(controller);
-        DWORD animation_count{animation_controller_->GetNumAnimationSets()};
+        DWORD animation_count { animation_controller_->GetNumAnimationSets() };
 
         std::vector<std::unique_ptr<ID3DXAnimationSet, custom_deleter>>
             animation_sets(animation_count);
 
         animation_sets_.swap(animation_sets);
 
-        for (DWORD i{}; i < animation_count; ++i)
+        for (DWORD i { 0 }; i < animation_count; ++i)
         {
-            LPD3DXANIMATIONSET temp_animation_set{};
+            LPD3DXANIMATIONSET temp_animation_set { nullptr };
             animation_controller_->GetAnimationSet(i, &temp_animation_set);
             animation_sets_.at(i).reset(temp_animation_set);
         }
@@ -88,7 +88,7 @@ public:
         if (is_playing_)
         {
             animation_time_ += constants::ANIMATION_SPEED;
-            float duration{animation_configs_.at(playing_animation_).duration_};
+            float duration { animation_configs_.at(playing_animation_).duration_ };
             if (animation_time_ + 0.001f >= duration)
             {
                 set_animation(default_animation_);
@@ -118,8 +118,8 @@ private:
 
     struct animation_config
     {
-        bool loop_{true};
-        float duration_{1.0f};
+        bool loop_ { true };
+        float duration_ { 1.0f };
     };
     std::unordered_map<std::string, animation_config> animation_configs_;
 };

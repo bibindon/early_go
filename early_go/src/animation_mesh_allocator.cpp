@@ -9,8 +9,8 @@ namespace early_go
 {
 // c'tor 
 animation_mesh_frame::animation_mesh_frame(const string &name)
-    : D3DXFRAME{}, // Initializes member with zero. 
-      combined_matrix_{}
+    : D3DXFRAME { }, // Initializes member with zero. 
+      combined_matrix_ { }
 {
     Name = new_crt char[name.length() + 1];
     strcpy_s(Name, name.length() + 1, name.c_str());
@@ -28,13 +28,13 @@ animation_mesh_container::animation_mesh_container(
     const D3DXMATERIAL *materials,
     const DWORD materials_count,
     const DWORD *adjacency)
-    : D3DXMESHCONTAINER{}, // Initializes with zero. 
-      texture_{}
+    : D3DXMESHCONTAINER { }, // Initializes with zero. 
+      texture_ { }
 {
     Name = new_crt char[mesh_name.length() + 1];
     strcpy_s(Name, mesh_name.length() + 1, mesh_name.c_str());
 
-    LPDIRECT3DDEVICE9 temp_d3d_device{nullptr};
+    LPDIRECT3DDEVICE9 temp_d3d_device { nullptr };
     mesh->GetDevice(&temp_d3d_device);
 
     // This IF sentence is just initializing the 'MeshData' of a member variable.
@@ -42,11 +42,11 @@ animation_mesh_container::animation_mesh_container(
     if (!(mesh->GetFVF() & D3DFVF_NORMAL))
     {
         MeshData.Type = D3DXMESHTYPE_MESH;
-        HRESULT result{mesh->CloneMeshFVF(
+        HRESULT result { mesh->CloneMeshFVF(
             mesh->GetOptions(),
             mesh->GetFVF() | D3DFVF_NORMAL,
             temp_d3d_device,
-            &MeshData.pMesh)};
+            &MeshData.pMesh) };
         if (FAILED(result))
         {
             THROW_WITH_TRACE("Failed 'CloneMeshFVF' function.");
@@ -68,10 +68,10 @@ animation_mesh_container::animation_mesh_container(
     texture_.swap(temp_texture);
 
     // Initialize the 'pAdjacency' of a member variable. 
-    DWORD adjacency_count{mesh->GetNumFaces() * 3};
+    DWORD adjacency_count { mesh->GetNumFaces() * 3 };
     pAdjacency = new_crt DWORD[adjacency_count];
 
-    for (DWORD i{}; i < adjacency_count; ++i)
+    for (DWORD i { 0 }; i < adjacency_count; ++i)
     {
         pAdjacency[i] = adjacency[i];
     }
@@ -79,20 +79,20 @@ animation_mesh_container::animation_mesh_container(
     // Initialize the 'pMaterials' and the 'texture_' of member variables if there are.
     if (materials_count > 0)
     {
-        for (DWORD i{}; i < materials_count; ++i)
+        for (DWORD i { 0 }; i < materials_count; ++i)
         {
             pMaterials[i] = materials[i];
         }
 
-        for (DWORD i{}; i < materials_count; ++i)
+        for (DWORD i { 0 }; i < materials_count; ++i)
         {
-            pMaterials[i].MatD3D.Ambient = D3DCOLORVALUE{0.2f, 0.2f, 0.2f, 0};
+            pMaterials[i].MatD3D.Ambient = D3DCOLORVALUE{ 0.2f, 0.2f, 0.2f, 0 };
             if (pMaterials[i].pTextureFilename != nullptr)
             {
                 vector<char> buffer =
                     util::get_model_texture_resource(x_filename, pMaterials[i].pTextureFilename);
 
-                LPDIRECT3DTEXTURE9 temp_texture{};
+                LPDIRECT3DTEXTURE9 temp_texture { };
                 if (FAILED(D3DXCreateTextureFromFileInMemory(
                         temp_d3d_device,
                         &buffer[0],
@@ -110,14 +110,14 @@ animation_mesh_container::animation_mesh_container(
     }
     else
     {
-        pMaterials[0].MatD3D.Diffuse = D3DCOLORVALUE{0.5f, 0.5f, 0.5f, 0};
-        pMaterials[0].MatD3D.Ambient = D3DCOLORVALUE{0.5f, 0.5f, 0.5f, 0};
+        pMaterials[0].MatD3D.Diffuse = D3DCOLORVALUE { 0.5f, 0.5f, 0.5f, 0 };
+        pMaterials[0].MatD3D.Ambient = D3DCOLORVALUE { 0.5f, 0.5f, 0.5f, 0 };
         pMaterials[0].MatD3D.Specular = pMaterials[0].MatD3D.Diffuse;
     }
 }
 
 animation_mesh_allocator::animation_mesh_allocator(const string &x_filename)
-    : ID3DXAllocateHierarchy{},
+    : ID3DXAllocateHierarchy { },
       x_filename_(x_filename)
 {
     // do nothing
@@ -145,13 +145,13 @@ STDMETHODIMP animation_mesh_allocator::CreateMeshContainer(
 {
     try
     {
-        *mesh_container = new_crt animation_mesh_container{
+        *mesh_container = new_crt animation_mesh_container {
             x_filename_,
             mesh_name,
             mesh_data->pMesh,
             materials,
             materials_count,
-            adjacency};
+            adjacency };
     }
     catch (const boost::exception &e)
     {
