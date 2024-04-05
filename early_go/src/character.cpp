@@ -8,6 +8,9 @@
 #include "character.hpp"
 #include "camera.hpp"
 #include "operation.hpp"
+#include "stage.hpp"
+
+using std::shared_ptr;
 
 namespace early_go
 {
@@ -74,11 +77,11 @@ void character::set_animation_config(
     }
 }
 
-void character::update(operation* _ope)
+void character::update(const shared_ptr<stage>& _stage)
 {
     if (current_action_ != nullptr)
     {
-        action_state_ = current_action_->update(_ope);
+        action_state_ = current_action_->update(_stage);
         if (action_state_ == operation::behavior_state::FINISH)
         {
             current_action_.reset();
@@ -490,7 +493,7 @@ character::step::step(character &outer, const direction &dir)
     }
 }
 
-operation::behavior_state character::step::update(operation* _ope)
+operation::behavior_state character::step::update(const shared_ptr<stage>&)
 {
     if (count_ == 0)
     {
@@ -679,7 +682,7 @@ character::rotate::rotate(character &outer, const direction &dir)
     }
 }
 
-operation::behavior_state character::rotate::update(operation* _ope)
+operation::behavior_state character::rotate::update(const shared_ptr<stage>& stage)
 {
     if (count_ == 0)
     {
@@ -735,10 +738,10 @@ character::step_and_rotate::step_and_rotate(
 {
 }
 
-operation::behavior_state character::step_and_rotate::update(operation* _ope)
+operation::behavior_state character::step_and_rotate::update(const shared_ptr<stage>& stage)
 {
-    step_.update(_ope);
-    operation::behavior_state result = rotate_.update(_ope);
+    step_.update(stage);
+    operation::behavior_state result = rotate_.update(stage);
     count_ = rotate_.count_;
     return result;
 }
@@ -759,7 +762,7 @@ character::attack::attack(character &outer)
 {
 }
 
-operation::behavior_state character::attack::update(operation* _ope)
+operation::behavior_state character::attack::update(const shared_ptr<stage>& stage)
 {
     if (availability_)
     {
@@ -782,7 +785,7 @@ operation::behavior_state character::attack::update(operation* _ope)
         }
         // TODO
         //outer_.operation_->set_offensive_position(x, z);
-        _ope->set_offensive_position(x, z);
+        stage->set_offensive_position(x, z);
     }
 
     if (count_ == 0)
@@ -892,7 +895,8 @@ character::move_next_stage::move_next_stage(character& outer)
 {
 }
 
-operation::behavior_state character::move_next_stage::update(operation* _ope)
+operation::behavior_state character::move_next_stage::update(
+    const shared_ptr<stage>& _stage)
 {
     if (count_ == 0)
     {

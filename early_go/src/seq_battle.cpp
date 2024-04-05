@@ -8,6 +8,7 @@
 #include "bgm_player.hpp"
 #include "operation.hpp"
 #include "character.hpp"
+#include "stage.hpp"
 
 using std::make_shared;
 using std::shared_ptr;
@@ -24,14 +25,14 @@ seq_battle::seq_battle(
     bgm_player::get_ton()->play(10);
 
     operation_.reset(new_crt operation { _camera });
+    stage_.reset(new_crt stage { });
 }
 seq_type seq_battle::update(
     const std::shared_ptr<character>& _early,
     const std::shared_ptr<character>& _suo,
     const std::shared_ptr<camera>& _camera)
 {
-    _early->update(operation_.get());
-    operation_->update(_early, _suo);
+    operation_->update(_early, _suo, stage_);
     // Goto ending
     if (keyboard::is_down('R'))
     {

@@ -8,12 +8,16 @@
 namespace early_go
 {
 class camera;
+class stage;
 
 class operation
 {
 public:
     operation(const std::shared_ptr<camera> &);
-    void update(const std::shared_ptr<character>&, const std::shared_ptr<character>&);
+    void update(
+        const std::shared_ptr<character>&,
+        const std::shared_ptr<character>&,
+        const std::shared_ptr<stage>& _stage);
 
     enum class behavior_state
     {
@@ -46,7 +50,6 @@ public:
         behavior_state state_;
     };
 
-    void set_offensive_position(const int &, const int &);
     std::shared_ptr<camera> get_camera() const;
 
 private:
@@ -55,7 +58,7 @@ private:
     std::shared_ptr<behavior> reserved_behavior_ { new_crt behavior { } };
 
     // std::unordered_map is used because using minus index is necessary.
-    std::unordered_map<int, std::unordered_map<int, bool>> offensive_area_ { };
+//    std::unordered_map<int, std::unordered_map<int, bool>> offensive_area_ { };
 
     int current_stage_ { 0 };
 

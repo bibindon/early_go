@@ -22,6 +22,7 @@
 #include "input.hpp"
 #include "sequence_switcher.hpp"
 #include "light.hpp"
+#include "stage.hpp"
 
 using std::chrono::system_clock;
 using std::shared_ptr;

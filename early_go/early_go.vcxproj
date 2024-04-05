@@ -272,6 +272,7 @@ resource_importer.bat
     <ClCompile Include="src\hud.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\stage.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -318,6 +319,7 @@ resource_importer.bat
     <ClInclude Include="src\skinned_animation_mesh.hpp" />
     <ClInclude Include="src\skinned_animation_mesh_allocator.hpp" />
     <ClInclude Include="src\hud.hpp" />
+    <ClInclude Include="src\stage.hpp" />
     <ClInclude Include="src\stdafx.hpp" />
     <ClInclude Include="src\text.hpp" />
     <ClInclude Include="src\text_d3dxfont.hpp" />

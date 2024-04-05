@@ -5,6 +5,7 @@
 #include "camera.hpp"
 #include "se_player.hpp"
 #include "input.hpp"
+#include "stage.hpp"
 
 using std::shared_ptr;
 
@@ -13,34 +14,6 @@ namespace early_go
 operation::operation(const shared_ptr<camera> &camera)
     : camera_{ camera }
 {
-    for (int z { 0 }; z < constants::GRID_NUM_HEIGHT; ++z)
-    {
-        for (int x { -(constants::GRID_NUM_WIDTH - 1) / 2 };
-             x < (constants::GRID_NUM_WIDTH + 1) / 2; ++x)
-        {
-            offensive_area_[z][x] = false;
-        }
-    }
-}
-
-void operation::set_offensive_position(const int &x, const int &z)
-{
-    if (ignore_attack_judge_ == false)
-    {
-        const int current_stage_z { z % (constants::GRID_NUM_HEIGHT + 1) };
-        // Check out of range(z).
-        if (offensive_area_.find(current_stage_z) == offensive_area_.end())
-        {
-            return;
-        }
-        // Check out of range(x).
-        if (offensive_area_.at(current_stage_z).find(x) == offensive_area_.at(current_stage_z).end())
-        {
-            return;
-        }
-        offensive_area_.at(current_stage_z).at(x) = true;
-        ignore_attack_judge_ = true;
-    }
 }
 
 shared_ptr<camera> operation::get_camera() const
@@ -49,8 +22,11 @@ shared_ptr<camera> operation::get_camera() const
 }
 
 void operation::update(
-    const shared_ptr<character>& _main_character, const shared_ptr<character>& enemy)
+    const shared_ptr<character>& _main_chara,
+    const shared_ptr<character>& enemy,
+    const shared_ptr<stage>& _stage)
 {
+    _main_chara->update(_stage);
     if (keyboard::is_down('Q'))
     {
         PostQuitMessage(0);
@@ -324,7 +300,7 @@ void operation::update(
 
     if (current_behavior_->state_ == behavior_state::CANCEL)
     {
-        _main_character->cancel_action();
+        _main_chara->cancel_action();
         current_behavior_->state_ = behavior_state::FINISH;
     }
 
@@ -352,25 +328,25 @@ void operation::update(
         _cancelable_counter = 0;
         if (current_behavior_->action_type_ == action_type::STEP)
         {
-            _main_character->set_action_step(current_behavior_->step_dir_);
+            _main_chara->set_action_step(current_behavior_->step_dir_);
         }
         else if (current_behavior_->action_type_ == action_type::ROTATE)
         {
-            _main_character->set_action_rotate(current_behavior_->rotate_dir_);
+            _main_chara->set_action_rotate(current_behavior_->rotate_dir_);
         }
         else if (current_behavior_->action_type_ == action_type::STEP_AND_ROTATE)
         {
-            _main_character->set_action_step_and_rotate(
+            _main_chara->set_action_step_and_rotate(
                 current_behavior_->step_dir_, current_behavior_->rotate_dir_);
         }
         else if (current_behavior_->action_type_ == action_type::ATTACK)
         {
-            _main_character->set_action_attack();
+            _main_chara->set_action_attack();
             se_player::get_ton()->play("sound/attack01.wav");
         }
         else if (current_behavior_->action_type_ == action_type::MOVE_NEXT_STAGE)
         {
-            _main_character->set_action_move_next_stage();
+            _main_chara->set_action_move_next_stage();
             enemy->set_action_move_next_stage();
             camera_->set_move_next_stage_anim(D3DXVECTOR3 { 0.0f, 0.0f, 0.0f });
         }
@@ -390,19 +366,19 @@ void operation::update(
     }
     else if (current_behavior_->state_ == behavior_state::PLAY)
     {
-        if (_main_character->get_action_state() == behavior_state::FINISH)
+        if (_main_chara->get_action_state() == behavior_state::FINISH)
         {
             current_behavior_->state_ = behavior_state::FINISH;
             ignore_attack_judge_ = false;
         }
-        else if (_main_character->get_action_state() == behavior_state::ALLOW_NEXT_ACTION)
+        else if (_main_chara->get_action_state() == behavior_state::ALLOW_NEXT_ACTION)
         {
             current_behavior_->state_ = behavior_state::ALLOW_NEXT_ACTION;
         }
     }
     else if (current_behavior_->state_ == behavior_state::ALLOW_NEXT_ACTION)
     {
-        if (_main_character->get_action_state() == behavior_state::FINISH)
+        if (_main_chara->get_action_state() == behavior_state::FINISH)
         {
             current_behavior_->state_ = behavior_state::FINISH;
             ignore_attack_judge_ = false;
@@ -412,8 +388,10 @@ void operation::update(
     // collision detection
     cv::Point3i enemy_pos = enemy->get_grid_position();
     const int relative_z { enemy_pos.z % (constants::GRID_NUM_HEIGHT + 1) };
-    if (offensive_area_.at(relative_z).at(enemy_pos.x))
+    auto offensive_area = _stage->offensive_area();
+    if (offensive_area.at(relative_z).at(enemy_pos.x) && !ignore_attack_judge_)
     {
+        ignore_attack_judge_ = true;
         int enemy_health { enemy->get_health() };
         if (enemy_health >= 2)
         {
@@ -427,7 +405,7 @@ void operation::update(
         }
         if (current_stage_ == constants::MAX_ROOM_NUMBER - 1)
         {
-            cv::Point3i grid_pos{_main_character->get_grid_position()};
+            cv::Point3i grid_pos{_main_chara->get_grid_position()};
             D3DXVECTOR3 pos {
                 grid_pos.x * constants::GRID_LENGTH,
                 0.0f,
@@ -436,15 +414,7 @@ void operation::update(
             camera_->set_to_close_up_animation(pos);
         }
     }
-
-    // Clear offensive_area_
-    for (auto &&z : offensive_area_)
-    {
-        for (auto &&x : z.second)
-        {
-            x.second = false;
-        }
-    }
+    _stage->clear();
 }
 
 void operation::cancel_removed_by_simul_push()
