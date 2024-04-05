@@ -414,7 +414,7 @@ character::step::step(character &outer, const direction &dir)
 
         destinations_.push_back(y);
     }
-    switch (boost::get<direction>(params_.at(0)))
+    switch (params_.at(0))
     {
     case direction::FRONT:
         switch (outer_.direction_)
@@ -491,7 +491,7 @@ operation::behavior_state character::step::update()
 {
     if (count_ == 0)
     {
-        switch (boost::get<direction>(params_.at(0)))
+        switch (params_.at(0))
         {
         case direction::FRONT:
             outer_.camera_->move_position( D3DXVECTOR3{0.0f, 0.0f, constants::GRID_LENGTH}, 1.0f);
@@ -543,7 +543,7 @@ operation::behavior_state character::step::update()
     {
         delta = destinations_.at(count_index + 1) - destinations_.at(count_index);
     }
-    switch (boost::get<direction>(params_.at(0)))
+    switch (params_.at(0))
     {
     case direction::FRONT:
         position.z += delta;
@@ -575,7 +575,7 @@ void character::step::cancel()
 {
     if (count_ != 0)
     {
-        switch (boost::get<direction>(params_.at(0)))
+        switch (params_.at(0))
         {
         case direction::FRONT:
             outer_.camera_->move_position( D3DXVECTOR3{0.0f, 0.0f, -constants::GRID_LENGTH}, 1.0f);
@@ -606,7 +606,7 @@ character::rotate::rotate(character &outer, const direction &dir)
     switch (outer_.direction_)
     {
     case direction::FRONT:
-        switch (boost::get<direction>(params_.at(0)))
+        switch (params_.at(0))
         {
         case direction::FRONT:
             relative_direction_ = direction::NONE;
@@ -623,7 +623,7 @@ character::rotate::rotate(character &outer, const direction &dir)
         }
         break;
     case direction::LEFT:
-        switch (boost::get<direction>(params_.at(0)))
+        switch (params_.at(0))
         {
         case direction::FRONT:
             relative_direction_ = direction::RIGHT;
@@ -640,7 +640,7 @@ character::rotate::rotate(character &outer, const direction &dir)
         }
         break;
     case direction::BACK:
-        switch (boost::get<direction>(params_.at(0)))
+        switch (params_.at(0))
         {
         case direction::FRONT:
             relative_direction_ = direction::BACK;
@@ -657,7 +657,7 @@ character::rotate::rotate(character &outer, const direction &dir)
         }
         break;
     case direction::RIGHT:
-        switch (boost::get<direction>(params_.at(0)))
+        switch (params_.at(0))
         {
         case direction::FRONT:
             relative_direction_ = direction::LEFT;
@@ -680,7 +680,7 @@ operation::behavior_state character::rotate::update()
 {
     if (count_ == 0)
     {
-        outer_.direction_ = boost::get<direction>(params_.at(0));
+        outer_.direction_ = params_.at(0);
         switch (relative_direction_)
         {
         case direction::LEFT:

@@ -4,7 +4,6 @@
 #include "stdafx.hpp"
 #include "abstract_mesh.hpp"
 #include "operation.hpp"
-#include <boost/variant.hpp>
 
 namespace early_go
 {
@@ -85,8 +84,8 @@ public:
         virtual operation::behavior_state update() = 0;
         virtual void cancel() = 0;
         virtual ~action() {}
-        std::vector<boost::variant<direction>> params_;
-        std::vector<boost::variant<direction>> get_params()
+        std::vector<direction> params_;
+        std::vector<direction> get_params()
         {
             return params_;
         }
