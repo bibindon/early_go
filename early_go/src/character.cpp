@@ -74,21 +74,24 @@ void character::set_animation_config(
     }
 }
 
+void character::update(operation* _ope)
+{
+    if (current_action_ != nullptr)
+    {
+        action_state_ = current_action_->update(_ope);
+        if (action_state_ == operation::behavior_state::FINISH)
+        {
+            current_action_.reset();
+        }
+    }
+}
+
 void character::render(
     const D3DXMATRIX &view_matrix,
     const D3DXMATRIX &projection_matrix,
     const D3DXVECTOR4 &normal_light,
     const float &brightness)
 {
-    if (current_action_ != nullptr)
-    {
-        action_state_ = current_action_->update();
-        if (action_state_ == operation::behavior_state::FINISH)
-        {
-            current_action_.reset();
-        }
-    }
-
     for (const auto &x : mesh_map_)
     {
         x.second->render(view_matrix, projection_matrix, normal_light, brightness);
@@ -487,7 +490,7 @@ character::step::step(character &outer, const direction &dir)
     }
 }
 
-operation::behavior_state character::step::update()
+operation::behavior_state character::step::update(operation* _ope)
 {
     if (count_ == 0)
     {
@@ -676,7 +679,7 @@ character::rotate::rotate(character &outer, const direction &dir)
     }
 }
 
-operation::behavior_state character::rotate::update()
+operation::behavior_state character::rotate::update(operation* _ope)
 {
     if (count_ == 0)
     {
@@ -732,10 +735,10 @@ character::step_and_rotate::step_and_rotate(
 {
 }
 
-operation::behavior_state character::step_and_rotate::update()
+operation::behavior_state character::step_and_rotate::update(operation* _ope)
 {
-    step_.update();
-    operation::behavior_state result = rotate_.update();
+    step_.update(_ope);
+    operation::behavior_state result = rotate_.update(_ope);
     count_ = rotate_.count_;
     return result;
 }
@@ -756,7 +759,7 @@ character::attack::attack(character &outer)
 {
 }
 
-operation::behavior_state character::attack::update()
+operation::behavior_state character::attack::update(operation* _ope)
 {
     if (availability_)
     {
@@ -779,6 +782,7 @@ operation::behavior_state character::attack::update()
         }
         // TODO
         //outer_.operation_->set_offensive_position(x, z);
+        _ope->set_offensive_position(x, z);
     }
 
     if (count_ == 0)
@@ -888,7 +892,7 @@ character::move_next_stage::move_next_stage(character& outer)
 {
 }
 
-operation::behavior_state character::move_next_stage::update()
+operation::behavior_state character::move_next_stage::update(operation* _ope)
 {
     if (count_ == 0)
     {

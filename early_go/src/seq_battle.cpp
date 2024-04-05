@@ -7,6 +7,7 @@
 #include "se_player.hpp"
 #include "bgm_player.hpp"
 #include "operation.hpp"
+#include "character.hpp"
 
 using std::make_shared;
 using std::shared_ptr;
@@ -29,6 +30,7 @@ seq_type seq_battle::update(
     const std::shared_ptr<character>& _suo,
     const std::shared_ptr<camera>& _camera)
 {
+    _early->update(operation_.get());
     operation_->update(_early, _suo);
     // Goto ending
     if (keyboard::is_down('R'))
