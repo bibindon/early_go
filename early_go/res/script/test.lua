@@ -20,9 +20,9 @@ function step()
 
     coroutine.yield()
 
-    draw_portrait_flip("image/early/0.png", "left")
+    draw_portrait("image/early/0r.png", "left")
 
-    draw_portrait_flip("image/early/0.png", "right")
+    draw_portrait("image/early/0r.png", "right")
 
     remove_portrait("center")
 

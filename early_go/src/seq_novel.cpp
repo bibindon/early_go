@@ -122,8 +122,6 @@ void seq_novel::init_lua()
     lua_setglobal(lua_state_, "draw_background");
     lua_pushcfunction(lua_state_, glue_draw_portrait);
     lua_setglobal(lua_state_, "draw_portrait");
-    lua_pushcfunction(lua_state_, glue_draw_portrait_flip);
-    lua_setglobal(lua_state_, "draw_portrait_flip");
     lua_pushcfunction(lua_state_, glue_remove_portrait);
     lua_setglobal(lua_state_, "remove_portrait");
     lua_pushcfunction(lua_state_, glue_fade_in);
@@ -184,37 +182,6 @@ int seq_novel::glue_draw_portrait(lua_State *L)
     }
 
     shared_ptr<portrait> _portrait{ new_crt portrait{filename, position, false } };
-    portrait_order_.push_front(_portrait);
-
-    redraw_portrait();
-
-    return 0;
-}
-int seq_novel::glue_draw_portrait_flip(lua_State *L)
-{
-    const char *filename = lua_tostring(L, -2);
-    const char *position = lua_tostring(L, -1);
-
-    // Align portrait order.
-    if (strcmp(position, "center") != 0 &&
-        strcmp(position, "left") != 0 &&
-        strcmp(position, "right") != 0)
-    {
-        return 0;
-    }
-    auto it = remove_if(
-        portrait_order_.begin(), portrait_order_.end(),
-        [&](const shared_ptr<portrait> &x)
-        {
-            return x->position_ == position;
-        });
-
-    if (it != portrait_order_.end())
-    {
-        portrait_order_.erase(it);
-    }
-
-    shared_ptr<portrait> _portrait{ new_crt portrait{filename, position, true } };
     portrait_order_.push_front(_portrait);
 
     redraw_portrait();

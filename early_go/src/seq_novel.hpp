@@ -34,7 +34,6 @@ private:
     void init_lua();
     static int glue_draw_background(lua_State *);
     static int glue_draw_portrait(lua_State *);
-    static int glue_draw_portrait_flip(lua_State *);
     static int glue_remove_portrait(lua_State *);
     static int glue_fade_in(lua_State *);
     static int glue_fade_out(lua_State *);
