@@ -635,6 +635,7 @@ void operation::update(
             reserved_behavior_->state_ = behavior_state::NO_STATE;
             ignore_attack_judge_ = false;
         }
+        _stage->clear();
     }
 
     static int _cancelable_counter = 0;
@@ -662,9 +663,9 @@ void operation::update(
         }
         else if (current_behavior_->action_type_ == action_type::MOVE_NEXT_STAGE)
         {
-            _main_chara->set_action_move_next_stage();
-            enemy->set_action_move_next_stage();
-            camera_->set_move_next_stage_anim(D3DXVECTOR3 { 0.0f, 0.0f, 0.0f });
+           // _main_chara->set_action_move_next_stage();
+           // enemy->set_action_move_next_stage();
+           // camera_->set_move_next_stage_anim(D3DXVECTOR3 { 0.0f, 0.0f, 0.0f });
         }
     }
     else if (current_behavior_->state_ == behavior_state::PLAY_CANCELABLE)
