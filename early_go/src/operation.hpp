@@ -48,6 +48,7 @@ public:
         direction step_dir_;
         direction rotate_dir_;
         behavior_state state_;
+        int pushed_frame_;
     };
 
     std::shared_ptr<camera> get_camera() const;
@@ -61,6 +62,7 @@ private:
 //    std::unordered_map<int, std::unordered_map<int, bool>> offensive_area_ { };
 
     int current_stage_ { 0 };
+    int frame_counter_ { 0 };
 
     // Prevent continues frame damage.
     bool ignore_attack_judge_ { false };

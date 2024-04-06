@@ -26,6 +26,8 @@ void operation::update(
     const shared_ptr<character>& enemy,
     const shared_ptr<stage>& _stage)
 {
+    ++frame_counter_;
+    int previous_push_elapse { frame_counter_ - current_behavior_->pushed_frame_ };
     _main_chara->update(_stage);
     if (keyboard::is_down('Q'))
     {
@@ -34,6 +36,7 @@ void operation::update(
     else if (input::is_down(input_type::UP))
     {
         reserved_behavior_->step_dir_ = direction::FRONT;
+        reserved_behavior_->pushed_frame_ = frame_counter_;
         if (input::check_simultaneous(input_type::LEFT))
         {
             reserved_behavior_->action_type_ = action_type::ATTACK;
@@ -71,6 +74,7 @@ void operation::update(
     else if (input::is_down(input_type::LEFT))
     {
         reserved_behavior_->step_dir_ = direction::LEFT;
+        reserved_behavior_->pushed_frame_ = frame_counter_;
         if (input::check_simultaneous(input_type::UP))
         {
             reserved_behavior_->action_type_ = action_type::ATTACK;
@@ -108,6 +112,7 @@ void operation::update(
     else if (input::is_down(input_type::DOWN))
     {
         reserved_behavior_->step_dir_ = direction::BACK;
+        reserved_behavior_->pushed_frame_ = frame_counter_;
         if (input::check_simultaneous(input_type::Y))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
@@ -140,6 +145,7 @@ void operation::update(
     else if (input::is_down(input_type::RIGHT))
     {
         reserved_behavior_->step_dir_ = direction::RIGHT;
+        reserved_behavior_->pushed_frame_ = frame_counter_;
         if (input::check_simultaneous(input_type::Y))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
@@ -172,6 +178,7 @@ void operation::update(
     else if (input::is_down(input_type::Y))
     {
         reserved_behavior_->rotate_dir_ = direction::FRONT;
+        reserved_behavior_->pushed_frame_ = frame_counter_;
         if (input::check_simultaneous(input_type::UP))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
@@ -204,6 +211,7 @@ void operation::update(
     else if (input::is_down(input_type::X))
     {
         reserved_behavior_->rotate_dir_ = direction::LEFT;
+        reserved_behavior_->pushed_frame_ = frame_counter_;
         if (input::check_simultaneous(input_type::UP))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
@@ -236,6 +244,7 @@ void operation::update(
     else if (input::is_down(input_type::A))
     {
         reserved_behavior_->rotate_dir_ = direction::BACK;
+        reserved_behavior_->pushed_frame_ = frame_counter_;
         if (input::check_simultaneous(input_type::UP))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
@@ -268,6 +277,7 @@ void operation::update(
     else if (input::is_down(input_type::B))
     {
         reserved_behavior_->rotate_dir_ = direction::RIGHT;
+        reserved_behavior_->pushed_frame_ = frame_counter_;
         if (input::check_simultaneous(input_type::UP))
         {
             reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
@@ -295,6 +305,312 @@ void operation::update(
         else
         {
             reserved_behavior_->action_type_ = action_type::ROTATE;
+        }
+    }
+    else if (input::is_hold(input_type::UP))
+    {
+        if (reserved_behavior_->action_type_ == action_type::NO_ACTION &&
+            previous_push_elapse >= constants::ACTION_INTERVAL_FRAME)
+        {
+            reserved_behavior_->step_dir_ = direction::FRONT;
+            reserved_behavior_->pushed_frame_ = frame_counter_;
+            if (input::check_simultaneous(input_type::LEFT))
+            {
+                reserved_behavior_->action_type_ = action_type::ATTACK;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::Y))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::FRONT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::X))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::LEFT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::A))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::BACK;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::B))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::RIGHT;
+                cancel_removed_by_simul_push();
+            }
+            else
+            {
+                reserved_behavior_->action_type_ = action_type::STEP;
+            }
+        }
+    }
+    else if (input::is_hold(input_type::LEFT))
+    {
+        if (reserved_behavior_->action_type_ == action_type::NO_ACTION &&
+            previous_push_elapse >= constants::ACTION_INTERVAL_FRAME)
+        {
+            reserved_behavior_->step_dir_ = direction::LEFT;
+            reserved_behavior_->pushed_frame_ = frame_counter_;
+            if (input::check_simultaneous(input_type::UP))
+            {
+                reserved_behavior_->action_type_ = action_type::ATTACK;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::Y))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::FRONT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::X))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::LEFT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::A))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::BACK;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::B))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::RIGHT;
+                cancel_removed_by_simul_push();
+            }
+            else
+            {
+                reserved_behavior_->action_type_ = action_type::STEP;
+            }
+        }
+    }
+    else if (input::is_hold(input_type::DOWN))
+    {
+        if (reserved_behavior_->action_type_ == action_type::NO_ACTION &&
+            previous_push_elapse >= constants::ACTION_INTERVAL_FRAME)
+        {
+            reserved_behavior_->step_dir_ = direction::BACK;
+            reserved_behavior_->pushed_frame_ = frame_counter_;
+            if (input::check_simultaneous(input_type::Y))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::FRONT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::X))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::LEFT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::A))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::BACK;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::B))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::RIGHT;
+                cancel_removed_by_simul_push();
+            }
+            else
+            {
+                reserved_behavior_->action_type_ = action_type::STEP;
+            }
+        }
+    }
+    else if (input::is_hold(input_type::RIGHT))
+    {
+        if (reserved_behavior_->action_type_ == action_type::NO_ACTION &&
+            previous_push_elapse >= constants::ACTION_INTERVAL_FRAME)
+        {
+            reserved_behavior_->step_dir_ = direction::RIGHT;
+            reserved_behavior_->pushed_frame_ = frame_counter_;
+            if (input::check_simultaneous(input_type::Y))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::FRONT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::X))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::LEFT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::A))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::BACK;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::B))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->rotate_dir_ = direction::RIGHT;
+                cancel_removed_by_simul_push();
+            }
+            else
+            {
+                reserved_behavior_->action_type_ = action_type::STEP;
+            }
+        }
+    }
+    else if (input::is_hold(input_type::Y))
+    {
+        if (reserved_behavior_->action_type_ == action_type::NO_ACTION &&
+            previous_push_elapse >= constants::ACTION_INTERVAL_FRAME)
+        {
+            reserved_behavior_->rotate_dir_ = direction::FRONT;
+            reserved_behavior_->pushed_frame_ = frame_counter_;
+            if (input::check_simultaneous(input_type::UP))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::FRONT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::LEFT))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::LEFT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::DOWN))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::BACK;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::RIGHT))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::RIGHT;
+                cancel_removed_by_simul_push();
+            }
+            else
+            {
+                reserved_behavior_->action_type_ = action_type::ROTATE;
+            }
+        }
+    }
+    else if (input::is_hold(input_type::X))
+    {
+        if (reserved_behavior_->action_type_ == action_type::NO_ACTION &&
+            previous_push_elapse >= constants::ACTION_INTERVAL_FRAME)
+        {
+            reserved_behavior_->rotate_dir_ = direction::LEFT;
+            reserved_behavior_->pushed_frame_ = frame_counter_;
+            if (input::check_simultaneous(input_type::UP))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::FRONT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::LEFT))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::LEFT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::DOWN))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::BACK;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::RIGHT))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::RIGHT;
+                cancel_removed_by_simul_push();
+            }
+            else
+            {
+                reserved_behavior_->action_type_ = action_type::ROTATE;
+            }
+        }
+    }
+    else if (input::is_hold(input_type::A))
+    {
+        if (reserved_behavior_->action_type_ == action_type::NO_ACTION &&
+            previous_push_elapse >= constants::ACTION_INTERVAL_FRAME)
+        {
+            reserved_behavior_->rotate_dir_ = direction::BACK;
+            reserved_behavior_->pushed_frame_ = frame_counter_;
+            if (input::check_simultaneous(input_type::UP))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::FRONT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::LEFT))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::LEFT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::DOWN))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::BACK;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::RIGHT))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::RIGHT;
+                cancel_removed_by_simul_push();
+            }
+            else
+            {
+                reserved_behavior_->action_type_ = action_type::ROTATE;
+            }
+        }
+    }
+    else if (input::is_hold(input_type::B))
+    {
+        if (reserved_behavior_->action_type_ == action_type::NO_ACTION &&
+            current_behavior_->pushed_frame_ <= constants::ACTION_INTERVAL_FRAME)
+        {
+            reserved_behavior_->rotate_dir_ = direction::RIGHT;
+            reserved_behavior_->pushed_frame_ = frame_counter_;
+            if (input::check_simultaneous(input_type::UP))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::FRONT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::LEFT))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::LEFT;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::DOWN))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::BACK;
+                cancel_removed_by_simul_push();
+            }
+            else if (input::check_simultaneous(input_type::RIGHT))
+            {
+                reserved_behavior_->action_type_ = action_type::STEP_AND_ROTATE;
+                reserved_behavior_->step_dir_ = direction::RIGHT;
+                cancel_removed_by_simul_push();
+            }
+            else
+            {
+                reserved_behavior_->action_type_ = action_type::ROTATE;
+            }
         }
     }
 

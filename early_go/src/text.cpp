@@ -181,7 +181,6 @@ bool message_writer::update()
         {
             if (!write_character(locked_rect))
             {
-                log_liner{} << "message_finished";
                 break;
             }
         }
