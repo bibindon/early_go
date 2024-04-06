@@ -19,7 +19,6 @@ struct abstract_mesh::dynamic_texture
     std::array<D3DXVECTOR4, LAYER_NUMBER> positions_;
     std::array<float, LAYER_NUMBER> opacities_;
     std::array<D3DXVECTOR4, LAYER_NUMBER> colors_;
-    std::array<bool, LAYER_NUMBER> flipped_;
     std::array<cv::Size, LAYER_NUMBER> tex_size_;
     std::array<bool, LAYER_NUMBER> tex_animation_finished_;
 
@@ -205,7 +204,6 @@ void abstract_mesh::set_dynamic_texture(
             dynamic_texture_->filename_.at(layer_number) = filename;
             dynamic_texture_->textures_.at(layer_number).reset(temp_texture, custom_deleter{});
             dynamic_texture_->opacities_.at(layer_number) = 1.0f;
-            dynamic_texture_->flipped_.at(layer_number) = false;
             dynamic_texture_->tex_size_.at(layer_number) =
                 cv::Size{constants::TEXTURE_PIXEL_SIZE, constants::TEXTURE_PIXEL_SIZE};
 
@@ -217,7 +215,6 @@ void abstract_mesh::set_dynamic_texture(
     {
         dynamic_texture_->filename_.at(layer_number) = filename;
         dynamic_texture_->opacities_.at(layer_number) = 1.0f;
-        dynamic_texture_->flipped_.at(layer_number) = false;
         dynamic_texture_->tex_size_.at(layer_number) =
             cv::Size{constants::TEXTURE_PIXEL_SIZE, constants::TEXTURE_PIXEL_SIZE};
 
