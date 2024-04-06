@@ -41,7 +41,6 @@ public:
     void set_dynamic_texture(const std::string &, const int &, const combine_type &);
     void set_dynamic_texture_position(const int &, const D3DXVECTOR2 &);
     void set_dynamic_texture_opacity(const int &, const float &);
-    void flip_dynamic_texture(const int &);
     void clear_dynamic_texture(const int &);
 
     void set_dynamic_message(

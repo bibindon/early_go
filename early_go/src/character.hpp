@@ -43,7 +43,6 @@ public:
         const std::string&, const std::string&, const int&, const abstract_mesh::combine_type &);
     void set_dynamic_texture_position(const std::string &, const int &, const D3DXVECTOR2 &);
     void set_dynamic_texture_opacity(const std::string &, const int &, const float &);
-    void flip_dynamic_texture(const std::string &, const int &);
     void clear_dynamic_texture(const std::string &, const int &);
     void set_dynamic_message(
         const std::string &,

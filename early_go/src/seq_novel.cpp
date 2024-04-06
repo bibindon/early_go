@@ -181,7 +181,7 @@ int seq_novel::glue_draw_portrait(lua_State *L)
         portrait_order_.erase(it);
     }
 
-    shared_ptr<portrait> _portrait{ new_crt portrait{filename, position, false } };
+    shared_ptr<portrait> _portrait { new_crt portrait { filename, position } };
     portrait_order_.push_front(_portrait);
 
     redraw_portrait();
@@ -268,10 +268,6 @@ void seq_novel::redraw_portrait()
         {
             early_->set_dynamic_texture_position(
                 constants::EARLY_BODY, layer, D3DXVECTOR2{-0.3f, 0.0f});
-        }
-        if ((*it)->is_flip)
-        {
-            early_->flip_dynamic_texture(constants::EARLY_BODY, layer);
         }
     }
 }

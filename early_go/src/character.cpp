@@ -186,14 +186,6 @@ void character::set_dynamic_texture_opacity(
     }
 }
 
-void character::flip_dynamic_texture(const std::string &x_filename, const int &layer_number)
-{
-    if (mesh_map_.find(x_filename) != mesh_map_.end())
-    {
-        mesh_map_.at(x_filename)->flip_dynamic_texture(layer_number);
-    }
-}
-
 void character::clear_dynamic_texture(const std::string &x_filename, const int &layer_number)
 {
     if (mesh_map_.find(x_filename) != mesh_map_.end())

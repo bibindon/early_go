@@ -503,7 +503,6 @@ void main_window::debug()
     }
     if (keyboard::is_down('R'))
     {
-        early_->flip_dynamic_texture(constants::EARLY_BODY, 1);
     }
     if (keyboard::is_down('T'))
     {

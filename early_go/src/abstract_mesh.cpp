@@ -272,38 +272,6 @@ void abstract_mesh::set_dynamic_texture_opacity(
     dynamic_texture_->opacities_.at(layer_number) = opacity;
 }
 
-void abstract_mesh::flip_dynamic_texture(const int &layer_number)
-{
-    vector<char> buffer{util::get_image_resource(dynamic_texture_->filename_.at(layer_number))};
-    vector<uchar> cv_buffer{buffer.cbegin(), buffer.cend()};
-    cv::Mat source{cv::imdecode(cv::Mat(cv_buffer), cv::IMREAD_UNCHANGED)};
-    if (!dynamic_texture_->flipped_.at(layer_number))
-    {
-        cv::flip(source, source, 1);
-    }
-    // flip flipped flag.
-    dynamic_texture_->flipped_.at(layer_number) = !dynamic_texture_->flipped_.at(layer_number);
-
-    cv_buffer = resize_with_margin(source);
-
-    LPDIRECT3DTEXTURE9 temp_texture{};
-    if (FAILED(D3DXCreateTextureFromFileInMemory(
-            d3d_device_.get(),
-            &cv_buffer[0],
-            static_cast<UINT>(cv_buffer.size()),
-            &temp_texture)))
-    {
-        THROW_WITH_TRACE("texture file is not found.");
-    }
-    else
-    {
-        dynamic_texture_->textures_.at(layer_number).reset(temp_texture, custom_deleter{});
-
-        effect_->SetTexture(
-            texture_handle_.at(layer_number), dynamic_texture_->textures_.at(layer_number).get());
-    }
-}
-
 void abstract_mesh::clear_dynamic_texture(const int &layer_number)
 {
     cv::Size tex_size = dynamic_texture_->tex_size_.at(layer_number);

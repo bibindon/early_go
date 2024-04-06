@@ -13,7 +13,6 @@ struct portrait
 {
     std::string filename_;
     std::string position_;
-    bool is_flip;
 };
 class sprite;
 class seq_novel : public seq_interface
