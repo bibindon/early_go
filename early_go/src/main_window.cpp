@@ -10,7 +10,6 @@
 #include "character.hpp"
 #include "abstract_mesh.hpp"
 #include "keyboard.hpp"
-#include "hud.hpp"
 #include "hud2.hpp"
 #include "resource.h"
 #include "sprite_anim.hpp"
@@ -251,7 +250,6 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     render_string_object::weak_font_ = font_;
     // ~ Creates font. 
 
-//    hud_ = make_shared<hud>(d3d_device_);
     hud2_ = make_shared<hud2>(d3d_device_);
 
     text_d3dxfont_ = make_shared<text_d3dxfont>(d3d_device_, 40);

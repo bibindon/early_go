@@ -18,7 +18,6 @@ class skinned_animation_mesh;
 class camera;
 class character;
 class abstract_mesh;
-class hud;
 class hud2;
 class sprite_anim;
 class novel;
@@ -72,7 +71,6 @@ private:
     void debug();
     void render();
 
-    std::shared_ptr<hud> hud_;
     std::shared_ptr<hud2> hud2_;
     std::shared_ptr<sprite_anim> sprite_anim_;
     std::shared_ptr<sprite> sprite_;
