@@ -152,7 +152,7 @@ void camera::set_to_behind_animation()
             D3DXVECTOR3 { 0.0f, 1.2998f, 1.95f },
             D3DXVECTOR3 { 0.0f, 1.2998f, -1.0f },
             D3DX_PI / 60,
-            D3DXVECTOR3 { 0.0f, 2.0f, 3.95f },
+            D3DXVECTOR3 { 0.0f, 4.0f, 6.95f },
             D3DXVECTOR3 { 0.0f, 1.2998f, 0.0f },
             D3DX_PI / 20,
             2.0f
@@ -163,7 +163,7 @@ void camera::set_to_behind_animation()
     tmp = shared_ptr<key_animation>(
         new_crt orbit
         {
-            D3DXVECTOR3 { 0.0f, 2.0f, 3.95f },
+            D3DXVECTOR3 { 0.0f, 4.0f, 6.95f },
             D3DXVECTOR3 { 0.0f, 1.2998f, 0.0f },
             D3DX_PI / 20,
             D3DX_PI / 2,
