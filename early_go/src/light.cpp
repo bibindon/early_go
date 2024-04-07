@@ -30,6 +30,17 @@ D3DXVECTOR3 light::direction()
     return direction_;
 }
 
+D3DXVECTOR4 light::normal_dir()
+{
+    D3DXVECTOR4 normal;
+    normal.x = direction_.x;
+    normal.y = direction_.y;
+    normal.z = direction_.z;
+    normal.w = 1.0f;
+    D3DXVec4Normalize(&normal, &normal);
+    return normal;
+}
+
 void light::set_brightness(const float brightness)
 {
     brightness_ = brightness;

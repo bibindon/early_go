@@ -18,7 +18,6 @@ class skinned_animation_mesh;
 class camera;
 class character;
 class abstract_mesh;
-class hud2;
 class sprite_anim;
 class novel;
 class sprite;
@@ -63,7 +62,6 @@ private:
     std::shared_ptr<ID3DXFont> font_;
 
     std::shared_ptr<character> early_;
-    std::shared_ptr<character> suo_;
 
     std::shared_ptr<camera> camera_;
 
@@ -71,7 +69,6 @@ private:
     void debug();
     void render();
 
-    std::shared_ptr<hud2> hud2_;
     std::shared_ptr<sprite_anim> sprite_anim_;
     std::shared_ptr<sprite> sprite_;
     std::shared_ptr<text_d3dxfont> text_d3dxfont_ { };

@@ -25,7 +25,6 @@ seq_ending::seq_ending(
 }
 seq_type seq_ending::update(
     const std::shared_ptr<character>& _early,
-    const std::shared_ptr<character>& _suo,
     const std::shared_ptr<camera>& _camera)
 {
 
@@ -62,7 +61,6 @@ seq_type seq_ending::update(
 
 void seq_ending::render(
     const std::shared_ptr<character>& _early,
-    const std::shared_ptr<character>& _suo,
     const std::shared_ptr<camera>& _camera)
 {
     background_->render(background_pos_);

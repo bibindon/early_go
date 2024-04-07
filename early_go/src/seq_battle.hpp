@@ -9,6 +9,8 @@ namespace early_go
 class operation;
 class sprite;
 class stage;
+class hud2;
+class enemy_manager;
 class seq_battle : public seq_interface
 {
 public:
@@ -17,16 +19,16 @@ public:
         const std::shared_ptr<camera>& _camera);
     virtual seq_type update(
         const std::shared_ptr<character>& _early,
-        const std::shared_ptr<character>& _suo,
         const std::shared_ptr<camera>& _camera) override;
     virtual void render(
         const std::shared_ptr<character>& _early,
-        const std::shared_ptr<character>& _suo,
         const std::shared_ptr<camera>& _camera) override;
 private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
     std::shared_ptr<operation> operation_ { nullptr };
     std::shared_ptr<stage> stage_ { nullptr };
+    std::shared_ptr<hud2> hud2_ { nullptr };
+    std::shared_ptr<enemy_manager> enemy_manager_ { nullptr };
 };
 }
 

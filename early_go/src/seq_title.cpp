@@ -25,7 +25,6 @@ seq_title::seq_title(const shared_ptr<IDirect3DDevice9>& d3d_device)
 }
 seq_type seq_title::update(
     const std::shared_ptr<character>& _early,
-    const std::shared_ptr<character>& _suo,
     const std::shared_ptr<camera>& _camera)
 {
     if (counter_ == 0)
@@ -109,7 +108,6 @@ seq_type seq_title::update(
 
 void seq_title::render(
     const std::shared_ptr<character>& _early,
-    const std::shared_ptr<character>& _suo,
     const std::shared_ptr<camera>& _camera)
 {
     title01_->render(D3DXVECTOR3 { 630.0f, 0.0f, 0.0f });

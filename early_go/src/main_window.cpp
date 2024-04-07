@@ -10,7 +10,6 @@
 #include "character.hpp"
 #include "abstract_mesh.hpp"
 #include "keyboard.hpp"
-#include "hud2.hpp"
 #include "resource.h"
 #include "sprite_anim.hpp"
 #include "sprite.hpp"
@@ -42,13 +41,12 @@ std::weak_ptr<ID3DXFont> main_window::render_string_object::weak_font_;
 
 // c'tor 
 main_window::main_window(const HINSTANCE &hinstance)
-    : direct3d9_{nullptr, custom_deleter{}},
-      d3d_present_parameters_{},
-      d3d_device_{},
-      font_{},
-      camera_{new_crt camera{{0.0f, 1.3f, -1.1639f * 3}, {0.0f, 1.3f, 0.0f}}},
-      early_{new_crt character{d3d_device_, {0, 0, 0}, direction::FRONT, 1.0f}},
-      suo_{new_crt character{d3d_device_, {0, 0, 2}, direction::BACK, 1.0f}}
+    : direct3d9_ { nullptr, custom_deleter { } }
+    , d3d_present_parameters_ { }
+    , d3d_device_ { }
+    , font_ { }
+    , camera_ { new_crt camera { { 0.0f, 1.3f, -1.1639f * 3 }, { 0.0f, 1.3f, 0.0f } } }
+    , early_ { new_crt character { d3d_device_, { 0, 0, 0 }, direction::FRONT, 1.0f } }
 {
     WNDCLASSEX wndclassex{};
     wndclassex.cbSize = sizeof(wndclassex);
@@ -211,26 +209,6 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     early_->set_animation_config("Attack", false, 1.0f);
     early_->set_animation_config("Damaged", false, 1.0f);
 
-    suo_->set_camera(camera_);
-    suo_->set_position(cv::Point3i{-1, 0, 2});
-    suo_->set_max_health(10);
-    suo_->set_health(9);
-    suo_->add_mesh<skinned_animation_mesh>(constants::SUO_BODY);
-    suo_->add_mesh<skinned_animation_mesh>(constants::SUO_ARMOR);
-    suo_->add_mesh<animation_mesh>(constants::SUO_SABER);
-
-    suo_->set_default_animation("Ready");
-    suo_->set_animation_config("Idle", true, 1.0f);
-    suo_->set_animation_config("Ready", true, 4.0f);
-    suo_->set_animation_config("Step_Front", false, 1.0f);
-    suo_->set_animation_config("Step_Back", false, 1.0f);
-    suo_->set_animation_config("Step_Right", false, 1.0f);
-    suo_->set_animation_config("Step_Left", false, 1.0f);
-    suo_->set_animation_config("Rotate_Back", false, 1.0f);
-    suo_->set_animation_config("Rotate_Left", false, 1.0f);
-    suo_->set_animation_config("Rotate_Right", false, 1.0f);
-    suo_->set_animation_config("Attack", false, 1.0f);
-    suo_->set_animation_config("Damaged", false, 1.0f);
     // ~ Create a Direct3D Device object. 
 
     vector<char> font_buf = util::get_font_resource("font/rounded-mplus-2m-regular.ttf");
@@ -263,8 +241,6 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     render_string_object::weak_font_ = font_;
     // ~ Creates font. 
 
-    hud2_ = make_shared<hud2>(d3d_device_);
-
     text_d3dxfont_ = make_shared<text_d3dxfont>(d3d_device_, 40);
 }
 
@@ -292,7 +268,7 @@ int main_window::update()
             }
             if (sequence_switcher_.get() != nullptr)
             {
-                sequence_switcher_->update(early_, suo_, camera_);
+                sequence_switcher_->update(early_, camera_);
             }
             {
                 debug();
@@ -308,29 +284,8 @@ std::shared_ptr<character> main_window::get_main_character()
     return early_;
 }
 
-std::shared_ptr<character> main_window::get_enemy_character()
-{
-    return suo_;
-}
-
 void main_window::debug()
 {
-    if (keyboard::is_down(VK_UP))
-    {
-        suo_->set_action_step(direction::FRONT);
-    }
-    if (keyboard::is_down(VK_LEFT))
-    {
-        suo_->set_action_step(direction::LEFT);
-    }
-    if (keyboard::is_down(VK_DOWN))
-    {
-        suo_->set_action_step(direction::BACK);
-    }
-    if (keyboard::is_down(VK_RIGHT))
-    {
-        suo_->set_action_step(direction::RIGHT);
-    }
 
     // fps
     static int frame_count = 0;
@@ -435,59 +390,48 @@ void main_window::debug()
     if (keyboard::is_down('1'))
     {
         early_->set_animation("Idle");
-        suo_->set_animation("Idle");
     }
     if (keyboard::is_down('2'))
     {
         early_->set_animation("Ready");
-        suo_->set_animation("Ready");
     }
     if (keyboard::is_down('3'))
     {
         early_->set_animation("Step_Front");
-        suo_->set_animation("Step_Front");
     }
     if (keyboard::is_down('4'))
     {
         early_->set_animation("Step_Back");
-        suo_->set_animation("Step_Back");
     }
     if (keyboard::is_down('5'))
     {
         early_->set_animation("Step_Left");
-        suo_->set_animation("Step_Left");
         //meshes_lua_.at(4)->set_animation("Wolf_Idle_");
     }
     if (keyboard::is_down('6'))
     {
         early_->set_animation("Step_Right");
-        suo_->set_animation("Step_Right");
         //meshes_lua_.at(4)->set_animation("Wolf_Run_Cycle_");
     }
     if (keyboard::is_down('7'))
     {
         early_->set_animation("Rotate_Back");
-        suo_->set_animation("Rotate_Back");
     }
     if (keyboard::is_down('8'))
     {
         early_->set_animation("Rotate_Left");
-        suo_->set_animation("Rotate_Left");
     }
     if (keyboard::is_down('9'))
     {
         early_->set_animation("Rotate_Right");
-        suo_->set_animation("Rotate_Right");
     }
     if (keyboard::is_down('0'))
     {
         early_->set_animation("Attack");
-        suo_->set_animation("Attack");
     }
     if (keyboard::is_down('P'))
     {
         early_->set_animation("Damaged");
-        suo_->set_animation("Damaged");
 
         if (bgm_player::get_ton()->load("sound/letsgo.wav"))
         {
@@ -666,12 +610,6 @@ erto's book, Programming in Lua.\n\
 void main_window::render()
 {
     shared_ptr<light> _light = light::get_ton();
-    D3DXVECTOR4 light_direction{};
-    light_direction.x = _light->direction().x;
-    light_direction.y = _light->direction().y;
-    light_direction.z = _light->direction().z;
-    light_direction.w = 1.0f;
-    D3DXVec4Normalize(&light_direction, &light_direction);
 
     camera_->update();
     D3DXMATRIX view_matrix{camera_->get_view_matrix()};
@@ -686,11 +624,8 @@ void main_window::render()
         0);
     if (SUCCEEDED(d3d_device_->BeginScene()))
     {
-        early_->render(view_matrix, projection_matrix, light_direction, _light->brightness());
-        if (suo_->get_health() <= 0)
-        {
-            suo_->render(view_matrix, projection_matrix, light_direction, _light->brightness());
-        }
+        early_->render(view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
+
 
         for (auto& mesh_lua : meshes_lua_)
         {
@@ -702,7 +637,7 @@ void main_window::render()
 // TODO
 //                mesh_lua.second->set_scale(itr->second.scale);
                 mesh_lua.second->render(
-                    view_matrix, projection_matrix, light_direction, _light->brightness());
+                    view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
             }
         }
 
@@ -720,7 +655,6 @@ void main_window::render()
             pos.z = 0.0f;
             sprite_->render(pos);
         }
-        hud2_->render(early_, suo_, camera_);
 
         //render_string_object::render_string("aaa", 0, 0);
         if (text_d3dxfont_.get() != nullptr)
@@ -728,7 +662,7 @@ void main_window::render()
             text_d3dxfont_->render();
         }
 
-        sequence_switcher_->render(early_, suo_, camera_);
+        sequence_switcher_->render(early_, camera_);
         d3d_device_->EndScene();
     }
 

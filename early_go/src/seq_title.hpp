@@ -12,11 +12,9 @@ public:
     seq_title(const std::shared_ptr<IDirect3DDevice9>& d3d_device);
     virtual seq_type update(
         const std::shared_ptr<character>& _early,
-        const std::shared_ptr<character>& _suo,
         const std::shared_ptr<camera>& _camera) override;
     virtual void render(
         const std::shared_ptr<character>& _early,
-        const std::shared_ptr<character>& _suo,
         const std::shared_ptr<camera>& _camera) override;
 private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;

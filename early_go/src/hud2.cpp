@@ -3,6 +3,7 @@
 #include "character.hpp"
 #include "text_d3dxfont.hpp"
 #include "camera.hpp"
+#include "enemy_manager.hpp"
 
 using std::shared_ptr;
 using std::string;
@@ -19,7 +20,7 @@ hud2::hud2(const shared_ptr<IDirect3DDevice9>& d3d_device)
 }
 void hud2::render(
     const shared_ptr<character>& _early,
-    const shared_ptr<character>& _suo,
+    const shared_ptr<enemy_manager>& _enemy_manager,
     const shared_ptr<camera>& _camera)
 {
     // Show early HP
@@ -38,6 +39,7 @@ void hud2::render(
     }
     // Show enemy HP
     {
+        character* _suo = _enemy_manager->enemy("suo");
         int hp = _suo->get_health();
         int max_hp = _suo->get_max_health();
 

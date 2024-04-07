@@ -38,7 +38,6 @@ seq_novel::seq_novel(
 }
 seq_type seq_novel::update(
     const std::shared_ptr<character>& _early,
-    const std::shared_ptr<character>& _suo,
     const std::shared_ptr<camera>& _camera)
 {
     if (first_update_)
@@ -105,7 +104,6 @@ seq_type seq_novel::update(
 
 void seq_novel::render(
     const std::shared_ptr<character>& _early,
-    const std::shared_ptr<character>& _suo,
     const std::shared_ptr<camera>& _camera)
 {
     if (first_update_)

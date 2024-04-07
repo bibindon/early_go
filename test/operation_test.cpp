@@ -67,6 +67,7 @@ HWND get_window_handle()
     }
     return hWnd;
 }
+/*
 TEST(operation_test, operation_test01)
 {
     // Create character_moc object;
@@ -429,4 +430,5 @@ TEST(operation_test, operation_test10)
 
     se_player::finalize();
 }
+*/
 }

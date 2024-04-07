@@ -6,6 +6,7 @@
 #include "se_player.hpp"
 #include "input.hpp"
 #include "stage.hpp"
+#include "enemy_manager.hpp"
 
 using std::shared_ptr;
 
@@ -23,7 +24,7 @@ shared_ptr<camera> operation::get_camera() const
 
 void operation::update(
     const shared_ptr<character>& _main_chara,
-    const shared_ptr<character>& enemy,
+    const shared_ptr<enemy_manager>& _enemy_manager,
     const shared_ptr<stage>& _stage)
 {
     ++frame_counter_;
@@ -704,6 +705,7 @@ void operation::update(
     }
 
     // collision detection
+    character* enemy = _enemy_manager->enemy("suo");
     cv::Point3i enemy_pos = enemy->get_grid_position();
     const int relative_z { enemy_pos.z % (constants::GRID_NUM_HEIGHT + 1) };
     auto offensive_area = _stage->offensive_area();

@@ -10,8 +10,9 @@ public:
     static std::shared_ptr<light> get_ton();
     static void finalize(); // For memory leak check.
 
-    void set_direction(const D3DXVECTOR3& direction);
+    void set_direction(const D3DXVECTOR3 & direction);
     D3DXVECTOR3 direction();
+    D3DXVECTOR4 normal_dir();
     void set_brightness(const float brightness);
     float brightness();
 private:

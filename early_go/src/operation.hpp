@@ -9,6 +9,7 @@ namespace early_go
 {
 class camera;
 class stage;
+class enemy_manager;
 
 class operation
 {
@@ -16,7 +17,7 @@ public:
     operation(const std::shared_ptr<camera> &);
     void update(
         const std::shared_ptr<character>&,
-        const std::shared_ptr<character>&,
+        const std::shared_ptr<enemy_manager>&,
         const std::shared_ptr<stage>& _stage);
 
     enum class behavior_state
