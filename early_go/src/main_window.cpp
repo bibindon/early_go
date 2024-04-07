@@ -106,6 +106,16 @@ main_window::main_window(const HINSTANCE &hinstance)
     sequence_switcher_.reset(new_crt sequence_switcher { d3d_device_ });
     light::get_ton()->set_direction(D3DXVECTOR3 { 1.0f, 1.0f, 1.0f });
     light::get_ton()->set_brightness(1.0f);
+
+    // sleep time table for 60fps.
+    for (int i = 0; i < 20; ++i)
+    {
+        ideal_time_table[i] = 16;
+    }
+    for (int i = 20; i < 60; ++i)
+    {
+        ideal_time_table[i] = 17;
+    }
 }
 
 void main_window::initialize_direct3d(const HWND &hwnd)
@@ -321,17 +331,16 @@ void main_window::debug()
 
     // fps
     static int frame_count = 0;
-    static int fps = 0;
+    static float fps = 0;
     static system_clock::time_point start, end;
-    if (frame_count == 100)
+    if (frame_count == 120)
     {
         frame_count = 0;
         end = system_clock::now();
         system_clock::rep elapsed{
-            std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()};
-        fps = 100 * 1000 / static_cast<int>(elapsed);
+            std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()};
+        fps = 120 * 1000 * 1000 / static_cast<float>(elapsed);
         start = system_clock::now();
-        log_liner{} << fps;
     }
 
     if (frame_count == 0)
@@ -724,14 +733,22 @@ void main_window::render()
     current_time = system_clock::now();
 
     system_clock::rep elapsed{
-        std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::duration_cast<std::chrono::microseconds>(
             current_time - previous_time).count()};
 
     const int purpose_fps = 60;
-    int milli_sleep_time = (1000 / purpose_fps) - static_cast<int>(elapsed);
-
-    // Adjust
-    --milli_sleep_time;
+    static int s_counter { 0 };
+    ++s_counter;
+    static int next_sleep_time { 16 };
+    int index = s_counter % 60;
+    static int temp { 0 };
+    int milli_sleep_time = ideal_time_table[index] - static_cast<int>(elapsed/1000);
+    if (temp < 0)
+    {
+        milli_sleep_time += temp/1000;
+        temp -= temp/1000;
+        log_liner { } << "purpose sleep time: " << milli_sleep_time;
+    }
 
     if (milli_sleep_time >= 1)
     {
@@ -742,6 +759,14 @@ void main_window::render()
     }
 
     previous_time = system_clock::now();
+    {
+        system_clock::rep actual_sleep_time{
+            std::chrono::duration_cast<std::chrono::microseconds>(
+                previous_time - current_time).count()};
+
+        temp += ideal_time_table[index]*1000 - (elapsed + actual_sleep_time);
+
+    }
 
     d3d_device_->Present(nullptr, nullptr, nullptr, nullptr);
 }

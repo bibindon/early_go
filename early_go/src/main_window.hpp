@@ -81,6 +81,8 @@ private:
 
     std::shared_ptr<sequence_switcher> sequence_switcher_ { };
 
+    int ideal_time_table[60];
+
     //----------------------------------------
     // Lua area
     //----------------------------------------
