@@ -32,15 +32,20 @@ seq_battle::seq_battle(
     hud2_ = make_shared<hud2>(d3d_device_);
     enemy_manager_ = make_shared<enemy_manager>(d3d_device_);
 
-    enemy_manager_->add_enemy("suo", { -1, 0, 2 }, direction::BACK, 1.0f, _camera);
-    enemy_manager_->add_enemy("suo2", { -10, 0, 2 }, direction::BACK, 1.0f, _camera);
-    enemy_manager_->add_enemy("suo3", { -1, 0, 20 }, direction::BACK, 1.0f, _camera);
-    enemy_manager_->add_enemy("suo4", { -13, 0, 12 }, direction::BACK, 1.0f, _camera);
-    enemy_manager_->add_enemy("suo5", { 1, 0, 2 }, direction::BACK, 1.0f, _camera);
-    enemy_manager_->add_enemy("suo6", { 11, 0, 5 }, direction::BACK, 1.0f, _camera);
-    enemy_manager_->add_enemy("suo7", { 31, 0, 32 }, direction::BACK, 1.0f, _camera);
-    enemy_manager_->add_enemy("suo8", { 20, 0, 0 }, direction::BACK, 1.0f, _camera);
-    enemy_manager_->add_enemy("suo9", { 10, 0, 2 }, direction::BACK, 1.0f, _camera);
+    thread_ = std::thread {
+        [&]()
+        {
+            enemy_manager_->add_enemy("suo", { -1, 0, 2 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo2", { -10, 0, 2 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo3", { -1, 0, 20 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo4", { -13, 0, 12 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo5", { 1, 0, 2 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo6", { 11, 0, 5 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo7", { 31, 0, 32 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo8", { 20, 0, 0 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo9", { 10, 0, 2 }, direction::BACK, 1.0f, _camera);
+         }
+    };
 }
 seq_type seq_battle::update(
     const std::shared_ptr<character>& _early,
@@ -61,6 +66,10 @@ void seq_battle::render(
 {
     hud2_->render(_early, enemy_manager_, _camera);
     enemy_manager_->render(_camera);
+}
+seq_battle::~seq_battle()
+{
+    thread_.join();
 }
 }
 

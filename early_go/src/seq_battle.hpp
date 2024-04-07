@@ -3,6 +3,7 @@
 
 #include "stdafx.hpp"
 #include "seq_interface.hpp"
+#include <thread>
 
 namespace early_go
 {
@@ -23,12 +24,14 @@ public:
     virtual void render(
         const std::shared_ptr<character>& _early,
         const std::shared_ptr<camera>& _camera) override;
+    virtual ~seq_battle() override;
 private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
     std::shared_ptr<operation> operation_ { nullptr };
     std::shared_ptr<stage> stage_ { nullptr };
     std::shared_ptr<hud2> hud2_ { nullptr };
     std::shared_ptr<enemy_manager> enemy_manager_ { nullptr };
+    std::thread thread_;
 };
 }
 

@@ -2,6 +2,8 @@
 
 #include "stdafx.hpp"
 
+#include <thread>
+
 #include "animation_mesh.hpp"
 #include "skinned_animation_mesh.hpp"
 #include "main_window.hpp"
@@ -390,6 +392,25 @@ void main_window::debug()
     if (keyboard::is_down('1'))
     {
         early_->set_animation("Idle");
+
+        static std::thread th { [&]()
+            {
+                auto itr = mesh_info_map.find("model/wolf/wolf.x");
+                if (itr == mesh_info_map.end())
+                {
+                    shared_ptr<skinned_animation_mesh> work { new_crt skinned_animation_mesh {
+                        d3d_device_,
+                        "model/wolf/wolf.x",
+                        D3DXVECTOR3{1,1,1},
+                        D3DXVECTOR3{0,0,0},
+                        1.0 } };
+                    meshes_lua_.insert(make_pair("model/wolf/wolf.x", work));
+                }
+                mesh_info_map.insert(make_pair(
+                    "model/wolf/wolf.x",
+                    mesh_info{ D3DXVECTOR3{1,1,1}, D3DXVECTOR3{0,0,0}, 1.0f }));
+            }
+        };
     }
     if (keyboard::is_down('2'))
     {
