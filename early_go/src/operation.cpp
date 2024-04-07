@@ -711,25 +711,12 @@ void operation::update(
     {
         ignore_attack_judge_ = true;
         int enemy_health { enemy->get_health() };
-        if (enemy_health >= 2)
+        --enemy_health;
+        enemy->set_animation("Damaged");
+        enemy->set_health(enemy_health);
+        se_player::get_ton()->play("sound/damage01.wav");
+        if (enemy_health == 0)
         {
-            enemy->set_animation("Damaged");
-            enemy->set_health(enemy_health - 1);
-            se_player::get_ton()->play("sound/damage01.wav");
-        }
-        if (enemy_health == 1)
-        {
-            reserved_behavior_->action_type_ = action_type::MOVE_NEXT_STAGE;
-        }
-        if (current_stage_ == constants::MAX_ROOM_NUMBER - 1)
-        {
-            cv::Point3i grid_pos{_main_chara->get_grid_position()};
-            D3DXVECTOR3 pos {
-                grid_pos.x * constants::GRID_LENGTH,
-                0.0f,
-                grid_pos.z * constants::GRID_LENGTH };
-
-            camera_->set_to_close_up_animation(pos);
         }
     }
     _stage->clear();

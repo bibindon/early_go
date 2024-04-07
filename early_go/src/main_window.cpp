@@ -687,7 +687,11 @@ void main_window::render()
     if (SUCCEEDED(d3d_device_->BeginScene()))
     {
         early_->render(view_matrix, projection_matrix, light_direction, _light->brightness());
-        suo_->render(view_matrix, projection_matrix, light_direction, _light->brightness());
+        if (suo_->get_health() <= 0)
+        {
+            suo_->render(view_matrix, projection_matrix, light_direction, _light->brightness());
+        }
+
         for (auto& mesh_lua : meshes_lua_)
         {
             auto range = mesh_info_map.equal_range(mesh_lua.first);
