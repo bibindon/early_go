@@ -39,18 +39,23 @@ void hud2::render(
     }
     // Show enemy HP
     {
-        character* _suo = _enemy_manager->enemy("suo");
-        int hp = _suo->get_health();
-        int max_hp = _suo->get_max_health();
+        auto enemy_map = _enemy_manager->enemy_map();
+        for (auto& enemy : *enemy_map)
+        {
+            int hp = enemy.second.get_health();
+            int max_hp = enemy.second.get_max_health();
 
-        string hp_text = to_string(hp) + "/" + to_string(max_hp);
+            string hp_text = to_string(hp) + "/" + to_string(max_hp);
 
-        D3DXVECTOR3 position { _suo->get_position() };
-        position.y += 1.0f;
-        const POINT coodinate { _camera->get_screen_coordinate(position) };
-
-        enemy_hp_->set_param(hp_text, coodinate.x, coodinate.y, 0xA0ffA0A0);
-        enemy_hp_->render();
+            D3DXVECTOR3 position { enemy.second.get_position() };
+            position.y += 1.0f;
+            const POINT coodinate { _camera->get_screen_coordinate(position) };
+            if (coodinate.x >= 0)
+            {
+                enemy_hp_->set_param(hp_text, coodinate.x, coodinate.y, 0xA0ffA0A0);
+                enemy_hp_->render();
+            }
+        }
     }
 }
 }

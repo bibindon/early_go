@@ -705,20 +705,22 @@ void operation::update(
     }
 
     // collision detection
-    character* enemy = _enemy_manager->enemy("suo");
-    cv::Point3i enemy_pos = enemy->get_grid_position();
-    const int relative_z { enemy_pos.z % (constants::GRID_NUM_HEIGHT + 1) };
-    auto offensive_area = _stage->offensive_area();
-    if (offensive_area.at(relative_z).at(enemy_pos.x) && !ignore_attack_judge_)
+    const auto& offensive_area = _stage->offensive_area();
+    for (auto& enemy : (*_enemy_manager->enemy_map()))
     {
-        ignore_attack_judge_ = true;
-        int enemy_health { enemy->get_health() };
-        --enemy_health;
-        enemy->set_animation("Damaged");
-        enemy->set_health(enemy_health);
-        se_player::get_ton()->play("sound/damage01.wav");
-        if (enemy_health == 0)
+        const cv::Point3i& enemy_pos = enemy.second.get_grid_position();
+        const int relative_z { enemy_pos.z % (constants::GRID_NUM_HEIGHT + 1) };
+        if (offensive_area.at(relative_z).at(enemy_pos.x) && !ignore_attack_judge_)
         {
+            ignore_attack_judge_ = true;
+            int enemy_health { enemy.second.get_health() };
+            --enemy_health;
+            enemy.second.set_animation("Damaged");
+            enemy.second.set_health(enemy_health);
+            se_player::get_ton()->play("sound/damage01.wav");
+            if (enemy_health == 0)
+            {
+            }
         }
     }
     _stage->clear();

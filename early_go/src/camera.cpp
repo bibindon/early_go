@@ -266,12 +266,12 @@ POINT camera::get_screen_coordinate(const D3DXVECTOR3& world)
         0.0f, -constants::WINDOW_HEIGHT / 2.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
         constants::WINDOW_WIDTH / 2.0f, constants::WINDOW_HEIGHT / 2.0f, 0.0f, 1.0f };
-    D3DXMATRIX matrix {};
+    D3DXMATRIX matrix { };
     D3DXMatrixTranslation(&matrix, world.x, world.y, world.z);
     matrix = matrix * view_matrix * projection_matrix * viewport_matrix;
     return POINT {
-        static_cast<int>(matrix._41 / std::abs(matrix._44)),
-        static_cast<int>(matrix._42 / std::abs(matrix._44)) };
+        static_cast<int>(matrix._41 / matrix._44),
+        static_cast<int>(matrix._42 / matrix._44) };
 }
 
 bool camera::get_animation_running()

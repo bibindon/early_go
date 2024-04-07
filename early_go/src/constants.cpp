@@ -13,8 +13,8 @@ const LONG constants::EMPTY_TEXTURE_SIZE = 32;
 // a power of 2.
 BOOST_STATIC_ASSERT(
     (constants::TEXTURE_PIXEL_SIZE & constants::TEXTURE_PIXEL_SIZE-1) == 0);
-const int constants::GRID_NUM_HEIGHT = 9;
-const int constants::GRID_NUM_WIDTH  = 9;
+const int constants::GRID_NUM_HEIGHT = 91;
+const int constants::GRID_NUM_WIDTH  = 91;
 BOOST_STATIC_ASSERT(constants::GRID_NUM_WIDTH%2 == 1);
 const float constants::GRID_LENGTH = 1.5f;
 const float constants::ACTION_INTERVAL = 1.0f/3;
