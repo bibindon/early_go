@@ -54,7 +54,7 @@ void camera::move_position(const D3DXVECTOR3 &delta)
     look_at_position_ += delta;
 }
 
-void camera::move_position(const D3DXVECTOR3 &delta, const float &duration)
+void camera::move_position(const D3DXVECTOR3 &delta, const float &duration, const bool _sine_curve)
 {
     D3DXVECTOR3 remain { 0.0f, 0.0f, 0.0f } ;
     if (flexible_animation_ != nullptr)
@@ -71,7 +71,8 @@ void camera::move_position(const D3DXVECTOR3 &delta, const float &duration)
             look_at_position_,
             delta + remain,
             delta + remain,
-            duration
+            duration,
+            _sine_curve
         }
     );
 }
@@ -84,10 +85,18 @@ bool camera::flexible_animation::update(camera &a_camera)
         return true;
     }
 
-    float sine_curve { get_sine_curve(animation_count_ * constants::ANIMATION_SPEED, duration_) };
+    float delta { 0.0f };
+    if (sine_curve_)
+    {
+        delta = get_sine_curve(animation_count_ * constants::ANIMATION_SPEED, duration_);
+    }
+    else
+    {
+        delta = animation_count_ * constants::ANIMATION_SPEED / duration_;
+    }
 
-    a_camera.eye_position_ = start_eye_position_ + delta_eye_position_ * sine_curve;
-    a_camera.look_at_position_ = start_look_at_position_ + delta_look_at_position_ * sine_curve;
+    a_camera.eye_position_ = start_eye_position_ + delta_eye_position_ * delta;
+    a_camera.look_at_position_ = start_look_at_position_ + delta_look_at_position_ * delta;
 
     return false;
 }
@@ -287,13 +296,15 @@ bool camera::teleport::update(camera &camera)
     return true;
 }
 
-camera::transfer::transfer(const D3DXVECTOR3 &start_eye_position,
-                           const D3DXVECTOR3 &start_look_at_position,
-                           const float &start_view_angle,
-                           const D3DXVECTOR3 &goal_eye_position,
-                           const D3DXVECTOR3 &goal_look_at_position,
-                           const float &goal_view_angle,
-                           const float &duration)
+camera::transfer::transfer(
+    const D3DXVECTOR3 &start_eye_position,
+    const D3DXVECTOR3 &start_look_at_position,
+    const float start_view_angle,
+    const D3DXVECTOR3 &goal_eye_position,
+    const D3DXVECTOR3 &goal_look_at_position,
+    const float goal_view_angle,
+    const float duration,
+    const bool sine_curve)
     : animation_count_ { }
     , start_eye_position_ { start_eye_position }
     , start_look_at_position_ { start_look_at_position }
@@ -302,6 +313,7 @@ camera::transfer::transfer(const D3DXVECTOR3 &start_eye_position,
     , delta_look_at_position_ { goal_look_at_position - start_look_at_position }
     , delta_view_angle_ { goal_view_angle - start_view_angle }
     , duration_ { duration }
+    , sine_curve_ { sine_curve }
 {
 }
 
@@ -313,11 +325,19 @@ bool camera::transfer::update(camera &camera)
         return true;
     }
 
-    float sine_curve { get_sine_curve(animation_count_ * constants::ANIMATION_SPEED, duration_) };
+    float delta { 0.0f };
+    if (sine_curve_)
+    {
+        delta = get_sine_curve(animation_count_ * constants::ANIMATION_SPEED, duration_);
+    }
+    else
+    {
+        delta = animation_count_ * constants::ANIMATION_SPEED / duration_;
+    }
 
-    camera.eye_position_ = start_eye_position_ + delta_eye_position_ * sine_curve;
-    camera.look_at_position_ = start_look_at_position_ + delta_look_at_position_ * sine_curve;
-    camera.view_angle_ = start_view_angle_ + delta_view_angle_ * sine_curve;
+    camera.eye_position_ = start_eye_position_ + delta_eye_position_ * delta;
+    camera.look_at_position_ = start_look_at_position_ + delta_look_at_position_ * delta;
+    camera.view_angle_ = start_view_angle_ + delta_view_angle_ * delta;
 
     return false;
 }

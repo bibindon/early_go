@@ -384,7 +384,7 @@ void main_window::debug()
     //  }
     if (keyboard::is_down('H'))
     {
-        camera_->move_position({0.0f, 0.00f, 0.02f});
+        camera_->move_position({0.0f, 4.0f, 30.0f}, 3.0f);
     }
     if (keyboard::is_hold('N'))
     {

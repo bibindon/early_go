@@ -16,7 +16,7 @@ public:
         const D3DXVECTOR3 & look_at_pos,
         const float view_angle);
     void move_position(const D3DXVECTOR3 &);
-    void move_position(const D3DXVECTOR3 &, const float &);
+    void move_position(const D3DXVECTOR3 &, const float &, const bool sine_curve = true);
     D3DXVECTOR3 get_position() const;
     D3DXMATRIX get_view_matrix();
     D3DXMATRIX get_projection_matrix();
@@ -43,6 +43,7 @@ private:
         const D3DXVECTOR3 delta_eye_position_;
         const D3DXVECTOR3 delta_look_at_position_;
         const float duration_;
+        const bool sine_curve_;
     };
 
     struct key_animation
@@ -67,11 +68,12 @@ private:
         transfer(
             const D3DXVECTOR3 & start_eye_position,
             const D3DXVECTOR3 & start_look_at_position,
-            const float & start_view_angle,
+            const float  start_view_angle,
             const D3DXVECTOR3 & goal_eye_position,
             const D3DXVECTOR3 & goal_look_at_position,
-            const float & goal_view_angle,
-            const float & duration);
+            const float  goal_view_angle,
+            const float  duration,
+            const bool sine_curve = true);
         bool update(camera &) override;
 
     private:
@@ -83,6 +85,7 @@ private:
         const D3DXVECTOR3 delta_look_at_position_;
         const float delta_view_angle_;
         const float duration_;
+        const bool sine_curve_;
     };
     struct orbit : key_animation
     {
