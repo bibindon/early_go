@@ -32,6 +32,9 @@ using std::make_pair;
 template <class T1, class T2>
 using ummap = std::unordered_multimap<T1, T2>;
 
+using std::chrono::duration_cast;
+using std::chrono::microseconds;
+
 namespace early_go
 {
 // A definition of the static member variable. 
@@ -337,8 +340,7 @@ void main_window::debug()
     {
         frame_count = 0;
         end = system_clock::now();
-        system_clock::rep elapsed{
-            std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()};
+        system_clock::rep elapsed { duration_cast<microseconds>(end - start).count() };
         fps = 120 * 1000 * 1000 / static_cast<float>(elapsed);
         start = system_clock::now();
     }
@@ -732,22 +734,20 @@ void main_window::render()
 
     current_time = system_clock::now();
 
-    system_clock::rep elapsed{
-        std::chrono::duration_cast<std::chrono::microseconds>(
-            current_time - previous_time).count()};
+    system_clock::rep elapsed {
+        duration_cast<microseconds>( current_time - previous_time).count() };
 
-    const int purpose_fps = 60;
     static int s_counter { 0 };
     ++s_counter;
-    static int next_sleep_time { 16 };
     int index = s_counter % 60;
-    static int temp { 0 };
-    int milli_sleep_time = ideal_time_table[index] - static_cast<int>(elapsed/1000);
-    if (temp < 0)
+    static int micro_seconds { 0 };
+    int milli_sleep_time { ideal_time_table[index] - static_cast<int>(elapsed / 1000) };
+
+    // Adjust microseconds.
+    if (micro_seconds < 0)
     {
-        milli_sleep_time += temp/1000;
-        temp -= temp/1000;
-        log_liner { } << "purpose sleep time: " << milli_sleep_time;
+        milli_sleep_time += micro_seconds/1000;
+        micro_seconds -= micro_seconds/1000;
     }
 
     if (milli_sleep_time >= 1)
@@ -759,13 +759,12 @@ void main_window::render()
     }
 
     previous_time = system_clock::now();
+    // Sleep() is not precise. For example, 16 milli seconds sleep is actually 16.312 milliseconds.
     {
-        system_clock::rep actual_sleep_time{
-            std::chrono::duration_cast<std::chrono::microseconds>(
-                previous_time - current_time).count()};
+        system_clock::rep actual_sleep_time {
+            duration_cast<microseconds>( previous_time - current_time).count() };
 
-        temp += ideal_time_table[index]*1000 - (elapsed + actual_sleep_time);
-
+        micro_seconds += (ideal_time_table[index] * 1000) - static_cast<int>(elapsed + actual_sleep_time);
     }
 
     d3d_device_->Present(nullptr, nullptr, nullptr, nullptr);

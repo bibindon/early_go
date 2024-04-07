@@ -646,6 +646,7 @@ void operation::update(
         if (current_behavior_->action_type_ == action_type::STEP)
         {
             _main_chara->set_action_step(current_behavior_->step_dir_);
+            se_player::get_ton()->play("sound/attack01.wav");
         }
         else if (current_behavior_->action_type_ == action_type::ROTATE)
         {

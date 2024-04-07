@@ -524,7 +524,7 @@ operation::behavior_state character::step::update(const shared_ptr<stage>&)
             break;
         }
     }
-    if (constants::ACTION_INTERVAL_FRAME <= count_ &&
+    if (constants::ACTION_INTERVAL_FRAME-2 <= count_ &&
         (count_)*constants::ANIMATION_SPEED < outer_.duration_map_.at("Step_Left"))
     {
         ++count_;
