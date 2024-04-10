@@ -331,15 +331,13 @@ resource_importer.bat
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="early_go.rc" />
-    <ResourceCompile Include="src\depth_buf_shadow.rc" />
-    <ResourceCompile Include="src\z_tex.rc" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="res\shader\animation_mesh_shader.fx" />
+    <FxCompile Include="res\shader\depth_buf_shadow.fx" />
     <FxCompile Include="res\shader\mesh_shader.fx" />
     <FxCompile Include="res\shader\skinned_animation_mesh_shader.fx" />
-    <FxCompile Include="src\depth_buf_shadow.fx" />
-    <FxCompile Include="src\z_tex.fx" />
+    <FxCompile Include="res\shader\z_tex.fx" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon1.ico" />

@@ -153,9 +153,9 @@ main_window::main_window(const HINSTANCE &hinstance)
         // ビュー・射影変換行列を初期化して固定情報として登録する
         D3DXMATRIX CameraView, CameraProj; // カメラビュー変換・射影変換
         D3DXMATRIX LightView, LightProj;   // ライトビュー変換・射影変換
-        float LightScale = 0.1f;
+        float LightScale = 0.5f;
         D3DXMatrixPerspectiveFovLH(&CameraProj, D3DXToRadian(45), 1600.0f / 900.0f, 1.0f, 1000.0f);
-        D3DXMatrixPerspectiveFovLH(&LightProj, D3DXToRadian(90), 1.8f, 4.0f, 300.0f);
+        D3DXMatrixPerspectiveFovLH(&LightProj, D3DXToRadian(10), 1.8f, 60.0f, 100.0f);
         D3DXVECTOR3 temp1 { LightScale * 100, LightScale * 100, LightScale * 100 };
         D3DXVECTOR3 temp2 { -10, -10, 5 };
         D3DXVECTOR3 temp3 { 0, 1, 0 };
@@ -706,8 +706,8 @@ void main_window::render()
             auto range = mesh_info_map.equal_range(mesh_lua.first);
             for (auto itr = range.first; itr != range.second; ++itr)
             {
-//                mesh_lua.second->set_position(itr->second.pos);
-//                mesh_lua.second->set_rotation(itr->second.rotate);
+                mesh_lua.second->set_position(itr->second.pos);
+                mesh_lua.second->set_rotation(itr->second.rotate);
 // TODO
 //                mesh_lua.second->set_scale(itr->second.scale);
                 mesh_lua.second->ztex_render(
@@ -873,7 +873,7 @@ int main_window::glue_place_mesh(lua_State* L)
     get_mesh_info_from_lua(L, &filename, &pos, &rotate, &scale);
 
     auto itr = mesh_info_map.find(filename);
-//    if (itr == mesh_info_map.end())
+    if (itr == mesh_info_map.end())
     {
         shared_ptr<abstract_mesh> work { new_crt mesh {
             main_window_->d3d_device_,
@@ -883,10 +883,6 @@ int main_window::glue_place_mesh(lua_State* L)
             scale } };
         work->ZTexCreator = &main_window_->ZTexCreator;
         work->DepthBS = &main_window_->DepthBS;
-        //main_window_->meshes_lua_.insert(make_pair(filename, work));
-        static int i { 0 };
-        filename = filename + std::to_string(i);
-        ++i;
         main_window_->meshes_lua_.insert(make_pair(filename, work));
     }
     mesh_info_map.insert(make_pair(filename, mesh_info{ pos, rotate, scale }));

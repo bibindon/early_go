@@ -1,6 +1,10 @@
 #include "z_tex.hpp"
 
+#include "stdafx.hpp"
+
 using namespace IKD;
+using std::vector;
+
 z_tex::z_tex()
 {
     D3DXMatrixIdentity(&m_matWorld);
@@ -40,10 +44,11 @@ bool z_tex::init(
     HRESULT hr;
 
     // リソースにあるZ値プロットシェーダプログラムを読み込む
-    if (FAILED(D3DXCreateEffectFromResource(
+    vector<char> buffer{ early_go::util::get_shader_resource("z_tex.fx") };
+    if (FAILED(D3DXCreateEffect(
         cpDev.GetPtr(),
-        NULL,
-        MAKEINTRESOURCE(FXID_ZVALUEPLOT),
+        &buffer[0],
+        static_cast<UINT>(buffer.size()),
         NULL,
         NULL,
         0,

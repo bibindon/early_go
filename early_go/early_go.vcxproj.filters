@@ -259,12 +259,6 @@
     <ResourceCompile Include="early_go.rc">
       <Filter>リソース ファイル</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="src\depth_buf_shadow.rc">
-      <Filter>リソース ファイル</Filter>
-    </ResourceCompile>
-    <ResourceCompile Include="src\z_tex.rc">
-      <Filter>リソース ファイル</Filter>
-    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="res\shader\animation_mesh_shader.fx">
@@ -276,10 +270,10 @@
     <FxCompile Include="res\shader\skinned_animation_mesh_shader.fx">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
-    <FxCompile Include="src\depth_buf_shadow.fx">
+    <FxCompile Include="res\shader\depth_buf_shadow.fx">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
-    <FxCompile Include="src\z_tex.fx">
+    <FxCompile Include="res\shader\z_tex.fx">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
   </ItemGroup>

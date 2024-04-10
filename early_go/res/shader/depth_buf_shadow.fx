@@ -45,7 +45,7 @@ VS_OUTPUT DepthBufShadow_VS( float4 Pos : POSITION , float3 Norm : NORMAL)
     //  濃くなりすぎないように調節しています
     float3 N = normalize( mul(Norm, matWorld) );
     float3 LightDirect = normalize( float3(matLightView._13,matLightView._23,matLightView._33) );
-    Out.Col = float4(0.1, 0.7, 1.0, 1.0) * (0.3 + dot(N, -LightDirect)*(1-0.3f));
+    Out.Col = float4(1.0, 0.2, 0.2, 1.0) * (0.3 + dot(N, -LightDirect)*(1-0.3f));
 
     return Out;
 }
@@ -68,8 +68,7 @@ float4 DepthBufShadow_PS( float4 Col : COLOR, float4 ZCalcTex : TEXCOORD0 ) : CO
     // 算出点がシャドウマップのZ値よりも大きければ影と判断
     if ( ZValue > SM_Z+0.005f )
     {
-        //Col.rgb = Col.rgb * 0.5;
-        Col.rgb = Col.rgb * (0.5*ZValue * ZValue * ZValue ); // use pow
+        Col.rgb = Col.rgb * 0.5;
     }
 
     Col.a = 1.0f;

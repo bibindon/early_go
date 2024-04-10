@@ -1,8 +1,11 @@
 #include "depth_buf_shadow.hpp"
+
+#include "stdafx.hpp"
 #include "EffectResource.h"
 #include <tchar.h>
 
 using namespace IKD;
+using std::vector;
 
 depth_buf_shadow::depth_buf_shadow()
 {
@@ -13,12 +16,15 @@ depth_buf_shadow::~depth_buf_shadow()
 bool depth_buf_shadow::init(Com_ptr<IDirect3DDevice9> &cpDev)
 {
     if (cpDev == NULL)
+    {
         return false;
+    }
 
-#if _DEBUG == 0
-    if (FAILED ( D3DXCreateEffectFromFile(
+    vector<char> buffer{ early_go::util::get_shader_resource("depth_buf_shadow.fx") };
+    if (FAILED ( D3DXCreateEffect(
         cpDev.GetPtr(),
-        _T("depth_buf_shadow.fx"),
+        &buffer[0],
+        static_cast<UINT>(buffer.size()),
         NULL,
         NULL,
         0,
@@ -28,21 +34,6 @@ bool depth_buf_shadow::init(Com_ptr<IDirect3DDevice9> &cpDev)
     {
         return false;
     }
-#else
-    if (FAILED ( D3DXCreateEffectFromResource(
-        cpDev.GetPtr(),
-        NULL,
-        MAKEINTRESOURCE(FXID_DEPTHBUFSHADOW),
-        NULL,
-        NULL,
-        0,
-        NULL,
-        m_cpEffect.ToCreator(),
-        NULL)))
-    {
-        return false;
-    }
-#endif
 
     m_hWorldMat = m_cpEffect->GetParameterByName(NULL, "matWorld");
     m_hCameraViewMat = m_cpEffect->GetParameterByName(NULL, "matCameraView");

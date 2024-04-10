@@ -25,7 +25,6 @@ VS_OUTPUT ZBufferCalc_VS( float4 Pos : POSITION )
    return Out;
 }
 
-
 // ピクセルシェーダ
 float4 ZBufferPlot_PS(float4 ShadowMapTex : TEXCOORD0) : COLOR
 {
