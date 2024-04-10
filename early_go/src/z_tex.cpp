@@ -22,27 +22,37 @@ z_tex::~z_tex()
     m_cpEffect = NULL;    // Z値プロットエフェクト
     m_cpDev = NULL;       // 描画デバイス
 }
-bool z_tex::init(Com_ptr<IDirect3DDevice9> &cpDev, UINT ZTexWidth, UINT ZTexHeight, D3DFORMAT ZTexFormat)
+bool z_tex::init(
+    Com_ptr<IDirect3DDevice9> &cpDev,
+    UINT ZTexWidth,
+    UINT ZTexHeight,
+    D3DFORMAT ZTexFormat)
 {
     if (cpDev.GetPtr() == NULL)
+    {
         return false;
+    }
     if (ZTexWidth == 0 || ZTexHeight == 0)
+    {
         return false;
+    }
 
     HRESULT hr;
 
     // リソースにあるZ値プロットシェーダプログラムを読み込む
     if (FAILED(D3DXCreateEffectFromResource(
-            cpDev.GetPtr(),
-            NULL,
-            MAKEINTRESOURCE(FXID_ZVALUEPLOT),
-            NULL,
-            NULL,
-            0,
-            NULL,
-            m_cpEffect.ToCreator(),
-            NULL)))
+        cpDev.GetPtr(),
+        NULL,
+        MAKEINTRESOURCE(FXID_ZVALUEPLOT),
+        NULL,
+        NULL,
+        0,
+        NULL,
+        m_cpEffect.ToCreator(),
+        NULL)))
+    {
         return false;
+    }
 
     // エフェクト内の各種パラメータハンドルを取得
     m_hWorldMat = m_cpEffect->GetParameterByName(NULL, "matWorld");
@@ -50,7 +60,9 @@ bool z_tex::init(Com_ptr<IDirect3DDevice9> &cpDev, UINT ZTexWidth, UINT ZTexHeig
     m_hProjMat = m_cpEffect->GetParameterByName(NULL, "matProj");
     m_hTechnique = m_cpEffect->GetTechniqueByName("ZValuePlotTec");
     if (!m_hWorldMat || !m_hViewMat || !m_hProjMat || !m_hTechnique)
+    {
         return false;
+    }
 
     // 指定のZ値テクスチャを生成
     hr = D3DXCreateTexture(
@@ -62,7 +74,9 @@ bool z_tex::init(Com_ptr<IDirect3DDevice9> &cpDev, UINT ZTexWidth, UINT ZTexHeig
         D3DPOOL_DEFAULT,
         m_cpZTex.ToCreator());
     if (FAILED(hr))
+    {
         return false;
+    }
 
     m_cpZTex->GetSurfaceLevel(0, m_cpZTexSurf.ToCreator()); // サーフェイス取得
 
@@ -83,7 +97,9 @@ bool z_tex::init(Com_ptr<IDirect3DDevice9> &cpDev, UINT ZTexWidth, UINT ZTexHeig
         m_cpDepthBuff.ToCreator(),
         NULL);
     if (FAILED(hr))
+    {
         return false;
+    }
 
     m_cpDev = cpDev;
 
@@ -105,7 +121,9 @@ HRESULT z_tex::begin()
 {
     // 初期化が正しく行われているかチェック
     if (m_cpDepthBuff.GetPtr() == NULL || m_cpZTex.GetPtr() == NULL)
+    {
         return E_FAIL;
+    }
 
     // デバイスが持っているバッファを一時保存
     m_cpDev->GetRenderTarget(0, m_cpDevBuffer.ToCreator());
@@ -116,7 +134,12 @@ HRESULT z_tex::begin()
     m_cpDev->SetDepthStencilSurface(m_cpDepthBuff.GetPtr());
 
     // 各サーフェイスを初期化
-    m_cpDev->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(255, 255, 255, 255), 1.0f, 0);
+    m_cpDev->Clear(
+        0,
+        NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+        D3DCOLOR_ARGB(255, 255, 255, 255),
+        1.0f,
+        0);
 
     // プログラマブルシェーダのテクニックを設定
     m_cpEffect->SetTechnique(m_hTechnique);
@@ -135,7 +158,9 @@ HRESULT z_tex::begin_pass()
 bool z_tex::set_param_to_effect()
 {
     if (m_cpEffect.GetPtr() == NULL)
+    {
         return false;
+    }
 
     m_cpEffect->SetMatrix(m_hWorldMat, &m_matWorld);
     m_cpEffect->SetMatrix(m_hViewMat, &m_matView);

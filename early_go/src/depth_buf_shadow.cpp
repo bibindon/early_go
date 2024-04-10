@@ -16,28 +16,32 @@ bool depth_buf_shadow::init(Com_ptr<IDirect3DDevice9> &cpDev)
         return false;
 
 #if _DEBUG
-    if (FAILED(D3DXCreateEffectFromFile(
-            cpDev.GetPtr(),
-            _T("DepthBufShadowEffect.fx"),
-            NULL,
-            NULL,
-            0,
-            NULL,
-            m_cpEffect.ToCreator(),
-            NULL)))
+    if (FAILED ( D3DXCreateEffectFromFile(
+        cpDev.GetPtr(),
+        _T("DepthBufShadowEffect.fx"),
+        NULL,
+        NULL,
+        0,
+        NULL,
+        m_cpEffect.ToCreator(),
+        NULL)))
+    {
         return false;
+    }
 #else
-    if (FAILED(D3DXCreateEffectFromResource(
-            cpDev.GetPtr(),
-            NULL,
-            MAKEINTRESOURCE(FXID_DEPTHBUFSHADOW),
-            NULL,
-            NULL,
-            0,
-            NULL,
-            m_cpEffect.ToCreator(),
-            NULL)))
+    if (FAILED ( D3DXCreateEffectFromResource(
+        cpDev.GetPtr(),
+        NULL,
+        MAKEINTRESOURCE(FXID_DEPTHBUFSHADOW),
+        NULL,
+        NULL,
+        0,
+        NULL,
+        m_cpEffect.ToCreator(),
+        NULL)))
+    {
         return false;
+    }
 #endif
 
     m_hWorldMat = m_cpEffect->GetParameterByName(NULL, "matWorld");
@@ -50,7 +54,9 @@ bool depth_buf_shadow::init(Com_ptr<IDirect3DDevice9> &cpDev)
 
     if (!m_hWorldMat || !m_hCameraViewMat || !m_hCameraProjMat || !m_hLightViewMat ||
         !m_hLightProjMat || !m_hShadowMapTex || !m_hTechnique)
+    {
         return false;
+    }
 
     m_cpDev = cpDev;
     return true;
@@ -58,7 +64,9 @@ bool depth_buf_shadow::init(Com_ptr<IDirect3DDevice9> &cpDev)
 bool depth_buf_shadow::set_shadow_map(Com_ptr<IDirect3DTexture9> &cpShadowMap)
 {
     if (cpShadowMap == NULL)
+    {
         return false;
+    }
 
     m_cpShadowMapTex = cpShadowMap;
     return true;
@@ -86,7 +94,13 @@ void depth_buf_shadow::set_light_proj_matrix(D3DXMATRIX *pMat)
 HRESULT depth_buf_shadow::begin()
 {
     // 各サーフェイスを初期化
-    m_cpDev->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(255, 255, 255, 255), 1.0f, 0);
+    m_cpDev->Clear(
+        0,
+        NULL,
+        D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+        D3DCOLOR_ARGB(255, 255, 255, 255),
+        1.0f,
+        0);
 
     // プログラマブルシェーダに切り替え
     m_cpEffect->SetTechnique(m_hTechnique);
