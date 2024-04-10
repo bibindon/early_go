@@ -4,7 +4,6 @@
 
 #include <d3dx9.h>
 #include "ComPtr.h"
-#include "EffectResource.h"
 
 namespace early_go
 {

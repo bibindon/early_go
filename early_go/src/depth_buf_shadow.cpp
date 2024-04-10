@@ -1,7 +1,6 @@
 #include "depth_buf_shadow.hpp"
 
 #include "stdafx.hpp"
-#include "EffectResource.h"
 #include <tchar.h>
 
 using std::vector;
