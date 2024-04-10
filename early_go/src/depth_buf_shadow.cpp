@@ -2,7 +2,7 @@
 
 // 深度バッファシャドウエフェクト実装部
 
-#include "DepthBufShadowEffect.h"
+#include "depth_buf_shadow.hpp"
 #include "EffectResource.h"
 #include <tchar.h>
 

@@ -60,4 +60,4 @@ END
 #endif    // APSTUDIO_INVOKED Ç≈Ç»Ç¢èÍçá
 
 
-FXID_DEPTHBUFSHADOW	RCDATA DISCARDABLE	"DepthBufShadowEffect.fx"
+FXID_DEPTHBUFSHADOW	RCDATA DISCARDABLE	"depth_buf_shadow.fx"

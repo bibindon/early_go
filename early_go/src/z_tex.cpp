@@ -2,7 +2,7 @@
 
 // Z値テクスチャ生成クラス実装部
 
-#include "ZTexCreator.h"
+#include "z_tex.hpp"
 
 using namespace IKD;
 

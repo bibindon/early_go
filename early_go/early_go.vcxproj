@@ -240,7 +240,7 @@ resource_importer.bat
     <ClCompile Include="src\animation_mesh.cpp" />
     <ClCompile Include="src\abstract_mesh.cpp" />
     <ClCompile Include="src\bgm_player.cpp" />
-    <ClCompile Include="src\DepthBufShadowEffect.cpp" />
+    <ClCompile Include="src\depth_buf_shadow.cpp" />
     <ClCompile Include="src\enemy_manager.cpp" />
     <ClCompile Include="src\error_dialog.cpp" />
     <ClCompile Include="src\hud2.cpp" />
@@ -281,7 +281,7 @@ resource_importer.bat
     <ClCompile Include="src\text_d3dxfont.cpp" />
     <ClCompile Include="src\text_thread_ver.cpp" />
     <ClCompile Include="src\util.cpp" />
-    <ClCompile Include="src\ZTexCreator.cpp" />
+    <ClCompile Include="src\z_tex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -293,7 +293,7 @@ resource_importer.bat
     <ClInclude Include="src\abstract_mesh.hpp" />
     <ClInclude Include="src\bgm_player.hpp" />
     <ClInclude Include="src\comptr.h" />
-    <ClInclude Include="src\DepthBufShadowEffect.h" />
+    <ClInclude Include="src\depth_buf_shadow.hpp" />
     <ClInclude Include="src\enemy_manager.hpp" />
     <ClInclude Include="src\hud2.hpp" />
     <ClInclude Include="src\input.hpp" />
@@ -327,19 +327,19 @@ resource_importer.bat
     <ClInclude Include="src\text_d3dxfont.hpp" />
     <ClInclude Include="src\text_thread_ver.hpp" />
     <ClInclude Include="src\util.hpp" />
-    <ClInclude Include="src\ZTexCreator.h" />
+    <ClInclude Include="src\z_tex.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="early_go.rc" />
-    <ResourceCompile Include="src\DepthBufShadowEffect.rc" />
-    <ResourceCompile Include="src\ZTexCreator.rc" />
+    <ResourceCompile Include="src\depth_buf_shadow.rc" />
+    <ResourceCompile Include="src\z_tex.rc" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="res\shader\animation_mesh_shader.fx" />
     <FxCompile Include="res\shader\mesh_shader.fx" />
     <FxCompile Include="res\shader\skinned_animation_mesh_shader.fx" />
-    <FxCompile Include="src\DepthBufShadowEffect.fx" />
-    <FxCompile Include="src\ZTexCreator.fx" />
+    <FxCompile Include="src\depth_buf_shadow.fx" />
+    <FxCompile Include="src\z_tex.fx" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon1.ico" />
