@@ -1,6 +1,4 @@
-// DepthBufShadowEffect.h (2007. 3. 2)
-
-// 深度バッファシャドウエフェクトクラス
+// http://marupeke296.com/DXGSmp_No46_DepthBufShadowImp.html
 
 #pragma once
 
@@ -9,66 +7,39 @@
 
 namespace IKD
 {
+class depth_buf_shadow
+{
+public:
+    depth_buf_shadow();
+    ~depth_buf_shadow();
+    bool init(Com_ptr<IDirect3DDevice9> &cpDev);
+    bool set_shadow_map(Com_ptr<IDirect3DTexture9> &cpShadowMap);
+    void set_world_matrix(D3DXMATRIX *pMat);
+    void set_camera_view_matrix(D3DXMATRIX *pMat);
+    void set_camera_proj_matrix(D3DXMATRIX *pMat);
+    void set_light_view_matrix(D3DXMATRIX *pMat);
+    void set_light_proj_matrix(D3DXMATRIX *pMat);
+    HRESULT begin();
+    HRESULT end();
+    HRESULT begin_pass();
+    HRESULT end_pass();
+    bool set_param_to_effect();
 
-    class depth_buf_shadow
-    {
-    protected:
-        Com_ptr<IDirect3DDevice9> m_cpDev;           // 描画デバイス
-        Com_ptr<IDirect3DTexture9> m_cpShadowMapTex; // シャドウマップテクスチャ
-        Com_ptr<ID3DXEffect> m_cpEffect;             // 深度バッファシャドウエフェクト
-        D3DXMATRIX m_matWorld;                       // ワールド変換行列
-        D3DXMATRIX m_matCameraView;                  // カメラのビュー変換行列
-        D3DXMATRIX m_matCameraProj;                  // カメラの射影変換行列
-        D3DXMATRIX m_matLightView;                   // ライトのビュー変換行列
-        D3DXMATRIX m_matLightProj;                   // ライトの射影変換行列
-        D3DXHANDLE m_hWorldMat;                      // ワールド変換行列ハンドル
-        D3DXHANDLE m_hCameraViewMat;                 // ビュー変換行列ハンドル
-        D3DXHANDLE m_hCameraProjMat;                 // 射影変換行列ハンドル
-        D3DXHANDLE m_hLightViewMat;                  // ビュー変換行列ハンドル
-        D3DXHANDLE m_hLightProjMat;                  // 射影変換行列ハンドル
-        D3DXHANDLE m_hShadowMapTex;                  // シャドウマップテクスチャハンドル
-        D3DXHANDLE m_hTechnique;                     // テクニックへのハンドル
-
-    public:
-        depth_buf_shadow();
-        virtual ~depth_buf_shadow();
-
-    public:
-        // 初期化メソッド
-        bool Init(Com_ptr<IDirect3DDevice9> &cpDev);
-
-        // シャドウマップを設定
-        bool SetShadowMap(Com_ptr<IDirect3DTexture9> &cpShadowMap);
-
-        // 描画対象オブジェクトのワールド変換行列を設定
-        void SetWorldMatrix(D3DXMATRIX *pMat);
-
-        // カメラのビュー行列を設定
-        void SetCameraViewMatrix(D3DXMATRIX *pMat);
-
-        // カメラの射影変換行列を設定
-        void SetCameraProjMatrix(D3DXMATRIX *pMat);
-
-        // ライトのビュー行列を設定
-        void SetLightViewMatrix(D3DXMATRIX *pMat);
-
-        // ライトの射影変換行列を設定
-        void SetLightProjMatrix(D3DXMATRIX *pMat);
-
-        // 描画の開始を宣言する
-        HRESULT Begin();
-
-        // 描画の終了を宣言する
-        HRESULT End();
-
-        // パスの開始を宣言する
-        HRESULT BeginPass();
-
-        // パスの終了を宣言する
-        HRESULT EndPass();
-
-        // 登録されているパラメータ情報をエフェクトにセット
-        bool SetParamToEffect();
-    };
-
+private:
+    Com_ptr<IDirect3DDevice9> m_cpDev;
+    Com_ptr<IDirect3DTexture9> m_cpShadowMapTex;
+    Com_ptr<ID3DXEffect> m_cpEffect;
+    D3DXMATRIX m_matWorld;
+    D3DXMATRIX m_matCameraView;
+    D3DXMATRIX m_matCameraProj;
+    D3DXMATRIX m_matLightView;
+    D3DXMATRIX m_matLightProj;
+    D3DXHANDLE m_hWorldMat;
+    D3DXHANDLE m_hCameraViewMat;
+    D3DXHANDLE m_hCameraProjMat;
+    D3DXHANDLE m_hLightViewMat;
+    D3DXHANDLE m_hLightProjMat;
+    D3DXHANDLE m_hShadowMapTex;
+    D3DXHANDLE m_hTechnique;
+};
 }

@@ -1,12 +1,6 @@
-// ZTexCreator.cpp (2007. 2. 28)
-
-// Z値テクスチャ生成クラス実装部
-
 #include "z_tex.hpp"
 
 using namespace IKD;
-
-// コンストラクタ
 z_tex::z_tex()
 {
     D3DXMatrixIdentity(&m_matWorld);
@@ -17,8 +11,6 @@ z_tex::z_tex()
     m_hProjMat = NULL;
     m_hTechnique = NULL;
 }
-
-// デストラクタ
 z_tex::~z_tex()
 {
     // COMポインタを明示的に消去
@@ -30,9 +22,7 @@ z_tex::~z_tex()
     m_cpEffect = NULL;    // Z値プロットエフェクト
     m_cpDev = NULL;       // 描画デバイス
 }
-
-// 初期化メソッド
-bool z_tex::Init(Com_ptr<IDirect3DDevice9> &cpDev, UINT ZTexWidth, UINT ZTexHeight, D3DFORMAT ZTexFormat)
+bool z_tex::init(Com_ptr<IDirect3DDevice9> &cpDev, UINT ZTexWidth, UINT ZTexHeight, D3DFORMAT ZTexFormat)
 {
     if (cpDev.GetPtr() == NULL)
         return false;
@@ -99,27 +89,19 @@ bool z_tex::Init(Com_ptr<IDirect3DDevice9> &cpDev, UINT ZTexWidth, UINT ZTexHeig
 
     return true;
 }
-
-// 描画対象オブジェクトのワールド変換行列を設定
-void z_tex::SetWorldMatrix(D3DXMATRIX *pMat)
+void z_tex::set_world_matrix(D3DXMATRIX *pMat)
 {
     m_matWorld = *pMat;
 }
-
-// ビュー行列を設定
-void z_tex::SetViewMatrix(D3DXMATRIX *pMat)
+void z_tex::set_view_matrix(D3DXMATRIX *pMat)
 {
     m_matView = *pMat;
 }
-
-// 射影変換行列を設定
-void z_tex::SetProjMatrix(D3DXMATRIX *pMat)
+void z_tex::set_proj_matrix(D3DXMATRIX *pMat)
 {
     m_matProj = *pMat;
 }
-
-// 描画の開始を宣言する
-HRESULT z_tex::Begin()
+HRESULT z_tex::begin()
 {
     // 初期化が正しく行われているかチェック
     if (m_cpDepthBuff.GetPtr() == NULL || m_cpZTex.GetPtr() == NULL)
@@ -145,16 +127,12 @@ HRESULT z_tex::Begin()
 
     return S_OK;
 }
-
-// パスの開始を宣言する
-HRESULT z_tex::BeginPass()
+HRESULT z_tex::begin_pass()
 {
     m_cpEffect->BeginPass(0); // Z値計算は1パス
     return S_OK;
 }
-
-// 登録されているパラメータ情報をエフェクトにセット
-bool z_tex::SetParamToEffect()
+bool z_tex::set_param_to_effect()
 {
     if (m_cpEffect.GetPtr() == NULL)
         return false;
@@ -165,16 +143,12 @@ bool z_tex::SetParamToEffect()
 
     return true;
 }
-
-// パスの終了を宣言する
-HRESULT z_tex::EndPass()
+HRESULT z_tex::end_pass()
 {
     m_cpEffect->EndPass();
     return S_OK;
 }
-
-// 描画の終了を宣言する
-HRESULT z_tex::End()
+HRESULT z_tex::end()
 {
     m_cpEffect->End();
 
@@ -191,9 +165,7 @@ HRESULT z_tex::End()
 
     return S_OK;
 }
-
-// Z値テクスチャを取得する
-bool z_tex::GetZTex(Com_ptr<IDirect3DTexture9> &cpTex)
+bool z_tex::get_z_tex(Com_ptr<IDirect3DTexture9> &cpTex)
 {
     cpTex = m_cpZTex;
     return true;
