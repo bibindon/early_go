@@ -5,7 +5,7 @@
 #include "ComPtr.h"
 #include <d3dx9.h>
 
-namespace IKD
+namespace early_go
 {
 class depth_buf_shadow
 {

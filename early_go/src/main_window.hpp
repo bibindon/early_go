@@ -82,10 +82,10 @@ private:
 
     int ideal_time_table[60];
 
-    IKD::z_tex ZTexCreator;                                          // Z値テクスチャ作成オブジェクト
-    IKD::depth_buf_shadow DepthBS;                                          // Z値テクスチャ作成オブジェクト
-    IKD::Com_ptr<ID3DXSprite> cpSprite;
-    IKD::Com_ptr<IDirect3DTexture9> cpShadowMapTex;                         // Z値テクスチャ
+    z_tex ZTexCreator;                                          // Z値テクスチャ作成オブジェクト
+    depth_buf_shadow DepthBS;                                          // Z値テクスチャ作成オブジェクト
+    Com_ptr<ID3DXSprite> cpSprite;
+    Com_ptr<IDirect3DTexture9> cpShadowMapTex;                         // Z値テクスチャ
 
     //----------------------------------------
     // Lua area

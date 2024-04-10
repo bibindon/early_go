@@ -18,7 +18,7 @@ mesh::mesh(
     const D3DXVECTOR3& position,
     const D3DXVECTOR3& rotation,
     const float& scale)
-    : abstract_mesh { d3d_device, x_filename, SHADER_FILENAME, position, rotation }
+    : abstract_mesh { d3d_device, x_filename, SHADER_FILENAME, position, rotation, scale }
 {
     animation_strategy_.reset(new_crt no_animation { });
 
@@ -224,11 +224,10 @@ void mesh::render_impl(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projecti
         world_mat *= mat;
     }
     DepthBS->set_world_matrix(&world_mat);
-    for (int i = 0; i < materials_count_; i++)
+    for (DWORD i { 0 }; i < materials_count_; i++)
     {
         DepthBS->set_param_to_effect(); // 描画の直前に呼び出す必要があります
         DepthBS->begin_pass();
-        //cpMeshCube->DrawSubset(i); // メッシュ描画
         d3dx_mesh_->DrawSubset(i);
         DepthBS->end_pass();
     }

@@ -4,8 +4,10 @@
 #include "EffectResource.h"
 #include <tchar.h>
 
-using namespace IKD;
 using std::vector;
+
+namespace early_go
+{
 
 depth_buf_shadow::depth_buf_shadow()
 {
@@ -133,3 +135,5 @@ bool depth_buf_shadow::set_param_to_effect()
 
     return true;
 }
+}
+

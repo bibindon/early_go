@@ -28,7 +28,6 @@ private:
     std::vector<std::unique_ptr<IDirect3DTexture9, custom_deleter>> textures_ { };
     D3DXVECTOR3 center_coodinate_ { 0.0f, 0.0f, 0.0f };
     float radius_ { 0.0f };
-    float scale_ { 0.0f };
     std::string mesh_name_ { };
 
     void render_impl(const D3DXMATRIX &, const D3DXMATRIX &) override;

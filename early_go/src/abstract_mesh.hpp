@@ -13,8 +13,8 @@ struct message_writer;
 class abstract_mesh
 {
 public:
-    IKD::z_tex* ZTexCreator; // TODO
-    IKD::depth_buf_shadow* DepthBS; // TODO
+    z_tex* ZTexCreator; // TODO
+    depth_buf_shadow* DepthBS; // TODO
 
     static constexpr int LAYER_NUMBER{8};
 
@@ -23,10 +23,12 @@ public:
         const std::string &,
         const std::string &,
         const D3DXVECTOR3 &,
-        const D3DXVECTOR3 &);
+        const D3DXVECTOR3 &,
+        const float);
     virtual ~abstract_mesh();
     void set_position(const D3DXVECTOR3 &);
     void set_rotation(const D3DXVECTOR3 &);
+    void set_scale(const float);
     void set_animation(const std::string &);
     void set_default_animation(const std::string &);
     void set_animation_config(const std::string &, const bool &, const float &);
@@ -87,6 +89,7 @@ protected:
     std::array<D3DXHANDLE, LAYER_NUMBER> texture_handle_;
     D3DXVECTOR3 position_;
     D3DXVECTOR3 rotation_;
+    float scale_;
     std::string mesh_name_;
 
 private:

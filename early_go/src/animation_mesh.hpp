@@ -42,7 +42,6 @@ private:
     D3DXMATRIX projection_matrix_;
 
     D3DXVECTOR3 center_coodinate_;
-    float scale_;
 
     // For effect.
     D3DXHANDLE world_handle_;

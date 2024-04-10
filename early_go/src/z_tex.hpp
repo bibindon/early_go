@@ -6,7 +6,7 @@
 #include "ComPtr.h"
 #include "EffectResource.h"
 
-namespace IKD
+namespace early_go
 {
 class z_tex
 {

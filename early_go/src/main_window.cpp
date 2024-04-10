@@ -39,8 +39,6 @@ using ummap = std::unordered_multimap<T1, T2>;
 using std::chrono::duration_cast;
 using std::chrono::microseconds;
 
-using namespace IKD;
-
 namespace early_go
 {
 // A definition of the static member variable. 
@@ -708,8 +706,7 @@ void main_window::render()
             {
                 mesh_lua.second->set_position(itr->second.pos);
                 mesh_lua.second->set_rotation(itr->second.rotate);
-// TODO
-//                mesh_lua.second->set_scale(itr->second.scale);
+                mesh_lua.second->set_scale(itr->second.scale);
                 mesh_lua.second->ztex_render(
                     view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
             }
@@ -724,8 +721,7 @@ void main_window::render()
             {
                 mesh_lua.second->set_position(itr->second.pos);
                 mesh_lua.second->set_rotation(itr->second.rotate);
-// TODO
-//                mesh_lua.second->set_scale(itr->second.scale);
+                mesh_lua.second->set_scale(itr->second.scale);
                 mesh_lua.second->render(
                     view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
             }

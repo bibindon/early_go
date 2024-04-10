@@ -2,9 +2,10 @@
 
 #include "stdafx.hpp"
 
-using namespace IKD;
 using std::vector;
 
+namespace early_go
+{
 z_tex::z_tex()
 {
     D3DXMatrixIdentity(&m_matWorld);
@@ -27,7 +28,7 @@ z_tex::~z_tex()
     m_cpDev = NULL;       // 描画デバイス
 }
 bool z_tex::init(
-    Com_ptr<IDirect3DDevice9> &cpDev,
+    Com_ptr<IDirect3DDevice9>& cpDev,
     UINT ZTexWidth,
     UINT ZTexHeight,
     D3DFORMAT ZTexFormat)
@@ -44,7 +45,7 @@ bool z_tex::init(
     HRESULT hr;
 
     // リソースにあるZ値プロットシェーダプログラムを読み込む
-    vector<char> buffer{ early_go::util::get_shader_resource("z_tex.fx") };
+    vector<char> buffer { early_go::util::get_shader_resource("z_tex.fx") };
     if (FAILED(D3DXCreateEffect(
         cpDev.GetPtr(),
         &buffer[0],
@@ -86,7 +87,7 @@ bool z_tex::init(
     m_cpZTex->GetSurfaceLevel(0, m_cpZTexSurf.ToCreator()); // サーフェイス取得
 
     // 描画デバイスに定義されているバッファの能力を取得
-    IDirect3DSurface9 *pSurf;
+    IDirect3DSurface9* pSurf;
     cpDev->GetDepthStencilSurface(&pSurf);
     D3DSURFACE_DESC Desc;
     pSurf->GetDesc(&Desc);
@@ -110,15 +111,15 @@ bool z_tex::init(
 
     return true;
 }
-void z_tex::set_world_matrix(D3DXMATRIX *pMat)
+void z_tex::set_world_matrix(D3DXMATRIX* pMat)
 {
     m_matWorld = *pMat;
 }
-void z_tex::set_view_matrix(D3DXMATRIX *pMat)
+void z_tex::set_view_matrix(D3DXMATRIX* pMat)
 {
     m_matView = *pMat;
 }
-void z_tex::set_proj_matrix(D3DXMATRIX *pMat)
+void z_tex::set_proj_matrix(D3DXMATRIX* pMat)
 {
     m_matProj = *pMat;
 }
@@ -195,8 +196,10 @@ HRESULT z_tex::end()
 
     return S_OK;
 }
-bool z_tex::get_z_tex(Com_ptr<IDirect3DTexture9> &cpTex)
+bool z_tex::get_z_tex(Com_ptr<IDirect3DTexture9>& cpTex)
 {
     cpTex = m_cpZTex;
     return true;
 }
+}
+

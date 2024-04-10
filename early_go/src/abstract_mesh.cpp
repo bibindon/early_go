@@ -67,13 +67,15 @@ abstract_mesh::abstract_mesh(
     const string& x_filename,
     const string& shader_filename,
     const D3DXVECTOR3& position,
-    const D3DXVECTOR3& rotation)
+    const D3DXVECTOR3& rotation,
+    const float scale)
     : d3d_device_ { d3d_device },
     effect_ { nullptr, custom_deleter{} },
     animation_strategy_ { nullptr },
     dynamic_texture_ { new_crt dynamic_texture{} },
     position_ { position },
     rotation_ { rotation },
+    scale_ { scale },
     mesh_name_ { x_filename }
 {
     HRESULT result{NULL};
@@ -338,6 +340,11 @@ void abstract_mesh::set_position(const D3DXVECTOR3 &position)
 void abstract_mesh::set_rotation(const D3DXVECTOR3 &rotation)
 {
     rotation_ = rotation;
+}
+
+void abstract_mesh::set_scale(const float scale)
+{
+    scale_ = scale;
 }
 
 void abstract_mesh::set_animation(const string &animation_set)

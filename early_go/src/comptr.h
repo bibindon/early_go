@@ -23,7 +23,8 @@
 
 
 
-namespace IKD{
+namespace early_go
+{
 
 template <class T>
 class Com_ptr
