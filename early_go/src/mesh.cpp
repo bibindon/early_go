@@ -25,6 +25,9 @@ mesh::mesh(
     HRESULT result { 0 };
     world_view_proj_handle_ = effect_->GetParameterByName(nullptr, "g_world_view_projection");
 
+    lightview = effect_->GetParameterByName(nullptr, "matLightView");
+    lightproj = effect_->GetParameterByName(nullptr, "matLightProj");
+
     LPD3DXBUFFER adjacency_buffer { nullptr };
     LPD3DXBUFFER material_buffer { nullptr };
     LPD3DXMESH temp_mesh { nullptr };
@@ -141,8 +144,98 @@ mesh::~mesh()
 {
 }
 
+void mesh::ztex_render(const D3DXMATRIX&, const D3DXMATRIX&, const D3DXVECTOR4&, const float&)
+{
+    {
+        ///////////////////////////////////////
+        // ■パス1 : Z値テクスチャに
+        //         : ライト方向から描画
+
+//        ZTexCreator->begin(); // シェーダ開始
+
+        // 立方体描画
+        D3DXMATRIX world_mat { };
+        D3DXMatrixIdentity(&world_mat);
+
+        {
+            D3DXMATRIX mat { };
+
+            D3DXMatrixTranslation(
+                &mat, -center_coodinate_.x, -center_coodinate_.y, -center_coodinate_.z);
+            world_mat *= mat;
+
+            D3DXMatrixScaling(&mat, scale_, scale_, scale_);
+            world_mat *= mat;
+
+            D3DXMatrixRotationYawPitchRoll(&mat, rotation_.x, rotation_.y, rotation_.z);
+            world_mat *= mat;
+
+            D3DXMatrixTranslation(&mat, position_.x, position_.y, position_.z);
+            world_mat *= mat;
+        }
+        ZTexCreator->set_world_matrix(&world_mat); // 立方体のワールド変換行列を登録
+        for (DWORD i = 0; i < materials_count_; i++)
+        {
+            ZTexCreator->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+            ZTexCreator->begin_pass();
+            d3dx_mesh_->DrawSubset(i); // メッシュ描画
+            ZTexCreator->end_pass();
+        }
+
+//        ZTexCreator->end(); // シェーダ終了
+    }
+}
+
 void mesh::render_impl(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
 {
+
+    ///////////////////////////////////////
+    // ■パス2 : 深度バッファシャドウ描画
+
+    // カメラの視点を変化
+//    D3DXVECTOR3 temp4 { FLOAT(40 * sin(f / 20)), 70, FLOAT(40 * cos(f / 20)) };
+//    D3DXVECTOR3 temp5 { 20, -20, 20 };
+//    D3DXVECTOR3 temp6 { 0, 1, 0 };
+//    D3DXMatrixLookAtLH(&CameraView, &temp4, &temp5, &temp6);
+    D3DXMATRIX temp1 { view_matrix };
+    DepthBS->set_camera_view_matrix(&temp1);
+
+//    DepthBS->begin();
+
+    // 立方体描画
+    //GetCubeWorldMatrix(f, x, z, &CubeWorldMat);
+    D3DXMATRIX world_mat { };
+    D3DXMatrixIdentity(&world_mat);
+
+    {
+        D3DXMATRIX mat { };
+
+        D3DXMatrixTranslation(
+            &mat, -center_coodinate_.x, -center_coodinate_.y, -center_coodinate_.z);
+        world_mat *= mat;
+
+        D3DXMatrixScaling(&mat, scale_, scale_, scale_);
+        world_mat *= mat;
+
+        D3DXMatrixRotationYawPitchRoll(&mat, rotation_.x, rotation_.y, rotation_.z);
+        world_mat *= mat;
+
+        D3DXMatrixTranslation(&mat, position_.x, position_.y, position_.z);
+        world_mat *= mat;
+    }
+    DepthBS->set_world_matrix(&world_mat);
+    for (int i = 0; i < materials_count_; i++)
+    {
+        DepthBS->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+        DepthBS->begin_pass();
+        //cpMeshCube->DrawSubset(i); // メッシュ描画
+        d3dx_mesh_->DrawSubset(i);
+        DepthBS->end_pass();
+    }
+
+//    DepthBS->end();
+
+    /*
     D3DXMATRIX world_view_projection_matrix { };
     D3DXMatrixIdentity(&world_view_projection_matrix);
     {
@@ -191,5 +284,6 @@ void mesh::render_impl(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projecti
     }
     effect_->EndPass();
     effect_->End();
+    */
 }
 } // namespace early_go 

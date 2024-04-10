@@ -358,6 +358,10 @@ void abstract_mesh::set_animation_config(
     animation_strategy_->set_animation_config(animation_name, loop, duration);
 }
 
+void abstract_mesh::ztex_render(const D3DXMATRIX&, const D3DXMATRIX&, const D3DXVECTOR4&, const float&)
+{
+}
+
 void abstract_mesh::render(
     const D3DXMATRIX &view_matrix,
     const D3DXMATRIX &projection_matrix,
@@ -397,6 +401,7 @@ void abstract_mesh::render(
             }
         }
     }
+
     render_impl(view_matrix, projection_matrix);
 }
 

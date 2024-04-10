@@ -6,6 +6,8 @@
 #include <lualib.h>
 
 #include "stdafx.hpp"
+#include "z_tex.hpp"
+#include "depth_buf_shadow.hpp"
 
 #include "gtest/gtest_prod.h"
 
@@ -79,6 +81,11 @@ private:
     std::shared_ptr<sequence_switcher> sequence_switcher_ { };
 
     int ideal_time_table[60];
+
+    IKD::z_tex ZTexCreator;                                          // Z値テクスチャ作成オブジェクト
+    IKD::depth_buf_shadow DepthBS;                                          // Z値テクスチャ作成オブジェクト
+    IKD::Com_ptr<ID3DXSprite> cpSprite;
+    IKD::Com_ptr<IDirect3DTexture9> cpShadowMapTex;                         // Z値テクスチャ
 
     //----------------------------------------
     // Lua area

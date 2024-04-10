@@ -23,6 +23,9 @@
 #include "sequence_switcher.hpp"
 #include "light.hpp"
 #include "stage.hpp"
+#include "comptr.h"
+#include "z_tex.hpp"
+#include "depth_buf_shadow.hpp"
 
 using std::chrono::system_clock;
 using std::shared_ptr;
@@ -35,6 +38,8 @@ using ummap = std::unordered_multimap<T1, T2>;
 
 using std::chrono::duration_cast;
 using std::chrono::microseconds;
+
+using namespace IKD;
 
 namespace early_go
 {
@@ -118,6 +123,54 @@ main_window::main_window(const HINSTANCE &hinstance)
     for (int i = 20; i < 60; ++i)
     {
         ideal_time_table[i] = 17;
+    }
+
+    {
+        Com_ptr<IDirect3DDevice9> cpDev(d3d_device_.get());
+        /////////////////////////////////////////////////////
+        // Z値テクスチャ生成オブジェクトの生成と初期化
+        /////////////
+        UINT TexSize = 2048;                                               // テクスチャサイズ
+        if (!ZTexCreator.init(cpDev, TexSize, TexSize, D3DFMT_A8R8G8B8))   // 通常はこのテクスチャが作成できます
+        {
+            if (!ZTexCreator.init(cpDev, TexSize, TexSize, D3DFMT_R5G6B5)) // 万が一は16bitに落とします
+            {
+                return;
+            }
+        }
+        ZTexCreator.get_z_tex(cpShadowMapTex);
+
+        /////////////////////////////////////////////////////
+        // 深度バッファシャドウオブジェクトの生成と初期化
+        /////////////
+//        depth_buf_shadow DepthBS; // 深度バッファシャドウオブジェクト
+        DepthBS.init(cpDev);
+        DepthBS.set_shadow_map(cpShadowMapTex); // シャドウマップテクスチャを登録
+
+        // Z値テクスチャ描画用のスプライト生成
+        D3DXCreateSprite(cpDev.GetPtr(), cpSprite.ToCreator());
+
+        // ビュー・射影変換行列を初期化して固定情報として登録する
+        D3DXMATRIX CameraView, CameraProj; // カメラビュー変換・射影変換
+        D3DXMATRIX LightView, LightProj;   // ライトビュー変換・射影変換
+        float LightScale = 0.1f;
+        D3DXMatrixPerspectiveFovLH(&CameraProj, D3DXToRadian(45), 1600.0f / 900.0f, 1.0f, 1000.0f);
+        D3DXMatrixPerspectiveFovLH(&LightProj, D3DXToRadian(90), 1.8f, 4.0f, 300.0f);
+        D3DXVECTOR3 temp1 { LightScale * 100, LightScale * 100, LightScale * 100 };
+        D3DXVECTOR3 temp2 { -10, -10, 5 };
+        D3DXVECTOR3 temp3 { 0, 1, 0 };
+        D3DXMatrixLookAtLH(&LightView, &temp1, &temp2, &temp3);
+
+        // Z値テクスチャOBJへ登録
+        ZTexCreator.set_view_matrix(&LightView);
+        ZTexCreator.set_proj_matrix(&LightProj);
+
+        // 深度バッファシャドウOBJへ登録
+        // カメラビューは毎回変わるので描画時に登録します
+        DepthBS.set_light_view_matrix(&LightView);
+        DepthBS.set_light_proj_matrix(&LightProj);
+        DepthBS.set_camera_proj_matrix(&CameraProj);
+
     }
 }
 
@@ -647,7 +700,23 @@ void main_window::render()
     {
         early_->render(view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
 
+        ZTexCreator.begin();
+        for (auto& mesh_lua : meshes_lua_)
+        {
+            auto range = mesh_info_map.equal_range(mesh_lua.first);
+            for (auto itr = range.first; itr != range.second; ++itr)
+            {
+//                mesh_lua.second->set_position(itr->second.pos);
+//                mesh_lua.second->set_rotation(itr->second.rotate);
+// TODO
+//                mesh_lua.second->set_scale(itr->second.scale);
+                mesh_lua.second->ztex_render(
+                    view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
+            }
+        }
+        ZTexCreator.end();
 
+        DepthBS.begin();
         for (auto& mesh_lua : meshes_lua_)
         {
             auto range = mesh_info_map.equal_range(mesh_lua.first);
@@ -661,6 +730,17 @@ void main_window::render()
                     view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
             }
         }
+        DepthBS.end();
+        
+        //////////////////////////////////
+        // ■パス3 : Z値テクスチャを描画
+        D3DXMATRIX SpriteScaleMat;
+        D3DXVECTOR3 pos{ 0,0,0 };
+        D3DXMatrixScaling(&SpriteScaleMat, 0.18f, 0.1f, 0.0f);
+        cpSprite->SetTransform(&SpriteScaleMat);
+        cpSprite->Begin(0);
+        cpSprite->Draw(cpShadowMapTex.GetPtr(), NULL, NULL, &pos, 0xffffffff);
+        cpSprite->End();
 
         if (sprite_anim_.get() != nullptr)
         {
@@ -793,7 +873,7 @@ int main_window::glue_place_mesh(lua_State* L)
     get_mesh_info_from_lua(L, &filename, &pos, &rotate, &scale);
 
     auto itr = mesh_info_map.find(filename);
-    if (itr == mesh_info_map.end())
+//    if (itr == mesh_info_map.end())
     {
         shared_ptr<abstract_mesh> work { new_crt mesh {
             main_window_->d3d_device_,
@@ -801,6 +881,12 @@ int main_window::glue_place_mesh(lua_State* L)
             D3DXVECTOR3{pos.x, pos.y, pos.z},
             D3DXVECTOR3{rotate.x, rotate.y, rotate.z},
             scale } };
+        work->ZTexCreator = &main_window_->ZTexCreator;
+        work->DepthBS = &main_window_->DepthBS;
+        //main_window_->meshes_lua_.insert(make_pair(filename, work));
+        static int i { 0 };
+        filename = filename + std::to_string(i);
+        ++i;
         main_window_->meshes_lua_.insert(make_pair(filename, work));
     }
     mesh_info_map.insert(make_pair(filename, mesh_info{ pos, rotate, scale }));

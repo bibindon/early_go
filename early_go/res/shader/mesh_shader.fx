@@ -5,6 +5,9 @@ float g_light_brightness;
 float4 g_diffuse;
 float4 g_ambient = { 0.2f, 0.2f, 0.2f, 0.0f };
 
+float4x4 matLightView;                // ライトビュー変換行列
+float4x4 matLightProj;                // 射影変換行列
+
 void vertex_shader(
     in  float4 in_position  : POSITION,
     in  float4 in_normal    : NORMAL0,
@@ -20,7 +23,14 @@ void vertex_shader(
     out_diffuse = g_diffuse * max(0, light_intensity) + g_ambient;
     out_diffuse.a = 1.0f;
 
-    out_texcood = in_texcood;
+    //out_texcood = in_texcood;
+
+    
+    // ライトの目線によるワールドビュー射影変換をする
+    float4x4 mat;
+    mat  = mul( g_world, matLightView );
+    mat  = mul( mat, matLightProj );
+    out_texcood = mul( in_position, mat );
 }
 
 texture g_mesh_texture;
@@ -59,9 +69,30 @@ float  g_opacity[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, };
 
 void pixel_shader(
     in  float4 in_diffuse  : COLOR0,
-    in  float2 in_texcood  : TEXCOORD0,
+    //in  float2 in_texcood  : TEXCOORD0,
+    in  float4 ZCalcTex  : TEXCOORD0,
     out float4 out_diffuse : COLOR0)
 {
+    // ライト目線によるZ値の再算出
+    float ZValue = ZCalcTex.z / ZCalcTex.w;
+
+    // テクスチャ座標に変換
+    float2 TransTexCoord;
+    TransTexCoord.x = (1.0f + ZCalcTex.x/ZCalcTex.w)*0.5f;
+    TransTexCoord.y = (1.0f - ZCalcTex.y/ZCalcTex.w)*0.5f;
+
+    // 同じ座標のZ値を抽出
+    float SM_Z = tex2D( texture_sampler[0], TransTexCoord ).w;
+
+    // 算出点がシャドウマップのZ値よりも大きければ影と判断
+    if ( ZValue > SM_Z+0.005f )
+    {
+//        Col.rgb = Col.rgb * 0.5;
+        in_diffuse.rgb = in_diffuse.rgb * (0.5*ZValue * ZValue * ZValue ); // use pow
+    }
+
+    out_diffuse = in_diffuse;
+    /*
     float4 color_result = (float4)0;
 
     color_result = tex2D(mesh_texture_sampler, in_texcood);
@@ -80,6 +111,7 @@ void pixel_shader(
     out_diffuse.r *= (1.0f - g_opacity[7]);
     out_diffuse.g *= (1.0f - g_opacity[7]);
     out_diffuse.b *= (1.0f - g_opacity[7]);
+    */
 }
 
 technique technique_

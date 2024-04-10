@@ -15,10 +15,10 @@ bool depth_buf_shadow::init(Com_ptr<IDirect3DDevice9> &cpDev)
     if (cpDev == NULL)
         return false;
 
-#if _DEBUG
+#if _DEBUG == 0
     if (FAILED ( D3DXCreateEffectFromFile(
         cpDev.GetPtr(),
-        _T("DepthBufShadowEffect.fx"),
+        _T("depth_buf_shadow.fx"),
         NULL,
         NULL,
         0,

@@ -3,6 +3,8 @@
 
 #include "stdafx.hpp"
 #include "animation_strategy.hpp"
+#include "z_tex.hpp"
+#include "depth_buf_shadow.hpp"
 
 namespace early_go
 {
@@ -11,6 +13,9 @@ struct message_writer;
 class abstract_mesh
 {
 public:
+    IKD::z_tex* ZTexCreator; // TODO
+    IKD::depth_buf_shadow* DepthBS; // TODO
+
     static constexpr int LAYER_NUMBER{8};
 
     abstract_mesh(
@@ -25,6 +30,7 @@ public:
     void set_animation(const std::string &);
     void set_default_animation(const std::string &);
     void set_animation_config(const std::string &, const bool &, const float &);
+    virtual void ztex_render(const D3DXMATRIX &, const D3DXMATRIX &, const D3DXVECTOR4 &, const float &);
     void render(const D3DXMATRIX &, const D3DXMATRIX &, const D3DXVECTOR4 &, const float &);
 
     //-----------------------------------------------

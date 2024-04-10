@@ -27,10 +27,15 @@ VS_OUTPUT ZBufferCalc_VS( float4 Pos : POSITION )
 
 
 // ピクセルシェーダ
-float4 ZBufferPlot_PS( float4 ShadowMapTex : TEXCOORD0 ) : COLOR
+float4 ZBufferPlot_PS(float4 ShadowMapTex : TEXCOORD0) : COLOR
 {
-   // Z値算出
-   return ShadowMapTex.z / ShadowMapTex.w;
+    // Z値算出
+    float4 work;
+    work.a = 1.0f;
+    work.r = ShadowMapTex.z / ShadowMapTex.w;
+    work.g = ShadowMapTex.z / ShadowMapTex.w;
+    work.b = ShadowMapTex.z / ShadowMapTex.w;
+    return work;
 }
 
 technique ZValuePlotTec
