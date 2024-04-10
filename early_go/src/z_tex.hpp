@@ -13,11 +13,11 @@ namespace IKD
 {
 
     ///////////////////////////////////////////////
-    // CZTexCreatorクラス
+    // z_texクラス
     //
     //   Z値テクスチャを作成するヘルパークラス
     //////////////////////////////
-    class CZTexCreator
+    class z_tex
     {
     protected:
         Com_ptr<IDirect3DDevice9> m_cpDev;        // 描画デバイス
@@ -36,8 +36,8 @@ namespace IKD
         D3DXHANDLE m_hTechnique;                  // テクニックへのハンドル
 
     public:
-        CZTexCreator();
-        virtual ~CZTexCreator();
+        z_tex();
+        virtual ~z_tex();
 
     public:
         // 初期化メソッド

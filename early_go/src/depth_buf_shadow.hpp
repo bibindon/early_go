@@ -10,7 +10,7 @@
 namespace IKD
 {
 
-    class CDepthBufShadowEffect
+    class depth_buf_shadow
     {
     protected:
         Com_ptr<IDirect3DDevice9> m_cpDev;           // 描画デバイス
@@ -30,8 +30,8 @@ namespace IKD
         D3DXHANDLE m_hTechnique;                     // テクニックへのハンドル
 
     public:
-        CDepthBufShadowEffect();
-        virtual ~CDepthBufShadowEffect();
+        depth_buf_shadow();
+        virtual ~depth_buf_shadow();
 
     public:
         // 初期化メソッド

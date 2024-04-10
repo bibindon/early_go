@@ -7,7 +7,7 @@
 using namespace IKD;
 
 // コンストラクタ
-CZTexCreator::CZTexCreator()
+z_tex::z_tex()
 {
     D3DXMatrixIdentity(&m_matWorld);
     D3DXMatrixIdentity(&m_matView);
@@ -19,7 +19,7 @@ CZTexCreator::CZTexCreator()
 }
 
 // デストラクタ
-CZTexCreator::~CZTexCreator()
+z_tex::~z_tex()
 {
     // COMポインタを明示的に消去
     m_cpDepthBuff = NULL; // 深度バッファ
@@ -32,7 +32,7 @@ CZTexCreator::~CZTexCreator()
 }
 
 // 初期化メソッド
-bool CZTexCreator::Init(Com_ptr<IDirect3DDevice9> &cpDev, UINT ZTexWidth, UINT ZTexHeight, D3DFORMAT ZTexFormat)
+bool z_tex::Init(Com_ptr<IDirect3DDevice9> &cpDev, UINT ZTexWidth, UINT ZTexHeight, D3DFORMAT ZTexFormat)
 {
     if (cpDev.GetPtr() == NULL)
         return false;
@@ -101,25 +101,25 @@ bool CZTexCreator::Init(Com_ptr<IDirect3DDevice9> &cpDev, UINT ZTexWidth, UINT Z
 }
 
 // 描画対象オブジェクトのワールド変換行列を設定
-void CZTexCreator::SetWorldMatrix(D3DXMATRIX *pMat)
+void z_tex::SetWorldMatrix(D3DXMATRIX *pMat)
 {
     m_matWorld = *pMat;
 }
 
 // ビュー行列を設定
-void CZTexCreator::SetViewMatrix(D3DXMATRIX *pMat)
+void z_tex::SetViewMatrix(D3DXMATRIX *pMat)
 {
     m_matView = *pMat;
 }
 
 // 射影変換行列を設定
-void CZTexCreator::SetProjMatrix(D3DXMATRIX *pMat)
+void z_tex::SetProjMatrix(D3DXMATRIX *pMat)
 {
     m_matProj = *pMat;
 }
 
 // 描画の開始を宣言する
-HRESULT CZTexCreator::Begin()
+HRESULT z_tex::Begin()
 {
     // 初期化が正しく行われているかチェック
     if (m_cpDepthBuff.GetPtr() == NULL || m_cpZTex.GetPtr() == NULL)
@@ -147,14 +147,14 @@ HRESULT CZTexCreator::Begin()
 }
 
 // パスの開始を宣言する
-HRESULT CZTexCreator::BeginPass()
+HRESULT z_tex::BeginPass()
 {
     m_cpEffect->BeginPass(0); // Z値計算は1パス
     return S_OK;
 }
 
 // 登録されているパラメータ情報をエフェクトにセット
-bool CZTexCreator::SetParamToEffect()
+bool z_tex::SetParamToEffect()
 {
     if (m_cpEffect.GetPtr() == NULL)
         return false;
@@ -167,14 +167,14 @@ bool CZTexCreator::SetParamToEffect()
 }
 
 // パスの終了を宣言する
-HRESULT CZTexCreator::EndPass()
+HRESULT z_tex::EndPass()
 {
     m_cpEffect->EndPass();
     return S_OK;
 }
 
 // 描画の終了を宣言する
-HRESULT CZTexCreator::End()
+HRESULT z_tex::End()
 {
     m_cpEffect->End();
 
@@ -193,7 +193,7 @@ HRESULT CZTexCreator::End()
 }
 
 // Z値テクスチャを取得する
-bool CZTexCreator::GetZTex(Com_ptr<IDirect3DTexture9> &cpTex)
+bool z_tex::GetZTex(Com_ptr<IDirect3DTexture9> &cpTex)
 {
     cpTex = m_cpZTex;
     return true;

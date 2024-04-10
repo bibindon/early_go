@@ -9,17 +9,17 @@
 using namespace IKD;
 
 // コンストラクタ
-CDepthBufShadowEffect::CDepthBufShadowEffect()
+depth_buf_shadow::depth_buf_shadow()
 {
 }
 
 // デストラクタ
-CDepthBufShadowEffect::~CDepthBufShadowEffect()
+depth_buf_shadow::~depth_buf_shadow()
 {
 }
 
 // 初期化メソッド
-bool CDepthBufShadowEffect::Init(Com_ptr<IDirect3DDevice9> &cpDev)
+bool depth_buf_shadow::Init(Com_ptr<IDirect3DDevice9> &cpDev)
 {
     // デバイスの登録とエフェクトハンドルの取得
     if (cpDev == NULL)
@@ -68,7 +68,7 @@ bool CDepthBufShadowEffect::Init(Com_ptr<IDirect3DDevice9> &cpDev)
 }
 
 // シャドウマップを設定
-bool CDepthBufShadowEffect::SetShadowMap(Com_ptr<IDirect3DTexture9> &cpShadowMap)
+bool depth_buf_shadow::SetShadowMap(Com_ptr<IDirect3DTexture9> &cpShadowMap)
 {
     if (cpShadowMap == NULL)
         return false;
@@ -78,37 +78,37 @@ bool CDepthBufShadowEffect::SetShadowMap(Com_ptr<IDirect3DTexture9> &cpShadowMap
 }
 
 // 描画対象オブジェクトのワールド変換行列を設定
-void CDepthBufShadowEffect::SetWorldMatrix(D3DXMATRIX *pMat)
+void depth_buf_shadow::SetWorldMatrix(D3DXMATRIX *pMat)
 {
     m_matWorld = *pMat;
 }
 
 // カメラのビュー行列を設定
-void CDepthBufShadowEffect::SetCameraViewMatrix(D3DXMATRIX *pMat)
+void depth_buf_shadow::SetCameraViewMatrix(D3DXMATRIX *pMat)
 {
     m_matCameraView = *pMat;
 }
 
 // カメラの射影変換行列を設定
-void CDepthBufShadowEffect::SetCameraProjMatrix(D3DXMATRIX *pMat)
+void depth_buf_shadow::SetCameraProjMatrix(D3DXMATRIX *pMat)
 {
     m_matCameraProj = *pMat;
 }
 
 // ライトのビュー行列を設定
-void CDepthBufShadowEffect::SetLightViewMatrix(D3DXMATRIX *pMat)
+void depth_buf_shadow::SetLightViewMatrix(D3DXMATRIX *pMat)
 {
     m_matLightView = *pMat;
 }
 
 // ライトの射影変換行列を設定
-void CDepthBufShadowEffect::SetLightProjMatrix(D3DXMATRIX *pMat)
+void depth_buf_shadow::SetLightProjMatrix(D3DXMATRIX *pMat)
 {
     m_matLightProj = *pMat;
 }
 
 // 描画の開始を宣言する
-HRESULT CDepthBufShadowEffect::Begin()
+HRESULT depth_buf_shadow::Begin()
 {
     // 各サーフェイスを初期化
     m_cpDev->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(255, 255, 255, 255), 1.0f, 0);
@@ -124,7 +124,7 @@ HRESULT CDepthBufShadowEffect::Begin()
 }
 
 // 描画の終了を宣言する
-HRESULT CDepthBufShadowEffect::End()
+HRESULT depth_buf_shadow::End()
 {
     m_cpEffect->End();
 
@@ -136,21 +136,21 @@ HRESULT CDepthBufShadowEffect::End()
 }
 
 // パスの開始を宣言する
-HRESULT CDepthBufShadowEffect::BeginPass()
+HRESULT depth_buf_shadow::BeginPass()
 {
     m_cpEffect->BeginPass(0); // パスは1つのみ
     return S_OK;
 }
 
 // パスの終了を宣言する
-HRESULT CDepthBufShadowEffect::EndPass()
+HRESULT depth_buf_shadow::EndPass()
 {
     m_cpEffect->EndPass();
     return S_OK;
 }
 
 // 登録されているパラメータ情報をエフェクトにセット
-bool CDepthBufShadowEffect::SetParamToEffect()
+bool depth_buf_shadow::SetParamToEffect()
 {
     m_cpEffect->SetMatrix(m_hWorldMat, &m_matWorld);
     m_cpEffect->SetMatrix(m_hCameraViewMat, &m_matCameraView);
