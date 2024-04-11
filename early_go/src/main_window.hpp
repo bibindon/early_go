@@ -8,6 +8,7 @@
 #include "stdafx.hpp"
 #include "z_tex.hpp"
 #include "depth_buf_shadow.hpp"
+#include "shadow_mesh.hpp"
 
 #include "gtest/gtest_prod.h"
 
@@ -56,6 +57,8 @@ public:
     std::shared_ptr<character> get_main_character();
     std::shared_ptr<character> get_enemy_character();
 
+    shadow_mesh* shadow_mesh_;
+
 private:
     MSG msg_;
     std::unique_ptr<IDirect3D9, custom_deleter> direct3d9_;
@@ -82,10 +85,13 @@ private:
 
     int ideal_time_table[60];
 
-    z_tex ZTexCreator;                                          // Z値テクスチャ作成オブジェクト
-    depth_buf_shadow DepthBS;                                          // Z値テクスチャ作成オブジェクト
+    // Z値テクスチャ作成オブジェクト
+    z_tex ZTexCreator;
+    // Z値テクスチャ作成オブジェクト
+    depth_buf_shadow DepthBS;
     std::shared_ptr<ID3DXSprite> cpSprite;
-    std::shared_ptr<IDirect3DTexture9> cpShadowMapTex;                         // Z値テクスチャ
+    // Z値テクスチャ
+    std::shared_ptr<IDirect3DTexture9> cpShadowMapTex;
 
     //----------------------------------------
     // Lua area

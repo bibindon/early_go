@@ -45,6 +45,7 @@ bool depth_buf_shadow::init(std::shared_ptr<IDirect3DDevice9> &cpDev)
     m_hLightProjMat = m_cpEffect->GetParameterByName(NULL, "matLightProj");
     m_hShadowMapTex = m_cpEffect->GetParameterByName(NULL, "texShadowMap");
     g_mesh_tex_handle_ = m_cpEffect->GetParameterByName(NULL, "g_mesh_texture");
+    g_tex_handle_ = m_cpEffect->GetParameterByName(NULL, "g_texture_0");
     m_hTechnique = m_cpEffect->GetTechniqueByName("DepthBufShadowTec");
 
     if (!m_hWorldMat || !m_hCameraViewMat || !m_hCameraProjMat || !m_hLightViewMat ||
@@ -68,6 +69,11 @@ bool depth_buf_shadow::set_shadow_map(std::shared_ptr<IDirect3DTexture9> &cpShad
 bool depth_buf_shadow::set_tex(const std::shared_ptr<IDirect3DTexture9> &_tex)
 {
     this->g_mesh_tex_ = _tex;
+    return true;
+}
+bool depth_buf_shadow::set_dynamic_tex(const std::shared_ptr<IDirect3DTexture9> &_tex)
+{
+    this->g_texture0_ = _tex;
     return true;
 }
 void depth_buf_shadow::set_world_matrix(D3DXMATRIX *pMat)
@@ -139,6 +145,7 @@ bool depth_buf_shadow::set_param_to_effect()
     m_cpEffect->SetMatrix(m_hLightProjMat, &m_matLightProj);
     HRESULT hr = m_cpEffect->SetTexture(m_hShadowMapTex, m_cpShadowMapTex.get());
     hr = m_cpEffect->SetTexture(g_mesh_tex_handle_, g_mesh_tex_.get());
+    hr = m_cpEffect->SetTexture(g_tex_handle_, g_texture0_.get());
 
     return true;
 }

@@ -72,17 +72,17 @@ abstract_mesh::abstract_mesh(
     : d3d_device_ { d3d_device },
     effect_ { nullptr, custom_deleter{} },
     animation_strategy_ { nullptr },
-    dynamic_texture_ { new_crt dynamic_texture{} },
+    dynamic_texture_ { new_crt dynamic_texture { } },
     position_ { position },
     rotation_ { rotation },
     scale_ { scale },
     mesh_name_ { x_filename }
 {
-    HRESULT result{NULL};
+    HRESULT result { NULL };
 
-    vector<char> buffer{ util::get_shader_resource(shader_filename) };
+    vector<char> buffer { util::get_shader_resource(shader_filename) };
 
-    LPD3DXEFFECT effect{nullptr};
+    LPD3DXEFFECT effect { nullptr };
     D3DXCreateEffect(
         d3d_device_.get(),
         &buffer[0],

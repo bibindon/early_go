@@ -24,6 +24,20 @@ sampler mesh_texture_sampler = sampler_state {
     MagFilter = LINEAR;
 };
 
+texture g_texture_0;
+
+sampler texture_sampler[1] = {
+    sampler_state {
+        Texture = (g_texture_0);
+    }
+};
+
+float2 g_position[8] = {
+    {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f},
+    {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f},
+};
+float  g_opacity[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, };
+
 struct VS_OUTPUT
 {
     float4 Pos : POSITION;              // 射影変換座標
@@ -60,7 +74,6 @@ VS_OUTPUT DepthBufShadow_VS( float4 Pos : POSITION , float3 Norm : NORMAL, float
     return Out;
 }
 
-
 // ピクセルシェーダ
 void DepthBufShadow_PS(
     in float4 Col : COLOR,
@@ -68,7 +81,26 @@ void DepthBufShadow_PS(
     in float4 in_texcoord : TEXCOORD0,
     out float4 out_col : COLOR)
 {
-    out_col = tex2D(mesh_texture_sampler, in_texcoord.xy);
+    float4 color_result = (float4)0;
+    color_result = tex2D(mesh_texture_sampler, in_texcoord.xy);
+
+    float4 color_tex[8];
+    for (int i = 0; i <= 1; ++i)
+    {
+        color_tex[i] = tex2D(texture_sampler[0], in_texcoord.xy);
+//        //color_tex[i].a *= g_opacity[i];
+        color_result = (1.0f-color_tex[i].a) * color_result + color_tex[i].a * color_tex[i];
+    }
+//    out_col = (Col * color_result);
+    out_col = color_result;
+
+    // fade in/out
+//    out_col.r *= (1.0f - g_opacity[7]);
+//    out_col.g *= (1.0f - g_opacity[7]);
+//    out_col.b *= (1.0f - g_opacity[7]);
+//    out_col *= (1.0f - g_opacity[7]);
+
+    out_col.a = 1.0f;
 
     // ライト目線によるZ値の再算出
     float ZValue = ZCalcTex.z / ZCalcTex.w;

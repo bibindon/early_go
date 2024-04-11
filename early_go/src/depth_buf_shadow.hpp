@@ -14,6 +14,7 @@ public:
     bool init(std::shared_ptr<IDirect3DDevice9> &cpDev);
     bool set_shadow_map(std::shared_ptr<IDirect3DTexture9> &cpShadowMap);
     bool set_tex(const std::shared_ptr<IDirect3DTexture9> &_tex);
+    bool set_dynamic_tex(const std::shared_ptr<IDirect3DTexture9> &_tex);
     void set_world_matrix(D3DXMATRIX *pMat);
     void set_camera_view_matrix(D3DXMATRIX *pMat);
     void set_camera_proj_matrix(D3DXMATRIX *pMat);
@@ -29,6 +30,7 @@ private:
     std::shared_ptr<IDirect3DDevice9> m_cpDev;
     std::shared_ptr<IDirect3DTexture9> m_cpShadowMapTex;
     std::shared_ptr<IDirect3DTexture9> g_mesh_tex_;
+    std::shared_ptr<IDirect3DTexture9> g_texture0_;
     std::shared_ptr<ID3DXEffect> m_cpEffect;
     D3DXMATRIX m_matWorld { };
     D3DXMATRIX m_matCameraView { };
@@ -42,6 +44,7 @@ private:
     D3DXHANDLE m_hLightProjMat { nullptr };
     D3DXHANDLE m_hShadowMapTex { nullptr };
     D3DXHANDLE g_mesh_tex_handle_ { nullptr };
+    D3DXHANDLE g_tex_handle_ { nullptr };
     D3DXHANDLE m_hTechnique { nullptr };
 };
 }

@@ -247,6 +247,8 @@ resource_importer.bat
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\joystick.cpp" />
     <ClCompile Include="src\light.cpp" />
+    <ClCompile Include="src\mesh_interface.cpp" />
+    <ClCompile Include="src\shadow_mesh.cpp" />
     <ClCompile Include="src\seq_battle.cpp" />
     <ClCompile Include="src\seq_ending.cpp" />
     <ClCompile Include="src\seq_interface.cpp" />
@@ -298,6 +300,8 @@ resource_importer.bat
     <ClInclude Include="src\input.hpp" />
     <ClInclude Include="src\joystick.hpp" />
     <ClInclude Include="src\light.hpp" />
+    <ClInclude Include="src\mesh_interface.hpp" />
+    <ClInclude Include="src\shadow_mesh.hpp" />
     <ClInclude Include="src\seq_battle.hpp" />
     <ClInclude Include="src\seq_ending.hpp" />
     <ClInclude Include="src\seq_interface.hpp" />
@@ -333,7 +337,10 @@ resource_importer.bat
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="res\shader\animation_mesh_shader.fx" />
-    <FxCompile Include="res\shader\depth_buf_shadow.fx" />
+    <FxCompile Include="res\shader\depth_buf_shadow.fx">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">2.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">2.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="res\shader\mesh_shader.fx" />
     <FxCompile Include="res\shader\skinned_animation_mesh_shader.fx" />
     <FxCompile Include="res\shader\z_tex.fx" />

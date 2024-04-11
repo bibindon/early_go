@@ -36,14 +36,14 @@ seq_battle::seq_battle(
         [&]()
         {
             enemy_manager_->add_enemy("suo", { -1, 0, 2 }, direction::BACK, 1.0f, _camera);
-            enemy_manager_->add_enemy("suo2", { -10, 0, 2 }, direction::BACK, 1.0f, _camera);
-            enemy_manager_->add_enemy("suo3", { -1, 0, 20 }, direction::BACK, 1.0f, _camera);
-            enemy_manager_->add_enemy("suo4", { -13, 0, 12 }, direction::BACK, 1.0f, _camera);
-            enemy_manager_->add_enemy("suo5", { 1, 0, 2 }, direction::BACK, 1.0f, _camera);
-            enemy_manager_->add_enemy("suo6", { 11, 0, 5 }, direction::BACK, 1.0f, _camera);
-            enemy_manager_->add_enemy("suo7", { 31, 0, 32 }, direction::BACK, 1.0f, _camera);
-            enemy_manager_->add_enemy("suo8", { 20, 0, 0 }, direction::BACK, 1.0f, _camera);
-            enemy_manager_->add_enemy("suo9", { 10, 0, 2 }, direction::BACK, 1.0f, _camera);
+            // enemy_manager_->add_enemy("suo2", { -10, 0, 2 }, direction::BACK, 1.0f, _camera);
+            // enemy_manager_->add_enemy("suo3", { -1, 0, 20 }, direction::BACK, 1.0f, _camera);
+            // enemy_manager_->add_enemy("suo4", { -13, 0, 12 }, direction::BACK, 1.0f, _camera);
+            // enemy_manager_->add_enemy("suo5", { 1, 0, 2 }, direction::BACK, 1.0f, _camera);
+            // enemy_manager_->add_enemy("suo6", { 11, 0, 5 }, direction::BACK, 1.0f, _camera);
+            // enemy_manager_->add_enemy("suo7", { 31, 0, 32 }, direction::BACK, 1.0f, _camera);
+            // enemy_manager_->add_enemy("suo8", { 20, 0, 0 }, direction::BACK, 1.0f, _camera);
+            // enemy_manager_->add_enemy("suo9", { 10, 0, 2 }, direction::BACK, 1.0f, _camera);
          }
     };
 }

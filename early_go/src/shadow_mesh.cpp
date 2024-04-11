@@ -1,0 +1,149 @@
+#include "shadow_mesh.hpp"
+
+using std::vector;
+
+namespace early_go
+{
+shadow_mesh::shadow_mesh(
+    const std::shared_ptr<IDirect3DDevice9>& d3d_device,
+    z_tex* ZTexCreator,
+    depth_buf_shadow* DepthBS,
+    const std::string& x_filename,
+    const D3DXVECTOR3&,
+    const D3DXVECTOR3&,
+    const float)
+    : d3d_device_ { d3d_device }
+{
+    ZTexCreator_ = ZTexCreator;
+    DepthBS_ = DepthBS;
+
+    LPD3DXMESH temp_mesh { nullptr };
+
+    vector<char> buffer { util::get_model_resource(x_filename) };
+
+    LPD3DXBUFFER material_buffer { nullptr };
+    HRESULT result { D3DXLoadMeshFromXInMemory(
+        &buffer[0],
+        static_cast<DWORD>(buffer.size()),
+        D3DXMESH_SYSTEMMEM,
+        d3d_device_.get(),
+        nullptr,
+        &material_buffer,
+        nullptr,
+        &materials_count_,
+        &temp_mesh
+    ) };
+
+    if (FAILED(result))
+    {
+        THROW_WITH_TRACE("Failed to load a x-file.");
+    }
+    d3dx_mesh_.reset(temp_mesh);
+    vector<std::shared_ptr<IDirect3DTexture9>> temp_textures { materials_count_ };
+    textures_.swap(temp_textures);
+    D3DXMATERIAL* materials { static_cast<D3DXMATERIAL*>(material_buffer->GetBufferPointer()) };
+    for (DWORD i { 0 }; i < materials_count_; ++i)
+    {
+        if (materials[i].pTextureFilename != nullptr)
+        {
+            buffer = util::get_model_texture_resource(x_filename, materials[i].pTextureFilename);
+            LPDIRECT3DTEXTURE9 temp_texture { };
+            if (FAILED ( D3DXCreateTextureFromFileInMemory(
+                d3d_device_.get(),
+                &buffer[0],
+                static_cast<UINT>(buffer.size()),
+                &temp_texture)))
+            {
+                THROW_WITH_TRACE("texture file is not found.");
+            }
+            else
+            {
+                textures_.at(i).reset(temp_texture, custom_deleter { });
+            }
+        }
+    }
+    safe_release(material_buffer);
+
+    {
+        vector<char> buffer{util::get_image_resource("image/board.png") };
+        LPDIRECT3DTEXTURE9 temp_texture{};
+        if (FAILED ( D3DXCreateTextureFromFileInMemory(
+                d3d_device_.get(),
+                &buffer[0],
+                static_cast<UINT>(buffer.size()),
+                &temp_texture)))
+        {
+            THROW_WITH_TRACE("texture file is not found.");
+        }
+        else
+        {
+            dynamic_textures_.reset( temp_texture, custom_deleter { });
+            DepthBS_->set_dynamic_tex(dynamic_textures_);
+        }
+    }
+}
+void shadow_mesh::update()
+{
+}
+void shadow_mesh::ztex_render()
+{
+    D3DXMATRIX world_mat { };
+    D3DXMatrixIdentity(&world_mat);
+
+    {
+        D3DXMATRIX mat { };
+
+        D3DXMatrixTranslation(&mat, 0.0f, 0.0f, 0.0f);
+        world_mat *= mat;
+
+        D3DXMatrixScaling(&mat, 10.0f, 10.0f, 10.0f);
+        world_mat *= mat;
+
+        D3DXMatrixRotationYawPitchRoll(&mat, 0.0f, 0.0f, 0.0f);
+        world_mat *= mat;
+
+        D3DXMatrixTranslation(&mat, 0.0f, 0.0f, 0.0f);
+        world_mat *= mat;
+    }
+    ZTexCreator_->set_world_matrix(&world_mat); // 立方体のワールド変換行列を登録
+    for (DWORD i { 0 }; i < materials_count_; i++)
+    {
+        ZTexCreator_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+        ZTexCreator_->begin_pass();
+        d3dx_mesh_->DrawSubset(i); // メッシュ描画
+        ZTexCreator_->end_pass();
+    }
+}
+void shadow_mesh::render(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
+{
+    D3DXMATRIX temp1 { view_matrix };
+    DepthBS_->set_camera_view_matrix(&temp1);
+
+    D3DXMATRIX world_mat { };
+    D3DXMatrixIdentity(&world_mat);
+    {
+        D3DXMATRIX mat { };
+
+        D3DXMatrixTranslation(&mat, 0.0f, 0.0f, 0.0f);
+        world_mat *= mat;
+
+        D3DXMatrixScaling(&mat, 10.0f, 10.0f, 10.0f);
+        world_mat *= mat;
+
+        D3DXMatrixRotationYawPitchRoll(&mat, 0.0f, 0.0f, 0.0f);
+        world_mat *= mat;
+
+        D3DXMatrixTranslation(&mat, 0.0f, 0.0f, 0.0f);
+        world_mat *= mat;
+    }
+    DepthBS_->set_world_matrix(&world_mat);
+    for (DWORD i { 0 }; i < materials_count_; i++)
+    {
+        DepthBS_->set_tex(textures_.at(i));
+        DepthBS_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+        DepthBS_->begin_pass();
+        d3dx_mesh_->DrawSubset(i);
+        DepthBS_->end_pass();
+    }
+}
+}

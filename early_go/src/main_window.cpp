@@ -170,6 +170,11 @@ main_window::main_window(const HINSTANCE &hinstance)
         DepthBS.set_camera_proj_matrix(&CameraProj);
 
     }
+    {
+        shadow_mesh_ = new_crt shadow_mesh {
+            d3d_device_, &ZTexCreator, &DepthBS, "model/tiger/tiger.x", { }, { }, 1.0f
+        };
+    }
 }
 
 void main_window::initialize_direct3d(const HWND &hwnd)
@@ -300,6 +305,7 @@ void main_window::initialize_direct3d(const HWND &hwnd)
 main_window::~main_window()
 {
     joystick::finalize();
+    delete shadow_mesh_;
 }
 
 // windows main loop 
@@ -523,8 +529,10 @@ void main_window::debug()
     }
     if (keyboard::is_down('X'))
     {
-        early_->set_dynamic_texture(
-            constants::EARLY_BODY, "image/test1.bmp", 0, abstract_mesh::combine_type::ADDITION);
+        //early_->set_dynamic_texture(
+        //    constants::EARLY_BODY, "image/test1.bmp", 0, abstract_mesh::combine_type::ADDITION);
+        meshes_lua_.at("model/tiger/tiger.x")->set_dynamic_texture(
+            "image/test1.bmp", 0, abstract_mesh::combine_type::NORMAL);
     }
     if (keyboard::is_down('R'))
     {
@@ -709,6 +717,7 @@ void main_window::render()
                     view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
             }
         }
+        shadow_mesh_->ztex_render();
         ZTexCreator.end();
 
         DepthBS.set_camera_proj_matrix(&projection_matrix);
@@ -725,6 +734,7 @@ void main_window::render()
                     view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
             }
         }
+        shadow_mesh_->render(view_matrix, projection_matrix);
         DepthBS.end();
         
         early_->render(view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
