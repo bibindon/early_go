@@ -696,8 +696,6 @@ void main_window::render()
         0);
     if (SUCCEEDED(d3d_device_->BeginScene()))
     {
-        early_->render(view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
-
         ZTexCreator.begin();
         for (auto& mesh_lua : meshes_lua_)
         {
@@ -713,6 +711,7 @@ void main_window::render()
         }
         ZTexCreator.end();
 
+        DepthBS.set_camera_proj_matrix(&projection_matrix);
         DepthBS.begin();
         for (auto& mesh_lua : meshes_lua_)
         {
@@ -728,6 +727,8 @@ void main_window::render()
         }
         DepthBS.end();
         
+        early_->render(view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
+
         //////////////////////////////////
         // ■パス3 : Z値テクスチャを描画
         D3DXMATRIX SpriteScaleMat;

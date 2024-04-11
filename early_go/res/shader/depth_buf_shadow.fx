@@ -27,9 +27,9 @@ sampler mesh_texture_sampler = sampler_state {
 struct VS_OUTPUT
 {
     float4 Pos : POSITION;              // 射影変換座標
-    float4 ZCalcTex : TEXCOORD0;        // Z値算出用テクスチャ
+    float4 ZCalcTex : TEXCOORD1;        // Z値算出用テクスチャ
     float4 Col : COLOR0;                // ディフューズ色
-    float4 texcood : TEXCOORD1;
+    float4 texcood : TEXCOORD0;
 };
 
 
@@ -62,12 +62,13 @@ VS_OUTPUT DepthBufShadow_VS( float4 Pos : POSITION , float3 Norm : NORMAL, float
 
 
 // ピクセルシェーダ
-float4 DepthBufShadow_PS(
-    float4 Col : COLOR,
-    float4 ZCalcTex : TEXCOORD0,
-    float2 in_texcoord : TEXCOORD1 ) : COLOR
+void DepthBufShadow_PS(
+    in float4 Col : COLOR,
+    in float4 ZCalcTex : TEXCOORD1,
+    in float4 in_texcoord : TEXCOORD0,
+    out float4 out_col : COLOR)
 {
-    Col = tex2D(mesh_texture_sampler, in_texcoord);
+    out_col = tex2D(mesh_texture_sampler, in_texcoord.xy);
 
     // ライト目線によるZ値の再算出
     float ZValue = ZCalcTex.z / ZCalcTex.w;
@@ -83,11 +84,9 @@ float4 DepthBufShadow_PS(
     // 算出点がシャドウマップのZ値よりも大きければ影と判断
     if ( ZValue > SM_Z+0.005f )
     {
-        Col.rgb = Col.rgb * 0.5;
+        out_col.rgb = out_col.rgb * 0.5;
     }
-
-    Col.a = 1.0f;
-    return Col;
+    out_col.a = 1.0f;
 }
 
 
