@@ -303,7 +303,7 @@ main_window::~main_window()
 }
 
 // windows main loop 
-int main_window::update()
+int main_window::main_loop()
 {
     while (msg_.message != WM_QUIT)
     {

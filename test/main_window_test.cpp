@@ -21,7 +21,7 @@ TEST(main_window_test, main_window_test)
     std::thread _thread(send_q_key);
     HINSTANCE hInstance = nullptr;
     early_go::main_window _window{ hInstance };
-    _window.update();
+    _window.main_loop();
     _thread.join();
 }
 

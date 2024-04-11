@@ -52,7 +52,7 @@ public:
 
     explicit main_window(const HINSTANCE &);
     ~main_window();
-    int update();
+    int main_loop();
     std::shared_ptr<character> get_main_character();
     std::shared_ptr<character> get_enemy_character();
 
