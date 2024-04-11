@@ -84,8 +84,8 @@ private:
 
     z_tex ZTexCreator;                                          // Z値テクスチャ作成オブジェクト
     depth_buf_shadow DepthBS;                                          // Z値テクスチャ作成オブジェクト
-    Com_ptr<ID3DXSprite> cpSprite;
-    Com_ptr<IDirect3DTexture9> cpShadowMapTex;                         // Z値テクスチャ
+    std::shared_ptr<ID3DXSprite> cpSprite;
+    std::shared_ptr<IDirect3DTexture9> cpShadowMapTex;                         // Z値テクスチャ
 
     //----------------------------------------
     // Lua area

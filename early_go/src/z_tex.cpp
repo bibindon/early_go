@@ -18,22 +18,17 @@ z_tex::z_tex()
 }
 z_tex::~z_tex()
 {
-    // COMポインタを明示的に消去
-    m_cpDepthBuff = NULL; // 深度バッファ
-    m_cpZTexSurf = NULL;  // Z値テクスチャサーフェイス
-    m_cpZTex = NULL;      // Z値テクスチャ
-    m_cpDevBuffer = NULL; // デバイスバックバッファ
-    m_cpDevDepth = NULL;  // デバイス深度バッファ
-    m_cpEffect = NULL;    // Z値プロットエフェクト
-    m_cpDev = NULL;       // 描画デバイス
 }
+#pragma warning(push)
+#pragma warning(disable: 26812 )
 bool z_tex::init(
-    Com_ptr<IDirect3DDevice9>& cpDev,
+    const std::shared_ptr<IDirect3DDevice9>& cpDev,
     UINT ZTexWidth,
     UINT ZTexHeight,
-    D3DFORMAT ZTexFormat)
+    D3DFORMAT ZTexFormat) // warning 26812
+#pragma warning(pop)
 {
-    if (cpDev.GetPtr() == NULL)
+    if (cpDev.get() == NULL)
     {
         return false;
     }
@@ -46,19 +41,21 @@ bool z_tex::init(
 
     // リソースにあるZ値プロットシェーダプログラムを読み込む
     vector<char> buffer { early_go::util::get_shader_resource("z_tex.fx") };
+    LPD3DXEFFECT effect{nullptr};
     if (FAILED(D3DXCreateEffect(
-        cpDev.GetPtr(),
+        cpDev.get(),
         &buffer[0],
         static_cast<UINT>(buffer.size()),
         NULL,
         NULL,
         0,
         NULL,
-        m_cpEffect.ToCreator(),
+        &effect,
         NULL)))
     {
         return false;
     }
+    m_cpEffect.reset(effect, custom_deleter { });
 
     // エフェクト内の各種パラメータハンドルを取得
     m_hWorldMat = m_cpEffect->GetParameterByName(NULL, "matWorld");
@@ -71,20 +68,24 @@ bool z_tex::init(
     }
 
     // 指定のZ値テクスチャを生成
+    LPDIRECT3DTEXTURE9 temp_texture{nullptr};
     hr = D3DXCreateTexture(
-        cpDev.GetPtr(),
+        cpDev.get(),
         ZTexWidth, ZTexHeight,
         1,
         D3DUSAGE_RENDERTARGET,
         ZTexFormat,
         D3DPOOL_DEFAULT,
-        m_cpZTex.ToCreator());
+        &temp_texture);
     if (FAILED(hr))
     {
         return false;
     }
+    m_cpZTex.reset(temp_texture, custom_deleter { });
 
-    m_cpZTex->GetSurfaceLevel(0, m_cpZTexSurf.ToCreator()); // サーフェイス取得
+    LPDIRECT3DSURFACE9 temp_surface;
+    m_cpZTex->GetSurfaceLevel(0, &temp_surface); // サーフェイス取得
+    m_cpZTexSurf.reset(temp_surface, custom_deleter { });
 
     // 描画デバイスに定義されているバッファの能力を取得
     IDirect3DSurface9* pSurf;
@@ -94,18 +95,20 @@ bool z_tex::init(
     pSurf->Release();
 
     // 独自深度バッファを作成
+    LPDIRECT3DSURFACE9 temp_surface2;
     hr = cpDev->CreateDepthStencilSurface(
         ZTexWidth, ZTexHeight,
         Desc.Format,
         Desc.MultiSampleType,
         Desc.MultiSampleQuality,
         FALSE,
-        m_cpDepthBuff.ToCreator(),
+        &temp_surface2,
         NULL);
     if (FAILED(hr))
     {
         return false;
     }
+    m_cpDepthBuff.reset(temp_surface2, custom_deleter { });
 
     m_cpDev = cpDev;
 
@@ -126,18 +129,23 @@ void z_tex::set_proj_matrix(D3DXMATRIX* pMat)
 HRESULT z_tex::begin()
 {
     // 初期化が正しく行われているかチェック
-    if (m_cpDepthBuff.GetPtr() == NULL || m_cpZTex.GetPtr() == NULL)
+    if (m_cpDepthBuff.get() == NULL || m_cpZTex.get() == NULL)
     {
         return E_FAIL;
     }
 
     // デバイスが持っているバッファを一時保存
-    m_cpDev->GetRenderTarget(0, m_cpDevBuffer.ToCreator());
-    m_cpDev->GetDepthStencilSurface(m_cpDevDepth.ToCreator());
+    LPDIRECT3DSURFACE9 temp_surface1;
+    m_cpDev->GetRenderTarget(0, &temp_surface1);
+    m_cpDevBuffer.reset(temp_surface1, custom_deleter { });
+
+    LPDIRECT3DSURFACE9 temp_surface2;
+    m_cpDev->GetDepthStencilSurface(&temp_surface2);
+    m_cpDevDepth.reset(temp_surface2, custom_deleter { });
 
     // デバイスにZ値テクスチャサーフェイスと深度バッファを設定
-    m_cpDev->SetRenderTarget(0, m_cpZTexSurf.GetPtr());
-    m_cpDev->SetDepthStencilSurface(m_cpDepthBuff.GetPtr());
+    m_cpDev->SetRenderTarget(0, m_cpZTexSurf.get());
+    m_cpDev->SetDepthStencilSurface(m_cpDepthBuff.get());
 
     // 各サーフェイスを初期化
     m_cpDev->Clear(
@@ -163,7 +171,7 @@ HRESULT z_tex::begin_pass()
 }
 bool z_tex::set_param_to_effect()
 {
-    if (m_cpEffect.GetPtr() == NULL)
+    if (m_cpEffect.get() == NULL)
     {
         return false;
     }
@@ -184,8 +192,8 @@ HRESULT z_tex::end()
     m_cpEffect->End();
 
     // デバイスに元のサーフェイスを戻す
-    m_cpDev->SetRenderTarget(0, m_cpDevBuffer.GetPtr());
-    m_cpDev->SetDepthStencilSurface(m_cpDevDepth.GetPtr());
+    m_cpDev->SetRenderTarget(0, m_cpDevBuffer.get());
+    m_cpDev->SetDepthStencilSurface(m_cpDevDepth.get());
 
     m_cpDevBuffer = NULL;
     m_cpDevDepth = NULL;
@@ -196,7 +204,7 @@ HRESULT z_tex::end()
 
     return S_OK;
 }
-bool z_tex::get_z_tex(Com_ptr<IDirect3DTexture9>& cpTex)
+bool z_tex::get_z_tex(std::shared_ptr<IDirect3DTexture9>& cpTex)
 {
     cpTex = m_cpZTex;
     return true;

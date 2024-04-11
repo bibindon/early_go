@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include "ComPtr.h"
-#include <d3dx9.h>
+#include "stdafx.hpp"
 
 namespace early_go
 {
@@ -12,8 +11,8 @@ class depth_buf_shadow
 public:
     depth_buf_shadow();
     ~depth_buf_shadow();
-    bool init(Com_ptr<IDirect3DDevice9> &cpDev);
-    bool set_shadow_map(Com_ptr<IDirect3DTexture9> &cpShadowMap);
+    bool init(std::shared_ptr<IDirect3DDevice9> &cpDev);
+    bool set_shadow_map(std::shared_ptr<IDirect3DTexture9> &cpShadowMap);
     void set_world_matrix(D3DXMATRIX *pMat);
     void set_camera_view_matrix(D3DXMATRIX *pMat);
     void set_camera_proj_matrix(D3DXMATRIX *pMat);
@@ -26,9 +25,9 @@ public:
     bool set_param_to_effect();
 
 private:
-    Com_ptr<IDirect3DDevice9> m_cpDev;
-    Com_ptr<IDirect3DTexture9> m_cpShadowMapTex;
-    Com_ptr<ID3DXEffect> m_cpEffect;
+    std::shared_ptr<IDirect3DDevice9> m_cpDev;
+    std::shared_ptr<IDirect3DTexture9> m_cpShadowMapTex;
+    std::shared_ptr<ID3DXEffect> m_cpEffect;
     D3DXMATRIX m_matWorld { };
     D3DXMATRIX m_matCameraView { };
     D3DXMATRIX m_matCameraProj { };

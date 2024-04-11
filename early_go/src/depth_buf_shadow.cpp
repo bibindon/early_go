@@ -14,7 +14,7 @@ depth_buf_shadow::depth_buf_shadow()
 depth_buf_shadow::~depth_buf_shadow()
 {
 }
-bool depth_buf_shadow::init(Com_ptr<IDirect3DDevice9> &cpDev)
+bool depth_buf_shadow::init(std::shared_ptr<IDirect3DDevice9> &cpDev)
 {
     if (cpDev == NULL)
     {
@@ -22,19 +22,21 @@ bool depth_buf_shadow::init(Com_ptr<IDirect3DDevice9> &cpDev)
     }
 
     vector<char> buffer{ early_go::util::get_shader_resource("depth_buf_shadow.fx") };
+    LPD3DXEFFECT effect{nullptr};
     if (FAILED ( D3DXCreateEffect(
-        cpDev.GetPtr(),
+        cpDev.get(),
         &buffer[0],
         static_cast<UINT>(buffer.size()),
         NULL,
         NULL,
         0,
         NULL,
-        m_cpEffect.ToCreator(),
+        &effect,
         NULL)))
     {
         return false;
     }
+    m_cpEffect.reset(effect, custom_deleter { });
 
     m_hWorldMat = m_cpEffect->GetParameterByName(NULL, "matWorld");
     m_hCameraViewMat = m_cpEffect->GetParameterByName(NULL, "matCameraView");
@@ -53,7 +55,7 @@ bool depth_buf_shadow::init(Com_ptr<IDirect3DDevice9> &cpDev)
     m_cpDev = cpDev;
     return true;
 }
-bool depth_buf_shadow::set_shadow_map(Com_ptr<IDirect3DTexture9> &cpShadowMap)
+bool depth_buf_shadow::set_shadow_map(std::shared_ptr<IDirect3DTexture9> &cpShadowMap)
 {
     if (cpShadowMap == NULL)
     {
@@ -130,7 +132,7 @@ bool depth_buf_shadow::set_param_to_effect()
     m_cpEffect->SetMatrix(m_hCameraProjMat, &m_matCameraProj);
     m_cpEffect->SetMatrix(m_hLightViewMat, &m_matLightView);
     m_cpEffect->SetMatrix(m_hLightProjMat, &m_matLightProj);
-    HRESULT hr = m_cpEffect->SetTexture(m_hShadowMapTex, m_cpShadowMapTex.GetPtr());
+    HRESULT hr = m_cpEffect->SetTexture(m_hShadowMapTex, m_cpShadowMapTex.get());
 
     return true;
 }

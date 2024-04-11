@@ -23,7 +23,6 @@
 #include "sequence_switcher.hpp"
 #include "light.hpp"
 #include "stage.hpp"
-#include "comptr.h"
 #include "z_tex.hpp"
 #include "depth_buf_shadow.hpp"
 
@@ -124,14 +123,13 @@ main_window::main_window(const HINSTANCE &hinstance)
     }
 
     {
-        Com_ptr<IDirect3DDevice9> cpDev(d3d_device_.get());
         /////////////////////////////////////////////////////
         // Z値テクスチャ生成オブジェクトの生成と初期化
         /////////////
         UINT TexSize = 2048;                                               // テクスチャサイズ
-        if (!ZTexCreator.init(cpDev, TexSize, TexSize, D3DFMT_A8R8G8B8))   // 通常はこのテクスチャが作成できます
+        if (!ZTexCreator.init(d3d_device_, TexSize, TexSize, D3DFMT_A8R8G8B8))   // 通常はこのテクスチャが作成できます
         {
-            if (!ZTexCreator.init(cpDev, TexSize, TexSize, D3DFMT_R5G6B5)) // 万が一は16bitに落とします
+            if (!ZTexCreator.init(d3d_device_, TexSize, TexSize, D3DFMT_R5G6B5)) // 万が一は16bitに落とします
             {
                 return;
             }
@@ -142,11 +140,13 @@ main_window::main_window(const HINSTANCE &hinstance)
         // 深度バッファシャドウオブジェクトの生成と初期化
         /////////////
 //        depth_buf_shadow DepthBS; // 深度バッファシャドウオブジェクト
-        DepthBS.init(cpDev);
+        DepthBS.init(d3d_device_);
         DepthBS.set_shadow_map(cpShadowMapTex); // シャドウマップテクスチャを登録
 
         // Z値テクスチャ描画用のスプライト生成
-        D3DXCreateSprite(cpDev.GetPtr(), cpSprite.ToCreator());
+        LPD3DXSPRITE worksprite { nullptr };
+        D3DXCreateSprite(d3d_device_.get(), &worksprite);
+        cpSprite.reset(worksprite, custom_deleter { });
 
         // ビュー・射影変換行列を初期化して固定情報として登録する
         D3DXMATRIX CameraView, CameraProj; // カメラビュー変換・射影変換
@@ -735,7 +735,7 @@ void main_window::render()
         D3DXMatrixScaling(&SpriteScaleMat, 0.18f, 0.1f, 0.0f);
         cpSprite->SetTransform(&SpriteScaleMat);
         cpSprite->Begin(0);
-        cpSprite->Draw(cpShadowMapTex.GetPtr(), NULL, NULL, &pos, 0xffffffff);
+        cpSprite->Draw(cpShadowMapTex.get(), NULL, NULL, &pos, 0xffffffff);
         cpSprite->End();
 
         if (sprite_anim_.get() != nullptr)
