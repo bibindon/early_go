@@ -25,7 +25,7 @@ private:
     D3DXHANDLE lightview { nullptr };
     D3DXHANDLE lightproj { nullptr };
     std::vector<D3DCOLORVALUE> colors_ { };
-    std::vector<std::unique_ptr<IDirect3DTexture9, custom_deleter>> textures_ { };
+    std::vector<std::shared_ptr<IDirect3DTexture9>> textures_ { };
     D3DXVECTOR3 center_coodinate_ { 0.0f, 0.0f, 0.0f };
     float radius_ { 0.0f };
     std::string mesh_name_ { };

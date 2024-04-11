@@ -109,7 +109,7 @@ mesh::mesh(
     }
 
     colors_.insert(begin(colors_), materials_count_, D3DCOLORVALUE { });
-    vector<unique_ptr<IDirect3DTexture9, custom_deleter>> temp_textures { materials_count_ };
+    vector<std::shared_ptr<IDirect3DTexture9>> temp_textures { materials_count_ };
     textures_.swap(temp_textures);
 
     D3DXMATERIAL* materials { static_cast<D3DXMATERIAL*>(material_buffer->GetBufferPointer()) };
@@ -131,7 +131,7 @@ mesh::mesh(
             }
             else
             {
-                textures_.at(i).reset(temp_texture);
+                textures_.at(i).reset(temp_texture, custom_deleter { });
             }
         }
     }
@@ -192,21 +192,11 @@ void mesh::render_impl(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projecti
     ///////////////////////////////////////
     // ■パス2 : 深度バッファシャドウ描画
 
-    // カメラの視点を変化
-//    D3DXVECTOR3 temp4 { FLOAT(40 * sin(f / 20)), 70, FLOAT(40 * cos(f / 20)) };
-//    D3DXVECTOR3 temp5 { 20, -20, 20 };
-//    D3DXVECTOR3 temp6 { 0, 1, 0 };
-//    D3DXMatrixLookAtLH(&CameraView, &temp4, &temp5, &temp6);
     D3DXMATRIX temp1 { view_matrix };
     DepthBS->set_camera_view_matrix(&temp1);
 
-//    DepthBS->begin();
-
-    // 立方体描画
-    //GetCubeWorldMatrix(f, x, z, &CubeWorldMat);
     D3DXMATRIX world_mat { };
     D3DXMatrixIdentity(&world_mat);
-
     {
         D3DXMATRIX mat { };
 
@@ -226,13 +216,12 @@ void mesh::render_impl(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projecti
     DepthBS->set_world_matrix(&world_mat);
     for (DWORD i { 0 }; i < materials_count_; i++)
     {
+        DepthBS->set_tex(textures_.at(i));
         DepthBS->set_param_to_effect(); // 描画の直前に呼び出す必要があります
         DepthBS->begin_pass();
         d3dx_mesh_->DrawSubset(i);
         DepthBS->end_pass();
     }
-
-//    DepthBS->end();
 
     /*
     D3DXMATRIX world_view_projection_matrix { };

@@ -16,17 +16,25 @@ sampler DefSampler = sampler_state    // サンプラーステート
      MAGFILTER = LINEAR;
 };
 
+texture g_mesh_texture;
+sampler mesh_texture_sampler = sampler_state {
+    Texture   = (g_mesh_texture);
+    MipFilter = LINEAR;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
+};
 
 struct VS_OUTPUT
 {
     float4 Pos : POSITION;              // 射影変換座標
     float4 ZCalcTex : TEXCOORD0;        // Z値算出用テクスチャ
     float4 Col : COLOR0;                // ディフューズ色
+    float4 texcood : TEXCOORD1;
 };
 
 
 // 頂点シェーダ
-VS_OUTPUT DepthBufShadow_VS( float4 Pos : POSITION , float3 Norm : NORMAL)
+VS_OUTPUT DepthBufShadow_VS( float4 Pos : POSITION , float3 Norm : NORMAL, float4 in_texcood: TEXCOORD0)
 {
     VS_OUTPUT Out = (VS_OUTPUT)0;
 
@@ -47,13 +55,20 @@ VS_OUTPUT DepthBufShadow_VS( float4 Pos : POSITION , float3 Norm : NORMAL)
     float3 LightDirect = normalize( float3(matLightView._13,matLightView._23,matLightView._33) );
     Out.Col = float4(1.0, 0.2, 0.2, 1.0) * (0.3 + dot(N, -LightDirect)*(1-0.3f));
 
+    Out.texcood = in_texcood;
+
     return Out;
 }
 
 
 // ピクセルシェーダ
-float4 DepthBufShadow_PS( float4 Col : COLOR, float4 ZCalcTex : TEXCOORD0 ) : COLOR
+float4 DepthBufShadow_PS(
+    float4 Col : COLOR,
+    float4 ZCalcTex : TEXCOORD0,
+    float2 in_texcoord : TEXCOORD1 ) : COLOR
 {
+    Col = tex2D(mesh_texture_sampler, in_texcoord);
+
     // ライト目線によるZ値の再算出
     float ZValue = ZCalcTex.z / ZCalcTex.w;
 
