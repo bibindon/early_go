@@ -174,6 +174,9 @@ main_window::main_window(const HINSTANCE &hinstance)
         shadow_mesh_ = new_crt shadow_mesh {
             d3d_device_, &ZTexCreator, &DepthBS, "model/tiger/tiger.x", { }, { }, 1.0f
         };
+        shadow_anim_mesh_ = new_crt shadow_anim_mesh {
+            d3d_device_, &ZTexCreator, &DepthBS, "model/RobotArm/RobotArm.x", { }, { }, 1.0f
+        };
     }
 }
 
@@ -306,6 +309,7 @@ main_window::~main_window()
 {
     joystick::finalize();
     delete shadow_mesh_;
+    delete shadow_anim_mesh_;
 }
 
 // windows main loop 
@@ -718,6 +722,7 @@ void main_window::render()
             }
         }
         shadow_mesh_->ztex_render();
+        shadow_anim_mesh_->ztex_render();
         ZTexCreator.end();
 
         DepthBS.set_camera_proj_matrix(&projection_matrix);
@@ -735,6 +740,7 @@ void main_window::render()
             }
         }
         shadow_mesh_->render(view_matrix, projection_matrix);
+        shadow_anim_mesh_->render(view_matrix, projection_matrix);
         DepthBS.end();
         
         early_->render(view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());

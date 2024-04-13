@@ -9,6 +9,7 @@
 #include "z_tex.hpp"
 #include "depth_buf_shadow.hpp"
 #include "shadow_mesh.hpp"
+#include "shadow_anim_mesh.hpp"
 
 #include "gtest/gtest_prod.h"
 
@@ -58,6 +59,7 @@ public:
     std::shared_ptr<character> get_enemy_character();
 
     shadow_mesh* shadow_mesh_;
+    shadow_anim_mesh* shadow_anim_mesh_;
 
 private:
     MSG msg_;
