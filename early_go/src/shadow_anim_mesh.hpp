@@ -5,7 +5,7 @@
 
 namespace early_go
 {
-class shadow_anim_mesh_allocator;
+class animation_mesh_allocator;
 class animation_strategy;
 
 // A class that provides operations for a mesh file having animations.
@@ -32,7 +32,7 @@ private:
     // declaration of the following variable using std::unique_ptr.
     struct frame_root_deleter_object
     {
-        std::shared_ptr<shadow_anim_mesh_allocator> allocator_;
+        std::shared_ptr<animation_mesh_allocator> allocator_;
 
         void operator()(const LPD3DXFRAME);
         void release_mesh_allocator(const LPD3DXFRAME);
@@ -41,7 +41,7 @@ private:
     const static std::string SHADER_FILENAME;
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
     std::vector<std::shared_ptr<IDirect3DTexture9>> textures_ { };
-    std::shared_ptr<shadow_anim_mesh_allocator> allocator_;
+    std::shared_ptr<animation_mesh_allocator> allocator_;
     std::unique_ptr<D3DXFRAME, frame_root_deleter_object> frame_root_;
     D3DXMATRIX rotation_matrix_;
     D3DXMATRIX view_matrix_;

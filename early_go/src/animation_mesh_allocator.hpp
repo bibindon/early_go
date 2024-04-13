@@ -14,7 +14,7 @@ struct animation_mesh_frame : public D3DXFRAME
 // A struct inheriting the 'D3DXMESHCONTAINER' for owing textures.
 struct animation_mesh_container : public D3DXMESHCONTAINER
 {
-    std::vector<std::unique_ptr<IDirect3DTexture9, custom_deleter> > texture_;
+    std::vector<std::shared_ptr<IDirect3DTexture9> > texture_;
     animation_mesh_container(
         const std::string &,
         const std::string &,

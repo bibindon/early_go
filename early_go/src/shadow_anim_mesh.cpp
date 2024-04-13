@@ -1,7 +1,7 @@
 #include "stdafx.hpp"
 
 #include "shadow_anim_mesh.hpp"
-#include "shadow_anim_mesh_allocator.hpp"
+#include "animation_mesh_allocator.hpp"
 #include "main_window.hpp"
 #include "animation_strategy.hpp"
 
@@ -50,7 +50,7 @@ shadow_anim_mesh::shadow_anim_mesh(
     const D3DXVECTOR3 &rotation,
     const float &scale)
     : d3d_device_ { d3d_device }
-    , allocator_ { new_crt shadow_anim_mesh_allocator { x_filename } }
+    , allocator_ { new_crt animation_mesh_allocator { x_filename } }
     , frame_root_ { nullptr, frame_root_deleter_object { allocator_ } }
     , rotation_matrix_ { D3DMATRIX { } }
     , center_coodinate_ { 0.0f, 0.0f, 0.0f }
@@ -152,7 +152,7 @@ void shadow_anim_mesh::render(
 void shadow_anim_mesh::update_frame_matrix(
     const LPD3DXFRAME frame_base, const LPD3DXMATRIX parent_matrix)
 {
-    shadow_anim_mesh_frame *frame { static_cast<shadow_anim_mesh_frame *>(frame_base) };
+    animation_mesh_frame *frame { static_cast<animation_mesh_frame *>(frame_base) };
     // Multiply its own transformation matrix by the parent transformation matrix.
     if (parent_matrix != nullptr)
     {
@@ -215,7 +215,7 @@ void shadow_anim_mesh::render_mesh_container(
     const bool ztex)
 {
     // Cast for making child class' function callable. 
-    shadow_anim_mesh_frame *frame { static_cast<shadow_anim_mesh_frame *>(frame_base) };
+    animation_mesh_frame *frame { static_cast<animation_mesh_frame *>(frame_base) };
 
     D3DXMATRIX world_view_projection_matrix { frame->combined_matrix_ };
 
@@ -243,8 +243,8 @@ void shadow_anim_mesh::render_mesh_container(
 //    }
 //    DepthBS_->begin_pass();
 
-    shadow_anim_mesh_container *mesh_container {
-        static_cast<shadow_anim_mesh_container *>(mesh_container_base) };
+    animation_mesh_container *mesh_container {
+        static_cast<animation_mesh_container *>(mesh_container_base) };
 
     for (DWORD i { 0 }; i < mesh_container->NumMaterials; ++i)
     {
