@@ -249,7 +249,7 @@ resource_importer.bat
     <ClCompile Include="src\light.cpp" />
     <ClCompile Include="src\mesh_interface.cpp" />
     <ClCompile Include="src\renderer.cpp" />
-    <ClCompile Include="src\shadow_anim_mesh.cpp" />
+    <ClCompile Include="src\shadow_mesh_anim.cpp" />
     <ClCompile Include="src\shadow_mesh.cpp" />
     <ClCompile Include="src\seq_battle.cpp" />
     <ClCompile Include="src\seq_ending.cpp" />
@@ -258,7 +258,7 @@ resource_importer.bat
     <ClCompile Include="src\sequence_switcher.cpp" />
     <ClCompile Include="src\seq_title.cpp" />
     <ClCompile Include="src\se_player.cpp" />
-    <ClCompile Include="src\shadow_skin_mesh.cpp" />
+    <ClCompile Include="src\shadow_mesh_skin.cpp" />
     <ClCompile Include="src\sprite.cpp" />
     <ClCompile Include="src\sprite_anim.cpp" />
     <ClCompile Include="src\main_window.cpp" />
@@ -305,7 +305,7 @@ resource_importer.bat
     <ClInclude Include="src\light.hpp" />
     <ClInclude Include="src\mesh_interface.hpp" />
     <ClInclude Include="src\renderer.hpp" />
-    <ClInclude Include="src\shadow_anim_mesh.hpp" />
+    <ClInclude Include="src\shadow_mesh_anim.hpp" />
     <ClInclude Include="src\shadow_mesh.hpp" />
     <ClInclude Include="src\seq_battle.hpp" />
     <ClInclude Include="src\seq_ending.hpp" />
@@ -314,7 +314,7 @@ resource_importer.bat
     <ClInclude Include="src\sequence_switcher.hpp" />
     <ClInclude Include="src\seq_title.hpp" />
     <ClInclude Include="src\se_player.hpp" />
-    <ClInclude Include="src\shadow_skin_mesh.hpp" />
+    <ClInclude Include="src\shadow_mesh_skin.hpp" />
     <ClInclude Include="src\sprite.hpp" />
     <ClInclude Include="src\sprite_anim.hpp" />
     <ClInclude Include="src\main_window.hpp" />

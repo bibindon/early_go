@@ -9,8 +9,8 @@
 #include "z_tex.hpp"
 #include "depth_buf_shadow.hpp"
 #include "shadow_mesh.hpp"
-#include "shadow_anim_mesh.hpp"
-#include "shadow_skin_mesh.hpp"
+#include "shadow_mesh_anim.hpp"
+#include "shadow_mesh_skin.hpp"
 
 #include "gtest/gtest_prod.h"
 
@@ -61,8 +61,8 @@ public:
 
     // TODO remove
     shadow_mesh* shadow_mesh_;
-    shadow_anim_mesh* shadow_anim_mesh_;
-    shadow_skin_mesh* shadow_skin_mesh_;
+    shadow_mesh_anim* shadow_mesh_anim_;
+    shadow_mesh_skin* shadow_mesh_skin_;
 
 private:
     MSG msg_;
@@ -106,17 +106,17 @@ private:
     void init_se();
     static main_window* main_window_;
     static int glue_place_mesh(lua_State *);
-    static int glue_place_anim_mesh(lua_State *);
-    static int glue_place_skin_mesh(lua_State *);
+    static int glue_place_mesh_anim(lua_State *);
+    static int glue_place_mesh_skin(lua_State *);
     static int glue_place_shadow_mesh(lua_State *);
-//    static int glue_place_shadow_anim_mesh(lua_State *);
-//    static int glue_place_shadow_skin_mesh(lua_State *);
+//    static int glue_place_shadow_mesh_anim(lua_State *);
+//    static int glue_place_shadow_mesh_skin(lua_State *);
     static void get_mesh_info_from_lua(
         lua_State*, std::string*, D3DXVECTOR3*, D3DXVECTOR3*, float*);
     std::unordered_map<std::string, std::shared_ptr<abstract_mesh> > meshes_lua_;
     std::unordered_map<std::string, std::shared_ptr<shadow_mesh> > shadow_meshes_lua_;
-    std::unordered_map<std::string, std::shared_ptr<shadow_anim_mesh> > shadow_anims_lua_;
-    std::unordered_map<std::string, std::shared_ptr<shadow_skin_mesh> > shadow_skins_lua_;
+    std::unordered_map<std::string, std::shared_ptr<shadow_mesh_anim> > shadow_anims_lua_;
+    std::unordered_map<std::string, std::shared_ptr<shadow_mesh_skin> > shadow_skins_lua_;
 
     static std::unordered_multimap<std::string, mesh_info> mesh_info_map;
 

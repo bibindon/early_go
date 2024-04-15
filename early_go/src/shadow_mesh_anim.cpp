@@ -1,6 +1,6 @@
 #include "stdafx.hpp"
 
-#include "shadow_anim_mesh.hpp"
+#include "shadow_mesh_anim.hpp"
 #include "animation_mesh_allocator.hpp"
 #include "main_window.hpp"
 #include "animation_strategy.hpp"
@@ -10,16 +10,16 @@ using std::string;
 
 namespace early_go
 {
-const string shadow_anim_mesh::SHADER_FILENAME = "animation_mesh_shader.fx";
+const string shadow_mesh_anim::SHADER_FILENAME = "animation_mesh_shader.fx";
 // A custom deleter. 
-void shadow_anim_mesh::frame_root_deleter_object::operator()(const LPD3DXFRAME frame_root)
+void shadow_mesh_anim::frame_root_deleter_object::operator()(const LPD3DXFRAME frame_root)
 {
     // Call the recursive release function. 
     release_mesh_allocator(frame_root);
 }
 
-// Releases recursively mesh containers owned by the 'shadow_anim_mesh_frame' inheriting 'D3DXFRAME'.
-void shadow_anim_mesh::frame_root_deleter_object::release_mesh_allocator(const LPD3DXFRAME frame)
+// Releases recursively mesh containers owned by the 'shadow_mesh_anim_frame' inheriting 'D3DXFRAME'.
+void shadow_mesh_anim::frame_root_deleter_object::release_mesh_allocator(const LPD3DXFRAME frame)
 {
     // Release the 'pMeshContainer' of the member variable. 
     if (frame->pMeshContainer != nullptr)
@@ -41,7 +41,7 @@ void shadow_anim_mesh::frame_root_deleter_object::release_mesh_allocator(const L
 }
 
 // Reads a mesh file, and sets the frame and the animation controller given to member variables.
-shadow_anim_mesh::shadow_anim_mesh(
+shadow_mesh_anim::shadow_mesh_anim(
     const std::shared_ptr<IDirect3DDevice9> &d3d_device,
     const std::shared_ptr<z_tex>& _ztex,
     const std::shared_ptr<depth_buf_shadow>& depth_buf_shadow,
@@ -89,15 +89,15 @@ shadow_anim_mesh::shadow_anim_mesh(
     scale_ = scale;
 }
 
-shadow_anim_mesh::~shadow_anim_mesh()
+shadow_mesh_anim::~shadow_mesh_anim()
 {
 }
 
-void shadow_anim_mesh::update()
+void shadow_mesh_anim::update()
 {
 }
 
-void shadow_anim_mesh::ztex_render()
+void shadow_mesh_anim::ztex_render()
 {
     D3DXMATRIX world_mat { };
     {
@@ -123,7 +123,7 @@ void shadow_anim_mesh::ztex_render()
 }
 
 // Renders its own animation mesh. 
-void shadow_anim_mesh::render(
+void shadow_mesh_anim::render(
     const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
 {
     view_matrix_ = view_matrix;
@@ -149,7 +149,7 @@ void shadow_anim_mesh::render(
 
 // Updates a world-transformation-matrix each the mesh in the frame. Also, this is a recursive
 // function.
-void shadow_anim_mesh::update_frame_matrix(
+void shadow_mesh_anim::update_frame_matrix(
     const LPD3DXFRAME frame_base, const LPD3DXMATRIX parent_matrix)
 {
     animation_mesh_frame *frame { static_cast<animation_mesh_frame *>(frame_base) };
@@ -186,7 +186,7 @@ void shadow_anim_mesh::update_frame_matrix(
 }
 
 // Calls the 'render_mesh_container' function recursively. 
-void shadow_anim_mesh::render_frame(const LPD3DXFRAME frame, const bool ztex)
+void shadow_mesh_anim::render_frame(const LPD3DXFRAME frame, const bool ztex)
 {
     {
         LPD3DXMESHCONTAINER mesh_container { frame->pMeshContainer };
@@ -209,7 +209,7 @@ void shadow_anim_mesh::render_frame(const LPD3DXFRAME frame, const bool ztex)
     }
 }
 
-void shadow_anim_mesh::render_mesh_container(
+void shadow_mesh_anim::render_mesh_container(
     const LPD3DXMESHCONTAINER mesh_container_base,
     const LPD3DXFRAME frame_base,
     const bool ztex)

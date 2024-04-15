@@ -173,9 +173,9 @@ main_window::main_window(const HINSTANCE &hinstance)
     {
         shadow_mesh_ = new_crt shadow_mesh {
             d3d_device_, ztex_, depth_buf_shadow_, "model/tiger/tiger.x", { }, { }, 1.0f };
-        shadow_anim_mesh_ = new_crt shadow_anim_mesh {
+        shadow_mesh_anim_ = new_crt shadow_mesh_anim {
             d3d_device_, ztex_, depth_buf_shadow_, "model/RobotArm/RobotArm.x", { }, { }, 1.0f };
-        shadow_skin_mesh_ = new_crt shadow_skin_mesh {
+        shadow_mesh_skin_ = new_crt shadow_mesh_skin {
             d3d_device_, ztex_, depth_buf_shadow_, "model/wolf/wolf.x", { }, { }, 1.003f };
     }
     init_lua();
@@ -311,8 +311,8 @@ main_window::~main_window()
 {
     joystick::finalize();
     delete shadow_mesh_;
-    delete shadow_anim_mesh_;
-    delete shadow_skin_mesh_;
+    delete shadow_mesh_anim_;
+    delete shadow_mesh_skin_;
 }
 
 // windows main loop 
@@ -713,8 +713,8 @@ void main_window::render()
     {
         ztex_->begin();
         shadow_mesh_->ztex_render();
-        shadow_anim_mesh_->ztex_render();
-        shadow_skin_mesh_->ztex_render();
+        shadow_mesh_anim_->ztex_render();
+        shadow_mesh_skin_->ztex_render();
         for (auto& mesh_lua : shadow_meshes_lua_)
         {
             auto range = mesh_info_map.equal_range(mesh_lua.first);
@@ -731,8 +731,8 @@ void main_window::render()
         depth_buf_shadow_->set_camera_proj_matrix(&projection_matrix);
         depth_buf_shadow_->begin();
         shadow_mesh_->render(view_matrix, projection_matrix);
-        shadow_anim_mesh_->render(view_matrix, projection_matrix);
-        shadow_skin_mesh_->render(view_matrix, projection_matrix);
+        shadow_mesh_anim_->render(view_matrix, projection_matrix);
+        shadow_mesh_skin_->render(view_matrix, projection_matrix);
         for (auto& mesh_lua : shadow_meshes_lua_)
         {
             auto range = mesh_info_map.equal_range(mesh_lua.first);
@@ -849,20 +849,20 @@ void main_window::init_lua()
     lua_pushcfunction(lua_state_, glue_place_mesh);
     lua_setglobal(lua_state_, "place_mesh");
 
-    lua_pushcfunction(lua_state_, glue_place_anim_mesh);
-    lua_setglobal(lua_state_, "place_anim_mesh");
+    lua_pushcfunction(lua_state_, glue_place_mesh_anim);
+    lua_setglobal(lua_state_, "place_mesh_anim");
 
-    lua_pushcfunction(lua_state_, glue_place_skin_mesh);
-    lua_setglobal(lua_state_, "place_skin_mesh");
+    lua_pushcfunction(lua_state_, glue_place_mesh_skin);
+    lua_setglobal(lua_state_, "place_mesh_skin");
 
     lua_pushcfunction(lua_state_, glue_place_shadow_mesh);
     lua_setglobal(lua_state_, "place_shadow_mesh");
 
-//    lua_pushcfunction(lua_state_, glue_place_shadow_anim_mesh);
-//    lua_setglobal(lua_state_, "shadow_anim_mesh");
+//    lua_pushcfunction(lua_state_, glue_place_shadow_mesh_anim);
+//    lua_setglobal(lua_state_, "shadow_mesh_anim");
 //
-//    lua_pushcfunction(lua_state_, glue_place_shadow_skin_mesh);
-//    lua_setglobal(lua_state_, "shadow_skin_mesh");
+//    lua_pushcfunction(lua_state_, glue_place_shadow_mesh_skin);
+//    lua_setglobal(lua_state_, "shadow_mesh_skin");
 
     vector<char> buff = util::get_lua_resource("script/init.lua");
     if (buff.size() == 0)
@@ -955,7 +955,7 @@ int main_window::glue_place_shadow_mesh(lua_State* L)
     return 0;
 }
 
-int main_window::glue_place_anim_mesh(lua_State* L)
+int main_window::glue_place_mesh_anim(lua_State* L)
 {
     string filename;
     D3DXVECTOR3 pos;
@@ -979,7 +979,7 @@ int main_window::glue_place_anim_mesh(lua_State* L)
     return 0;
 }
 
-int main_window::glue_place_skin_mesh(lua_State* L)
+int main_window::glue_place_mesh_skin(lua_State* L)
 {
     string filename;
     D3DXVECTOR3 pos;

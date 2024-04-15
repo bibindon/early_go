@@ -132,10 +132,10 @@
     <ClCompile Include="src\mesh_interface.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="src\shadow_anim_mesh.cpp">
+    <ClCompile Include="src\shadow_mesh_anim.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="src\shadow_skin_mesh.cpp">
+    <ClCompile Include="src\shadow_mesh_skin.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="src\renderer.cpp">
@@ -272,10 +272,10 @@
     <ClInclude Include="src\mesh_interface.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="src\shadow_anim_mesh.hpp">
+    <ClInclude Include="src\shadow_mesh_anim.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="src\shadow_skin_mesh.hpp">
+    <ClInclude Include="src\shadow_mesh_skin.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="src\renderer.hpp">

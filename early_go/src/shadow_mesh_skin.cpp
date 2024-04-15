@@ -1,6 +1,6 @@
 #include "stdafx.hpp"
 
-#include "shadow_skin_mesh.hpp"
+#include "shadow_mesh_skin.hpp"
 #include "skinned_animation_mesh_allocator.hpp"
 #include "main_window.hpp"
 #include "animation_strategy.hpp"
@@ -10,16 +10,16 @@ using std::string;
 
 namespace early_go
 {
-const string shadow_skin_mesh::SHADER_FILENAME = "animation_mesh_shader.fx";
+const string shadow_mesh_skin::SHADER_FILENAME = "animation_mesh_shader.fx";
 // A custom deleter. 
-void shadow_skin_mesh::frame_root_deleter_object::operator()(const LPD3DXFRAME frame_root)
+void shadow_mesh_skin::frame_root_deleter_object::operator()(const LPD3DXFRAME frame_root)
 {
     // Call the recursive release function. 
     release_mesh_allocator(frame_root);
 }
 
-// Releases recursively mesh containers owned by the 'shadow_anim_mesh_frame' inheriting 'D3DXFRAME'.
-void shadow_skin_mesh::frame_root_deleter_object::release_mesh_allocator(const LPD3DXFRAME frame)
+// Releases recursively mesh containers owned by the 'shadow_mesh_anim_frame' inheriting 'D3DXFRAME'.
+void shadow_mesh_skin::frame_root_deleter_object::release_mesh_allocator(const LPD3DXFRAME frame)
 {
     // Release the 'pMeshContainer' of the member variable. 
     if (frame->pMeshContainer != nullptr)
@@ -41,7 +41,7 @@ void shadow_skin_mesh::frame_root_deleter_object::release_mesh_allocator(const L
 }
 
 // Reads a mesh file, and sets the frame and the animation controller given to member variables.
-shadow_skin_mesh::shadow_skin_mesh(
+shadow_mesh_skin::shadow_mesh_skin(
     const std::shared_ptr<IDirect3DDevice9> &d3d_device,
     const std::shared_ptr<z_tex>& _ztex,
     const std::shared_ptr<depth_buf_shadow>& depth_buf_shadow,
@@ -90,7 +90,7 @@ shadow_skin_mesh::shadow_skin_mesh(
 
     scale_ = scale;
 }
-HRESULT shadow_skin_mesh::allocate_bone_matrix(LPD3DXMESHCONTAINER mesh_container)
+HRESULT shadow_mesh_skin::allocate_bone_matrix(LPD3DXMESHCONTAINER mesh_container)
 {
     skinned_animation_mesh_frame *frame{};
 
@@ -122,7 +122,7 @@ HRESULT shadow_skin_mesh::allocate_bone_matrix(LPD3DXMESHCONTAINER mesh_containe
     }
     return S_OK;
 }
-HRESULT shadow_skin_mesh::allocate_all_bone_matrices(LPD3DXFRAME frame)
+HRESULT shadow_mesh_skin::allocate_all_bone_matrices(LPD3DXFRAME frame)
 {
     if (frame->pMeshContainer != nullptr)
     {
@@ -149,15 +149,15 @@ HRESULT shadow_skin_mesh::allocate_all_bone_matrices(LPD3DXFRAME frame)
     return S_OK;
 }
 
-shadow_skin_mesh::~shadow_skin_mesh()
+shadow_mesh_skin::~shadow_mesh_skin()
 {
 }
 
-void shadow_skin_mesh::update()
+void shadow_mesh_skin::update()
 {
 }
 
-void shadow_skin_mesh::ztex_render()
+void shadow_mesh_skin::ztex_render()
 {
     animation_strategy_->update();
 
@@ -188,7 +188,7 @@ void shadow_skin_mesh::ztex_render()
 }
 
 // Renders its own animation mesh. 
-void shadow_skin_mesh::render(
+void shadow_mesh_skin::render(
     const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
 {
     depth_buf_shadow_->set_bone_num(bone_num_);
@@ -213,7 +213,7 @@ void shadow_skin_mesh::render(
 
 // Updates a world-transformation-matrix each the mesh in the frame. Also, this is a recursive
 // function.
-void shadow_skin_mesh::update_frame_matrix(
+void shadow_mesh_skin::update_frame_matrix(
     const LPD3DXFRAME frame_base, const LPD3DXMATRIX parent_matrix)
 {
     skinned_animation_mesh_frame *frame { static_cast<skinned_animation_mesh_frame *>(frame_base) };
@@ -250,7 +250,7 @@ void shadow_skin_mesh::update_frame_matrix(
 }
 
 // Calls the 'render_mesh_container' function recursively. 
-void shadow_skin_mesh::render_frame(const LPD3DXFRAME frame, const bool ztex)
+void shadow_mesh_skin::render_frame(const LPD3DXFRAME frame, const bool ztex)
 {
     {
         LPD3DXMESHCONTAINER mesh_container { frame->pMeshContainer };
@@ -273,7 +273,7 @@ void shadow_skin_mesh::render_frame(const LPD3DXFRAME frame, const bool ztex)
     }
 }
 
-void shadow_skin_mesh::render_mesh_container(
+void shadow_mesh_skin::render_mesh_container(
     const LPD3DXMESHCONTAINER mesh_container_base,
     const LPD3DXFRAME frame_base,
     const bool ztex)
