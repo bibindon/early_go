@@ -70,7 +70,7 @@ shadow_mesh::shadow_mesh(
 
     {
         // TODO
-        vector<char> buffer{util::get_image_resource("image/board.png") };
+        vector<char> buffer{util::get_image_resource("image/blank.png") };
         LPDIRECT3DTEXTURE9 temp_texture{};
         if (FAILED ( D3DXCreateTextureFromFileInMemory(
                 d3d_device_.get(),
@@ -89,6 +89,7 @@ shadow_mesh::shadow_mesh(
 }
 void shadow_mesh::update()
 {
+    // do nothing.
 }
 void shadow_mesh::ztex_render()
 {
@@ -104,12 +105,12 @@ void shadow_mesh::ztex_render()
         D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
         world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
     }
-    ztex_->set_world_matrix(&world_mat); // 立方体のワールド変換行列を登録
+    ztex_->set_world_matrix(&world_mat);
     for (DWORD i { 0 }; i < materials_count_; i++)
     {
-        ztex_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+        ztex_->set_param_to_effect();
         ztex_->begin_pass();
-        d3dx_mesh_->DrawSubset(i); // メッシュ描画
+        d3dx_mesh_->DrawSubset(i);
         ztex_->end_pass();
     }
 }
@@ -131,10 +132,11 @@ void shadow_mesh::render(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projec
         world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
     }
     depth_buf_shadow_->set_world_matrix(&world_mat);
+    depth_buf_shadow_->set_dynamic_tex(dynamic_textures_);
     for (DWORD i { 0 }; i < materials_count_; i++)
     {
         depth_buf_shadow_->set_tex(textures_.at(i));
-        depth_buf_shadow_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+        depth_buf_shadow_->set_param_to_effect();
         depth_buf_shadow_->begin_pass();
         d3dx_mesh_->DrawSubset(i);
         depth_buf_shadow_->end_pass();

@@ -102,7 +102,7 @@ HRESULT shadow_mesh_skin::allocate_bone_matrix(LPD3DXMESHCONTAINER mesh_containe
 
     bone_num_ = skinned_mesh_container->influence_count_ - 1;
 
-    for (DWORD i{}; i < bone_count; ++i)
+    for (DWORD i { 0 }; i < bone_count; ++i)
     {
         LPD3DXFRAME p = D3DXFrameFind(
             frame_root_.get(),

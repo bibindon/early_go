@@ -59,11 +59,14 @@ shadow_mesh_anim::shadow_mesh_anim(
 {
     ztex_ = _ztex;
     depth_buf_shadow_ = _depth_buf_shadow;
+    pos_ = position;
+    rotate_ = rotation;
+    scale_ = scale;
 
     LPD3DXFRAME temp_root_frame { nullptr };
     LPD3DXANIMATIONCONTROLLER temp_animation_controller { nullptr };
 
-    vector<char> buffer = util::get_model_resource(x_filename);
+    vector<char> buffer { util::get_model_resource(x_filename) };
 
     HRESULT result { D3DXLoadMeshHierarchyFromXInMemory(
         &buffer[0],
@@ -83,7 +86,6 @@ shadow_mesh_anim::shadow_mesh_anim(
     frame_root_.reset(temp_root_frame);
     animation_strategy_.reset(new_crt normal_animation { temp_animation_controller });
 
-    scale_ = scale;
 }
 
 shadow_mesh_anim::~shadow_mesh_anim()
@@ -102,9 +104,9 @@ void shadow_mesh_anim::ztex_render()
         D3DXMATRIX trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
 
         D3DXMatrixTranslation(&trans_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixScaling(&scale_mat, 1.0f, 1.0f, 1.0f);
-        D3DXMatrixRotationYawPitchRoll(&rotate_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixTranslation(&trans_mat2, 0.0f, 0.5f, 10.0f);
+        D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
+        D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
+        D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
         world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
     }
 
@@ -126,9 +128,9 @@ void shadow_mesh_anim::render(
         D3DXMATRIX trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
 
         D3DXMatrixTranslation(&trans_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixScaling(&scale_mat, 1.0f, 1.0f, 1.0f);
-        D3DXMatrixRotationYawPitchRoll(&rotate_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixTranslation(&trans_mat2, 0.0f, 0.5f, 10.0f);
+        D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
+        D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
+        D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
         world_matrix = world_matrix * trans_mat * rotate_mat * scale_mat * trans_mat2;
     }
 
@@ -245,6 +247,18 @@ void shadow_mesh_anim::render_mesh_container(
             depth_buf_shadow_->end_pass();
         }
     }
+}
+void shadow_mesh_anim::set_position(const D3DXVECTOR3& pos)
+{
+    pos_ = pos;
+}
+void shadow_mesh_anim::set_rotate(const D3DXVECTOR3& rotate)
+{
+    rotate_ = rotate;
+}
+void shadow_mesh_anim::set_scale(const float scale)
+{
+    scale_ = scale;
 }
 } // namespace early_go 
 

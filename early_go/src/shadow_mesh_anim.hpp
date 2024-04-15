@@ -25,6 +25,9 @@ public:
     void update();
     void ztex_render();
     void render(const D3DXMATRIX &, const D3DXMATRIX &);
+    void set_position(const D3DXVECTOR3& pos);
+    void set_rotate(const D3DXVECTOR3& rotate);
+    void set_scale(const float scale);
 private:
 
     // A struct which deletes the root 'LPD3DXFRAME' object. The reason why the
@@ -58,15 +61,14 @@ private:
     void render_mesh_container(const LPD3DXMESHCONTAINER, const LPD3DXFRAME, const bool ztex);
 
     DWORD materials_count_ { 0 };
-//    std::unique_ptr<ID3DXEffect, custom_deleter> effect_;
     std::shared_ptr<z_tex> ztex_ { nullptr };
     std::shared_ptr<depth_buf_shadow> depth_buf_shadow_ { nullptr };
     std::shared_ptr<ID3DXMesh> d3dx_mesh_ { };
     std::unique_ptr<animation_strategy> animation_strategy_;
 
-    D3DXVECTOR3 position_;
-    D3DXVECTOR3 rotation_;
-    float scale_;
+    D3DXVECTOR3 pos_ { 0.0f, 0.0f, 0.0f };
+    D3DXVECTOR3 rotate_ { 0.0f, 0.0f, 0.0f };
+    float scale_ { 1.0f };
 
     D3DXHANDLE mesh_texture_handle_ { nullptr };
     D3DXHANDLE diffuse_handle_ { nullptr };

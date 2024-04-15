@@ -713,6 +713,8 @@ void main_window::render()
     {
         ztex_->begin();
         shadow_mesh_->ztex_render();
+        shadow_mesh_anim_->set_position({ 1.f, 0.f, 5.f});
+        shadow_mesh_anim_->set_scale(1.0f);
         shadow_mesh_anim_->ztex_render();
         shadow_mesh_skin_->ztex_render();
         for (auto& mesh_lua : shadow_meshes_lua_)
@@ -741,8 +743,7 @@ void main_window::render()
                 mesh_lua.second->set_position(itr->second.pos);
                 mesh_lua.second->set_rotate(itr->second.rotate);
                 mesh_lua.second->set_scale(itr->second.scale);
-                mesh_lua.second->render(
-                    view_matrix, projection_matrix/*, _light->normal_dir(), _light->brightness() TODO this*/);
+                mesh_lua.second->render(view_matrix, projection_matrix);
             }
         }
         depth_buf_shadow_->end();
