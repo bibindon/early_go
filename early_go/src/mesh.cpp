@@ -25,9 +25,6 @@ mesh::mesh(
     HRESULT result { 0 };
     world_view_proj_handle_ = effect_->GetParameterByName(nullptr, "g_world_view_projection");
 
-    lightview = effect_->GetParameterByName(nullptr, "matLightView");
-    lightproj = effect_->GetParameterByName(nullptr, "matLightProj");
-
     LPD3DXBUFFER adjacency_buffer { nullptr };
     LPD3DXBUFFER material_buffer { nullptr };
     LPD3DXMESH temp_mesh { nullptr };
@@ -109,7 +106,7 @@ mesh::mesh(
     }
 
     colors_.insert(begin(colors_), materials_count_, D3DCOLORVALUE { });
-    vector<std::shared_ptr<IDirect3DTexture9>> temp_textures { materials_count_ };
+    vector<unique_ptr<IDirect3DTexture9, custom_deleter>> temp_textures { materials_count_ };
     textures_.swap(temp_textures);
 
     D3DXMATERIAL* materials { static_cast<D3DXMATERIAL*>(material_buffer->GetBufferPointer()) };
@@ -121,7 +118,7 @@ mesh::mesh(
         {
             buffer = util::get_model_texture_resource(x_filename, materials[i].pTextureFilename);
             LPDIRECT3DTEXTURE9 temp_texture { };
-            if (FAILED( D3DXCreateTextureFromFileInMemory(
+            if (FAILED(D3DXCreateTextureFromFileInMemory(
                 d3d_device_.get(),
                 &buffer[0],
                 static_cast<UINT>(buffer.size()),
@@ -131,7 +128,7 @@ mesh::mesh(
             }
             else
             {
-                textures_.at(i).reset(temp_texture, custom_deleter { });
+                textures_.at(i).reset(temp_texture);
             }
         }
     }
@@ -144,86 +141,8 @@ mesh::~mesh()
 {
 }
 
-void mesh::ztex_render(const D3DXMATRIX&, const D3DXMATRIX&, const D3DXVECTOR4&, const float&)
+void mesh::render_impl(const D3DXMATRIX& view_matrix, const D3DXMATRIX& projection_matrix)
 {
-    {
-        ///////////////////////////////////////
-        // ■パス1 : Z値テクスチャに
-        //         : ライト方向から描画
-
-//        ZTexCreator->begin(); // シェーダ開始
-
-        // 立方体描画
-        D3DXMATRIX world_mat { };
-        D3DXMatrixIdentity(&world_mat);
-
-        {
-            D3DXMATRIX mat { };
-
-            D3DXMatrixTranslation(
-                &mat, -center_coodinate_.x, -center_coodinate_.y, -center_coodinate_.z);
-            world_mat *= mat;
-
-            D3DXMatrixScaling(&mat, scale_, scale_, scale_);
-            world_mat *= mat;
-
-            D3DXMatrixRotationYawPitchRoll(&mat, rotation_.x, rotation_.y, rotation_.z);
-            world_mat *= mat;
-
-            D3DXMatrixTranslation(&mat, position_.x, position_.y, position_.z);
-            world_mat *= mat;
-        }
-        ZTexCreator->set_world_matrix(&world_mat); // 立方体のワールド変換行列を登録
-        for (DWORD i = 0; i < materials_count_; i++)
-        {
-            ZTexCreator->set_param_to_effect(); // 描画の直前に呼び出す必要があります
-            ZTexCreator->begin_pass();
-            d3dx_mesh_->DrawSubset(i); // メッシュ描画
-            ZTexCreator->end_pass();
-        }
-
-//        ZTexCreator->end(); // シェーダ終了
-    }
-}
-
-void mesh::render_impl(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
-{
-
-    ///////////////////////////////////////
-    // ■パス2 : 深度バッファシャドウ描画
-
-    D3DXMATRIX temp1 { view_matrix };
-    DepthBS->set_camera_view_matrix(&temp1);
-
-    D3DXMATRIX world_mat { };
-    D3DXMatrixIdentity(&world_mat);
-    {
-        D3DXMATRIX mat { };
-
-        D3DXMatrixTranslation(
-            &mat, -center_coodinate_.x, -center_coodinate_.y, -center_coodinate_.z);
-        world_mat *= mat;
-
-        D3DXMatrixScaling(&mat, scale_, scale_, scale_);
-        world_mat *= mat;
-
-        D3DXMatrixRotationYawPitchRoll(&mat, rotation_.x, rotation_.y, rotation_.z);
-        world_mat *= mat;
-
-        D3DXMatrixTranslation(&mat, position_.x, position_.y, position_.z);
-        world_mat *= mat;
-    }
-    DepthBS->set_world_matrix(&world_mat);
-    for (DWORD i { 0 }; i < materials_count_; i++)
-    {
-        DepthBS->set_tex(textures_.at(i));
-        DepthBS->set_param_to_effect(); // 描画の直前に呼び出す必要があります
-        DepthBS->begin_pass();
-        d3dx_mesh_->DrawSubset(i);
-        DepthBS->end_pass();
-    }
-
-    /*
     D3DXMATRIX world_view_projection_matrix { };
     D3DXMatrixIdentity(&world_view_projection_matrix);
     {
@@ -272,6 +191,6 @@ void mesh::render_impl(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projecti
     }
     effect_->EndPass();
     effect_->End();
-    */
 }
 } // namespace early_go 
+

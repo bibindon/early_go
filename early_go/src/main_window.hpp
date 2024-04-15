@@ -59,6 +59,7 @@ public:
     std::shared_ptr<character> get_main_character();
     std::shared_ptr<character> get_enemy_character();
 
+    // TODO remove
     shadow_mesh* shadow_mesh_;
     shadow_anim_mesh* shadow_anim_mesh_;
     shadow_skin_mesh* shadow_skin_mesh_;
@@ -89,10 +90,9 @@ private:
 
     int ideal_time_table[60];
 
-    // Z値テクスチャ作成オブジェクト
-    z_tex ZTexCreator;
-    // Z値テクスチャ作成オブジェクト
-    depth_buf_shadow DepthBS;
+    std::shared_ptr<z_tex> ZTexCreator;
+    std::shared_ptr<depth_buf_shadow> DepthBS;
+
     std::shared_ptr<ID3DXSprite> cpSprite;
     // Z値テクスチャ
     std::shared_ptr<IDirect3DTexture9> cpShadowMapTex;
@@ -108,9 +108,15 @@ private:
     static int glue_place_mesh(lua_State *);
     static int glue_place_anim_mesh(lua_State *);
     static int glue_place_skin_mesh(lua_State *);
+    static int glue_place_shadow_mesh(lua_State *);
+//    static int glue_place_shadow_anim_mesh(lua_State *);
+//    static int glue_place_shadow_skin_mesh(lua_State *);
     static void get_mesh_info_from_lua(
         lua_State*, std::string*, D3DXVECTOR3*, D3DXVECTOR3*, float*);
     std::unordered_map<std::string, std::shared_ptr<abstract_mesh> > meshes_lua_;
+    std::unordered_map<std::string, std::shared_ptr<shadow_mesh> > shadow_meshes_lua_;
+    std::unordered_map<std::string, std::shared_ptr<shadow_anim_mesh> > shadow_anims_lua_;
+    std::unordered_map<std::string, std::shared_ptr<shadow_skin_mesh> > shadow_skins_lua_;
 
     static std::unordered_multimap<std::string, mesh_info> mesh_info_map;
 

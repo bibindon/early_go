@@ -13,9 +13,6 @@ struct message_writer;
 class abstract_mesh
 {
 public:
-    z_tex* ZTexCreator; // TODO
-    depth_buf_shadow* DepthBS; // TODO
-
     static constexpr int LAYER_NUMBER{8};
 
     abstract_mesh(

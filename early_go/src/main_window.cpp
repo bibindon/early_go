@@ -103,8 +103,6 @@ main_window::main_window(const HINSTANCE &hinstance)
 
     initialize_direct3d(hwnd);
 
-    init_lua();
-
     init_se();
     bgm_player::initialize(hwnd);
     joystick::initialize(hwnd);
@@ -127,21 +125,23 @@ main_window::main_window(const HINSTANCE &hinstance)
         // Z値テクスチャ生成オブジェクトの生成と初期化
         /////////////
         UINT TexSize = 2048;                                               // テクスチャサイズ
-        if (!ZTexCreator.init(d3d_device_, TexSize, TexSize, D3DFMT_A8R8G8B8))   // 通常はこのテクスチャが作成できます
+        ZTexCreator.reset(new_crt z_tex { });
+        if (!ZTexCreator->init(d3d_device_, TexSize, TexSize, D3DFMT_A8R8G8B8))   // 通常はこのテクスチャが作成できます
         {
-            if (!ZTexCreator.init(d3d_device_, TexSize, TexSize, D3DFMT_R5G6B5)) // 万が一は16bitに落とします
+            if (!ZTexCreator->init(d3d_device_, TexSize, TexSize, D3DFMT_R5G6B5)) // 万が一は16bitに落とします
             {
                 return;
             }
         }
-        ZTexCreator.get_z_tex(cpShadowMapTex);
+        ZTexCreator->get_z_tex(cpShadowMapTex);
 
         /////////////////////////////////////////////////////
         // 深度バッファシャドウオブジェクトの生成と初期化
         /////////////
 //        depth_buf_shadow DepthBS; // 深度バッファシャドウオブジェクト
-        DepthBS.init(d3d_device_);
-        DepthBS.set_shadow_map(cpShadowMapTex); // シャドウマップテクスチャを登録
+        DepthBS.reset(new_crt depth_buf_shadow { });
+        DepthBS->init(d3d_device_);
+        DepthBS->set_shadow_map(cpShadowMapTex); // シャドウマップテクスチャを登録
 
         // Z値テクスチャ描画用のスプライト生成
         LPD3DXSPRITE worksprite { nullptr };
@@ -160,24 +160,26 @@ main_window::main_window(const HINSTANCE &hinstance)
         D3DXMatrixLookAtLH(&LightView, &temp1, &temp2, &temp3);
 
         // Z値テクスチャOBJへ登録
-        ZTexCreator.set_view_matrix(&LightView);
-        ZTexCreator.set_proj_matrix(&LightProj);
+        ZTexCreator->set_view_matrix(&LightView);
+        ZTexCreator->set_proj_matrix(&LightProj);
 
         // 深度バッファシャドウOBJへ登録
         // カメラビューは毎回変わるので描画時に登録します
-        DepthBS.set_light_view_matrix(&LightView);
-        DepthBS.set_light_proj_matrix(&LightProj);
-        DepthBS.set_camera_proj_matrix(&CameraProj);
+        DepthBS->set_light_view_matrix(&LightView);
+        DepthBS->set_light_proj_matrix(&LightProj);
+        DepthBS->set_camera_proj_matrix(&CameraProj);
 
     }
     {
         shadow_mesh_ = new_crt shadow_mesh {
-            d3d_device_, &ZTexCreator, &DepthBS, "model/tiger/tiger.x", { }, { }, 1.0f };
+            d3d_device_, ZTexCreator, DepthBS, "model/tiger/tiger.x", { }, { }, 1.0f };
         shadow_anim_mesh_ = new_crt shadow_anim_mesh {
-            d3d_device_, &ZTexCreator, &DepthBS, "model/RobotArm/RobotArm.x", { }, { }, 1.0f };
+            d3d_device_, ZTexCreator, DepthBS, "model/RobotArm/RobotArm.x", { }, { }, 1.0f };
         shadow_skin_mesh_ = new_crt shadow_skin_mesh {
-            d3d_device_, &ZTexCreator, &DepthBS, "model/wolf/wolf.x", { }, { }, 1.003f };
+            d3d_device_, ZTexCreator, DepthBS, "model/wolf/wolf.x", { }, { }, 1.003f };
     }
+    init_lua();
+
 }
 
 void main_window::initialize_direct3d(const HWND &hwnd)
@@ -709,26 +711,44 @@ void main_window::render()
         0);
     if (SUCCEEDED(d3d_device_->BeginScene()))
     {
-        ZTexCreator.begin();
-        for (auto& mesh_lua : meshes_lua_)
+        ZTexCreator->begin();
+        shadow_mesh_->ztex_render();
+        shadow_anim_mesh_->ztex_render();
+        shadow_skin_mesh_->ztex_render();
+        for (auto& mesh_lua : shadow_meshes_lua_)
         {
             auto range = mesh_info_map.equal_range(mesh_lua.first);
             for (auto itr = range.first; itr != range.second; ++itr)
             {
                 mesh_lua.second->set_position(itr->second.pos);
-                mesh_lua.second->set_rotation(itr->second.rotate);
+                mesh_lua.second->set_rotate(itr->second.rotate);
                 mesh_lua.second->set_scale(itr->second.scale);
-                mesh_lua.second->ztex_render(
-                    view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
+                mesh_lua.second->ztex_render();
             }
         }
-        shadow_mesh_->ztex_render();
-        shadow_anim_mesh_->ztex_render();
-        shadow_skin_mesh_->ztex_render();
-        ZTexCreator.end();
+        ZTexCreator->end();
 
-        DepthBS.set_camera_proj_matrix(&projection_matrix);
-        DepthBS.begin();
+        DepthBS->set_camera_proj_matrix(&projection_matrix);
+        DepthBS->begin();
+        shadow_mesh_->render(view_matrix, projection_matrix);
+        shadow_anim_mesh_->render(view_matrix, projection_matrix);
+        shadow_skin_mesh_->render(view_matrix, projection_matrix);
+        for (auto& mesh_lua : shadow_meshes_lua_)
+        {
+            auto range = mesh_info_map.equal_range(mesh_lua.first);
+            for (auto itr = range.first; itr != range.second; ++itr)
+            {
+                mesh_lua.second->set_position(itr->second.pos);
+                mesh_lua.second->set_rotate(itr->second.rotate);
+                mesh_lua.second->set_scale(itr->second.scale);
+                mesh_lua.second->render(
+                    view_matrix, projection_matrix/*, _light->normal_dir(), _light->brightness() TODO this*/);
+            }
+        }
+        DepthBS->end();
+        
+        early_->render(view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
+
         for (auto& mesh_lua : meshes_lua_)
         {
             auto range = mesh_info_map.equal_range(mesh_lua.first);
@@ -741,12 +761,6 @@ void main_window::render()
                     view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
             }
         }
-        shadow_mesh_->render(view_matrix, projection_matrix);
-        shadow_anim_mesh_->render(view_matrix, projection_matrix);
-        shadow_skin_mesh_->render(view_matrix, projection_matrix);
-        DepthBS.end();
-        
-        early_->render(view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
 
         //////////////////////////////////
         // ■パス3 : Z値テクスチャを描画
@@ -841,6 +855,15 @@ void main_window::init_lua()
     lua_pushcfunction(lua_state_, glue_place_skin_mesh);
     lua_setglobal(lua_state_, "place_skin_mesh");
 
+    lua_pushcfunction(lua_state_, glue_place_shadow_mesh);
+    lua_setglobal(lua_state_, "place_shadow_mesh");
+
+//    lua_pushcfunction(lua_state_, glue_place_shadow_anim_mesh);
+//    lua_setglobal(lua_state_, "shadow_anim_mesh");
+//
+//    lua_pushcfunction(lua_state_, glue_place_shadow_skin_mesh);
+//    lua_setglobal(lua_state_, "shadow_skin_mesh");
+
     vector<char> buff = util::get_lua_resource("script/init.lua");
     if (buff.size() == 0)
     {
@@ -897,9 +920,35 @@ int main_window::glue_place_mesh(lua_State* L)
             D3DXVECTOR3{pos.x, pos.y, pos.z},
             D3DXVECTOR3{rotate.x, rotate.y, rotate.z},
             scale } };
-        work->ZTexCreator = &main_window_->ZTexCreator;
-        work->DepthBS = &main_window_->DepthBS;
         main_window_->meshes_lua_.insert(make_pair(filename, work));
+    }
+    mesh_info_map.insert(make_pair(filename, mesh_info{ pos, rotate, scale }));
+
+    return 0;
+}
+int main_window::glue_place_shadow_mesh(lua_State* L)
+{
+    string filename;
+    D3DXVECTOR3 pos;
+    D3DXVECTOR3 rotate;
+    float scale{};
+    get_mesh_info_from_lua(L, &filename, &pos, &rotate, &scale);
+
+    auto itr = mesh_info_map.find(filename);
+    if (itr == mesh_info_map.end())
+    {
+        shared_ptr<shadow_mesh> work { new_crt shadow_mesh {
+            main_window_->d3d_device_,
+            main_window_->ZTexCreator,
+            main_window_->DepthBS,
+            filename,
+            D3DXVECTOR3{pos.x, pos.y, pos.z},
+            D3DXVECTOR3{rotate.x, rotate.y, rotate.z},
+            scale } };
+        static int number { 0 };
+        ++number;
+        filename = filename + std::to_string(number);
+        main_window_->shadow_meshes_lua_.insert(make_pair(filename, work));
     }
     mesh_info_map.insert(make_pair(filename, mesh_info{ pos, rotate, scale }));
 

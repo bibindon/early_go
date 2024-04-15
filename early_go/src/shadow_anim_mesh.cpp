@@ -43,8 +43,8 @@ void shadow_anim_mesh::frame_root_deleter_object::release_mesh_allocator(const L
 // Reads a mesh file, and sets the frame and the animation controller given to member variables.
 shadow_anim_mesh::shadow_anim_mesh(
     const std::shared_ptr<IDirect3DDevice9> &d3d_device,
-    z_tex* ZTexCreator,
-    depth_buf_shadow* DepthBS,
+    const std::shared_ptr<z_tex>& ZTexCreator,
+    const std::shared_ptr<depth_buf_shadow>& DepthBS,
     const string &x_filename,
     const D3DXVECTOR3 &position,
     const D3DXVECTOR3 &rotation,

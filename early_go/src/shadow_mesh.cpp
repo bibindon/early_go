@@ -1,21 +1,25 @@
 #include "shadow_mesh.hpp"
 
 using std::vector;
+using std::shared_ptr;
 
 namespace early_go
 {
 shadow_mesh::shadow_mesh(
     const std::shared_ptr<IDirect3DDevice9>& d3d_device,
-    z_tex* ZTexCreator,
-    depth_buf_shadow* DepthBS,
+    const shared_ptr<z_tex>& ZTexCreator,
+    const shared_ptr<depth_buf_shadow>& DepthBS,
     const std::string& x_filename,
-    const D3DXVECTOR3&,
-    const D3DXVECTOR3&,
-    const float)
+    const D3DXVECTOR3& pos,
+    const D3DXVECTOR3& rotate,
+    const float scale)
     : d3d_device_ { d3d_device }
 {
     ZTexCreator_ = ZTexCreator;
     DepthBS_ = DepthBS;
+    pos_ = pos;
+    rotate_ = rotate;
+    scale_ = scale;
 
     LPD3DXMESH temp_mesh { nullptr };
 
@@ -92,10 +96,11 @@ void shadow_mesh::ztex_render()
         D3DXMatrixIdentity(&world_mat);
         D3DXMATRIX trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
 
+        // TODO center coordinate
         D3DXMatrixTranslation(&trans_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixScaling(&scale_mat, 1.0f, 1.0f, 1.0f);
-        D3DXMatrixRotationYawPitchRoll(&rotate_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixTranslation(&trans_mat2, 5.0f, 0.0f, 0.0f);
+        D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
+        D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
+        D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
         world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
     }
     ZTexCreator_->set_world_matrix(&world_mat); // —§•û‘Ì‚Ìƒ[ƒ‹ƒh•ÏŠ·s—ñ‚ð“o˜^
@@ -117,10 +122,11 @@ void shadow_mesh::render(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projec
         D3DXMatrixIdentity(&world_mat);
         D3DXMATRIX trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
 
+        // TODO center coordinate
         D3DXMatrixTranslation(&trans_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixScaling(&scale_mat, 1.0f, 1.0f, 1.0f);
-        D3DXMatrixRotationYawPitchRoll(&rotate_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixTranslation(&trans_mat2, 5.0f, 0.0f, 0.0f);
+        D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
+        D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
+        D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
         world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
     }
     DepthBS_->set_world_matrix(&world_mat);
@@ -132,5 +138,17 @@ void shadow_mesh::render(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projec
         d3dx_mesh_->DrawSubset(i);
         DepthBS_->end_pass();
     }
+}
+void shadow_mesh::set_position(const D3DXVECTOR3& pos)
+{
+    pos_ = pos;
+}
+void shadow_mesh::set_rotate(const D3DXVECTOR3& rotate)
+{
+    rotate_ = rotate;
+}
+void shadow_mesh::set_scale(const float scale)
+{
+    scale_ = scale;
 }
 }

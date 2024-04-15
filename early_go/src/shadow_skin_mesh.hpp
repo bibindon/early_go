@@ -14,8 +14,8 @@ class shadow_skin_mesh
 public:
     shadow_skin_mesh(
         const std::shared_ptr<IDirect3DDevice9> &,
-        z_tex* ZTexCreator,
-        depth_buf_shadow* DepthBS,
+        const std::shared_ptr<z_tex>& ZTexCreator,
+        const std::shared_ptr<depth_buf_shadow>& DepthBS,
         const std::string &,
         const D3DXVECTOR3 &,
         const D3DXVECTOR3 &,
@@ -60,8 +60,8 @@ private:
     void render_mesh_container(const LPD3DXMESHCONTAINER, const LPD3DXFRAME, const bool ztex);
 
     DWORD materials_count_ { 0 };
-    z_tex* ZTexCreator_ { nullptr };
-    depth_buf_shadow* DepthBS_ { nullptr };
+    std::shared_ptr<z_tex> ZTexCreator_ { nullptr };
+    std::shared_ptr<depth_buf_shadow> DepthBS_ { nullptr };
     std::shared_ptr<ID3DXMesh> d3dx_mesh_ { };
     std::unique_ptr<animation_strategy> animation_strategy_;
 
