@@ -269,17 +269,18 @@ void shadow_anim_mesh::render_mesh_container(
 
 //        effect_->CommitChanges();
         mesh_container->MeshData.pMesh->DrawSubset(i);
+
+        if (ztex)
+        {
+            ZTexCreator_->end_pass();
+        }
+        else
+        {
+            DepthBS_->end_pass();
+        }
     }
 //    effect_->EndPass();
 //    effect_->End();
-    if (ztex)
-    {
-        ZTexCreator_->end_pass();
-    }
-    else
-    {
-        DepthBS_->end_pass();
-    }
 }
 } // namespace early_go 
 

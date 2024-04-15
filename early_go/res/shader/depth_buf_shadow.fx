@@ -48,7 +48,10 @@ struct VS_OUTPUT
 
 
 // 頂点シェーダ
-VS_OUTPUT DepthBufShadow_VS( float4 Pos : POSITION , float3 Norm : NORMAL, float4 in_texcood: TEXCOORD0)
+VS_OUTPUT DepthBufShadow_VS(
+    float4 Pos : POSITION,
+    float3 Norm : NORMAL,
+    float4 in_texcood: TEXCOORD0)
 {
     VS_OUTPUT Out = (VS_OUTPUT)0;
 
@@ -72,6 +75,66 @@ VS_OUTPUT DepthBufShadow_VS( float4 Pos : POSITION , float3 Norm : NORMAL, float
     Out.texcood = in_texcood;
 
     return Out;
+}
+static const int MAX_MATRICES = 26;
+float4x3 g_world_matrix_array[MAX_MATRICES];
+// 頂点シェーダ
+void DepthBufShadow_VS2(
+    in  float4  in_position      : POSITION,
+    in  float4  in_blend_weights : BLENDWEIGHT,
+    in  float4  in_blend_indices : BLENDINDICES,
+    in  float4  in_normal        : NORMAL,
+    in  float3  in_texcoord0     : TEXCOORD0,
+
+    out float4  out_position     : POSITION,
+//    out float4  out_diffuse      : COLOR,
+    out float2  out_texcoord0    : TEXCOORD0,
+    uniform int bone_number)
+{
+    float3 position    = 0.0f;
+    float3 normal      = 0.0f;
+    float  last_weight = 0.0f;
+
+    // Compensate for lack of UBYTE4 on Geforce3
+    int4 index_vector = D3DCOLORtoUBYTE4(in_blend_indices);
+
+    // cast the vectors to arrays for use in the for loop below
+    float blend_weights_array[4] = (float[4])in_blend_weights;
+    int   index_array[4]         = (int[4])index_vector;
+
+    // calculate the pos/normal using the "normal" weights
+    //        and accumulate the weights to calculate the last weight
+    [unroll] for (int i = 0; i < bone_number - 1; ++i)
+    {
+        last_weight = last_weight + blend_weights_array[i];
+
+        position += mul(in_position, g_world_matrix_array[index_array[i]]) * blend_weights_array[i];
+        normal += mul(in_normal, g_world_matrix_array[index_array[i]]) * blend_weights_array[i];
+    }
+
+    last_weight = 1.0f - last_weight;
+
+    // Now that we have the calculated weight, add in the final influence
+    position += (mul(in_position, g_world_matrix_array[index_array[bone_number - 1]]) * last_weight);
+    normal += (mul(in_normal, g_world_matrix_array[index_array[bone_number - 1]]) * last_weight);
+
+    // transform position from world space into view and then projection space
+    float4x4 mat;
+    mat = mul (matCameraView, matCameraProj);
+    out_position = mul(float4(position.xyz, 1.0f), mat);
+
+    normal -= position; // Parallel light source
+    float4 normal4 = normalize(float4(normal.xyz, 1.0f));
+
+
+//    float light_intensity = 1.0f * dot(normal4, g_light_normal);
+    // Shade (Ambient + etc.)
+//  out_diffuse = g_light_diffuse * g_diffuse * max(0, light_intensity) + g_ambient;
+//    out_diffuse = g_diffuse * max(0, light_intensity) + g_ambient;
+ //   out_diffuse.a = 1.0f;
+
+    // copy the input texture coordinate through
+    out_texcoord0 = in_texcoord0.xy;
 }
 
 // ピクセルシェーダ
@@ -121,6 +184,13 @@ void DepthBufShadow_PS(
     out_col.a = 1.0f;
 }
 
+int current_bone_numbers;
+VertexShader vsArray[4] = {
+    compile vs_2_0 DepthBufShadow_VS2(1),
+    compile vs_2_0 DepthBufShadow_VS2(2),
+    compile vs_2_0 DepthBufShadow_VS2(3),
+    compile vs_2_0 DepthBufShadow_VS2(4)
+};
 
 // テクニック
 technique DepthBufShadowTec
@@ -128,6 +198,11 @@ technique DepthBufShadowTec
     pass P0
     {
         VertexShader = compile vs_2_0 DepthBufShadow_VS();
+        PixelShader = compile ps_2_0 DepthBufShadow_PS();
+    }
+    pass P1
+    {
+        VertexShader = (vsArray[current_bone_numbers]);
         PixelShader = compile ps_2_0 DepthBufShadow_PS();
     }
 }

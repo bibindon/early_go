@@ -20,9 +20,11 @@ public:
     void set_camera_proj_matrix(D3DXMATRIX *pMat);
     void set_light_view_matrix(D3DXMATRIX *pMat);
     void set_light_proj_matrix(D3DXMATRIX *pMat);
+    void set_bone_num(const int bone_num);
+    void set_skin_mat_array(const std::vector<D3DXMATRIX>& skin_mat_arr);
     HRESULT begin();
     HRESULT end();
-    HRESULT begin_pass();
+    HRESULT begin_pass(const int pass = 0);
     HRESULT end_pass();
     bool set_param_to_effect();
 
@@ -46,5 +48,8 @@ private:
     D3DXHANDLE g_mesh_tex_handle_ { nullptr };
     D3DXHANDLE g_tex_handle_ { nullptr };
     D3DXHANDLE m_hTechnique { nullptr };
+
+    int bone_num_ { 0 };
+    std::vector<D3DXMATRIX> skin_mat_arr_;
 };
 }

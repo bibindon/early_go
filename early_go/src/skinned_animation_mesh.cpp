@@ -75,8 +75,7 @@ skinned_animation_mesh::skinned_animation_mesh(
     }
     // lazy initialization 
     frame_root_.reset(temp_frame_root);
-    animation_strategy_.reset(
-        new_crt normal_animation{temp_animation_controller});
+    animation_strategy_.reset(new_crt normal_animation { temp_animation_controller });
 
     allocate_all_bone_matrices(frame_root_.get());
 
@@ -184,11 +183,11 @@ void skinned_animation_mesh::render_mesh_container(
     bone_combination = static_cast<LPD3DXBONECOMBINATION>(
         mesh_container->bone_buffer_->GetBufferPointer());
 
-    const DWORD dw_palette_size = mesh_container->palette_size_;
+    const DWORD dw_palette_size { mesh_container->palette_size_ };
 
-    for (DWORD i{}; i < mesh_container->bone_count_; ++i)
+    for (DWORD i { 0 }; i < mesh_container->bone_count_; ++i)
     {
-        for (DWORD k{}; k < dw_palette_size; ++k)
+        for (DWORD k { 0 }; k < dw_palette_size; ++k)
         {
             DWORD dw_bone_id = bone_combination[i].BoneId[k];
             if (dw_bone_id == UINT_MAX)
@@ -212,7 +211,7 @@ void skinned_animation_mesh::render_mesh_container(
         effect_->SetTexture(mesh_texture_handle_,
                             mesh_container->texture_.at(bone_id).get());
 
-        effect_->Begin(nullptr, D3DXFX_DONOTSAVESTATE);
+        effect_->Begin(nullptr, 0);
 
         if (FAILED(effect_->BeginPass(0)))
         {

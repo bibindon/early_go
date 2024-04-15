@@ -95,7 +95,7 @@ void shadow_mesh::ztex_render()
         D3DXMatrixTranslation(&trans_mat, 0.0f, 0.0f, 0.0f);
         D3DXMatrixScaling(&scale_mat, 1.0f, 1.0f, 1.0f);
         D3DXMatrixRotationYawPitchRoll(&rotate_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixTranslation(&trans_mat2, 4.0f, 0.0f, 0.0f);
+        D3DXMatrixTranslation(&trans_mat2, 5.0f, 0.0f, 0.0f);
         world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
     }
     ZTexCreator_->set_world_matrix(&world_mat); // —§•û‘Ì‚Ìƒ[ƒ‹ƒh•ÏŠ·s—ñ‚ð“o˜^
@@ -120,7 +120,7 @@ void shadow_mesh::render(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projec
         D3DXMatrixTranslation(&trans_mat, 0.0f, 0.0f, 0.0f);
         D3DXMatrixScaling(&scale_mat, 1.0f, 1.0f, 1.0f);
         D3DXMatrixRotationYawPitchRoll(&rotate_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixTranslation(&trans_mat2, 4.0f, 0.0f, 0.0f);
+        D3DXMatrixTranslation(&trans_mat2, 5.0f, 0.0f, 0.0f);
         world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
     }
     DepthBS_->set_world_matrix(&world_mat);

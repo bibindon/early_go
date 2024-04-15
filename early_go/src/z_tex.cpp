@@ -126,6 +126,14 @@ void z_tex::set_proj_matrix(D3DXMATRIX* pMat)
 {
     m_matProj = *pMat;
 }
+void z_tex::set_bone_num(const int bone_num)
+{
+    bone_num_ = bone_num;
+}
+void z_tex::set_skin_mat_array(const std::vector<D3DXMATRIX>& skin_mat_arr)
+{
+    skin_mat_arr_ = std::vector<D3DXMATRIX>(skin_mat_arr);
+}
 HRESULT z_tex::begin()
 {
     // 初期化が正しく行われているかチェック
@@ -164,9 +172,9 @@ HRESULT z_tex::begin()
 
     return S_OK;
 }
-HRESULT z_tex::begin_pass()
+HRESULT z_tex::begin_pass(const int pass)
 {
-    m_cpEffect->BeginPass(0); // Z値計算は1パス
+    m_cpEffect->BeginPass(pass); // Z値計算は1パス
     return S_OK;
 }
 bool z_tex::set_param_to_effect()
@@ -179,6 +187,23 @@ bool z_tex::set_param_to_effect()
     m_cpEffect->SetMatrix(m_hWorldMat, &m_matWorld);
     m_cpEffect->SetMatrix(m_hViewMat, &m_matView);
     m_cpEffect->SetMatrix(m_hProjMat, &m_matProj);
+    HRESULT result { 0 };
+    result = m_cpEffect->SetInt("current_bone_numbers", bone_num_);
+    if (!skin_mat_arr_.empty())
+    {
+        if (skin_mat_arr_.size() >= 26)
+        {
+            result = m_cpEffect->SetMatrixArray("g_world_matrix_array", &skin_mat_arr_[0], 26);
+        }
+        else
+        {
+            result = m_cpEffect->SetMatrixArray(
+                "g_world_matrix_array",
+                &skin_mat_arr_[0],
+                static_cast<UINT>(skin_mat_arr_.size()));
+        }
+    }
+    m_cpEffect->CommitChanges();
 
     return true;
 }

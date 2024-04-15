@@ -14,7 +14,7 @@ struct skinned_animation_mesh_frame : public D3DXFRAME
 // A struct inheriting the 'D3DXMESHCONTAINER' for owing textures.
 struct skinned_animation_mesh_container : public D3DXMESHCONTAINER
 {
-    std::vector<std::unique_ptr<IDirect3DTexture9, custom_deleter> > texture_;
+    std::vector<std::shared_ptr<IDirect3DTexture9> > texture_;
 
     DWORD palette_size_;
     DWORD influence_count_;

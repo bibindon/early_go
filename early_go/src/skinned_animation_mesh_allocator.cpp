@@ -94,7 +94,7 @@ void skinned_animation_mesh_container::initialize_materials(
     // This strange bracket is measures of being interpretered as WinAPI macro. 
     NumMaterials = std::max(1UL, materials_count);
     pMaterials = new_crt D3DXMATERIAL[NumMaterials];
-    vector<std::unique_ptr<IDirect3DTexture9, custom_deleter> > temp_texture(NumMaterials);
+    vector<std::shared_ptr<IDirect3DTexture9> > temp_texture(NumMaterials);
     texture_.swap(temp_texture);
 
     // Initialize the 'pMaterials' and the 'texture_' of member variables if there are.
@@ -118,7 +118,7 @@ void skinned_animation_mesh_container::initialize_materials(
                 }
                 else
                 {
-                    texture_.at(i).reset(temp_texture);
+                    texture_.at(i).reset(temp_texture, custom_deleter { });
                 }
             }
         }

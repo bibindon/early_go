@@ -10,6 +10,7 @@
 #include "depth_buf_shadow.hpp"
 #include "shadow_mesh.hpp"
 #include "shadow_anim_mesh.hpp"
+#include "shadow_skin_mesh.hpp"
 
 #include "gtest/gtest_prod.h"
 
@@ -60,6 +61,7 @@ public:
 
     shadow_mesh* shadow_mesh_;
     shadow_anim_mesh* shadow_anim_mesh_;
+    shadow_skin_mesh* shadow_skin_mesh_;
 
 private:
     MSG msg_;

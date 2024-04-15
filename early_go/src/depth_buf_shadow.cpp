@@ -96,6 +96,14 @@ void depth_buf_shadow::set_light_proj_matrix(D3DXMATRIX *pMat)
 {
     m_matLightProj = *pMat;
 }
+void depth_buf_shadow::set_bone_num(const int bone_num)
+{
+    bone_num_ = bone_num;
+}
+void depth_buf_shadow::set_skin_mat_array(const std::vector<D3DXMATRIX>& skin_mat_arr)
+{
+    skin_mat_arr_ = std::vector<D3DXMATRIX>(skin_mat_arr);
+}
 HRESULT depth_buf_shadow::begin()
 {
     // 各サーフェイスを初期化
@@ -126,9 +134,9 @@ HRESULT depth_buf_shadow::end()
 
     return S_OK;
 }
-HRESULT depth_buf_shadow::begin_pass()
+HRESULT depth_buf_shadow::begin_pass(const int pass)
 {
-    m_cpEffect->BeginPass(0); // パスは1つのみ
+    m_cpEffect->BeginPass(pass);
     return S_OK;
 }
 HRESULT depth_buf_shadow::end_pass()
@@ -146,6 +154,23 @@ bool depth_buf_shadow::set_param_to_effect()
     HRESULT hr = m_cpEffect->SetTexture(m_hShadowMapTex, m_cpShadowMapTex.get());
     hr = m_cpEffect->SetTexture(g_mesh_tex_handle_, g_mesh_tex_.get());
     hr = m_cpEffect->SetTexture(g_tex_handle_, g_texture0_.get());
+    HRESULT result { 0 };
+    result = m_cpEffect->SetInt("current_bone_numbers", bone_num_);
+    if (!skin_mat_arr_.empty())
+    {
+        if (skin_mat_arr_.size() >= 26)
+        {
+            result = m_cpEffect->SetMatrixArray("g_world_matrix_array", &skin_mat_arr_[0], 26);
+        }
+        else
+        {
+            result = m_cpEffect->SetMatrixArray(
+                "g_world_matrix_array",
+                &skin_mat_arr_[0],
+                static_cast<UINT>(skin_mat_arr_.size()));
+        }
+    }
+    m_cpEffect->CommitChanges();
 
     return true;
 }
