@@ -42,7 +42,7 @@ shadow_mesh::shadow_mesh(
     {
         THROW_WITH_TRACE("Failed to load a x-file.");
     }
-    d3dx_mesh_.reset(temp_mesh);
+    d3dx_mesh_.reset(temp_mesh, custom_deleter { });
     vector<std::shared_ptr<IDirect3DTexture9>> temp_textures { materials_count_ };
     textures_.swap(temp_textures);
     D3DXMATERIAL* materials { static_cast<D3DXMATERIAL*>(material_buffer->GetBufferPointer()) };

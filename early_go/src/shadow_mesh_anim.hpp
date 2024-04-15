@@ -19,12 +19,11 @@ public:
         const std::string &,
         const D3DXVECTOR3 &,
         const D3DXVECTOR3 &,
-        const float &);
-    ~shadow_mesh_anim();
+        const float);
 
     void update();
     void ztex_render();
-    void render(const D3DXMATRIX &, const D3DXMATRIX &);
+    void render();
     void set_position(const D3DXVECTOR3& pos);
     void set_rotate(const D3DXVECTOR3& rotate);
     void set_scale(const float scale);
@@ -56,9 +55,10 @@ private:
     D3DXHANDLE world_handle_;
     D3DXHANDLE world_view_proj_handle_;
 
-    void update_frame_matrix(const LPD3DXFRAME, const LPD3DXMATRIX);
+    void update_frame_matrix(const LPD3DXFRAME, const LPD3DXMATRIX, const bool ztex);
     void render_frame(const LPD3DXFRAME, const bool ztex);
-    void render_mesh_container(const LPD3DXMESHCONTAINER, const LPD3DXFRAME, const bool ztex);
+    void render_mesh_container_ztex(const LPD3DXMESHCONTAINER, const LPD3DXFRAME);
+    void render_mesh_container(const LPD3DXMESHCONTAINER, const LPD3DXFRAME);
 
     DWORD materials_count_ { 0 };
     std::shared_ptr<z_tex> ztex_ { nullptr };
@@ -72,6 +72,8 @@ private:
 
     D3DXHANDLE mesh_texture_handle_ { nullptr };
     D3DXHANDLE diffuse_handle_ { nullptr };
+
+    D3DXMATRIX world_mat_ { };
 };
 } // namespace early_go 
 

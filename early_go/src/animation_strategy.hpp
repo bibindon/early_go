@@ -29,6 +29,7 @@ public:
 class normal_animation : public animation_strategy
 {
 public:
+    float anim_time_ { 0.f };
     normal_animation(LPD3DXANIMATIONCONTROLLER controller)
         : default_animation_ { "" },
           animation_time_ { },
@@ -84,6 +85,10 @@ public:
     };
     void update() override
     {
+        // consider optimization.
+        //animation_controller_->SetTrackPosition(0, 0.f);
+        //anim_time_ += constants::ANIMATION_SPEED;
+        //animation_controller_->AdvanceTime(anim_time_, nullptr);
         animation_controller_->AdvanceTime(constants::ANIMATION_SPEED, nullptr);
         if (is_playing_)
         {

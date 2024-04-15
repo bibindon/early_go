@@ -1,3 +1,8 @@
+// 複数のアニメーションメッシュを表示したいときに、
+// このクラスのインスタンスをたくさん作るのではなく
+// 位置と角度を変えて、アニメーションの再生位置を指定して
+// 一つのインスタンスを複数回表示することで、超高速化できる。
+// しかし、現在、オブジェクトをたくさん表示する機会があるか不明なので未対応。
 #include "stdafx.hpp"
 
 #include "shadow_mesh_anim.hpp"
@@ -48,7 +53,7 @@ shadow_mesh_anim::shadow_mesh_anim(
     const string &x_filename,
     const D3DXVECTOR3 &position,
     const D3DXVECTOR3 &rotation,
-    const float &scale)
+    const float scale)
     : d3d_device_ { d3d_device }
     , allocator_ { new_crt animation_mesh_allocator { x_filename } }
     , frame_root_ { nullptr, frame_root_deleter_object { allocator_ } }
@@ -88,60 +93,46 @@ shadow_mesh_anim::shadow_mesh_anim(
 
 }
 
-shadow_mesh_anim::~shadow_mesh_anim()
-{
-}
-
 void shadow_mesh_anim::update()
 {
+    animation_strategy_->update();
 }
 
 void shadow_mesh_anim::ztex_render()
 {
-    D3DXMATRIX world_mat { };
-    {
-        D3DXMatrixIdentity(&world_mat);
-        D3DXMATRIX trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
+    D3DXMATRIX base_mat { }, trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
+    D3DXMatrixIdentity(&base_mat);
+    D3DXMatrixTranslation(&trans_mat, 0.f, 0.f, 0.f);
+    D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
+    D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
+    D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
+    world_mat_ = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
 
-        D3DXMatrixTranslation(&trans_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
-        D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
-        D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
-        world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
-    }
-
+    update_frame_matrix(frame_root_.get(), &world_mat_, true);
     render_frame(frame_root_.get(), true);
 }
 
 // Renders its own animation mesh. 
-void shadow_mesh_anim::render(
-    const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
+void shadow_mesh_anim::render()
 {
-    view_matrix_ = view_matrix;
-    projection_matrix_ = projection_matrix;
+    D3DXMATRIX base_mat { }, trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
+    D3DXMatrixIdentity(&base_mat);
+    D3DXMatrixTranslation(&trans_mat, 0.f, 0.f, 0.f);
+    D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
+    D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
+    D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
+    world_mat_ = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
 
-    animation_strategy_->update();
-
-    D3DXMATRIX world_matrix { };
-    {
-        D3DXMatrixIdentity(&world_matrix);
-        D3DXMATRIX trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
-
-        D3DXMatrixTranslation(&trans_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
-        D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
-        D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
-        world_matrix = world_matrix * trans_mat * rotate_mat * scale_mat * trans_mat2;
-    }
-
-    update_frame_matrix(frame_root_.get(), &world_matrix);
+    update_frame_matrix(frame_root_.get(), &world_mat_, false);
     render_frame(frame_root_.get(), false);
 }
 
 // Updates a world-transformation-matrix each the mesh in the frame. Also, this is a recursive
 // function.
 void shadow_mesh_anim::update_frame_matrix(
-    const LPD3DXFRAME frame_base, const LPD3DXMATRIX parent_matrix)
+    const LPD3DXFRAME frame_base,
+    const LPD3DXMATRIX parent_matrix,
+    const bool ztex)
 {
     animation_mesh_frame *frame { static_cast<animation_mesh_frame *>(frame_base) };
     // Multiply its own transformation matrix by the parent transformation matrix.
@@ -155,11 +146,11 @@ void shadow_mesh_anim::update_frame_matrix(
     }
 
     // 立方体のワールド変換行列を登録
-//    if (_ztex)
+    if (ztex)
     {
         ztex_->set_world_matrix(&frame->combined_matrix_);
     }
-//    else
+    else
     {
         depth_buf_shadow_->set_world_matrix(&frame->combined_matrix_);
     }
@@ -167,25 +158,30 @@ void shadow_mesh_anim::update_frame_matrix(
     // Call oneself. 
     if (frame->pFrameSibling != nullptr)
     {
-        update_frame_matrix(frame->pFrameSibling, parent_matrix);
+        update_frame_matrix(frame->pFrameSibling, parent_matrix, ztex);
     }
     // Call oneself. 
     if (frame->pFrameFirstChild != nullptr)
     {
-        update_frame_matrix(frame->pFrameFirstChild, &frame->combined_matrix_);
+        update_frame_matrix(frame->pFrameFirstChild, &frame->combined_matrix_, ztex);
     }
 }
 
 // Calls the 'render_mesh_container' function recursively. 
 void shadow_mesh_anim::render_frame(const LPD3DXFRAME frame, const bool ztex)
 {
+    LPD3DXMESHCONTAINER mesh_container { frame->pMeshContainer };
+    while (mesh_container != nullptr)
     {
-        LPD3DXMESHCONTAINER mesh_container { frame->pMeshContainer };
-        while (mesh_container != nullptr)
+        if (ztex)
         {
-            render_mesh_container(mesh_container, frame, ztex);
-            mesh_container = mesh_container->pNextMeshContainer;
+            render_mesh_container_ztex(mesh_container, frame);
         }
+        else
+        {
+            render_mesh_container(mesh_container, frame);
+        }
+        mesh_container = mesh_container->pNextMeshContainer;
     }
 
     // Call oneself. 
@@ -200,52 +196,45 @@ void shadow_mesh_anim::render_frame(const LPD3DXFRAME frame, const bool ztex)
     }
 }
 
-void shadow_mesh_anim::render_mesh_container(
+void shadow_mesh_anim::render_mesh_container_ztex(
     const LPD3DXMESHCONTAINER mesh_container_base,
-    const LPD3DXFRAME frame_base,
-    const bool ztex)
+    const LPD3DXFRAME frame_base)
 {
     // Cast for making child class' function callable. 
     animation_mesh_frame *frame { static_cast<animation_mesh_frame *>(frame_base) };
 
-    D3DXMATRIX world_view_projection_matrix { frame->combined_matrix_ };
-
-    if (ztex)
-    {
-        ztex_->set_world_matrix(&frame->combined_matrix_);
-    }
-    else
-    {
-        depth_buf_shadow_->set_world_matrix(&frame->combined_matrix_);
-    }
+    ztex_->set_world_matrix(&frame->combined_matrix_);
 
     animation_mesh_container *mesh_container {
         static_cast<animation_mesh_container *>(mesh_container_base) };
 
     for (DWORD i { 0 }; i < mesh_container->NumMaterials; ++i)
     {
-        if (ztex)
-        {
-            ztex_->set_param_to_effect();
-            ztex_->begin_pass();
-        }
-        else
-        {
-            depth_buf_shadow_->set_tex(mesh_container->texture_.at(i));
-            depth_buf_shadow_->set_param_to_effect();
-            depth_buf_shadow_->begin_pass();
-        }
-
+        ztex_->set_param_to_effect();
+        ztex_->begin_pass();
         mesh_container->MeshData.pMesh->DrawSubset(i);
+        ztex_->end_pass();
+    }
+}
+void shadow_mesh_anim::render_mesh_container(
+    const LPD3DXMESHCONTAINER mesh_container_base,
+    const LPD3DXFRAME frame_base)
+{
+    // Cast for making child class' function callable. 
+    animation_mesh_frame *frame { static_cast<animation_mesh_frame *>(frame_base) };
 
-        if (ztex)
-        {
-            ztex_->end_pass();
-        }
-        else
-        {
-            depth_buf_shadow_->end_pass();
-        }
+    depth_buf_shadow_->set_world_matrix(&frame->combined_matrix_);
+
+    animation_mesh_container *mesh_container {
+        static_cast<animation_mesh_container *>(mesh_container_base) };
+
+    for (DWORD i { 0 }; i < mesh_container->NumMaterials; ++i)
+    {
+        depth_buf_shadow_->set_tex(mesh_container->texture_.at(i));
+        depth_buf_shadow_->set_param_to_effect();
+        depth_buf_shadow_->begin_pass();
+        mesh_container->MeshData.pMesh->DrawSubset(i);
+        depth_buf_shadow_->end_pass();
     }
 }
 void shadow_mesh_anim::set_position(const D3DXVECTOR3& pos)

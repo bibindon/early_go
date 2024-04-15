@@ -702,6 +702,8 @@ void main_window::render()
     D3DXMATRIX view_matrix{camera_->get_view_matrix()};
     D3DXMATRIX projection_matrix{camera_->get_projection_matrix()};
 
+    shadow_mesh_anim_->update();
+
     d3d_device_->Clear(
         0,
         nullptr,
@@ -733,7 +735,9 @@ void main_window::render()
         depth_buf_shadow_->set_camera_proj_matrix(&projection_matrix);
         depth_buf_shadow_->begin();
         shadow_mesh_->render(view_matrix, projection_matrix);
-        shadow_mesh_anim_->render(view_matrix, projection_matrix);
+        shadow_mesh_anim_->set_position({ 1.f, 0.f, 5.f});
+        shadow_mesh_anim_->set_scale(1.0f);
+        shadow_mesh_anim_->render();
         shadow_mesh_skin_->render(view_matrix, projection_matrix);
         for (auto& mesh_lua : shadow_meshes_lua_)
         {
