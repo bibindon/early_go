@@ -90,8 +90,8 @@ private:
 
     int ideal_time_table[60];
 
-    std::shared_ptr<z_tex> ZTexCreator;
-    std::shared_ptr<depth_buf_shadow> DepthBS;
+    std::shared_ptr<z_tex> ztex_;
+    std::shared_ptr<depth_buf_shadow> depth_buf_shadow_;
 
     std::shared_ptr<ID3DXSprite> cpSprite;
     // Z値テクスチャ

@@ -11,15 +11,15 @@ class depth_buf_shadow
 public:
     depth_buf_shadow();
     ~depth_buf_shadow();
-    bool init(std::shared_ptr<IDirect3DDevice9> &cpDev);
-    bool set_shadow_map(std::shared_ptr<IDirect3DTexture9> &cpShadowMap);
+    bool init(std::shared_ptr<IDirect3DDevice9> &d3dx_device);
+    bool set_shadow_map(std::shared_ptr<IDirect3DTexture9> &shadow_map_tex);
     bool set_tex(const std::shared_ptr<IDirect3DTexture9> &_tex);
     bool set_dynamic_tex(const std::shared_ptr<IDirect3DTexture9> &_tex);
-    void set_world_matrix(D3DXMATRIX *pMat);
-    void set_camera_view_matrix(D3DXMATRIX *pMat);
-    void set_camera_proj_matrix(D3DXMATRIX *pMat);
-    void set_light_view_matrix(D3DXMATRIX *pMat);
-    void set_light_proj_matrix(D3DXMATRIX *pMat);
+    void set_world_matrix(D3DXMATRIX *mat);
+    void set_camera_view_matrix(D3DXMATRIX *mat);
+    void set_camera_proj_matrix(D3DXMATRIX *mat);
+    void set_light_view_matrix(D3DXMATRIX *mat);
+    void set_light_proj_matrix(D3DXMATRIX *mat);
     void set_bone_num(const int bone_num);
     void set_skin_mat_array(const std::vector<D3DXMATRIX>& skin_mat_arr);
     HRESULT begin();
@@ -29,25 +29,25 @@ public:
     bool set_param_to_effect();
 
 private:
-    std::shared_ptr<IDirect3DDevice9> m_cpDev;
-    std::shared_ptr<IDirect3DTexture9> m_cpShadowMapTex;
+    std::shared_ptr<IDirect3DDevice9> d3dx_device_;
+    std::shared_ptr<IDirect3DTexture9> shadow_map_tex_;
     std::shared_ptr<IDirect3DTexture9> g_mesh_tex_;
     std::shared_ptr<IDirect3DTexture9> g_texture0_;
-    std::shared_ptr<ID3DXEffect> m_cpEffect;
-    D3DXMATRIX m_matWorld { };
-    D3DXMATRIX m_matCameraView { };
-    D3DXMATRIX m_matCameraProj { };
-    D3DXMATRIX m_matLightView { };
-    D3DXMATRIX m_matLightProj { };
-    D3DXHANDLE m_hWorldMat { nullptr };
-    D3DXHANDLE m_hCameraViewMat { nullptr };
-    D3DXHANDLE m_hCameraProjMat { nullptr };
-    D3DXHANDLE m_hLightViewMat { nullptr };
-    D3DXHANDLE m_hLightProjMat { nullptr };
-    D3DXHANDLE m_hShadowMapTex { nullptr };
+    std::shared_ptr<ID3DXEffect> effect_;
+    D3DXMATRIX mat_world_ { };
+    D3DXMATRIX camera_mat_view_ { };
+    D3DXMATRIX camera_mat_proj_ { };
+    D3DXMATRIX light_mat_view_ { };
+    D3DXMATRIX light_mat_proj_ { };
+    D3DXHANDLE mat_world_handle_ { nullptr };
+    D3DXHANDLE camera_view_handle_ { nullptr };
+    D3DXHANDLE camera_proj_handle_ { nullptr };
+    D3DXHANDLE light_view_handle_ { nullptr };
+    D3DXHANDLE light_proj_handle_ { nullptr };
+    D3DXHANDLE shadow_map_handle_ { nullptr };
     D3DXHANDLE g_mesh_tex_handle_ { nullptr };
     D3DXHANDLE g_tex_handle_ { nullptr };
-    D3DXHANDLE m_hTechnique { nullptr };
+    D3DXHANDLE technique_handle_ { nullptr };
 
     int bone_num_ { 0 };
     std::vector<D3DXMATRIX> skin_mat_arr_;

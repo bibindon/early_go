@@ -43,8 +43,8 @@ void shadow_anim_mesh::frame_root_deleter_object::release_mesh_allocator(const L
 // Reads a mesh file, and sets the frame and the animation controller given to member variables.
 shadow_anim_mesh::shadow_anim_mesh(
     const std::shared_ptr<IDirect3DDevice9> &d3d_device,
-    const std::shared_ptr<z_tex>& ZTexCreator,
-    const std::shared_ptr<depth_buf_shadow>& DepthBS,
+    const std::shared_ptr<z_tex>& _ztex,
+    const std::shared_ptr<depth_buf_shadow>& depth_buf_shadow,
     const string &x_filename,
     const D3DXVECTOR3 &position,
     const D3DXVECTOR3 &rotation,
@@ -57,8 +57,8 @@ shadow_anim_mesh::shadow_anim_mesh(
     , world_handle_ { }
     , world_view_proj_handle_ { }
 {
-    ZTexCreator_ = ZTexCreator;
-    DepthBS_ = DepthBS;
+    ztex_ = _ztex;
+    depth_buf_shadow_ = depth_buf_shadow;
 
 //    world_handle_ = effect_->GetParameterByName(nullptr, "matWorld");
 //    world_view_proj_handle_ = effect_->GetParameterByName(nullptr, "g_world_view_projection");
@@ -112,13 +112,13 @@ void shadow_anim_mesh::ztex_render()
     }
 
     render_frame(frame_root_.get(), true);
-//    ZTexCreator_->set_world_matrix(&world_mat); // 立方体のワールド変換行列を登録
+//    ztex_->set_world_matrix(&world_mat); // 立方体のワールド変換行列を登録
 //    for (DWORD i { 0 }; i < materials_count_; i++)
 //    {
-//        ZTexCreator_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
-//        ZTexCreator_->begin_pass();
+//        ztex_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+//        ztex_->begin_pass();
 //        d3dx_mesh_->DrawSubset(i); // メッシュ描画
-//        ZTexCreator_->end_pass();
+//        ztex_->end_pass();
 //    }
 }
 
@@ -166,11 +166,11 @@ void shadow_anim_mesh::update_frame_matrix(
     // 立方体のワールド変換行列を登録
 //    if (_ztex)
     {
-        ZTexCreator_->set_world_matrix(&frame->combined_matrix_);
+        ztex_->set_world_matrix(&frame->combined_matrix_);
     }
 //    else
     {
-        DepthBS_->set_world_matrix(&frame->combined_matrix_);
+        depth_buf_shadow_->set_world_matrix(&frame->combined_matrix_);
     }
 
     // Call oneself. 
@@ -222,11 +222,11 @@ void shadow_anim_mesh::render_mesh_container(
 //    effect_->SetMatrix(world_handle_, &world_view_projection_matrix);
     if (ztex)
     {
-        ZTexCreator_->set_world_matrix(&frame->combined_matrix_);
+        ztex_->set_world_matrix(&frame->combined_matrix_);
     }
     else
     {
-        DepthBS_->set_world_matrix(&frame->combined_matrix_);
+        depth_buf_shadow_->set_world_matrix(&frame->combined_matrix_);
     }
 
 //    world_view_projection_matrix *= view_matrix_;
@@ -241,7 +241,7 @@ void shadow_anim_mesh::render_mesh_container(
 //        effect_->End();
 //        THROW_WITH_TRACE("Failed 'BeginPass' function.");
 //    }
-//    DepthBS_->begin_pass();
+//    depth_buf_shadow_->begin_pass();
 
     animation_mesh_container *mesh_container {
         static_cast<animation_mesh_container *>(mesh_container_base) };
@@ -257,14 +257,14 @@ void shadow_anim_mesh::render_mesh_container(
 //        effect_->SetTexture(mesh_texture_handle_, mesh_container->texture_.at(i).get());
         if (ztex)
         {
-            ZTexCreator_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
-            ZTexCreator_->begin_pass();
+            ztex_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+            ztex_->begin_pass();
         }
         else
         {
-            DepthBS_->set_tex(mesh_container->texture_.at(i));
-            DepthBS_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
-            DepthBS_->begin_pass();
+            depth_buf_shadow_->set_tex(mesh_container->texture_.at(i));
+            depth_buf_shadow_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+            depth_buf_shadow_->begin_pass();
         }
 
 //        effect_->CommitChanges();
@@ -272,11 +272,11 @@ void shadow_anim_mesh::render_mesh_container(
 
         if (ztex)
         {
-            ZTexCreator_->end_pass();
+            ztex_->end_pass();
         }
         else
         {
-            DepthBS_->end_pass();
+            depth_buf_shadow_->end_pass();
         }
     }
 //    effect_->EndPass();

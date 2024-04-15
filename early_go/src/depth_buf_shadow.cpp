@@ -14,9 +14,9 @@ depth_buf_shadow::depth_buf_shadow()
 depth_buf_shadow::~depth_buf_shadow()
 {
 }
-bool depth_buf_shadow::init(std::shared_ptr<IDirect3DDevice9> &cpDev)
+bool depth_buf_shadow::init(std::shared_ptr<IDirect3DDevice9> &d3dx_device)
 {
-    if (cpDev == NULL)
+    if (d3dx_device == NULL)
     {
         return false;
     }
@@ -24,7 +24,7 @@ bool depth_buf_shadow::init(std::shared_ptr<IDirect3DDevice9> &cpDev)
     vector<char> buffer{ early_go::util::get_shader_resource("depth_buf_shadow.fx") };
     LPD3DXEFFECT effect{nullptr};
     if (FAILED ( D3DXCreateEffect(
-        cpDev.get(),
+        d3dx_device.get(),
         &buffer[0],
         static_cast<UINT>(buffer.size()),
         NULL,
@@ -36,34 +36,34 @@ bool depth_buf_shadow::init(std::shared_ptr<IDirect3DDevice9> &cpDev)
     {
         return false;
     }
-    m_cpEffect.reset(effect, custom_deleter { });
+    effect_.reset(effect, custom_deleter { });
 
-    m_hWorldMat = m_cpEffect->GetParameterByName(NULL, "matWorld");
-    m_hCameraViewMat = m_cpEffect->GetParameterByName(NULL, "matCameraView");
-    m_hCameraProjMat = m_cpEffect->GetParameterByName(NULL, "matCameraProj");
-    m_hLightViewMat = m_cpEffect->GetParameterByName(NULL, "matLightView");
-    m_hLightProjMat = m_cpEffect->GetParameterByName(NULL, "matLightProj");
-    m_hShadowMapTex = m_cpEffect->GetParameterByName(NULL, "texShadowMap");
-    g_mesh_tex_handle_ = m_cpEffect->GetParameterByName(NULL, "g_mesh_texture");
-    g_tex_handle_ = m_cpEffect->GetParameterByName(NULL, "g_texture_0");
-    m_hTechnique = m_cpEffect->GetTechniqueByName("DepthBufShadowTec");
+    mat_world_handle_ = effect_->GetParameterByName(NULL, "matWorld");
+    camera_view_handle_ = effect_->GetParameterByName(NULL, "matCameraView");
+    camera_proj_handle_ = effect_->GetParameterByName(NULL, "matCameraProj");
+    light_view_handle_ = effect_->GetParameterByName(NULL, "matLightView");
+    light_proj_handle_ = effect_->GetParameterByName(NULL, "matLightProj");
+    shadow_map_handle_ = effect_->GetParameterByName(NULL, "texShadowMap");
+    g_mesh_tex_handle_ = effect_->GetParameterByName(NULL, "g_mesh_texture");
+    g_tex_handle_ = effect_->GetParameterByName(NULL, "g_texture_0");
+    technique_handle_ = effect_->GetTechniqueByName("DepthBufShadowTec");
 
-    if (!m_hWorldMat || !m_hCameraViewMat || !m_hCameraProjMat || !m_hLightViewMat ||
-        !m_hLightProjMat || !m_hShadowMapTex || !m_hTechnique)
+    if (!mat_world_handle_ || !camera_view_handle_ || !camera_proj_handle_ || !light_view_handle_ ||
+        !light_proj_handle_ || !shadow_map_handle_ || !technique_handle_)
     {
         return false;
     }
 
-    m_cpDev = cpDev;
+    d3dx_device_ = d3dx_device;
     return true;
 }
-bool depth_buf_shadow::set_shadow_map(std::shared_ptr<IDirect3DTexture9> &cpShadowMap)
+bool depth_buf_shadow::set_shadow_map(std::shared_ptr<IDirect3DTexture9> &shadow_map_tex)
 {
-    if (cpShadowMap == NULL)
+    if (shadow_map_tex == NULL)
     {
         return false;
     }
-    m_cpShadowMapTex = cpShadowMap;
+    shadow_map_tex_ = shadow_map_tex;
     return true;
 }
 bool depth_buf_shadow::set_tex(const std::shared_ptr<IDirect3DTexture9> &_tex)
@@ -76,25 +76,25 @@ bool depth_buf_shadow::set_dynamic_tex(const std::shared_ptr<IDirect3DTexture9> 
     this->g_texture0_ = _tex;
     return true;
 }
-void depth_buf_shadow::set_world_matrix(D3DXMATRIX *pMat)
+void depth_buf_shadow::set_world_matrix(D3DXMATRIX *mat)
 {
-    m_matWorld = *pMat;
+    mat_world_ = *mat;
 }
-void depth_buf_shadow::set_camera_view_matrix(D3DXMATRIX *pMat)
+void depth_buf_shadow::set_camera_view_matrix(D3DXMATRIX *mat)
 {
-    m_matCameraView = *pMat;
+    camera_mat_view_ = *mat;
 }
-void depth_buf_shadow::set_camera_proj_matrix(D3DXMATRIX *pMat)
+void depth_buf_shadow::set_camera_proj_matrix(D3DXMATRIX *mat)
 {
-    m_matCameraProj = *pMat;
+    camera_mat_proj_ = *mat;
 }
-void depth_buf_shadow::set_light_view_matrix(D3DXMATRIX *pMat)
+void depth_buf_shadow::set_light_view_matrix(D3DXMATRIX *mat)
 {
-    m_matLightView = *pMat;
+    light_mat_view_ = *mat;
 }
-void depth_buf_shadow::set_light_proj_matrix(D3DXMATRIX *pMat)
+void depth_buf_shadow::set_light_proj_matrix(D3DXMATRIX *mat)
 {
-    m_matLightProj = *pMat;
+    light_mat_proj_ = *mat;
 }
 void depth_buf_shadow::set_bone_num(const int bone_num)
 {
@@ -107,7 +107,7 @@ void depth_buf_shadow::set_skin_mat_array(const std::vector<D3DXMATRIX>& skin_ma
 HRESULT depth_buf_shadow::begin()
 {
     // 各サーフェイスを初期化
-    m_cpDev->Clear(
+    d3dx_device_->Clear(
         0,
         NULL,
         D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
@@ -116,61 +116,61 @@ HRESULT depth_buf_shadow::begin()
         0);
 
     // プログラマブルシェーダに切り替え
-    m_cpEffect->SetTechnique(m_hTechnique);
+    effect_->SetTechnique(technique_handle_);
 
     // 開始宣言
     UINT Pass;
-    m_cpEffect->Begin(&Pass, 0);
+    effect_->Begin(&Pass, 0);
 
     return S_OK;
 }
 HRESULT depth_buf_shadow::end()
 {
-    m_cpEffect->End();
+    effect_->End();
 
     // 固定機能に戻す
-    m_cpDev->SetVertexShader(NULL);
-    m_cpDev->SetPixelShader(NULL);
+    d3dx_device_->SetVertexShader(NULL);
+    d3dx_device_->SetPixelShader(NULL);
 
     return S_OK;
 }
 HRESULT depth_buf_shadow::begin_pass(const int pass)
 {
-    m_cpEffect->BeginPass(pass);
+    effect_->BeginPass(pass);
     return S_OK;
 }
 HRESULT depth_buf_shadow::end_pass()
 {
-    m_cpEffect->EndPass();
+    effect_->EndPass();
     return S_OK;
 }
 bool depth_buf_shadow::set_param_to_effect()
 {
-    m_cpEffect->SetMatrix(m_hWorldMat, &m_matWorld);
-    m_cpEffect->SetMatrix(m_hCameraViewMat, &m_matCameraView);
-    m_cpEffect->SetMatrix(m_hCameraProjMat, &m_matCameraProj);
-    m_cpEffect->SetMatrix(m_hLightViewMat, &m_matLightView);
-    m_cpEffect->SetMatrix(m_hLightProjMat, &m_matLightProj);
-    HRESULT hr = m_cpEffect->SetTexture(m_hShadowMapTex, m_cpShadowMapTex.get());
-    hr = m_cpEffect->SetTexture(g_mesh_tex_handle_, g_mesh_tex_.get());
-    hr = m_cpEffect->SetTexture(g_tex_handle_, g_texture0_.get());
+    effect_->SetMatrix(mat_world_handle_, &mat_world_);
+    effect_->SetMatrix(camera_view_handle_, &camera_mat_view_);
+    effect_->SetMatrix(camera_proj_handle_, &camera_mat_proj_);
+    effect_->SetMatrix(light_view_handle_, &light_mat_view_);
+    effect_->SetMatrix(light_proj_handle_, &light_mat_proj_);
+    HRESULT hr = effect_->SetTexture(shadow_map_handle_, shadow_map_tex_.get());
+    hr = effect_->SetTexture(g_mesh_tex_handle_, g_mesh_tex_.get());
+    hr = effect_->SetTexture(g_tex_handle_, g_texture0_.get());
     HRESULT result { 0 };
-    result = m_cpEffect->SetInt("current_bone_numbers", bone_num_);
+    result = effect_->SetInt("current_bone_numbers", bone_num_);
     if (!skin_mat_arr_.empty())
     {
         if (skin_mat_arr_.size() >= 26)
         {
-            result = m_cpEffect->SetMatrixArray("g_world_matrix_array", &skin_mat_arr_[0], 26);
+            result = effect_->SetMatrixArray("g_world_matrix_array", &skin_mat_arr_[0], 26);
         }
         else
         {
-            result = m_cpEffect->SetMatrixArray(
+            result = effect_->SetMatrixArray(
                 "g_world_matrix_array",
                 &skin_mat_arr_[0],
                 static_cast<UINT>(skin_mat_arr_.size()));
         }
     }
-    m_cpEffect->CommitChanges();
+    effect_->CommitChanges();
 
     return true;
 }

@@ -8,13 +8,13 @@ namespace early_go
 {
 z_tex::z_tex()
 {
-    D3DXMatrixIdentity(&m_matWorld);
-    D3DXMatrixIdentity(&m_matView);
-    D3DXMatrixIdentity(&m_matProj);
-    m_hWorldMat = NULL;
-    m_hViewMat = NULL;
-    m_hProjMat = NULL;
-    m_hTechnique = NULL;
+    D3DXMatrixIdentity(&mat_world_);
+    D3DXMatrixIdentity(&mat_view_);
+    D3DXMatrixIdentity(&mat_proj_);
+    mat_world_handle_ = NULL;
+    mat_view_handle_ = NULL;
+    mat_proj_handle_ = NULL;
+    technique_handle_ = NULL;
 }
 z_tex::~z_tex()
 {
@@ -22,17 +22,17 @@ z_tex::~z_tex()
 #pragma warning(push)
 #pragma warning(disable: 26812 )
 bool z_tex::init(
-    const std::shared_ptr<IDirect3DDevice9>& cpDev,
-    UINT ZTexWidth,
-    UINT ZTexHeight,
+    const std::shared_ptr<IDirect3DDevice9>& d3dx_device,
+    UINT ztex_width,
+    UINT ztex_height,
     D3DFORMAT ZTexFormat) // warning 26812
 #pragma warning(pop)
 {
-    if (cpDev.get() == NULL)
+    if (d3dx_device.get() == NULL)
     {
         return false;
     }
-    if (ZTexWidth == 0 || ZTexHeight == 0)
+    if (ztex_width == 0 || ztex_height == 0)
     {
         return false;
     }
@@ -43,7 +43,7 @@ bool z_tex::init(
     vector<char> buffer { early_go::util::get_shader_resource("z_tex.fx") };
     LPD3DXEFFECT effect{nullptr};
     if (FAILED(D3DXCreateEffect(
-        cpDev.get(),
+        d3dx_device.get(),
         &buffer[0],
         static_cast<UINT>(buffer.size()),
         NULL,
@@ -55,14 +55,14 @@ bool z_tex::init(
     {
         return false;
     }
-    m_cpEffect.reset(effect, custom_deleter { });
+    effect_.reset(effect, custom_deleter { });
 
     // エフェクト内の各種パラメータハンドルを取得
-    m_hWorldMat = m_cpEffect->GetParameterByName(NULL, "matWorld");
-    m_hViewMat = m_cpEffect->GetParameterByName(NULL, "matView");
-    m_hProjMat = m_cpEffect->GetParameterByName(NULL, "matProj");
-    m_hTechnique = m_cpEffect->GetTechniqueByName("ZValuePlotTec");
-    if (!m_hWorldMat || !m_hViewMat || !m_hProjMat || !m_hTechnique)
+    mat_world_handle_ = effect_->GetParameterByName(NULL, "matWorld");
+    mat_view_handle_ = effect_->GetParameterByName(NULL, "matView");
+    mat_proj_handle_ = effect_->GetParameterByName(NULL, "matProj");
+    technique_handle_ = effect_->GetTechniqueByName("ZValuePlotTec");
+    if (!mat_world_handle_ || !mat_view_handle_ || !mat_proj_handle_ || !technique_handle_)
     {
         return false;
     }
@@ -70,8 +70,8 @@ bool z_tex::init(
     // 指定のZ値テクスチャを生成
     LPDIRECT3DTEXTURE9 temp_texture{nullptr};
     hr = D3DXCreateTexture(
-        cpDev.get(),
-        ZTexWidth, ZTexHeight,
+        d3dx_device.get(),
+        ztex_width, ztex_height,
         1,
         D3DUSAGE_RENDERTARGET,
         ZTexFormat,
@@ -81,23 +81,23 @@ bool z_tex::init(
     {
         return false;
     }
-    m_cpZTex.reset(temp_texture, custom_deleter { });
+    ztex_.reset(temp_texture, custom_deleter { });
 
     LPDIRECT3DSURFACE9 temp_surface;
-    m_cpZTex->GetSurfaceLevel(0, &temp_surface); // サーフェイス取得
-    m_cpZTexSurf.reset(temp_surface, custom_deleter { });
+    ztex_->GetSurfaceLevel(0, &temp_surface); // サーフェイス取得
+    ztex_surface_.reset(temp_surface, custom_deleter { });
 
     // 描画デバイスに定義されているバッファの能力を取得
     IDirect3DSurface9* pSurf;
-    cpDev->GetDepthStencilSurface(&pSurf);
+    d3dx_device->GetDepthStencilSurface(&pSurf);
     D3DSURFACE_DESC Desc;
     pSurf->GetDesc(&Desc);
     pSurf->Release();
 
     // 独自深度バッファを作成
     LPDIRECT3DSURFACE9 temp_surface2;
-    hr = cpDev->CreateDepthStencilSurface(
-        ZTexWidth, ZTexHeight,
+    hr = d3dx_device->CreateDepthStencilSurface(
+        ztex_width, ztex_height,
         Desc.Format,
         Desc.MultiSampleType,
         Desc.MultiSampleQuality,
@@ -108,23 +108,23 @@ bool z_tex::init(
     {
         return false;
     }
-    m_cpDepthBuff.reset(temp_surface2, custom_deleter { });
+    depth_buffer_.reset(temp_surface2, custom_deleter { });
 
-    m_cpDev = cpDev;
+    d3dx_device_ = d3dx_device;
 
     return true;
 }
-void z_tex::set_world_matrix(D3DXMATRIX* pMat)
+void z_tex::set_world_matrix(D3DXMATRIX* mat)
 {
-    m_matWorld = *pMat;
+    mat_world_ = *mat;
 }
-void z_tex::set_view_matrix(D3DXMATRIX* pMat)
+void z_tex::set_view_matrix(D3DXMATRIX* mat)
 {
-    m_matView = *pMat;
+    mat_view_ = *mat;
 }
-void z_tex::set_proj_matrix(D3DXMATRIX* pMat)
+void z_tex::set_proj_matrix(D3DXMATRIX* mat)
 {
-    m_matProj = *pMat;
+    mat_proj_ = *mat;
 }
 void z_tex::set_bone_num(const int bone_num)
 {
@@ -137,26 +137,26 @@ void z_tex::set_skin_mat_array(const std::vector<D3DXMATRIX>& skin_mat_arr)
 HRESULT z_tex::begin()
 {
     // 初期化が正しく行われているかチェック
-    if (m_cpDepthBuff.get() == NULL || m_cpZTex.get() == NULL)
+    if (depth_buffer_.get() == NULL || ztex_.get() == NULL)
     {
         return E_FAIL;
     }
 
     // デバイスが持っているバッファを一時保存
     LPDIRECT3DSURFACE9 temp_surface1;
-    m_cpDev->GetRenderTarget(0, &temp_surface1);
-    m_cpDevBuffer.reset(temp_surface1, custom_deleter { });
+    d3dx_device_->GetRenderTarget(0, &temp_surface1);
+    origin_buffer_.reset(temp_surface1, custom_deleter { });
 
     LPDIRECT3DSURFACE9 temp_surface2;
-    m_cpDev->GetDepthStencilSurface(&temp_surface2);
-    m_cpDevDepth.reset(temp_surface2, custom_deleter { });
+    d3dx_device_->GetDepthStencilSurface(&temp_surface2);
+    origin_depth_.reset(temp_surface2, custom_deleter { });
 
     // デバイスにZ値テクスチャサーフェイスと深度バッファを設定
-    m_cpDev->SetRenderTarget(0, m_cpZTexSurf.get());
-    m_cpDev->SetDepthStencilSurface(m_cpDepthBuff.get());
+    d3dx_device_->SetRenderTarget(0, ztex_surface_.get());
+    d3dx_device_->SetDepthStencilSurface(depth_buffer_.get());
 
     // 各サーフェイスを初期化
-    m_cpDev->Clear(
+    d3dx_device_->Clear(
         0,
         NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
         D3DCOLOR_ARGB(255, 255, 255, 255),
@@ -164,74 +164,74 @@ HRESULT z_tex::begin()
         0);
 
     // プログラマブルシェーダのテクニックを設定
-    m_cpEffect->SetTechnique(m_hTechnique);
+    effect_->SetTechnique(technique_handle_);
 
     // シェーダの開始を宣言
     UINT Tmp;
-    m_cpEffect->Begin(&Tmp, 0);
+    effect_->Begin(&Tmp, 0);
 
     return S_OK;
 }
 HRESULT z_tex::begin_pass(const int pass)
 {
-    m_cpEffect->BeginPass(pass); // Z値計算は1パス
+    effect_->BeginPass(pass); // Z値計算は1パス
     return S_OK;
 }
 bool z_tex::set_param_to_effect()
 {
-    if (m_cpEffect.get() == NULL)
+    if (effect_.get() == NULL)
     {
         return false;
     }
 
-    m_cpEffect->SetMatrix(m_hWorldMat, &m_matWorld);
-    m_cpEffect->SetMatrix(m_hViewMat, &m_matView);
-    m_cpEffect->SetMatrix(m_hProjMat, &m_matProj);
+    effect_->SetMatrix(mat_world_handle_, &mat_world_);
+    effect_->SetMatrix(mat_view_handle_, &mat_view_);
+    effect_->SetMatrix(mat_proj_handle_, &mat_proj_);
     HRESULT result { 0 };
-    result = m_cpEffect->SetInt("current_bone_numbers", bone_num_);
+    result = effect_->SetInt("current_bone_numbers", bone_num_);
     if (!skin_mat_arr_.empty())
     {
         if (skin_mat_arr_.size() >= 26)
         {
-            result = m_cpEffect->SetMatrixArray("g_world_matrix_array", &skin_mat_arr_[0], 26);
+            result = effect_->SetMatrixArray("g_world_matrix_array", &skin_mat_arr_[0], 26);
         }
         else
         {
-            result = m_cpEffect->SetMatrixArray(
+            result = effect_->SetMatrixArray(
                 "g_world_matrix_array",
                 &skin_mat_arr_[0],
                 static_cast<UINT>(skin_mat_arr_.size()));
         }
     }
-    m_cpEffect->CommitChanges();
+    effect_->CommitChanges();
 
     return true;
 }
 HRESULT z_tex::end_pass()
 {
-    m_cpEffect->EndPass();
+    effect_->EndPass();
     return S_OK;
 }
 HRESULT z_tex::end()
 {
-    m_cpEffect->End();
+    effect_->End();
 
     // デバイスに元のサーフェイスを戻す
-    m_cpDev->SetRenderTarget(0, m_cpDevBuffer.get());
-    m_cpDev->SetDepthStencilSurface(m_cpDevDepth.get());
+    d3dx_device_->SetRenderTarget(0, origin_buffer_.get());
+    d3dx_device_->SetDepthStencilSurface(origin_depth_.get());
 
-    m_cpDevBuffer = NULL;
-    m_cpDevDepth = NULL;
+    origin_buffer_ = NULL;
+    origin_depth_ = NULL;
 
     // 固定機能に戻す
-    m_cpDev->SetVertexShader(NULL);
-    m_cpDev->SetPixelShader(NULL);
+    d3dx_device_->SetVertexShader(NULL);
+    d3dx_device_->SetPixelShader(NULL);
 
     return S_OK;
 }
 bool z_tex::get_z_tex(std::shared_ptr<IDirect3DTexture9>& cpTex)
 {
-    cpTex = m_cpZTex;
+    cpTex = ztex_;
     return true;
 }
 }

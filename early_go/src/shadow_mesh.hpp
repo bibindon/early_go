@@ -7,13 +7,13 @@ namespace early_go
 class shadow_mesh
 {
 public:
-    std::shared_ptr<z_tex> ZTexCreator_ { nullptr };
-    std::shared_ptr<depth_buf_shadow> DepthBS_ { nullptr };
+    std::shared_ptr<z_tex> ztex_ { nullptr };
+    std::shared_ptr<depth_buf_shadow> depth_buf_shadow_ { nullptr };
 
     shadow_mesh(
         const std::shared_ptr<IDirect3DDevice9>& d3d_device,
-        const std::shared_ptr<z_tex>& ZTexCreator,
-        const std::shared_ptr<depth_buf_shadow>& DepthBS,
+        const std::shared_ptr<z_tex>& ztex_,
+        const std::shared_ptr<depth_buf_shadow>& _depth_buf_shadow,
         const std::string& name,
         const D3DXVECTOR3& pos,
         const D3DXVECTOR3& rotate,

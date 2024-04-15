@@ -7,16 +7,16 @@ namespace early_go
 {
 shadow_mesh::shadow_mesh(
     const std::shared_ptr<IDirect3DDevice9>& d3d_device,
-    const shared_ptr<z_tex>& ZTexCreator,
-    const shared_ptr<depth_buf_shadow>& DepthBS,
+    const shared_ptr<z_tex>& _ztex,
+    const shared_ptr<depth_buf_shadow>& _depth_buf_shadow,
     const std::string& x_filename,
     const D3DXVECTOR3& pos,
     const D3DXVECTOR3& rotate,
     const float scale)
     : d3d_device_ { d3d_device }
 {
-    ZTexCreator_ = ZTexCreator;
-    DepthBS_ = DepthBS;
+    ztex_ = _ztex;
+    depth_buf_shadow_ = _depth_buf_shadow;
     pos_ = pos;
     rotate_ = rotate;
     scale_ = scale;
@@ -69,6 +69,7 @@ shadow_mesh::shadow_mesh(
     safe_release(material_buffer);
 
     {
+        // TODO
         vector<char> buffer{util::get_image_resource("image/board.png") };
         LPDIRECT3DTEXTURE9 temp_texture{};
         if (FAILED ( D3DXCreateTextureFromFileInMemory(
@@ -82,7 +83,7 @@ shadow_mesh::shadow_mesh(
         else
         {
             dynamic_textures_.reset( temp_texture, custom_deleter { });
-            DepthBS_->set_dynamic_tex(dynamic_textures_);
+            depth_buf_shadow_->set_dynamic_tex(dynamic_textures_);
         }
     }
 }
@@ -103,19 +104,19 @@ void shadow_mesh::ztex_render()
         D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
         world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
     }
-    ZTexCreator_->set_world_matrix(&world_mat); // 立方体のワールド変換行列を登録
+    ztex_->set_world_matrix(&world_mat); // 立方体のワールド変換行列を登録
     for (DWORD i { 0 }; i < materials_count_; i++)
     {
-        ZTexCreator_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
-        ZTexCreator_->begin_pass();
+        ztex_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+        ztex_->begin_pass();
         d3dx_mesh_->DrawSubset(i); // メッシュ描画
-        ZTexCreator_->end_pass();
+        ztex_->end_pass();
     }
 }
 void shadow_mesh::render(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
 {
     D3DXMATRIX temp1 { view_matrix };
-    DepthBS_->set_camera_view_matrix(&temp1);
+    depth_buf_shadow_->set_camera_view_matrix(&temp1);
 
     D3DXMATRIX world_mat { };
     {
@@ -129,14 +130,14 @@ void shadow_mesh::render(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projec
         D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
         world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
     }
-    DepthBS_->set_world_matrix(&world_mat);
+    depth_buf_shadow_->set_world_matrix(&world_mat);
     for (DWORD i { 0 }; i < materials_count_; i++)
     {
-        DepthBS_->set_tex(textures_.at(i));
-        DepthBS_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
-        DepthBS_->begin_pass();
+        depth_buf_shadow_->set_tex(textures_.at(i));
+        depth_buf_shadow_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+        depth_buf_shadow_->begin_pass();
         d3dx_mesh_->DrawSubset(i);
-        DepthBS_->end_pass();
+        depth_buf_shadow_->end_pass();
     }
 }
 void shadow_mesh::set_position(const D3DXVECTOR3& pos)
