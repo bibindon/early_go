@@ -10,7 +10,6 @@ class depth_buf_shadow
 {
 public:
     depth_buf_shadow();
-    ~depth_buf_shadow();
     bool init(std::shared_ptr<IDirect3DDevice9> &d3dx_device);
     bool set_shadow_map(std::shared_ptr<IDirect3DTexture9> &shadow_map_tex);
     bool set_tex(const std::shared_ptr<IDirect3DTexture9> &_tex);
@@ -29,11 +28,11 @@ public:
     bool set_param_to_effect();
 
 private:
-    std::shared_ptr<IDirect3DDevice9> d3dx_device_;
-    std::shared_ptr<IDirect3DTexture9> shadow_map_tex_;
-    std::shared_ptr<IDirect3DTexture9> g_mesh_tex_;
-    std::shared_ptr<IDirect3DTexture9> g_texture0_;
-    std::shared_ptr<ID3DXEffect> effect_;
+    std::shared_ptr<IDirect3DDevice9> d3dx_device_ { };
+    std::shared_ptr<IDirect3DTexture9> shadow_map_tex_ { };
+    std::shared_ptr<IDirect3DTexture9> g_mesh_tex_ { };
+    std::shared_ptr<IDirect3DTexture9> g_texture0_ { };
+    std::shared_ptr<ID3DXEffect> effect_ { };
     D3DXMATRIX mat_world_ { };
     D3DXMATRIX camera_mat_view_ { };
     D3DXMATRIX camera_mat_proj_ { };

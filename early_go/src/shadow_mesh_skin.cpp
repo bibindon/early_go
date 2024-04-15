@@ -44,7 +44,7 @@ void shadow_mesh_skin::frame_root_deleter_object::release_mesh_allocator(const L
 shadow_mesh_skin::shadow_mesh_skin(
     const std::shared_ptr<IDirect3DDevice9> &d3d_device,
     const std::shared_ptr<z_tex>& _ztex,
-    const std::shared_ptr<depth_buf_shadow>& depth_buf_shadow,
+    const std::shared_ptr<depth_buf_shadow>& _depth_buf_shadow,
     const string &x_filename,
     const D3DXVECTOR3 &position,
     const D3DXVECTOR3 &rotation,
@@ -58,15 +58,13 @@ shadow_mesh_skin::shadow_mesh_skin(
     , world_view_proj_handle_ { }
 {
     ztex_ = _ztex;
-    depth_buf_shadow_ = depth_buf_shadow;
-
-//    world_handle_ = effect_->GetParameterByName(nullptr, "matWorld");
-//    world_view_proj_handle_ = effect_->GetParameterByName(nullptr, "g_world_view_projection");
+    depth_buf_shadow_ = _depth_buf_shadow;
+    scale_ = scale;
 
     LPD3DXFRAME temp_root_frame { nullptr };
     LPD3DXANIMATIONCONTROLLER temp_animation_controller { nullptr };
 
-    vector<char> buffer = util::get_model_resource(x_filename);
+    vector<char> buffer { util::get_model_resource(x_filename) };
 
     HRESULT result { D3DXLoadMeshHierarchyFromXInMemory(
         &buffer[0],
@@ -87,12 +85,10 @@ shadow_mesh_skin::shadow_mesh_skin(
     animation_strategy_.reset(new_crt normal_animation { temp_animation_controller });
 
     allocate_all_bone_matrices(frame_root_.get());
-
-    scale_ = scale;
 }
 HRESULT shadow_mesh_skin::allocate_bone_matrix(LPD3DXMESHCONTAINER mesh_container)
 {
-    skinned_animation_mesh_frame *frame{};
+    skinned_animation_mesh_frame *frame { nullptr };
 
     skinned_animation_mesh_container *skinned_mesh_container =
         static_cast<skinned_animation_mesh_container *>(mesh_container);
@@ -108,8 +104,9 @@ HRESULT shadow_mesh_skin::allocate_bone_matrix(LPD3DXMESHCONTAINER mesh_containe
 
     for (DWORD i{}; i < bone_count; ++i)
     {
-        LPD3DXFRAME p = D3DXFrameFind(frame_root_.get(),
-                                      skinned_mesh_container->pSkinInfo->GetBoneName(i));
+        LPD3DXFRAME p = D3DXFrameFind(
+            frame_root_.get(),
+            skinned_mesh_container->pSkinInfo->GetBoneName(i));
 
         frame = static_cast<skinned_animation_mesh_frame *>(p);
 
@@ -149,10 +146,6 @@ HRESULT shadow_mesh_skin::allocate_all_bone_matrices(LPD3DXFRAME frame)
     return S_OK;
 }
 
-shadow_mesh_skin::~shadow_mesh_skin()
-{
-}
-
 void shadow_mesh_skin::update()
 {
 }
@@ -177,14 +170,6 @@ void shadow_mesh_skin::ztex_render()
 
     update_frame_matrix(frame_root_.get(), &world_mat);
     render_frame(frame_root_.get(), true);
-//    ztex_->set_world_matrix(&world_mat); // 立方体のワールド変換行列を登録
-//    for (DWORD i { 0 }; i < materials_count_; i++)
-//    {
-//        ztex_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
-//        ztex_->begin_pass();
-//        d3dx_mesh_->DrawSubset(i); // メッシュ描画
-//        ztex_->end_pass();
-//    }
 }
 
 // Renders its own animation mesh. 
@@ -225,16 +210,6 @@ void shadow_mesh_skin::update_frame_matrix(
     else
     {
         frame->combined_matrix_ = frame->TransformationMatrix;
-    }
-
-    // 立方体のワールド変換行列を登録
-//    if (_ztex)
-    {
-//        ztex_->set_world_matrix(&frame->combined_matrix_);
-    }
-//    else
-    {
-        depth_buf_shadow_->set_world_matrix(&frame->combined_matrix_);
     }
 
     // Call oneself. 
@@ -330,117 +305,7 @@ void shadow_mesh_skin::render_mesh_container(
             mesh_container->MeshData.pMesh->DrawSubset(i);
             depth_buf_shadow_->end_pass();
         }
-//        effect_->Begin(nullptr, D3DXFX_DONOTSAVESTATE);
-
-//        if (FAILED(effect_->BeginPass(0)))
-//        {
-//            effect_->End();
-//            THROW_WITH_TRACE("Failed 'BeginPass' function.");
-//        }
-//        effect_->CommitChanges();
-//        mesh_container->MeshData.pMesh->DrawSubset(i);
-//        effect_->EndPass();
-//        effect_->End();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    // Cast for making child class' function callable. 
-//    skinned_animation_mesh_frame *frame { static_cast<skinned_animation_mesh_frame *>(frame_base) };
-//
-//    D3DXMATRIX world_view_projection_matrix { frame->combined_matrix_ };
-//
-////    effect_->SetMatrix(world_handle_, &world_view_projection_matrix);
-//    if (ztex)
-//    {
-//        ztex_->set_world_matrix(&frame->combined_matrix_);
-//        ztex_->set_bone_num(bone_num_);
-//    }
-//    else
-//    {
-//        depth_buf_shadow_->set_world_matrix(&frame->combined_matrix_);
-//    }
-//
-//    world_view_projection_matrix *= view_matrix_;
-//    world_view_projection_matrix *= projection_matrix_;
-
-//    effect_->SetMatrix(world_view_proj_handle_, &world_view_projection_matrix);
-
-//    effect_->Begin(nullptr, 0);
-
-//    if (FAILED(effect_->BeginPass(0)))
-//    {
-//        effect_->End();
-//        THROW_WITH_TRACE("Failed 'BeginPass' function.");
-//    }
-//    depth_buf_shadow_->begin_pass();
-
-//    skinned_animation_mesh_container *mesh_container {
-//        static_cast<skinned_animation_mesh_container *>(mesh_container_base) };
-//
-//    for (DWORD i { 0 }; i < mesh_container->NumMaterials; ++i)
-//    {
-////        D3DXVECTOR4 color {
-////            mesh_container->pMaterials[i].MatD3D.Diffuse.r,
-////            mesh_container->pMaterials[i].MatD3D.Diffuse.g,
-////            mesh_container->pMaterials[i].MatD3D.Diffuse.b,
-////            mesh_container->pMaterials[i].MatD3D.Diffuse.a };
-////        effect_->SetVector(diffuse_handle_, &color);
-////        effect_->SetTexture(mesh_texture_handle_, mesh_container->texture_.at(i).get());
-//        if (ztex)
-//        {
-//            ztex_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
-//            ztex_->begin_pass(1);
-//        }
-//        else
-//        {
-//            depth_buf_shadow_->set_tex(mesh_container->texture_.at(i));
-//            depth_buf_shadow_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
-//            depth_buf_shadow_->begin_pass();
-//        }
-//
-////        effect_->CommitChanges();
-//        mesh_container->MeshData.pMesh->DrawSubset(i);
-//
-//        if (ztex)
-//        {
-//            ztex_->end_pass();
-//        }
-//        else
-//        {
-//            depth_buf_shadow_->end_pass();
-//        }
-//    }
-//    effect_->EndPass();
-//    effect_->End();
 }
 } // namespace early_go 
 

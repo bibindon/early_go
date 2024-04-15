@@ -11,45 +11,47 @@ namespace early_go
 depth_buf_shadow::depth_buf_shadow()
 {
 }
-depth_buf_shadow::~depth_buf_shadow()
-{
-}
 bool depth_buf_shadow::init(std::shared_ptr<IDirect3DDevice9> &d3dx_device)
 {
-    if (d3dx_device == NULL)
+    if (d3dx_device == nullptr)
     {
         return false;
     }
 
-    vector<char> buffer{ early_go::util::get_shader_resource("depth_buf_shadow.fx") };
+    vector<char> buffer { early_go::util::get_shader_resource("depth_buf_shadow.fx") };
     LPD3DXEFFECT effect{nullptr};
     if (FAILED ( D3DXCreateEffect(
         d3dx_device.get(),
         &buffer[0],
         static_cast<UINT>(buffer.size()),
-        NULL,
-        NULL,
+        nullptr,
+        nullptr,
         0,
-        NULL,
+        nullptr,
         &effect,
-        NULL)))
+        nullptr)))
     {
         return false;
     }
     effect_.reset(effect, custom_deleter { });
 
-    mat_world_handle_ = effect_->GetParameterByName(NULL, "matWorld");
-    camera_view_handle_ = effect_->GetParameterByName(NULL, "matCameraView");
-    camera_proj_handle_ = effect_->GetParameterByName(NULL, "matCameraProj");
-    light_view_handle_ = effect_->GetParameterByName(NULL, "matLightView");
-    light_proj_handle_ = effect_->GetParameterByName(NULL, "matLightProj");
-    shadow_map_handle_ = effect_->GetParameterByName(NULL, "texShadowMap");
-    g_mesh_tex_handle_ = effect_->GetParameterByName(NULL, "g_mesh_texture");
-    g_tex_handle_ = effect_->GetParameterByName(NULL, "g_texture_0");
+    mat_world_handle_ = effect_->GetParameterByName(nullptr, "matWorld");
+    camera_view_handle_ = effect_->GetParameterByName(nullptr, "matCameraView");
+    camera_proj_handle_ = effect_->GetParameterByName(nullptr, "matCameraProj");
+    light_view_handle_ = effect_->GetParameterByName(nullptr, "matLightView");
+    light_proj_handle_ = effect_->GetParameterByName(nullptr, "matLightProj");
+    shadow_map_handle_ = effect_->GetParameterByName(nullptr, "texShadowMap");
+    g_mesh_tex_handle_ = effect_->GetParameterByName(nullptr, "g_mesh_texture");
+    g_tex_handle_ = effect_->GetParameterByName(nullptr, "g_texture_0");
     technique_handle_ = effect_->GetTechniqueByName("DepthBufShadowTec");
 
-    if (!mat_world_handle_ || !camera_view_handle_ || !camera_proj_handle_ || !light_view_handle_ ||
-        !light_proj_handle_ || !shadow_map_handle_ || !technique_handle_)
+    if (!mat_world_handle_ ||
+        !camera_view_handle_ ||
+        !camera_proj_handle_ ||
+        !light_view_handle_ ||
+        !light_proj_handle_ ||
+        !shadow_map_handle_ ||
+        !technique_handle_)
     {
         return false;
     }
@@ -59,7 +61,7 @@ bool depth_buf_shadow::init(std::shared_ptr<IDirect3DDevice9> &d3dx_device)
 }
 bool depth_buf_shadow::set_shadow_map(std::shared_ptr<IDirect3DTexture9> &shadow_map_tex)
 {
-    if (shadow_map_tex == NULL)
+    if (shadow_map_tex == nullptr)
     {
         return false;
     }
@@ -109,7 +111,7 @@ HRESULT depth_buf_shadow::begin()
     // 各サーフェイスを初期化
     d3dx_device_->Clear(
         0,
-        NULL,
+        nullptr,
         D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
         D3DCOLOR_ARGB(255, 255, 255, 255),
         1.0f,
@@ -129,8 +131,8 @@ HRESULT depth_buf_shadow::end()
     effect_->End();
 
     // 固定機能に戻す
-    d3dx_device_->SetVertexShader(NULL);
-    d3dx_device_->SetPixelShader(NULL);
+    d3dx_device_->SetVertexShader(nullptr);
+    d3dx_device_->SetPixelShader(nullptr);
 
     return S_OK;
 }
@@ -151,10 +153,10 @@ bool depth_buf_shadow::set_param_to_effect()
     effect_->SetMatrix(camera_proj_handle_, &camera_mat_proj_);
     effect_->SetMatrix(light_view_handle_, &light_mat_view_);
     effect_->SetMatrix(light_proj_handle_, &light_mat_proj_);
-    HRESULT hr = effect_->SetTexture(shadow_map_handle_, shadow_map_tex_.get());
-    hr = effect_->SetTexture(g_mesh_tex_handle_, g_mesh_tex_.get());
-    hr = effect_->SetTexture(g_tex_handle_, g_texture0_.get());
     HRESULT result { 0 };
+    result = effect_->SetTexture(shadow_map_handle_, shadow_map_tex_.get());
+    result = effect_->SetTexture(g_mesh_tex_handle_, g_mesh_tex_.get());
+    result = effect_->SetTexture(g_tex_handle_, g_texture0_.get());
     result = effect_->SetInt("current_bone_numbers", bone_num_);
     if (!skin_mat_arr_.empty())
     {

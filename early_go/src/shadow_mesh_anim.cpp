@@ -44,7 +44,7 @@ void shadow_mesh_anim::frame_root_deleter_object::release_mesh_allocator(const L
 shadow_mesh_anim::shadow_mesh_anim(
     const std::shared_ptr<IDirect3DDevice9> &d3d_device,
     const std::shared_ptr<z_tex>& _ztex,
-    const std::shared_ptr<depth_buf_shadow>& depth_buf_shadow,
+    const std::shared_ptr<depth_buf_shadow>& _depth_buf_shadow,
     const string &x_filename,
     const D3DXVECTOR3 &position,
     const D3DXVECTOR3 &rotation,
@@ -58,10 +58,7 @@ shadow_mesh_anim::shadow_mesh_anim(
     , world_view_proj_handle_ { }
 {
     ztex_ = _ztex;
-    depth_buf_shadow_ = depth_buf_shadow;
-
-//    world_handle_ = effect_->GetParameterByName(nullptr, "matWorld");
-//    world_view_proj_handle_ = effect_->GetParameterByName(nullptr, "g_world_view_projection");
+    depth_buf_shadow_ = _depth_buf_shadow;
 
     LPD3DXFRAME temp_root_frame { nullptr };
     LPD3DXANIMATIONCONTROLLER temp_animation_controller { nullptr };
@@ -112,14 +109,6 @@ void shadow_mesh_anim::ztex_render()
     }
 
     render_frame(frame_root_.get(), true);
-//    ztex_->set_world_matrix(&world_mat); // 立方体のワールド変換行列を登録
-//    for (DWORD i { 0 }; i < materials_count_; i++)
-//    {
-//        ztex_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
-//        ztex_->begin_pass();
-//        d3dx_mesh_->DrawSubset(i); // メッシュ描画
-//        ztex_->end_pass();
-//    }
 }
 
 // Renders its own animation mesh. 
@@ -219,7 +208,6 @@ void shadow_mesh_anim::render_mesh_container(
 
     D3DXMATRIX world_view_projection_matrix { frame->combined_matrix_ };
 
-//    effect_->SetMatrix(world_handle_, &world_view_projection_matrix);
     if (ztex)
     {
         ztex_->set_world_matrix(&frame->combined_matrix_);
@@ -229,45 +217,23 @@ void shadow_mesh_anim::render_mesh_container(
         depth_buf_shadow_->set_world_matrix(&frame->combined_matrix_);
     }
 
-//    world_view_projection_matrix *= view_matrix_;
-//    world_view_projection_matrix *= projection_matrix_;
-
-//    effect_->SetMatrix(world_view_proj_handle_, &world_view_projection_matrix);
-
-//    effect_->Begin(nullptr, 0);
-
-//    if (FAILED(effect_->BeginPass(0)))
-//    {
-//        effect_->End();
-//        THROW_WITH_TRACE("Failed 'BeginPass' function.");
-//    }
-//    depth_buf_shadow_->begin_pass();
-
     animation_mesh_container *mesh_container {
         static_cast<animation_mesh_container *>(mesh_container_base) };
 
     for (DWORD i { 0 }; i < mesh_container->NumMaterials; ++i)
     {
-//        D3DXVECTOR4 color {
-//            mesh_container->pMaterials[i].MatD3D.Diffuse.r,
-//            mesh_container->pMaterials[i].MatD3D.Diffuse.g,
-//            mesh_container->pMaterials[i].MatD3D.Diffuse.b,
-//            mesh_container->pMaterials[i].MatD3D.Diffuse.a };
-//        effect_->SetVector(diffuse_handle_, &color);
-//        effect_->SetTexture(mesh_texture_handle_, mesh_container->texture_.at(i).get());
         if (ztex)
         {
-            ztex_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+            ztex_->set_param_to_effect();
             ztex_->begin_pass();
         }
         else
         {
             depth_buf_shadow_->set_tex(mesh_container->texture_.at(i));
-            depth_buf_shadow_->set_param_to_effect(); // 描画の直前に呼び出す必要があります
+            depth_buf_shadow_->set_param_to_effect();
             depth_buf_shadow_->begin_pass();
         }
 
-//        effect_->CommitChanges();
         mesh_container->MeshData.pMesh->DrawSubset(i);
 
         if (ztex)
@@ -279,8 +245,6 @@ void shadow_mesh_anim::render_mesh_container(
             depth_buf_shadow_->end_pass();
         }
     }
-//    effect_->EndPass();
-//    effect_->End();
 }
 } // namespace early_go 
 
