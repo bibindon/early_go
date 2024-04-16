@@ -10,7 +10,6 @@ using std::string;
 
 namespace early_go
 {
-const string shadow_mesh_skin::SHADER_FILENAME = "animation_mesh_shader.fx";
 // A custom deleter. 
 void shadow_mesh_skin::frame_root_deleter_object::operator()(const LPD3DXFRAME frame_root)
 {
@@ -52,10 +51,7 @@ shadow_mesh_skin::shadow_mesh_skin(
     : d3d_device_ { d3d_device }
     , allocator_ { new_crt skinned_animation_mesh_allocator { x_filename } }
     , frame_root_ { nullptr, frame_root_deleter_object { allocator_ } }
-    , rotation_matrix_ { D3DMATRIX { } }
     , center_coodinate_ { 0.0f, 0.0f, 0.0f }
-    , world_handle_ { }
-    , world_view_proj_handle_ { }
 {
     ztex_ = _ztex;
     depth_buf_shadow_ = _depth_buf_shadow;
@@ -152,47 +148,39 @@ void shadow_mesh_skin::update()
 
 void shadow_mesh_skin::ztex_render()
 {
+    // TODO メッシュの数が増えるとアニメーションの速度が上がってしまう気がする。
     animation_strategy_->update();
 
     ztex_->set_bone_num(bone_num_);
 
     D3DXMATRIX world_mat { };
-    {
-        D3DXMatrixIdentity(&world_mat);
-        D3DXMATRIX trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
-
-        D3DXMatrixTranslation(&trans_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixScaling(&scale_mat, 3.01f, 3.01f, 3.01f);
-        D3DXMatrixRotationYawPitchRoll(&rotate_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixTranslation(&trans_mat2, 1.0f, 0.0f, 3.0f);
-        world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
-    }
+    D3DXMATRIX base_mat { }, trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
+    D3DXMatrixIdentity(&base_mat);
+    D3DXMatrixTranslation(&trans_mat, 0.f, 0.f, 0.f);
+    D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
+    D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
+    D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
+    world_mat = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
 
     update_frame_matrix(frame_root_.get(), &world_mat);
     render_frame(frame_root_.get(), true);
 }
 
 // Renders its own animation mesh. 
-void shadow_mesh_skin::render(
-    const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
+void shadow_mesh_skin::render()
 {
     depth_buf_shadow_->set_bone_num(bone_num_);
-    view_matrix_ = view_matrix;
-    projection_matrix_ = projection_matrix;
 
-    D3DXMATRIX world_matrix { };
-    {
-        D3DXMatrixIdentity(&world_matrix);
-        D3DXMATRIX trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
+    D3DXMATRIX world_mat { };
+    D3DXMATRIX base_mat { }, trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
+    D3DXMatrixIdentity(&base_mat);
+    D3DXMatrixTranslation(&trans_mat, 0.f, 0.f, 0.f);
+    D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
+    D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
+    D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
+    world_mat = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
 
-        D3DXMatrixTranslation(&trans_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixScaling(&scale_mat, 3.01f, 3.01f, 3.01f);
-        D3DXMatrixRotationYawPitchRoll(&rotate_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixTranslation(&trans_mat2, 1.0f, 0.0f, 3.0f);
-        world_matrix = world_matrix * trans_mat * rotate_mat * scale_mat * trans_mat2;
-    }
-
-    update_frame_matrix(frame_root_.get(), &world_matrix);
+    update_frame_matrix(frame_root_.get(), &world_mat);
     render_frame(frame_root_.get(), false);
 }
 
@@ -231,7 +219,14 @@ void shadow_mesh_skin::render_frame(const LPD3DXFRAME frame, const bool ztex)
         LPD3DXMESHCONTAINER mesh_container { frame->pMeshContainer };
         while (mesh_container != nullptr)
         {
-            render_mesh_container(mesh_container, frame, ztex);
+            if (ztex)
+            {
+                render_mesh_container_ztex(mesh_container);
+            }
+            else
+            {
+                render_mesh_container(mesh_container);
+            }
             mesh_container = mesh_container->pNextMeshContainer;
         }
     }
@@ -248,10 +243,7 @@ void shadow_mesh_skin::render_frame(const LPD3DXFRAME frame, const bool ztex)
     }
 }
 
-void shadow_mesh_skin::render_mesh_container(
-    const LPD3DXMESHCONTAINER mesh_container_base,
-    const LPD3DXFRAME frame_base,
-    const bool ztex)
+void shadow_mesh_skin::render_mesh_container_ztex(const LPD3DXMESHCONTAINER mesh_container_base)
 {
     skinned_animation_mesh_container *mesh_container{
         static_cast<skinned_animation_mesh_container *>(mesh_container_base)};
@@ -276,36 +268,63 @@ void shadow_mesh_skin::render_mesh_container(
                 mesh_container->bone_offset_matrices_[dw_bone_id] *
                 (*mesh_container->frame_combined_matrix_[dw_bone_id]);
         }
-        if (ztex)
-        {
-            ztex_->set_skin_mat_array(world_matrix_array_);
-        }
-        else
-        {
-            depth_buf_shadow_->set_skin_mat_array(world_matrix_array_);
-        }
+        ztex_->set_skin_mat_array(world_matrix_array_);
 
         DWORD bone_id = bone_combination[i].AttribId;
-        if (!ztex)
-        {
-            depth_buf_shadow_->set_tex(mesh_container->texture_.at(bone_id));
-        }
 
-        if (ztex)
-        {
-            ztex_->set_param_to_effect();
-            ztex_->begin_pass(1);
-            mesh_container->MeshData.pMesh->DrawSubset(i);
-            ztex_->end_pass();
-        }
-        else
-        {
-            depth_buf_shadow_->set_param_to_effect();
-            depth_buf_shadow_->begin_pass(1);
-            mesh_container->MeshData.pMesh->DrawSubset(i);
-            depth_buf_shadow_->end_pass();
-        }
+        ztex_->set_param_to_effect();
+        ztex_->begin_pass(1);
+        mesh_container->MeshData.pMesh->DrawSubset(i);
+        ztex_->end_pass();
     }
+}
+void shadow_mesh_skin::render_mesh_container(const LPD3DXMESHCONTAINER mesh_container_base)
+{
+    skinned_animation_mesh_container *mesh_container{
+        static_cast<skinned_animation_mesh_container *>(mesh_container_base)};
+
+    LPD3DXBONECOMBINATION bone_combination { };
+
+    bone_combination = static_cast<LPD3DXBONECOMBINATION>(
+        mesh_container->bone_buffer_->GetBufferPointer());
+
+    const DWORD dw_palette_size { mesh_container->palette_size_ };
+
+    for (DWORD i { 0 }; i < mesh_container->bone_count_; ++i)
+    {
+        for (DWORD k { 0 }; k < dw_palette_size; ++k)
+        {
+            DWORD dw_bone_id = bone_combination[i].BoneId[k];
+            if (dw_bone_id == UINT_MAX)
+            {
+                continue;
+            }
+            world_matrix_array_[k] =
+                mesh_container->bone_offset_matrices_[dw_bone_id] *
+                (*mesh_container->frame_combined_matrix_[dw_bone_id]);
+        }
+        depth_buf_shadow_->set_skin_mat_array(world_matrix_array_);
+
+        DWORD bone_id = bone_combination[i].AttribId;
+        depth_buf_shadow_->set_tex(mesh_container->texture_.at(bone_id));
+
+        depth_buf_shadow_->set_param_to_effect();
+        depth_buf_shadow_->begin_pass(1);
+        mesh_container->MeshData.pMesh->DrawSubset(i);
+        depth_buf_shadow_->end_pass();
+    }
+}
+void shadow_mesh_skin::set_position(const D3DXVECTOR3& pos)
+{
+    pos_ = pos;
+}
+void shadow_mesh_skin::set_rotate(const D3DXVECTOR3& rotate)
+{
+    rotate_ = rotate;
+}
+void shadow_mesh_skin::set_scale(const float scale)
+{
+    scale_ = scale;
 }
 } // namespace early_go 
 

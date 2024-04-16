@@ -25,7 +25,10 @@ public:
 
     void update();
     void ztex_render();
-    void render(const D3DXMATRIX &, const D3DXMATRIX &);
+    void render();
+    void set_position(const D3DXVECTOR3& pos);
+    void set_rotate(const D3DXVECTOR3& rotate);
+    void set_scale(const float scale);
 private:
 
     // A struct which deletes the root 'LPD3DXFRAME' object. The reason why the
@@ -39,38 +42,25 @@ private:
         void release_mesh_allocator(const LPD3DXFRAME);
     };
 
-    const static std::string SHADER_FILENAME;
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
-    std::vector<std::shared_ptr<IDirect3DTexture9>> textures_ { };
     std::shared_ptr<skinned_animation_mesh_allocator> allocator_;
     std::unique_ptr<D3DXFRAME, frame_root_deleter_object> frame_root_;
-    D3DXMATRIX rotation_matrix_;
-    D3DXMATRIX view_matrix_;
-    D3DXMATRIX projection_matrix_;
 
     D3DXVECTOR3 center_coodinate_;
 
-    // For effect.
-    D3DXHANDLE world_handle_;
-    D3DXHANDLE world_view_proj_handle_;
-
     void update_frame_matrix(const LPD3DXFRAME, const LPD3DXMATRIX);
     void render_frame(const LPD3DXFRAME, const bool ztex);
-    void render_mesh_container(const LPD3DXMESHCONTAINER, const LPD3DXFRAME, const bool ztex);
+    void render_mesh_container_ztex(const LPD3DXMESHCONTAINER);
+    void render_mesh_container(const LPD3DXMESHCONTAINER);
 
-    DWORD materials_count_ { 0 };
     std::shared_ptr<z_tex> ztex_ { nullptr };
     std::shared_ptr<depth_buf_shadow> depth_buf_shadow_ { nullptr };
-    std::shared_ptr<ID3DXMesh> d3dx_mesh_ { };
     std::unique_ptr<animation_strategy> animation_strategy_;
 
-    D3DXVECTOR3 position_;
-    D3DXVECTOR3 rotation_;
+    D3DXVECTOR3 pos_;
+    D3DXVECTOR3 rotate_;
     float scale_;
 
-    D3DXHANDLE mesh_texture_handle_ { nullptr };
-    D3DXHANDLE diffuse_handle_ { nullptr };
-    D3DXHANDLE view_projection_handle_ { nullptr };
     std::vector<D3DXMATRIX> world_matrix_array_;
     int bone_num_;
 };

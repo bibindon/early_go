@@ -21,7 +21,7 @@ public:
     );
     void update();
     void ztex_render();
-    void render(const D3DXMATRIX& view_matrix, const D3DXMATRIX& projection_matrix);
+    void render();
     void set_position(const D3DXVECTOR3& pos);
     void set_rotate(const D3DXVECTOR3& rotate);
     void set_scale(const float scale);

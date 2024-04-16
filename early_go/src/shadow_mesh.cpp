@@ -94,17 +94,13 @@ void shadow_mesh::update()
 void shadow_mesh::ztex_render()
 {
     D3DXMATRIX world_mat { };
-    {
-        D3DXMatrixIdentity(&world_mat);
-        D3DXMATRIX trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
-
-        // TODO center coordinate
-        D3DXMatrixTranslation(&trans_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
-        D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
-        D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
-        world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
-    }
+    D3DXMATRIX base_mat { }, trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
+    D3DXMatrixIdentity(&base_mat);
+    D3DXMatrixTranslation(&trans_mat, 0.f, 0.f, 0.f);
+    D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
+    D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
+    D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
+    world_mat = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
     ztex_->set_world_matrix(&world_mat);
     for (DWORD i { 0 }; i < materials_count_; i++)
     {
@@ -114,23 +110,16 @@ void shadow_mesh::ztex_render()
         ztex_->end_pass();
     }
 }
-void shadow_mesh::render(const D3DXMATRIX &view_matrix, const D3DXMATRIX &projection_matrix)
+void shadow_mesh::render()
 {
-    D3DXMATRIX temp1 { view_matrix };
-    depth_buf_shadow_->set_camera_view_matrix(&temp1);
-
     D3DXMATRIX world_mat { };
-    {
-        D3DXMatrixIdentity(&world_mat);
-        D3DXMATRIX trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
-
-        // TODO center coordinate
-        D3DXMatrixTranslation(&trans_mat, 0.0f, 0.0f, 0.0f);
-        D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
-        D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
-        D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
-        world_mat = world_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
-    }
+    D3DXMATRIX base_mat { }, trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
+    D3DXMatrixIdentity(&base_mat);
+    D3DXMatrixTranslation(&trans_mat, 0.f, 0.f, 0.f);
+    D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
+    D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
+    D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
+    world_mat = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
     depth_buf_shadow_->set_world_matrix(&world_mat);
     depth_buf_shadow_->set_dynamic_tex(dynamic_textures_);
     for (DWORD i { 0 }; i < materials_count_; i++)
