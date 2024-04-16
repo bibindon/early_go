@@ -198,7 +198,7 @@ void animation_mesh::render_mesh_container(
     animation_mesh_container *mesh_container {
         static_cast<animation_mesh_container *>(mesh_container_base) };
 
-    for (DWORD i { }; i < mesh_container->NumMaterials; ++i)
+    for (DWORD i { 0 }; i < mesh_container->NumMaterials; ++i)
     {
         D3DXVECTOR4 color {
             mesh_container->pMaterials[i].MatD3D.Diffuse.r,

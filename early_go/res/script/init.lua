@@ -48,7 +48,7 @@ function init()
     place_shadow_mesh("model/Dwarf/Dwarf.x", {6.5, 2.0, 3.0}, {0.0, 0.0, 0.0}, 1.0)
     place_shadow_mesh("model/Dwarf/Dwarf.x", {10, 0.0, 10.0}, {0.0, 0.0, 0.0}, 2.0)
     place_shadow_mesh("model/cube2/cube2.x", {8, 0, 8}, {0.0, 0.0, 0.0}, 3.0)
- --   place_shadow_mesh_skin("model/wolf/wolf.x", {1.0, 0.0, 1.0}, {0.0, 0.0, 0.0}, 1.0)
+    place_shadow_mesh_anim("model/RobotArm/RobotArm.x", {1.0, 0.0, 5.0}, {0.0, 0.0, 0.0}, 1.0)
  --   place_shadow_mesh_skin("model/tiny/tiny.x", {1.0, 0.0, 3.0}, {0.0, 0.0, 0.0}, 0.003)
     --[[
     place_shadow_mesh("model/tiger/tiger.x", {3.5, 2.0, -10.0}, {0.0, 0.0, 0.0}, 1.2)

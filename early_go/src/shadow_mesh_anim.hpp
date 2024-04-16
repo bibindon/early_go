@@ -40,40 +40,26 @@ private:
         void release_mesh_allocator(const LPD3DXFRAME);
     };
 
-    const static std::string SHADER_FILENAME;
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
     std::vector<std::shared_ptr<IDirect3DTexture9>> textures_ { };
     std::shared_ptr<animation_mesh_allocator> allocator_;
     std::unique_ptr<D3DXFRAME, frame_root_deleter_object> frame_root_;
-    D3DXMATRIX rotation_matrix_;
-    D3DXMATRIX view_matrix_;
-    D3DXMATRIX projection_matrix_;
 
     D3DXVECTOR3 center_coodinate_;
-
-    // For effect.
-    D3DXHANDLE world_handle_;
-    D3DXHANDLE world_view_proj_handle_;
 
     void update_frame_matrix(const LPD3DXFRAME, const LPD3DXMATRIX, const bool ztex);
     void render_frame(const LPD3DXFRAME, const bool ztex);
     void render_mesh_container_ztex(const LPD3DXMESHCONTAINER, const LPD3DXFRAME);
     void render_mesh_container(const LPD3DXMESHCONTAINER, const LPD3DXFRAME);
 
-    DWORD materials_count_ { 0 };
     std::shared_ptr<z_tex> ztex_ { nullptr };
     std::shared_ptr<depth_buf_shadow> depth_buf_shadow_ { nullptr };
-    std::shared_ptr<ID3DXMesh> d3dx_mesh_ { };
+    // TODO remove
     std::unique_ptr<animation_strategy> animation_strategy_;
 
     D3DXVECTOR3 pos_ { 0.0f, 0.0f, 0.0f };
     D3DXVECTOR3 rotate_ { 0.0f, 0.0f, 0.0f };
     float scale_ { 1.0f };
-
-    D3DXHANDLE mesh_texture_handle_ { nullptr };
-    D3DXHANDLE diffuse_handle_ { nullptr };
-
-    D3DXMATRIX world_mat_ { };
 };
 } // namespace early_go 
 

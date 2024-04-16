@@ -347,7 +347,6 @@ resource_importer.bat
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">2.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">2.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="res\shader\depth_buf_shadow_skin.fx" />
     <FxCompile Include="res\shader\mesh_shader.fx" />
     <FxCompile Include="res\shader\skinned_animation_mesh_shader.fx" />
     <FxCompile Include="res\shader\z_tex.fx" />

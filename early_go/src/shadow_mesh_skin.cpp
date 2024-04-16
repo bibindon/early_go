@@ -48,7 +48,7 @@ shadow_mesh_skin::shadow_mesh_skin(
     const string &x_filename,
     const D3DXVECTOR3 &position,
     const D3DXVECTOR3 &rotation,
-    const float &scale)
+    const float scale)
     : d3d_device_ { d3d_device }
     , allocator_ { new_crt skinned_animation_mesh_allocator { x_filename } }
     , frame_root_ { nullptr, frame_root_deleter_object { allocator_ } }

@@ -19,7 +19,7 @@ public:
         const std::string &,
         const D3DXVECTOR3 &,
         const D3DXVECTOR3 &,
-        const float &);
+        const float );
     HRESULT allocate_bone_matrix(LPD3DXMESHCONTAINER mesh_container);
     HRESULT allocate_all_bone_matrices(LPD3DXFRAME frame);
 

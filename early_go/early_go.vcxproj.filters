@@ -303,9 +303,6 @@
     <FxCompile Include="res\shader\z_tex.fx">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
-    <FxCompile Include="res\shader\depth_buf_shadow_skin.fx">
-      <Filter>リソース ファイル</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon1.ico">

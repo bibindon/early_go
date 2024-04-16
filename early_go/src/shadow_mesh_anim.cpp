@@ -15,7 +15,6 @@ using std::string;
 
 namespace early_go
 {
-const string shadow_mesh_anim::SHADER_FILENAME = "animation_mesh_shader.fx";
 // A custom deleter. 
 void shadow_mesh_anim::frame_root_deleter_object::operator()(const LPD3DXFRAME frame_root)
 {
@@ -57,10 +56,7 @@ shadow_mesh_anim::shadow_mesh_anim(
     : d3d_device_ { d3d_device }
     , allocator_ { new_crt animation_mesh_allocator { x_filename } }
     , frame_root_ { nullptr, frame_root_deleter_object { allocator_ } }
-    , rotation_matrix_ { D3DMATRIX { } }
     , center_coodinate_ { 0.0f, 0.0f, 0.0f }
-    , world_handle_ { }
-    , world_view_proj_handle_ { }
 {
     ztex_ = _ztex;
     depth_buf_shadow_ = _depth_buf_shadow;
@@ -100,30 +96,32 @@ void shadow_mesh_anim::update()
 
 void shadow_mesh_anim::ztex_render()
 {
+    D3DXMATRIX world_mat { };
     D3DXMATRIX base_mat { }, trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
     D3DXMatrixIdentity(&base_mat);
     D3DXMatrixTranslation(&trans_mat, 0.f, 0.f, 0.f);
     D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
     D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
     D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
-    world_mat_ = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
+    world_mat = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
 
-    update_frame_matrix(frame_root_.get(), &world_mat_, true);
+    update_frame_matrix(frame_root_.get(), &world_mat, true);
     render_frame(frame_root_.get(), true);
 }
 
 // Renders its own animation mesh. 
 void shadow_mesh_anim::render()
 {
+    D3DXMATRIX world_mat { };
     D3DXMATRIX base_mat { }, trans_mat { }, scale_mat { }, rotate_mat { }, trans_mat2 { };
     D3DXMatrixIdentity(&base_mat);
     D3DXMatrixTranslation(&trans_mat, 0.f, 0.f, 0.f);
     D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
     D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
     D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
-    world_mat_ = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
+    world_mat = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
 
-    update_frame_matrix(frame_root_.get(), &world_mat_, false);
+    update_frame_matrix(frame_root_.get(), &world_mat, false);
     render_frame(frame_root_.get(), false);
 }
 
