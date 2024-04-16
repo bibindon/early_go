@@ -176,10 +176,9 @@ main_window::main_window(const HINSTANCE &hinstance)
         shadow_mesh_anim_ = new_crt shadow_mesh_anim {
             d3d_device_, ztex_, depth_buf_shadow_, "model/RobotArm/RobotArm.x", { }, { }, 1.0f };
         shadow_mesh_skin_ = new_crt shadow_mesh_skin {
-            d3d_device_, ztex_, depth_buf_shadow_, "model/wolf/wolf.x", { }, { }, 1.003f };
+            d3d_device_, ztex_, depth_buf_shadow_, "model/wolf/wolf.x", { }, { }, 1.f };
     }
     init_lua();
-
 }
 
 void main_window::initialize_direct3d(const HWND &hwnd)
@@ -716,9 +715,11 @@ void main_window::render()
         ztex_->begin();
         shadow_mesh_->ztex_render();
         shadow_mesh_anim_->set_position({ 1.f, 0.f, 5.f});
+        shadow_mesh_anim_->set_rotate({ 0.f, 0.f, 0.f});
         shadow_mesh_anim_->set_scale(1.0f);
         shadow_mesh_anim_->ztex_render();
         shadow_mesh_skin_->set_position({ 1.f, 0.f, 2.f});
+        shadow_mesh_skin_->set_rotate({ 0.f, 0.f, 0.f});
         shadow_mesh_skin_->set_scale(1.0f);
         shadow_mesh_skin_->ztex_render();
         for (auto& mesh_lua : shadow_meshes_lua_)
@@ -739,9 +740,11 @@ void main_window::render()
         depth_buf_shadow_->begin();
         shadow_mesh_->render();
         shadow_mesh_anim_->set_position({ 1.f, 0.f, 5.f});
+        shadow_mesh_anim_->set_rotate({ 0.f, 0.f, 0.f});
         shadow_mesh_anim_->set_scale(1.0f);
         shadow_mesh_anim_->render();
         shadow_mesh_skin_->set_position({ 1.f, 0.f, 2.f});
+        shadow_mesh_skin_->set_rotate({ 0.f, 0.f, 0.f});
         shadow_mesh_skin_->set_scale(1.0f);
         shadow_mesh_skin_->render();
         for (auto& mesh_lua : shadow_meshes_lua_)
