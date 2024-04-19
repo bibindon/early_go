@@ -20,6 +20,7 @@ shadow_mesh::shadow_mesh(
     pos_ = pos;
     rotate_ = rotate;
     scale_ = scale;
+    x_filename_ = x_filename;
 
     LPD3DXMESH temp_mesh { nullptr };
 
@@ -142,5 +143,9 @@ void shadow_mesh::set_rotate(const D3DXVECTOR3& rotate)
 void shadow_mesh::set_scale(const float scale)
 {
     scale_ = scale;
+}
+std::string shadow_mesh::x_filename()
+{
+    return x_filename_;
 }
 }

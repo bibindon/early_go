@@ -10,6 +10,7 @@
 #include "mesh.hpp"
 #include "camera.hpp"
 #include "character.hpp"
+#include "character2.hpp"
 #include "abstract_mesh.hpp"
 #include "keyboard.hpp"
 #include "resource.h"
@@ -52,6 +53,8 @@ main_window::main_window(const HINSTANCE &hinstance)
     , camera_ { new_crt camera { { 0.0f, 1.3f, -1.1639f * 3 }, { 0.0f, 1.3f, 0.0f } } }
     , early_ { new_crt character { d3d_device_, { 0, 0, 0 }, direction::FRONT, 1.0f } }
 {
+    chara2_.reset(new_crt character2 { d3d_device_, { 2, 0, 0 }, direction::FRONT, 1.0f });
+
     WNDCLASSEX wndclassex{};
     wndclassex.cbSize = sizeof(wndclassex);
     wndclassex.style = CS_HREDRAW | CS_VREDRAW;
@@ -177,6 +180,13 @@ main_window::main_window(const HINSTANCE &hinstance)
             d3d_device_, ztex_, depth_buf_shadow_, "model/RobotArm/RobotArm.x", { }, { }, 1.0f };
         shadow_mesh_skin_ = new_crt shadow_mesh_skin {
             d3d_device_, ztex_, depth_buf_shadow_, "model/wolf/wolf.x", { }, { }, 1.f };
+
+        shared_ptr<shadow_mesh_skin> temp1 { new_crt shadow_mesh_skin {
+            d3d_device_, ztex_, depth_buf_shadow_,
+            constants::SUO_BODY,
+            { 2, 0, 0 }, { 0, 0, 0 }, 1.f } };
+
+        chara2_->add_shadow_mesh_skin(temp1);
     }
     init_lua();
 }
@@ -702,6 +712,7 @@ void main_window::render()
     D3DXMATRIX projection_matrix{camera_->get_projection_matrix()};
 
     shadow_mesh_anim_->update();
+    chara2_->update();
 
     d3d_device_->Clear(
         0,
@@ -733,6 +744,7 @@ void main_window::render()
                 mesh_lua.second->ztex_render();
             }
         }
+        chara2_->render_ztex();
         ztex_->end();
 
         depth_buf_shadow_->set_camera_proj_matrix(&projection_matrix);
@@ -758,6 +770,7 @@ void main_window::render()
                 mesh_lua.second->render();
             }
         }
+        chara2_->render_depth();
         depth_buf_shadow_->end();
         
         early_->render(view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());

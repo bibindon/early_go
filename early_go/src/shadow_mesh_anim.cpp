@@ -63,6 +63,7 @@ shadow_mesh_anim::shadow_mesh_anim(
     pos_ = position;
     rotate_ = rotation;
     scale_ = scale;
+    x_filename_ = x_filename;
 
     LPD3DXFRAME temp_root_frame { nullptr };
     LPD3DXANIMATIONCONTROLLER temp_animation_controller { nullptr };
@@ -246,6 +247,26 @@ void shadow_mesh_anim::set_rotate(const D3DXVECTOR3& rotate)
 void shadow_mesh_anim::set_scale(const float scale)
 {
     scale_ = scale;
+}
+std::string shadow_mesh_anim::x_filename()
+{
+    return x_filename_;
+}
+void shadow_mesh_anim::set_animation(const string &animation_set)
+{
+    animation_strategy_->set_animation(animation_set);
+}
+
+void shadow_mesh_anim::set_default_animation(const string &animation_name)
+{
+    animation_strategy_->set_default_animation(animation_name);
+}
+void shadow_mesh_anim::set_animation_config(
+    const string &animation_name,
+    const bool &loop,
+    const float &duration)
+{
+    animation_strategy_->set_animation_config(animation_name, loop, duration);
 }
 } // namespace early_go 
 

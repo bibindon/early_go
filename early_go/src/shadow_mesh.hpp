@@ -25,6 +25,7 @@ public:
     void set_position(const D3DXVECTOR3& pos);
     void set_rotate(const D3DXVECTOR3& rotate);
     void set_scale(const float scale);
+    std::string x_filename();
 private:
     DWORD materials_count_ { 0 };
     std::shared_ptr<IDirect3DDevice9> d3d_device_ { };
@@ -35,6 +36,7 @@ private:
     D3DXVECTOR3 pos_ { 0.0f, 0.0f, 0.0f };
     D3DXVECTOR3 rotate_ { 0.0f, 0.0f, 0.0f };
     float scale_ { 1.0f };
+    std::string x_filename_ { "" };
 };
 }
 

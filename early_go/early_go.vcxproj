@@ -248,6 +248,7 @@ resource_importer.bat
     <ClCompile Include="src\joystick.cpp" />
     <ClCompile Include="src\light.cpp" />
     <ClCompile Include="src\mesh_interface.cpp" />
+    <ClCompile Include="src\character2.cpp" />
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\shadow_mesh_anim.cpp" />
     <ClCompile Include="src\shadow_mesh.cpp" />
@@ -304,6 +305,7 @@ resource_importer.bat
     <ClInclude Include="src\joystick.hpp" />
     <ClInclude Include="src\light.hpp" />
     <ClInclude Include="src\mesh_interface.hpp" />
+    <ClInclude Include="src\character2.hpp" />
     <ClInclude Include="src\renderer.hpp" />
     <ClInclude Include="src\shadow_mesh_anim.hpp" />
     <ClInclude Include="src\shadow_mesh.hpp" />

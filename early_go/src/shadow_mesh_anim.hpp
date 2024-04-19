@@ -27,6 +27,11 @@ public:
     void set_position(const D3DXVECTOR3& pos);
     void set_rotate(const D3DXVECTOR3& rotate);
     void set_scale(const float scale);
+    std::string x_filename();
+
+    void set_animation(const std::string &);
+    void set_default_animation(const std::string &);
+    void set_animation_config(const std::string &, const bool &, const float &);
 private:
 
     // A struct which deletes the root 'LPD3DXFRAME' object. The reason why the
@@ -54,12 +59,12 @@ private:
 
     std::shared_ptr<z_tex> ztex_ { nullptr };
     std::shared_ptr<depth_buf_shadow> depth_buf_shadow_ { nullptr };
-    // TODO remove
     std::unique_ptr<animation_strategy> animation_strategy_;
 
     D3DXVECTOR3 pos_ { 0.0f, 0.0f, 0.0f };
     D3DXVECTOR3 rotate_ { 0.0f, 0.0f, 0.0f };
     float scale_ { 1.0f };
+    std::string x_filename_ { "" };
 };
 } // namespace early_go 
 

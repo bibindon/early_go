@@ -29,6 +29,11 @@ public:
     void set_position(const D3DXVECTOR3& pos);
     void set_rotate(const D3DXVECTOR3& rotate);
     void set_scale(const float scale);
+    std::string x_filename();
+
+    void set_animation(const std::string &);
+    void set_default_animation(const std::string &);
+    void set_animation_config(const std::string &, const bool &, const float &);
 private:
 
     // A struct which deletes the root 'LPD3DXFRAME' object. The reason why the
@@ -63,6 +68,8 @@ private:
 
     std::vector<D3DXMATRIX> world_matrix_array_;
     int bone_num_;
+
+    std::string x_filename_ { "" };
 };
 } // namespace early_go 
 

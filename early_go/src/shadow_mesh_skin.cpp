@@ -56,6 +56,7 @@ shadow_mesh_skin::shadow_mesh_skin(
     ztex_ = _ztex;
     depth_buf_shadow_ = _depth_buf_shadow;
     scale_ = scale;
+    x_filename_ = x_filename;
 
     LPD3DXFRAME temp_root_frame { nullptr };
     LPD3DXANIMATIONCONTROLLER temp_animation_controller { nullptr };
@@ -144,13 +145,12 @@ HRESULT shadow_mesh_skin::allocate_all_bone_matrices(LPD3DXFRAME frame)
 
 void shadow_mesh_skin::update()
 {
+    // TODO メッシュの数が増えるとアニメーションの速度が上がってしまう気がする。
+    animation_strategy_->update();
 }
 
 void shadow_mesh_skin::ztex_render()
 {
-    // TODO メッシュの数が増えるとアニメーションの速度が上がってしまう気がする。
-    animation_strategy_->update();
-
     ztex_->set_bone_num(bone_num_);
 
     D3DXMATRIX world_mat { };
@@ -325,6 +325,26 @@ void shadow_mesh_skin::set_rotate(const D3DXVECTOR3& rotate)
 void shadow_mesh_skin::set_scale(const float scale)
 {
     scale_ = scale;
+}
+std::string shadow_mesh_skin::x_filename()
+{
+    return x_filename_;
+}
+void shadow_mesh_skin::set_animation(const string &animation_set)
+{
+    animation_strategy_->set_animation(animation_set);
+}
+
+void shadow_mesh_skin::set_default_animation(const string &animation_name)
+{
+    animation_strategy_->set_default_animation(animation_name);
+}
+void shadow_mesh_skin::set_animation_config(
+    const string &animation_name,
+    const bool &loop,
+    const float &duration)
+{
+    animation_strategy_->set_animation_config(animation_name, loop, duration);
 }
 } // namespace early_go 
 

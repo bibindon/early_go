@@ -4,14 +4,14 @@
 
 namespace early_go
 {
-// TODO
+// postpone
 class mesh_interface
 {
     virtual void update() = 0;
     virtual void render() = 0;
     virtual ~mesh_interface() = 0;
 };
-// TODO
+// postpone
 class shadow_mesh_interface
 {
     virtual void update() = 0;

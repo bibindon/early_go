@@ -22,6 +22,7 @@ class animation_mesh;
 class skinned_animation_mesh;
 class camera;
 class character;
+class character2;
 class abstract_mesh;
 class sprite_anim;
 class novel;
@@ -57,7 +58,6 @@ public:
     ~main_window();
     int main_loop();
     std::shared_ptr<character> get_main_character();
-    std::shared_ptr<character> get_enemy_character();
 
     // TODO remove
     shadow_mesh* shadow_mesh_;
@@ -72,6 +72,7 @@ private:
     std::shared_ptr<ID3DXFont> font_;
 
     std::shared_ptr<character> early_;
+    std::shared_ptr<character2> chara2_ { };
 
     std::shared_ptr<camera> camera_;
 
