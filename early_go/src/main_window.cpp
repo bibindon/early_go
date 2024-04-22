@@ -181,12 +181,46 @@ main_window::main_window(const HINSTANCE &hinstance)
         shadow_mesh_skin_ = new_crt shadow_mesh_skin {
             d3d_device_, ztex_, depth_buf_shadow_, "model/wolf/wolf.x", { }, { }, 1.f };
 
+        chara2_->set_pos(D3DXVECTOR3 { 2.f, 0.f, 0.f });
+        chara2_->set_rotate(D3DXVECTOR3 { 3.0f, 0.f, 0.f });
+        chara2_->set_scale(1.f);
+
         shared_ptr<shadow_mesh_skin> temp1 { new_crt shadow_mesh_skin {
             d3d_device_, ztex_, depth_buf_shadow_,
-            constants::SUO_BODY,
-            { 2, 0, 0 }, { 0, 0, 0 }, 1.f } };
+            constants::EARLY_BODY,
+            { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
 
         chara2_->add_shadow_mesh_skin(temp1);
+
+        shared_ptr<shadow_mesh_skin> temp2 { new_crt shadow_mesh_skin {
+            d3d_device_, ztex_, depth_buf_shadow_,
+            constants::EARLY_ARMOR,
+            { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
+
+        chara2_->add_shadow_mesh_skin(temp2);
+
+        shared_ptr<shadow_mesh_skin> temp3 { new_crt shadow_mesh_skin {
+            d3d_device_, ztex_, depth_buf_shadow_,
+            constants::EARLY_SABER,
+            { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
+
+        chara2_->add_shadow_mesh_skin(temp3);
+
+        shared_ptr<shadow_mesh_skin> temp4 { new_crt shadow_mesh_skin {
+            d3d_device_, ztex_, depth_buf_shadow_,
+            constants::EARLY_HAIR,
+            { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
+
+        chara2_->add_shadow_mesh_skin(temp4);
+
+        shared_ptr<shadow_mesh_skin> temp5 { new_crt shadow_mesh_skin {
+            d3d_device_, ztex_, depth_buf_shadow_,
+            constants::EARLY_SKIRT,
+            { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
+
+        chara2_->add_shadow_mesh_skin(temp5);
+
+        chara2_->set_default_animation("Ready");
     }
     init_lua();
 }

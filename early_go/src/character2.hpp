@@ -26,12 +26,19 @@ public:
     void render_depth();
 
     void set_default_animation(const std::string& animation_name);
+    void set_pos(const D3DXVECTOR3& pos);
+    void set_rotate(const D3DXVECTOR3& rotate);
+    void set_scale(const float scale);
 private:
     //----------------------------------------------------------------
     // function
     //----------------------------------------------------------------
     std::string create_animation_fullname(
         const std::string& former_name, const std::string& model_fullname);
+
+    D3DXVECTOR3 pos_ { 0.f, 0.f, 0.f };
+    D3DXVECTOR3 rotate_ { 0.f, 0.f, 0.f };
+    float scale_ { 1.f };
 
     //----------------------------------------------------------------
     // variable

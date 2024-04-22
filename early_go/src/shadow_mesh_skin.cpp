@@ -160,7 +160,7 @@ void shadow_mesh_skin::ztex_render()
     D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
     D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
     D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
-    world_mat = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
+    world_mat = base_mat * trans_mat * scale_mat * rotate_mat * trans_mat2;
 
     update_frame_matrix(frame_root_.get(), &world_mat);
     render_frame(frame_root_.get(), true);
@@ -178,7 +178,7 @@ void shadow_mesh_skin::render()
     D3DXMatrixScaling(&scale_mat, scale_, scale_, scale_);
     D3DXMatrixRotationYawPitchRoll(&rotate_mat, rotate_.x, rotate_.y, rotate_.z);
     D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
-    world_mat = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
+    world_mat = base_mat * trans_mat * scale_mat * rotate_mat * trans_mat2;
 
     update_frame_matrix(frame_root_.get(), &world_mat);
     render_frame(frame_root_.get(), false);

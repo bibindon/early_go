@@ -42,9 +42,9 @@ void character2::render_ztex()
     }
     for (const auto &x : mesh_map_skin_)
     {
-        x.second->set_position(D3DXVECTOR3(2, 0, 0));
-        x.second->set_rotate(D3DXVECTOR3(0, 0, 0));
-        x.second->set_scale(1.0f);
+        x.second->set_position(pos_);
+        x.second->set_rotate(rotate_);
+        x.second->set_scale(scale_);
         x.second->ztex_render();
     }
 }
@@ -56,9 +56,9 @@ void character2::render_depth()
     }
     for (const auto &x : mesh_map_skin_)
     {
-        x.second->set_position(D3DXVECTOR3(2, 0, 0));
-        x.second->set_rotate(D3DXVECTOR3(0, 0, 0));
-        x.second->set_scale(1.0f);
+        x.second->set_position(pos_);
+        x.second->set_rotate(rotate_);
+        x.second->set_scale(scale_);
         x.second->render();
     }
 }
@@ -76,6 +76,18 @@ void character2::set_default_animation(const std::string &animation_name)
 
         x.second->set_default_animation(animation_fullname);
     }
+}
+void character2::set_pos(const D3DXVECTOR3& pos)
+{
+    pos_ = pos;
+}
+void character2::set_rotate(const D3DXVECTOR3& rotate)
+{
+    rotate_ = rotate;
+}
+void character2::set_scale(const float scale)
+{
+    scale_ = scale;
 }
 // "Idle" + "hoge/piyo/hair.x" -> "Idle_Hair"
 std::string character2::create_animation_fullname(
