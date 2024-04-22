@@ -97,16 +97,6 @@ float4 ZBufferPlot_PS(float4 ShadowMapTex : TEXCOORD0) : COLOR
     work.b = ShadowMapTex.z / ShadowMapTex.w;
     return work;
 }
-float4 ZBufferPlot_PS2(float4 ShadowMapTex : TEXCOORD0) : COLOR
-{
-    // ZíléZèo
-    float4 work;
-    work.a = 0.0f;
-    work.r = ShadowMapTex.x;
-    work.g = 0.0f;
-    work.b = 0.0f;
-    return work;
-}
 
 int current_bone_numbers;
 VertexShader vsArray[4] = {
@@ -126,6 +116,6 @@ technique ZValuePlotTec
     pass P1
     {
         VertexShader = (vsArray[current_bone_numbers]);
-        PixelShader = compile ps_2_0 ZBufferPlot_PS2();
+        PixelShader = compile ps_2_0 ZBufferPlot_PS();
     }
 }

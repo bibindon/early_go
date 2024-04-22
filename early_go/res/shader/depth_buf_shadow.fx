@@ -70,7 +70,7 @@ VS_OUTPUT DepthBufShadow_VS(
     //  îZÇ≠Ç»ÇËÇ∑Ç¨Ç»Ç¢ÇÊÇ§Ç…í≤êﬂÇµÇƒÇ¢Ç‹Ç∑
     float3 N = normalize( mul(Norm, matWorld) );
     float3 LightDirect = normalize( float3(matLightView._13,matLightView._23,matLightView._33) );
-    Out.Col = float4(1.0, 0.2, 0.2, 1.0) * (0.3 + dot(N, -LightDirect)*(1-0.3f));
+    Out.Col = float4(3.0, 3.0, 3.0, 3.0) * (0.5 + dot(N, -LightDirect)*(1-0.5f));
 
     Out.texcood = in_texcood;
 
@@ -87,7 +87,7 @@ void DepthBufShadow_VS2(
     in  float3  in_texcoord0     : TEXCOORD0,
 
     out float4  out_position     : POSITION,
-//    out float4  out_diffuse      : COLOR,
+    out float4  out_diffuse      : COLOR,
     out float2  out_texcoord0    : TEXCOORD0,
     uniform int bone_number)
 {
@@ -131,7 +131,11 @@ void DepthBufShadow_VS2(
     // Shade (Ambient + etc.)
 //  out_diffuse = g_light_diffuse * g_diffuse * max(0, light_intensity) + g_ambient;
 //    out_diffuse = g_diffuse * max(0, light_intensity) + g_ambient;
- //   out_diffuse.a = 1.0f;
+//    out_diffuse.a = 1.0f;
+    float3 N = normalize( mul(in_normal, matWorld) );
+    float3 LightDirect = normalize( float3(matLightView._13,matLightView._23,matLightView._33) );
+    out_diffuse = float4(1.0, 1.0, 1.0, 1.0) * (0.5 + dot(normal4, -LightDirect)*(1-0.4f));
+    out_diffuse.rgb += 0.2f;
 
     // copy the input texture coordinate through
     out_texcoord0 = in_texcoord0.xy;
@@ -154,8 +158,8 @@ void DepthBufShadow_PS(
 //        //color_tex[i].a *= g_opacity[i];
         color_result = (1.0f-color_tex[i].a) * color_result + color_tex[i].a * color_tex[i];
     }
-//    out_col = (Col * color_result);
-    out_col = color_result;
+    out_col = (Col * color_result);
+//    out_col = color_result;
 
     // fade in/out
 //    out_col.r *= (1.0f - g_opacity[7]);

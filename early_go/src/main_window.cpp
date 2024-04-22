@@ -179,7 +179,9 @@ main_window::main_window(const HINSTANCE &hinstance)
         shadow_mesh_anim_ = new_crt shadow_mesh_anim {
             d3d_device_, ztex_, depth_buf_shadow_, "model/RobotArm/RobotArm.x", { }, { }, 1.0f };
         shadow_mesh_skin_ = new_crt shadow_mesh_skin {
-            d3d_device_, ztex_, depth_buf_shadow_, "model/wolf/wolf.x", { }, { }, 1.f };
+            d3d_device_, ztex_, depth_buf_shadow_, "model/wolf/wolf.x", { }, { }, 3.f };
+        shadow_mesh_skin2_ = new_crt shadow_mesh_skin {
+            d3d_device_, ztex_, depth_buf_shadow_, "model/tiny/tiny.x", { }, { }, 0.006f };
 
         chara2_->set_pos(D3DXVECTOR3 { 2.f, 0.f, 0.f });
         chara2_->set_rotate(D3DXVECTOR3 { 3.0f, 0.f, 0.f });
@@ -356,6 +358,7 @@ main_window::~main_window()
     delete shadow_mesh_;
     delete shadow_mesh_anim_;
     delete shadow_mesh_skin_;
+    delete shadow_mesh_skin2_;
 }
 
 // windows main loop 
@@ -746,6 +749,8 @@ void main_window::render()
     D3DXMATRIX projection_matrix{camera_->get_projection_matrix()};
 
     shadow_mesh_anim_->update();
+    shadow_mesh_skin_->update();
+    shadow_mesh_skin2_->update();
     chara2_->update();
 
     d3d_device_->Clear(
@@ -765,8 +770,12 @@ void main_window::render()
         shadow_mesh_anim_->ztex_render();
         shadow_mesh_skin_->set_position({ 1.f, 0.f, 2.f});
         shadow_mesh_skin_->set_rotate({ 0.f, 0.f, 0.f});
-        shadow_mesh_skin_->set_scale(1.0f);
+        shadow_mesh_skin_->set_scale(3.0f);
         shadow_mesh_skin_->ztex_render();
+        shadow_mesh_skin2_->set_position({ 0.f, 2.f, 10.f});
+        shadow_mesh_skin2_->set_rotate({ 0.f, 0.f, 0.f});
+        shadow_mesh_skin2_->set_scale(0.006f);
+        shadow_mesh_skin2_->ztex_render();
         for (auto& mesh_lua : shadow_meshes_lua_)
         {
             auto range = mesh_info_map.equal_range(mesh_lua.first);
@@ -791,8 +800,12 @@ void main_window::render()
         shadow_mesh_anim_->render();
         shadow_mesh_skin_->set_position({ 1.f, 0.f, 2.f});
         shadow_mesh_skin_->set_rotate({ 0.f, 0.f, 0.f});
-        shadow_mesh_skin_->set_scale(1.0f);
+        shadow_mesh_skin_->set_scale(3.0f);
         shadow_mesh_skin_->render();
+        shadow_mesh_skin2_->set_position({ 0.f, 2.f, 10.f});
+        shadow_mesh_skin2_->set_rotate({ 0.f, 0.f, 0.f});
+        shadow_mesh_skin2_->set_scale(0.006f);
+        shadow_mesh_skin2_->render();
         for (auto& mesh_lua : shadow_meshes_lua_)
         {
             auto range = mesh_info_map.equal_range(mesh_lua.first);

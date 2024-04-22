@@ -63,6 +63,7 @@ public:
     shadow_mesh* shadow_mesh_;
     shadow_mesh_anim* shadow_mesh_anim_;
     shadow_mesh_skin* shadow_mesh_skin_;
+    shadow_mesh_skin* shadow_mesh_skin2_;
 
 private:
     MSG msg_;
