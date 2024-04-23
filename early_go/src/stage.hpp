@@ -4,6 +4,12 @@
 
 namespace early_go
 {
+struct vec3i
+{
+    int x { 0 };
+    int y { 0 };
+    int z { 0 };
+};
 class stage
 {
 public:

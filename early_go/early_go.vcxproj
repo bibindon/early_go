@@ -237,6 +237,7 @@ resource_importer.bat
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\action.cpp" />
     <ClCompile Include="src\animation_mesh.cpp" />
     <ClCompile Include="src\abstract_mesh.cpp" />
     <ClCompile Include="src\bgm_player.cpp" />
@@ -295,6 +296,7 @@ resource_importer.bat
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\action.hpp" />
     <ClInclude Include="src\animation_mesh.hpp" />
     <ClInclude Include="src\animation_mesh_allocator.hpp" />
     <ClInclude Include="src\animation_strategy.hpp" />

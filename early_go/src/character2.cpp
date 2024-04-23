@@ -1,6 +1,7 @@
 #include "stdafx.hpp"
 
 #include "character2.hpp"
+#include "action.hpp"
 #include <regex>
 
 using std::shared_ptr;
@@ -27,11 +28,19 @@ void character2::add_shadow_mesh_skin(const std::shared_ptr<shadow_mesh_skin>& m
 {
     mesh_map_skin_.emplace(mesh->x_filename(), mesh);
 }
-void character2::update()
+void character2::update(const shared_ptr<stage>& _stage)
 {
     for (const auto &x : mesh_map_skin_)
     {
         x.second->update();
+    }
+    if (current_action_ != nullptr)
+    {
+        action_state_ = current_action_->update(_stage);
+        if (action_state_ == operation::behavior_state::FINISH)
+        {
+            current_action_.reset();
+        }
     }
 }
 void character2::render_ztex()
@@ -61,6 +70,37 @@ void character2::render_depth()
         x.second->set_scale(scale_);
         x.second->render();
     }
+}
+void character2::set_grid_position(vec3i pos)
+{
+    grid_position_ = pos;
+    set_pos(D3DXVECTOR3 {
+            pos.x * constants::GRID_LENGTH,
+            pos.y * constants::GRID_LENGTH,
+            pos.z * constants::GRID_LENGTH });
+}
+void character2::set_direction(const direction direction)
+{
+    D3DXVECTOR3 rotation { };
+    switch (direction)
+    {
+    case direction::FRONT:
+        rotation.x = D3DX_PI;
+        break;
+    case direction::LEFT:
+        rotation.x = D3DX_PI / 2;
+        break;
+    case direction::BACK:
+        rotation.x = 0.0f;
+        break;
+    case direction::RIGHT:
+        rotation.x = D3DX_PI * 3 / 2;
+        break;
+    }
+    rotation.y = 0.0f;
+    rotation.z = 0.0f;
+
+    set_rotate(rotation);
 }
 void character2::set_default_animation(const std::string &animation_name)
 {
@@ -114,6 +154,14 @@ void character2::set_animation(const std::string &animation_name)
 void character2::set_pos(const D3DXVECTOR3& pos)
 {
     pos_ = pos;
+    for (const auto &x : mesh_map_anim_)
+    {
+        x.second->set_position(pos);
+    }
+    for (const auto &x : mesh_map_skin_)
+    {
+        x.second->set_position(pos);
+    }
 }
 D3DXVECTOR3 character2::get_pos()
 {
@@ -150,23 +198,28 @@ std::string character2::create_animation_fullname(
     }
     return animation_fullname;
 }
-int character2::get_health() const
+void character2::set_action_step(const direction step_dir)
 {
-    return health_;
+    current_action_.reset( new_crt step { *this, step_dir });
 }
-
-void character2::set_health(const int &health)
+void character2::set_action_rotate(const direction rotate_dir)
 {
-    health_ = health;
+    current_action_.reset(new_crt rotate { *this, rotate_dir });
 }
-
-int character2::get_max_health() const
+void character2::set_action_step_and_rotate(const direction step_dir, const direction rotate_dir)
 {
-    return max_health_;
+    current_action_.reset(new_crt step_and_rotate { *this, step_dir, rotate_dir });
 }
-
-void character2::set_max_health(const int &health)
+void character2::set_action_attack()
 {
-    max_health_ = health;
+    current_action_.reset(new_crt attack { *this });
+}
+void character2::cancel_action()
+{
+    if (current_action_ != nullptr)
+    {
+        current_action_->cancel();
+        current_action_.reset();
+    }
 }
 }

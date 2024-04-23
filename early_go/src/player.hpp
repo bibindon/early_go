@@ -10,8 +10,7 @@ class player : public character2
 public:
     using character2::character2;
 
-    // TODO
-    void update(const std::shared_ptr<stage>&) {}
+    void update(const std::shared_ptr<stage>& _stage) override;
     // TODO
     // playerƒNƒ‰ƒX‚Å‚â‚é‚×‚«‚Å‚Í‚È‚¢H
     void set_dynamic_texture(
@@ -36,14 +35,6 @@ public:
             const BYTE & = SHIFTJIS_CHARSET,
             const bool& = true) {}
     bool is_tex_animation_finished(const std::string& x_filename, const int& layer_number) { return false; }
-
-    void set_fade_in(const std::string&) {}
-    void set_fade_out(const std::string&) {}
-    void set_action_step(const direction) {}
-    void set_action_rotate(const direction) {}
-    void set_action_step_and_rotate(const direction, const direction) {}
-    void set_action_attack() {}
-    void cancel_action() {}
 private:
 };
 } // namespace early_go 

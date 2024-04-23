@@ -790,7 +790,6 @@ void main_window::render()
     shadow_mesh_anim_->update();
     shadow_mesh_skin_->update();
     shadow_mesh_skin2_->update();
-    chara2_->update();
 
     d3d_device_->Clear(
         0,
