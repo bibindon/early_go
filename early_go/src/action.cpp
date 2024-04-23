@@ -317,7 +317,7 @@ rotate::~rotate()
 {
     if (count_ != 0)
     {
-        chara_.set_direction(chara_.get_direction());
+        chara_.set_rotate_by_direction(chara_.get_direction());
     }
 }
 void rotate::cancel()

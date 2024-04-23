@@ -39,6 +39,7 @@ public:
     void set_pos(const D3DXVECTOR3& pos);
     D3DXVECTOR3 get_pos();
     void set_rotate(const D3DXVECTOR3& rotate);
+    void set_rotate_by_direction(const direction);
     void set_scale(const float scale);
 
     int get_health() const { return health_; }

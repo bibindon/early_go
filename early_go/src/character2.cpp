@@ -83,35 +83,21 @@ void character2::render_depth()
 }
 void character2::set_grid_position(vec3i pos)
 {
+    // 位置や向きを決定しても即座には反映されず、
+    // 移動や回転のアニメーションをしている時間がある。
+    // そのため
+    // grid_position_とpos_
+    // direction_とrotate_がそれぞれ用意されており、違いを考慮する必要がある。
     grid_position_ = pos;
-    set_pos(D3DXVECTOR3 {
-            pos.x * constants::GRID_LENGTH,
-            pos.y * constants::GRID_LENGTH,
-            pos.z * constants::GRID_LENGTH });
 }
 void character2::set_direction(const direction direction)
 {
+    // 位置や向きを決定しても即座には反映されず、
+    // 移動や回転のアニメーションをしている時間がある。
+    // そのため
+    // grid_position_とpos_
+    // direction_とrotate_がそれぞれ用意されており、違いを考慮する必要がある。
     direction_ = direction;
-    D3DXVECTOR3 rotation { };
-    switch (direction)
-    {
-    case direction::FRONT:
-        rotation.x = D3DX_PI;
-        break;
-    case direction::LEFT:
-        rotation.x = D3DX_PI / 2;
-        break;
-    case direction::BACK:
-        rotation.x = 0.0f;
-        break;
-    case direction::RIGHT:
-        rotation.x = D3DX_PI * 3 / 2;
-        break;
-    }
-    rotation.y = 0.0f;
-    rotation.z = 0.0f;
-
-    set_rotate(rotation);
 }
 void character2::set_default_animation(const std::string &animation_name)
 {
@@ -181,6 +167,29 @@ D3DXVECTOR3 character2::get_pos()
 void character2::set_rotate(const D3DXVECTOR3& rotate)
 {
     rotate_ = rotate;
+}
+void character2::set_rotate_by_direction(const direction dir)
+{
+    D3DXVECTOR3 rotation { };
+    switch (dir)
+    {
+    case direction::FRONT:
+        rotation.x = D3DX_PI;
+        break;
+    case direction::LEFT:
+        rotation.x = D3DX_PI / 2;
+        break;
+    case direction::BACK:
+        rotation.x = 0.0f;
+        break;
+    case direction::RIGHT:
+        rotation.x = D3DX_PI * 3 / 2;
+        break;
+    }
+    rotation.y = 0.0f;
+    rotation.z = 0.0f;
+
+    set_rotate(rotation);
 }
 void character2::set_scale(const float scale)
 {

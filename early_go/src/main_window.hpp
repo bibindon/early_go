@@ -74,7 +74,6 @@ private:
     std::shared_ptr<ID3DXFont> font_;
 
     std::shared_ptr<player> early_;
-    std::shared_ptr<character2> chara2_ { };
 
     std::shared_ptr<camera> camera_;
 

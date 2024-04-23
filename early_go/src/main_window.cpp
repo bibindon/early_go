@@ -53,7 +53,6 @@ main_window::main_window(const HINSTANCE& hinstance)
     , font_ { }
     , camera_ { new_crt camera { { 0.0f, 1.3f, -1.1639f * 3 }, { 0.0f, 1.3f, 0.0f } } }
 {
-    chara2_.reset(new_crt character2 { d3d_device_, { 2, 0, 0 }, direction::FRONT, 1.0f });
     early_.reset(new_crt player { d3d_device_, { 0, 0, 0 }, direction::FRONT, 1.0f });
 
     WNDCLASSEX wndclassex{};
@@ -184,51 +183,11 @@ main_window::main_window(const HINSTANCE& hinstance)
         shadow_mesh_skin2_ = new_crt shadow_mesh_skin {
             d3d_device_, ztex_, depth_buf_shadow_, "model/tiny/tiny.x", { }, { }, 0.006f };
 
-        chara2_->set_pos(D3DXVECTOR3 { 2.f, 0.f, 0.f });
-        chara2_->set_rotate(D3DXVECTOR3 { 3.0f, 0.f, 0.f });
-        chara2_->set_scale(1.f);
-
-        shared_ptr<shadow_mesh_skin> temp1 { new_crt shadow_mesh_skin {
-            d3d_device_, ztex_, depth_buf_shadow_,
-            constants::EARLY_BODY,
-            { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
-
-        chara2_->add_shadow_mesh_skin(temp1);
-
-        shared_ptr<shadow_mesh_skin> temp2 { new_crt shadow_mesh_skin {
-            d3d_device_, ztex_, depth_buf_shadow_,
-            constants::EARLY_ARMOR,
-            { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
-
-        chara2_->add_shadow_mesh_skin(temp2);
-
-        shared_ptr<shadow_mesh_skin> temp3 { new_crt shadow_mesh_skin {
-            d3d_device_, ztex_, depth_buf_shadow_,
-            constants::EARLY_SABER,
-            { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
-
-        chara2_->add_shadow_mesh_skin(temp3);
-
-        shared_ptr<shadow_mesh_skin> temp4 { new_crt shadow_mesh_skin {
-            d3d_device_, ztex_, depth_buf_shadow_,
-            constants::EARLY_HAIR,
-            { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
-
-        chara2_->add_shadow_mesh_skin(temp4);
-
-        shared_ptr<shadow_mesh_skin> temp5 { new_crt shadow_mesh_skin {
-            d3d_device_, ztex_, depth_buf_shadow_,
-            constants::EARLY_SKIRT,
-            { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
-
-        chara2_->add_shadow_mesh_skin(temp5);
-
-        chara2_->set_default_animation("Ready");
         {
-
-            //early_->set_camera(camera_);
-            early_->set_pos({0, 0, 0});
+            early_->set_pos({0.f, 0.f, 0.f});
+            early_->set_grid_position({0, 0, 0});
             early_->set_direction(direction::FRONT);
+            early_->set_rotate_by_direction(direction::FRONT);
             early_->set_max_health(9999);
             early_->set_health(4000);
 
@@ -826,7 +785,6 @@ void main_window::render()
                 mesh_lua.second->ztex_render();
             }
         }
-        chara2_->render_ztex();
         early_->render_ztex();
         ztex_->end();
 
@@ -857,7 +815,6 @@ void main_window::render()
                 mesh_lua.second->render();
             }
         }
-        chara2_->render_depth();
         early_->render_depth();
         depth_buf_shadow_->end();
         
