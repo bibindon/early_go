@@ -38,7 +38,7 @@ void character2::update(const shared_ptr<stage>& _stage)
     {
         x.second->update();
     }
-    if (current_action_ != nullptr)
+    if (current_action_ != nullptr && _stage != nullptr)
     {
         action_state_ = current_action_->update(_stage);
         if (action_state_ == operation::behavior_state::FINISH)

@@ -3,6 +3,7 @@
 #include "inline_macro.hpp"
 #include "sprite.hpp"
 #include "camera.hpp"
+#include "player.hpp"
 #include "se_player.hpp"
 #include "bgm_player.hpp"
 
@@ -24,20 +25,18 @@ seq_title::seq_title(const shared_ptr<IDirect3DDevice9>& d3d_device)
     bgm_player::get_ton()->load("sound/title.wav");
 }
 seq_type seq_title::update(
-    const std::shared_ptr<player>& _early,
+    const std::shared_ptr<player>& _player,
     const std::shared_ptr<camera>& _camera)
 {
     if (counter_ == 0)
     {
-//        _camera->set_position(
-//            D3DXVECTOR3 { -0.7f, 1.35f, -0.2f },
-//            D3DXVECTOR3 { 0.0f, 1.35f, -0.2f },
-//            D3DX_PI / 4);
+        _player->set_animation("Ready");
         _camera->set_position(
-            D3DXVECTOR3 { 0.f, 3.35f, -10.2f },
+            D3DXVECTOR3 { -0.7f, 1.35f, -0.2f },
             D3DXVECTOR3 { 0.0f, 1.35f, -0.2f },
             D3DX_PI / 4);
     }
+    _player->update(nullptr);
     if (input::is_down(input_type::DOWN))
     {
         ++select_;
@@ -111,7 +110,7 @@ seq_type seq_title::update(
 }
 
 void seq_title::render(
-    const std::shared_ptr<player>& _early,
+    const std::shared_ptr<player>& _player,
     const std::shared_ptr<camera>& _camera)
 {
     title01_->render(D3DXVECTOR3 { 630.0f, 0.0f, 0.0f });
