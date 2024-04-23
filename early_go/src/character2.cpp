@@ -104,13 +104,11 @@ void character2::set_default_animation(const std::string &animation_name)
     for (const auto &x : mesh_map_anim_)
     {
         std::string animation_fullname { create_animation_fullname(animation_name, x.first) };
-
         x.second->set_default_animation(animation_fullname);
     }
     for (const auto &x : mesh_map_skin_)
     {
         std::string animation_fullname { create_animation_fullname(animation_name, x.first) };
-
         x.second->set_default_animation(animation_fullname);
     }
 }
@@ -123,13 +121,11 @@ void character2::set_animation_config(
     for (const auto &x : mesh_map_anim_)
     {
         std::string animation_fullname { create_animation_fullname(animation_name, x.first) };
-
         x.second->set_animation_config(animation_fullname, loop, duration);
     }
     for (const auto &x : mesh_map_skin_)
     {
         std::string animation_fullname { create_animation_fullname(animation_name, x.first) };
-
         x.second->set_animation_config(animation_fullname, loop, duration);
     }
 }
@@ -138,13 +134,11 @@ void character2::set_animation(const std::string &animation_name)
     for (const auto &x : mesh_map_anim_)
     {
         std::string animation_fullname { create_animation_fullname(animation_name, x.first) };
-
         x.second->set_animation(animation_fullname);
     }
     for (const auto &x : mesh_map_skin_)
     {
         std::string animation_fullname { create_animation_fullname(animation_name, x.first) };
-
         x.second->set_animation(animation_fullname);
     }
 }

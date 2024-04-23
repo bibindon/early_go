@@ -400,6 +400,5 @@ void attack::cancel()
 attack::~attack()
 {
 }
-
 }
 

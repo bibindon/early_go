@@ -23,13 +23,13 @@ shared_ptr<camera> operation::get_camera() const
 }
 
 void operation::update(
-    const shared_ptr<player>& _main_chara,
+    const shared_ptr<player>& _player,
     const shared_ptr<enemy_manager>& _enemy_manager,
     const shared_ptr<stage>& _stage)
 {
     ++frame_counter_;
     int previous_push_elapse { frame_counter_ - current_behavior_->pushed_frame_ };
-    _main_chara->update(_stage);
+    _player->update(_stage);
     if (keyboard::is_down('Q'))
     {
         PostQuitMessage(0);
@@ -617,7 +617,7 @@ void operation::update(
 
     if (current_behavior_->state_ == behavior_state::CANCEL)
     {
-        _main_chara->cancel_action();
+        _player->cancel_action();
         current_behavior_->state_ = behavior_state::FINISH;
     }
 
@@ -646,26 +646,42 @@ void operation::update(
         _cancelable_counter = 0;
         if (current_behavior_->action_type_ == action_type::STEP)
         {
-            _main_chara->set_action_step(current_behavior_->step_dir_);
+            _player->set_action_step(current_behavior_->step_dir_);
+            if (current_behavior_->step_dir_ == direction::FRONT)
+            {
+                camera_->move_position(D3DXVECTOR3 { 0.f, 0.f, constants::GRID_LENGTH }, 1.f, false);
+            }
+            else if (current_behavior_->step_dir_ == direction::LEFT)
+            {
+                camera_->move_position(D3DXVECTOR3 { -constants::GRID_LENGTH, 0.f, 0.f }, 1.f, false);
+            }
+            else if (current_behavior_->step_dir_ == direction::BACK)
+            {
+                camera_->move_position(D3DXVECTOR3 { 0.f, 0.f, -constants::GRID_LENGTH }, 1.f, false);
+            }
+            else if (current_behavior_->step_dir_ == direction::RIGHT)
+            {
+                camera_->move_position(D3DXVECTOR3 { constants::GRID_LENGTH, 0.f, 0.f }, 1.f, false);
+            }
             se_player::get_ton()->play("sound/attack01.wav");
         }
         else if (current_behavior_->action_type_ == action_type::ROTATE)
         {
-            _main_chara->set_action_rotate(current_behavior_->rotate_dir_);
+            _player->set_action_rotate(current_behavior_->rotate_dir_);
         }
         else if (current_behavior_->action_type_ == action_type::STEP_AND_ROTATE)
         {
-            _main_chara->set_action_step_and_rotate(
+            _player->set_action_step_and_rotate(
                 current_behavior_->step_dir_, current_behavior_->rotate_dir_);
         }
         else if (current_behavior_->action_type_ == action_type::ATTACK)
         {
-            _main_chara->set_action_attack();
+            _player->set_action_attack();
             se_player::get_ton()->play("sound/attack01.wav");
         }
         else if (current_behavior_->action_type_ == action_type::MOVE_NEXT_STAGE)
         {
-           // _main_chara->set_action_move_next_stage();
+           // _player->set_action_move_next_stage();
            // enemy->set_action_move_next_stage();
            // camera_->set_move_next_stage_anim(D3DXVECTOR3 { 0.0f, 0.0f, 0.0f });
         }
@@ -685,19 +701,19 @@ void operation::update(
     }
     else if (current_behavior_->state_ == behavior_state::PLAY)
     {
-        if (_main_chara->get_action_state() == behavior_state::FINISH)
+        if (_player->get_action_state() == behavior_state::FINISH)
         {
             current_behavior_->state_ = behavior_state::FINISH;
             ignore_attack_judge_ = false;
         }
-        else if (_main_chara->get_action_state() == behavior_state::ALLOW_NEXT_ACTION)
+        else if (_player->get_action_state() == behavior_state::ALLOW_NEXT_ACTION)
         {
             current_behavior_->state_ = behavior_state::ALLOW_NEXT_ACTION;
         }
     }
     else if (current_behavior_->state_ == behavior_state::ALLOW_NEXT_ACTION)
     {
-        if (_main_chara->get_action_state() == behavior_state::FINISH)
+        if (_player->get_action_state() == behavior_state::FINISH)
         {
             current_behavior_->state_ = behavior_state::FINISH;
             ignore_attack_judge_ = false;
@@ -747,7 +763,7 @@ operation::move_next_stage::move_next_stage(
       enemy_move_called_{false},
       main_chara_move_called_{false}
 {
-    cv::Point3i pos = main_window_.get_main_character()->get_grid_position();
+    cv::Point3i pos = main_window_.get_playercter()->get_grid_position();
     main_chara_x_ = static_cast<float>(pos.x) * constants::GRID_LENGTH;
     main_chara_z_ = static_cast<float>(pos.z) * constants::GRID_LENGTH;
 
@@ -764,8 +780,8 @@ operation::move_next_stage::move_next_stage(
 
     goal_z = 1.0f * constants::GRID_LENGTH + constants::GRID_LENGTH * (outer_.current_stage_ + 1) * (constants::GRID_NUM_HEIGHT + 1);
 
-    delta_main_chara_x_ = goal_x - main_chara_x_;
-    delta_main_chara_z_ = goal_z - main_chara_z_;
+    delta_player_x_ = goal_x - main_chara_x_;
+    delta_player_z_ = goal_z - main_chara_z_;
 }
 
 operation::behavior_state operation::move_next_stage::update()
@@ -797,23 +813,23 @@ operation::behavior_state operation::move_next_stage::update()
         if (!main_chara_move_called_)
         {
             main_chara_move_called_ = true;
-            main_window_.get_main_character()->set_rotation(direction::FRONT);
-            main_window_.get_main_character()->set_animation("Step_Front");
+            main_window_.get_playercter()->set_rotation(direction::FRONT);
+            main_window_.get_playercter()->set_animation("Step_Front");
             outer_.camera_->move_position(
-                D3DXVECTOR3{delta_main_chara_x_, 0.0, delta_main_chara_z_}, 2.0f);
+                D3DXVECTOR3{delta_player_x_, 0.0, delta_player_z_}, 2.0f);
         }
         float sine{get_sine_curve(count_ * constants::ANIMATION_SPEED - 3.0f, 2.0f)};
-        main_window_.get_main_character()->set_position(
-            D3DXVECTOR3{main_chara_x_ + delta_main_chara_x_ * sine,
+        main_window_.get_playercter()->set_position(
+            D3DXVECTOR3{main_chara_x_ + delta_player_x_ * sine,
                         0.0,
-                        main_chara_z_ + delta_main_chara_z_ * sine});
+                        main_chara_z_ + delta_player_z_ * sine});
     }
     else if (5.0f <= count_ * constants::ANIMATION_SPEED)
     {
-        cv::Point3i pos = main_window_.get_main_character()->get_grid_position();
+        cv::Point3i pos = main_window_.get_playercter()->get_grid_position();
         pos.x = 0;
         pos.z = 1 + outer_.current_stage_ * 10;
-        main_window_.get_main_character()->set_position(pos);
+        main_window_.get_playercter()->set_position(pos);
         pos = main_window_.get_enemy_character()->get_grid_position();
         pos.x = 0;
         pos.z = 7 + outer_.current_stage_ * 10;
