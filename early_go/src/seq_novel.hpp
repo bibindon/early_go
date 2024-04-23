@@ -20,12 +20,12 @@ class seq_novel : public seq_interface
 public:
     seq_novel(
         const std::shared_ptr<IDirect3DDevice9>& d3d_device,
-        const std::shared_ptr<character>& _early);
+        const std::shared_ptr<player>& _early);
     virtual seq_type update(
-        const std::shared_ptr<character>& _early,
+        const std::shared_ptr<player>& _early,
         const std::shared_ptr<camera>& _camera) override;
     virtual void render(
-        const std::shared_ptr<character>& _early,
+        const std::shared_ptr<player>& _early,
         const std::shared_ptr<camera>& _camera) override;
 private:
     void init_lua();
@@ -39,7 +39,7 @@ private:
     //  static int glue_shake(lua_State*);
     static void redraw_portrait();
     
-    static std::shared_ptr<character> early_;
+    static std::shared_ptr<player> early_;
     static std::deque<std::shared_ptr<portrait> > portrait_order_;
 
     std::shared_ptr<IDirect3DDevice9> d3d_device_;

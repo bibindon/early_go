@@ -26,9 +26,18 @@ public:
     void render_depth();
 
     void set_default_animation(const std::string& animation_name);
+    void set_animation_config(const std::string &, const bool &, const float &);
+    void set_animation(const std::string& animation_name);
     void set_pos(const D3DXVECTOR3& pos);
+    D3DXVECTOR3 get_pos();
     void set_rotate(const D3DXVECTOR3& rotate);
     void set_scale(const float scale);
+
+    int get_health() const;
+    void set_health(const int &);
+    int get_max_health() const;
+    void set_max_health(const int &);
+    operation::behavior_state get_action_state() { return operation::behavior_state::NO_STATE; }
 private:
     //----------------------------------------------------------------
     // function
@@ -39,6 +48,11 @@ private:
     D3DXVECTOR3 pos_ { 0.f, 0.f, 0.f };
     D3DXVECTOR3 rotate_ { 0.f, 0.f, 0.f };
     float scale_ { 1.f };
+
+    int health_;
+    int max_health_;
+
+    std::unordered_map<std::string, float> duration_map_;
 
     //----------------------------------------------------------------
     // variable

@@ -4,7 +4,7 @@
 
 namespace early_go
 {
-class character;
+class player;
 class camera;
 class seq_interface;
 
@@ -27,10 +27,10 @@ class sequence_switcher
 public:
     sequence_switcher(const std::shared_ptr<IDirect3DDevice9>& d3d_device);
     void update(
-        const std::shared_ptr<character>& _early,
+        const std::shared_ptr<player>& _early,
         const std::shared_ptr<camera>& _camera);
     void render(
-        const std::shared_ptr<character>& _early,
+        const std::shared_ptr<player>& _early,
         const std::shared_ptr<camera>& _camera);
 private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;

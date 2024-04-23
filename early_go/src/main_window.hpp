@@ -29,6 +29,7 @@ class novel;
 class sprite;
 class text_d3dxfont;
 class sequence_switcher;
+class player;
 
 struct mesh_info
 {
@@ -57,7 +58,7 @@ public:
     explicit main_window(const HINSTANCE &);
     ~main_window();
     int main_loop();
-    std::shared_ptr<character> get_main_character();
+    std::shared_ptr<character2> get_main_character();
 
     // TODO remove
     shadow_mesh* shadow_mesh_;
@@ -72,7 +73,7 @@ private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
     std::shared_ptr<ID3DXFont> font_;
 
-    std::shared_ptr<character> early_;
+    std::shared_ptr<player> early_;
     std::shared_ptr<character2> chara2_ { };
 
     std::shared_ptr<camera> camera_;

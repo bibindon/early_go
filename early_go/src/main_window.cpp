@@ -26,6 +26,7 @@
 #include "stage.hpp"
 #include "z_tex.hpp"
 #include "depth_buf_shadow.hpp"
+#include "player.hpp"
 
 using std::chrono::system_clock;
 using std::shared_ptr;
@@ -45,15 +46,15 @@ namespace early_go
 std::weak_ptr<ID3DXFont> main_window::render_string_object::weak_font_;
 
 // c'tor 
-main_window::main_window(const HINSTANCE &hinstance)
+main_window::main_window(const HINSTANCE& hinstance)
     : direct3d9_ { nullptr, custom_deleter { } }
     , d3d_present_parameters_ { }
     , d3d_device_ { }
     , font_ { }
     , camera_ { new_crt camera { { 0.0f, 1.3f, -1.1639f * 3 }, { 0.0f, 1.3f, 0.0f } } }
-    , early_ { new_crt character { d3d_device_, { 0, 0, 0 }, direction::FRONT, 1.0f } }
 {
     chara2_.reset(new_crt character2 { d3d_device_, { 2, 0, 0 }, direction::FRONT, 1.0f });
+    early_.reset(new_crt player { d3d_device_, { 0, 0, 0 }, direction::FRONT, 1.0f });
 
     WNDCLASSEX wndclassex{};
     wndclassex.cbSize = sizeof(wndclassex);
@@ -223,6 +224,74 @@ main_window::main_window(const HINSTANCE &hinstance)
         chara2_->add_shadow_mesh_skin(temp5);
 
         chara2_->set_default_animation("Ready");
+        {
+
+            //early_->set_camera(camera_);
+            early_->set_pos({0, 0, 0});
+            early_->set_max_health(9999);
+            early_->set_health(4000);
+
+        //    early_->set_normal_move("äÓñ{çUåÇ", 7, 10);
+        //    early_->set_normal_move("ìÀÇ´çUåÇ", 10, 10);
+        //    early_->set_normal_move("ìäÇ∞çUåÇ", 5, 10);
+        //    early_->set_normal_move("ï•Ç¢çUåÇ", 3, 10);
+
+            shared_ptr<shadow_mesh_skin> temp1 { new_crt shadow_mesh_skin {
+                d3d_device_, ztex_, depth_buf_shadow_,
+                constants::EARLY_BODY,
+                { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
+
+            early_->add_shadow_mesh_skin(temp1);
+
+            shared_ptr<shadow_mesh_skin> temp2 { new_crt shadow_mesh_skin {
+                d3d_device_, ztex_, depth_buf_shadow_,
+                constants::EARLY_ARMOR,
+                { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
+
+            early_->add_shadow_mesh_skin(temp2);
+
+            shared_ptr<shadow_mesh_skin> temp3 { new_crt shadow_mesh_skin {
+                d3d_device_, ztex_, depth_buf_shadow_,
+                constants::EARLY_SABER,
+                { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
+
+            early_->add_shadow_mesh_skin(temp3);
+
+            shared_ptr<shadow_mesh_skin> temp4 { new_crt shadow_mesh_skin {
+                d3d_device_, ztex_, depth_buf_shadow_,
+                constants::EARLY_HAIR,
+                { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
+
+            early_->add_shadow_mesh_skin(temp4);
+
+            shared_ptr<shadow_mesh_skin> temp5 { new_crt shadow_mesh_skin {
+                d3d_device_, ztex_, depth_buf_shadow_,
+                constants::EARLY_SKIRT,
+                { 2, 0, 0 }, { 0, 1, 0 }, 1.f } };
+
+            early_->add_shadow_mesh_skin(temp5);
+
+        //    early_->add_mesh<skinned_animation_mesh>(constants::EARLY_BODY);
+        //    early_->add_mesh<skinned_animation_mesh>(constants::EARLY_ARMOR);
+        //    // early_->add_mesh<animation_mesh>(constants::EARLY_LANCE);
+        //    early_->add_mesh<skinned_animation_mesh>(constants::EARLY_SABER);
+        //
+        //    early_->add_mesh<skinned_animation_mesh>(constants::EARLY_HAIR);
+        //    early_->add_mesh<skinned_animation_mesh>(constants::EARLY_SKIRT);
+            early_->set_default_animation("Ready");
+            early_->set_animation_config("Idle", true, 1.0f);
+            early_->set_animation_config("Ready", true, 4.0f);
+            early_->set_animation_config("Step_Front", false, 1.0f);
+            early_->set_animation_config("Step_Back", false, 1.0f);
+            early_->set_animation_config("Step_Right", false, 1.0f);
+            early_->set_animation_config("Step_Left", false, 1.0f);
+            early_->set_animation_config("Rotate_Back", false, 1.0f);
+            early_->set_animation_config("Rotate_Left", false, 1.0f);
+            early_->set_animation_config("Rotate_Right", false, 1.0f);
+            early_->set_animation_config("Attack", false, 1.0f);
+            early_->set_animation_config("Damaged", false, 1.0f);
+
+        }
     }
     init_lua();
 }
@@ -286,36 +355,6 @@ void main_window::initialize_direct3d(const HWND &hwnd)
     }
     // lazy initialization 
     d3d_device_.reset(d3d_device9, custom_deleter{});
-
-    early_->set_camera(camera_);
-    early_->set_position(cv::Point3i{0, 0, 0});
-    early_->set_max_health(9999);
-    early_->set_health(4000);
-
-    early_->set_normal_move("äÓñ{çUåÇ", 7, 10);
-    early_->set_normal_move("ìÀÇ´çUåÇ", 10, 10);
-    early_->set_normal_move("ìäÇ∞çUåÇ", 5, 10);
-    early_->set_normal_move("ï•Ç¢çUåÇ", 3, 10);
-
-    early_->add_mesh<skinned_animation_mesh>(constants::EARLY_BODY);
-    early_->add_mesh<skinned_animation_mesh>(constants::EARLY_ARMOR);
-    // early_->add_mesh<animation_mesh>(constants::EARLY_LANCE);
-    early_->add_mesh<skinned_animation_mesh>(constants::EARLY_SABER);
-
-    early_->add_mesh<skinned_animation_mesh>(constants::EARLY_HAIR);
-    early_->add_mesh<skinned_animation_mesh>(constants::EARLY_SKIRT);
-    early_->set_default_animation("Ready");
-    early_->set_animation_config("Idle", true, 1.0f);
-    early_->set_animation_config("Ready", true, 4.0f);
-    early_->set_animation_config("Step_Front", false, 1.0f);
-    early_->set_animation_config("Step_Back", false, 1.0f);
-    early_->set_animation_config("Step_Right", false, 1.0f);
-    early_->set_animation_config("Step_Left", false, 1.0f);
-    early_->set_animation_config("Rotate_Back", false, 1.0f);
-    early_->set_animation_config("Rotate_Left", false, 1.0f);
-    early_->set_animation_config("Rotate_Right", false, 1.0f);
-    early_->set_animation_config("Attack", false, 1.0f);
-    early_->set_animation_config("Damaged", false, 1.0f);
 
     // ~ Create a Direct3D Device object. 
 
@@ -391,7 +430,7 @@ int main_window::main_loop()
     return static_cast<int>(msg_.wParam);
 }
 
-std::shared_ptr<character> main_window::get_main_character()
+std::shared_ptr<character2> main_window::get_main_character()
 {
     return early_;
 }
@@ -726,7 +765,7 @@ erto's book, Programming in Lua.\n\
     }
     if (keyboard::is_down(VK_OEM_PERIOD))
     {
-        early_->set_shake_texture(constants::EARLY_BODY);
+    //    early_->set_shake_texture(constants::EARLY_BODY);
     }
     if (keyboard::is_down('G'))
     {
@@ -788,6 +827,7 @@ void main_window::render()
             }
         }
         chara2_->render_ztex();
+        early_->render_ztex();
         ztex_->end();
 
         depth_buf_shadow_->set_camera_proj_matrix(&projection_matrix);
@@ -818,9 +858,9 @@ void main_window::render()
             }
         }
         chara2_->render_depth();
+        early_->render_depth();
         depth_buf_shadow_->end();
         
-        early_->render(view_matrix, projection_matrix, _light->normal_dir(), _light->brightness());
 
         for (auto& mesh_lua : meshes_lua_)
         {

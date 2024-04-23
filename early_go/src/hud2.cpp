@@ -1,6 +1,6 @@
 #include "stdafx.hpp"
 #include "hud2.hpp"
-#include "character.hpp"
+#include "player.hpp"
 #include "text_d3dxfont.hpp"
 #include "camera.hpp"
 #include "enemy_manager.hpp"
@@ -19,7 +19,7 @@ hud2::hud2(const shared_ptr<IDirect3DDevice9>& d3d_device)
     enemy_hp_.reset(new_crt text_d3dxfont { d3d_device, 30 });
 }
 void hud2::render(
-    const shared_ptr<character>& _early,
+    const shared_ptr<player>& _early,
     const shared_ptr<enemy_manager>& _enemy_manager,
     const shared_ptr<camera>& _camera)
 {
@@ -30,7 +30,7 @@ void hud2::render(
 
         string hp_text = to_string(hp) + "/" + to_string(max_hp);
 
-        D3DXVECTOR3 position { _early->get_position() };
+        D3DXVECTOR3 position { _early->get_pos() };
         position.y += 1.0f;
         const POINT coodinate { _camera->get_screen_coordinate(position) };
 

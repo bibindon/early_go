@@ -48,7 +48,7 @@ seq_battle::seq_battle(
     };
 }
 seq_type seq_battle::update(
-    const std::shared_ptr<character>& _early,
+    const std::shared_ptr<player>& _early,
     const std::shared_ptr<camera>& _camera)
 {
     operation_->update(_early, enemy_manager_, stage_);
@@ -61,7 +61,7 @@ seq_type seq_battle::update(
 }
 
 void seq_battle::render(
-    const std::shared_ptr<character>& _early,
+    const std::shared_ptr<player>& _early,
     const std::shared_ptr<camera>& _camera)
 {
     hud2_->render(_early, enemy_manager_, _camera);

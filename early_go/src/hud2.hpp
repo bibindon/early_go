@@ -5,7 +5,7 @@
 
 namespace early_go
 {
-class character;
+class player;
 class text_d3dxfont;
 class camera;
 class enemy_manager;
@@ -14,7 +14,7 @@ class hud2
 public:
     hud2(const std::shared_ptr<IDirect3DDevice9>& d3d_device);
     void render(
-        const std::shared_ptr<character>& _early,
+        const std::shared_ptr<player>& _early,
         const std::shared_ptr<enemy_manager>& _enemy_manager,
         const std::shared_ptr<camera>& _camera);
 private:

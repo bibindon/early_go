@@ -77,9 +77,47 @@ void character2::set_default_animation(const std::string &animation_name)
         x.second->set_default_animation(animation_fullname);
     }
 }
+void character2::set_animation_config(
+    const std::string &animation_name,
+    const bool &loop,
+    const float &duration)
+{
+    duration_map_.emplace(animation_name, duration);
+    for (const auto &x : mesh_map_anim_)
+    {
+        std::string animation_fullname { create_animation_fullname(animation_name, x.first) };
+
+        x.second->set_animation_config(animation_fullname, loop, duration);
+    }
+    for (const auto &x : mesh_map_skin_)
+    {
+        std::string animation_fullname { create_animation_fullname(animation_name, x.first) };
+
+        x.second->set_animation_config(animation_fullname, loop, duration);
+    }
+}
+void character2::set_animation(const std::string &animation_name)
+{
+    for (const auto &x : mesh_map_anim_)
+    {
+        std::string animation_fullname { create_animation_fullname(animation_name, x.first) };
+
+        x.second->set_animation(animation_fullname);
+    }
+    for (const auto &x : mesh_map_skin_)
+    {
+        std::string animation_fullname { create_animation_fullname(animation_name, x.first) };
+
+        x.second->set_animation(animation_fullname);
+    }
+}
 void character2::set_pos(const D3DXVECTOR3& pos)
 {
     pos_ = pos;
+}
+D3DXVECTOR3 character2::get_pos()
+{
+    return pos_;
 }
 void character2::set_rotate(const D3DXVECTOR3& rotate)
 {
@@ -111,5 +149,24 @@ std::string character2::create_animation_fullname(
         animation_fullname = former_name + "_" + model_filename;
     }
     return animation_fullname;
+}
+int character2::get_health() const
+{
+    return health_;
+}
+
+void character2::set_health(const int &health)
+{
+    health_ = health;
+}
+
+int character2::get_max_health() const
+{
+    return max_health_;
+}
+
+void character2::set_max_health(const int &health)
+{
+    max_health_ = health;
 }
 }

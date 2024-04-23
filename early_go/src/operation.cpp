@@ -1,6 +1,6 @@
 #include "stdafx.hpp"
 #include "keyboard.hpp"
-#include "character.hpp"
+#include "player.hpp"
 #include "operation.hpp"
 #include "camera.hpp"
 #include "se_player.hpp"
@@ -23,7 +23,7 @@ shared_ptr<camera> operation::get_camera() const
 }
 
 void operation::update(
-    const shared_ptr<character>& _main_chara,
+    const shared_ptr<player>& _main_chara,
     const shared_ptr<enemy_manager>& _enemy_manager,
     const shared_ptr<stage>& _stage)
 {

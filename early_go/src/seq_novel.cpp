@@ -5,7 +5,7 @@
 #include "camera.hpp"
 #include "se_player.hpp"
 #include "bgm_player.hpp"
-#include "character.hpp"
+#include "player.hpp"
 
 using std::make_shared;
 using std::remove_if;
@@ -14,12 +14,12 @@ using std::vector;
 
 namespace early_go
 {
-std::shared_ptr<character> seq_novel::early_;
+std::shared_ptr<player> seq_novel::early_;
 std::deque<std::shared_ptr<portrait> > seq_novel::portrait_order_;
 
 seq_novel::seq_novel(
     const shared_ptr<IDirect3DDevice9>& d3d_device,
-    const shared_ptr<character>& _early)
+    const shared_ptr<player>& _early)
     : d3d_device_ { d3d_device }
 {
     black_image_ = make_shared<sprite>(d3d_device_, "image/black.png");
@@ -37,7 +37,7 @@ seq_novel::seq_novel(
     int ret = lua_resume(coroutine_, 0, 0, &i);
 }
 seq_type seq_novel::update(
-    const std::shared_ptr<character>& _early,
+    const std::shared_ptr<player>& _early,
     const std::shared_ptr<camera>& _camera)
 {
     if (first_update_)
@@ -103,7 +103,7 @@ seq_type seq_novel::update(
 }
 
 void seq_novel::render(
-    const std::shared_ptr<character>& _early,
+    const std::shared_ptr<player>& _early,
     const std::shared_ptr<camera>& _camera)
 {
     if (first_update_)
