@@ -30,6 +30,10 @@ void character2::add_shadow_mesh_skin(const std::shared_ptr<shadow_mesh_skin>& m
 }
 void character2::update(const shared_ptr<stage>& _stage)
 {
+    for (const auto &x : mesh_map_anim_)
+    {
+        x.second->update();
+    }
     for (const auto &x : mesh_map_skin_)
     {
         x.second->update();
@@ -47,6 +51,9 @@ void character2::render_ztex()
 {
     for (const auto &x : mesh_map_anim_)
     {
+        x.second->set_position(pos_);
+        x.second->set_rotate(rotate_);
+        x.second->set_scale(scale_);
         x.second->ztex_render();
     }
     for (const auto &x : mesh_map_skin_)
@@ -61,6 +68,9 @@ void character2::render_depth()
 {
     for (const auto &x : mesh_map_anim_)
     {
+        x.second->set_position(pos_);
+        x.second->set_rotate(rotate_);
+        x.second->set_scale(scale_);
         x.second->render();
     }
     for (const auto &x : mesh_map_skin_)
@@ -81,6 +91,7 @@ void character2::set_grid_position(vec3i pos)
 }
 void character2::set_direction(const direction direction)
 {
+    direction_ = direction;
     D3DXVECTOR3 rotation { };
     switch (direction)
     {

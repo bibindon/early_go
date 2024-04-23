@@ -29,7 +29,6 @@ public:
 class normal_animation : public animation_strategy
 {
 public:
-    float anim_time_ { 0.f };
     normal_animation(LPD3DXANIMATIONCONTROLLER controller)
         : default_animation_ { "" },
           animation_time_ { },
@@ -70,7 +69,7 @@ public:
 
         animation_controller_->SetTrackAnimationSet(0, kit->get());
         animation_controller_->SetTrackPosition(0, -1.001f / 60);
-        animation_time_ = 0;
+        animation_time_ = 0.f;
 
         if (animation_configs_.find(animation_set) == animation_configs_.end())
         {
@@ -85,14 +84,11 @@ public:
     };
     void update() override
     {
-        // consider optimization.
-        //animation_controller_->SetTrackPosition(0, 0.f);
-        //anim_time_ += constants::ANIMATION_SPEED;
-        //animation_controller_->AdvanceTime(anim_time_, nullptr);
-        animation_controller_->AdvanceTime(constants::ANIMATION_SPEED, nullptr);
+        animation_time_ += constants::ANIMATION_SPEED;
+        animation_controller_->SetTrackPosition(0, 0.f);
+        animation_controller_->AdvanceTime(animation_time_, nullptr);
         if (is_playing_)
         {
-            animation_time_ += constants::ANIMATION_SPEED;
             float duration { animation_configs_.at(playing_animation_).duration_ };
             if (animation_time_ + 0.001f >= duration)
             {
@@ -118,7 +114,7 @@ public:
 private:
     std::string default_animation_;
     float animation_time_;
-    bool is_playing_;
+    bool is_playing_ { false };
     std::string playing_animation_;
 
     struct animation_config

@@ -228,6 +228,7 @@ main_window::main_window(const HINSTANCE& hinstance)
 
             //early_->set_camera(camera_);
             early_->set_pos({0, 0, 0});
+            early_->set_direction(direction::FRONT);
             early_->set_max_health(9999);
             early_->set_health(4000);
 

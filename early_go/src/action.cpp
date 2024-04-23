@@ -19,8 +19,8 @@ static float get_sine_curve(int theta, int duration)
     return sine_curve;
 }
 step::step(character2 &chara, const direction dir)
-    : action{chara, dir},
-      relative_direction_{direction::NONE}
+    : action { chara, dir },
+      relative_direction_ { direction::NONE }
 {
     for (int i { 0 }; i < constants::ACTION_INTERVAL_FRAME + 1; ++i)
     {
@@ -104,7 +104,7 @@ operation::behavior_state step::update(const shared_ptr<stage>&)
 {
     if (count_ == 0)
     {
-        vec3i pos { 0, 0, 0 };
+        vec3i pos { chara_.get_grid_position() };
         switch (params_.at(0))
         {
         case direction::FRONT:

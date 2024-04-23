@@ -145,7 +145,6 @@ HRESULT shadow_mesh_skin::allocate_all_bone_matrices(LPD3DXFRAME frame)
 
 void shadow_mesh_skin::update()
 {
-    // TODO メッシュの数が増えるとアニメーションの速度が上がってしまう気がする。
     animation_strategy_->update();
 }
 
