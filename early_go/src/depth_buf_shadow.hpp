@@ -35,7 +35,7 @@ private:
     std::shared_ptr<IDirect3DDevice9> d3dx_device_ { };
     std::shared_ptr<IDirect3DTexture9> shadow_map_tex_ { };
     std::shared_ptr<IDirect3DTexture9> mesh_tex_ { };
-    std::vector<std::shared_ptr<IDirect3DTexture9> > textures_ { };
+    std::array<std::shared_ptr<IDirect3DTexture9>, LAYER> textures_ { };
     std::array<D3DXVECTOR4, LAYER> tex_pos_ { };
     std::array<float, LAYER> tex_opacities_ { };
     std::shared_ptr<ID3DXEffect> effect_ { };

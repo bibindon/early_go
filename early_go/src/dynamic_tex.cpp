@@ -61,7 +61,7 @@ void dynamic_tex::set_opacity(const int layer, const float alpha)
 void dynamic_tex::clear(const int layer)
 {
     vector<char> buffer { util::get_image_resource("image/blank.png") };
-    LPDIRECT3DTEXTURE9 temp_texture{};
+    LPDIRECT3DTEXTURE9 temp_texture { nullptr };
     if (FAILED ( D3DXCreateTextureFromFileInMemory(
             d3d_device_.get(),
             &buffer[0],

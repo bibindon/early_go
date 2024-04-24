@@ -43,6 +43,7 @@ seq_type seq_novel::update(
     const std::shared_ptr<player>& _early,
     const std::shared_ptr<camera>& _camera)
 {
+    _early->update(nullptr);
     if (first_update_)
     {
         first_update_ = false;
@@ -58,12 +59,12 @@ seq_type seq_novel::update(
         input::is_down(input_type::A) || input::is_down(input_type::B))
     {
         bool tex_animation_all_finished = true;
-        for (int i = 0; i < 8; ++i)
+        for (int i = 0; i < depth_buf_shadow::LAYER; ++i)
         {
 //            if (!early_->is_tex_animation_finished(constants::EARLY_BODY, i))
             if (!dynamic_tex_->is_tex_animation_finished(i))
             {
-                tex_animation_all_finished = false;
+           //     tex_animation_all_finished = false;
                 break;
             }
         }

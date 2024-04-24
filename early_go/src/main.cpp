@@ -16,7 +16,7 @@ try
     early_go::main_window window { hinstance };
     return window.main_loop();
 }
-catch (const std::exception &e)
+catch (const boost::exception &e)
 {
     early_go::show_error_dialog(hinstance, e);
     return EXIT_FAILURE;

@@ -8,7 +8,7 @@ namespace early_go
 
 boost::exception_ptr early_go::exception_reserve{};
 
-void show_error_dialog(const HINSTANCE &hinstance, const std::exception &e)
+void show_error_dialog(const HINSTANCE &hinstance, const boost::exception &e)
 {
     std::string tmp = boost::diagnostic_information(e);
     boost::algorithm::replace_all(tmp, "\n", "\r\n");
