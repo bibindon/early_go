@@ -3,8 +3,6 @@
 
 #include "stdafx.hpp"
 #include "animation_strategy.hpp"
-#include "z_tex.hpp"
-#include "depth_buf_shadow.hpp"
 
 namespace early_go
 {

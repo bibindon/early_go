@@ -13,9 +13,12 @@ public:
     bool init(std::shared_ptr<IDirect3DDevice9> &d3dx_device);
     void set_shadow_map(std::shared_ptr<IDirect3DTexture9> &shadow_map_tex);
     void set_tex(const std::shared_ptr<IDirect3DTexture9> &_tex);
+
+    // 動的テクスチャ関連
     void set_dynamic_tex(const int layer, const std::shared_ptr<IDirect3DTexture9> &_tex);
     void set_dynamic_pos(const int layer, const D3DXVECTOR2& pos);
     void set_dynamic_opacity(const int layer, const float alpha);
+
     void set_world_matrix(D3DXMATRIX *mat);
     void set_camera_view_matrix(D3DXMATRIX *mat);
     void set_camera_proj_matrix(D3DXMATRIX *mat);
@@ -30,6 +33,7 @@ public:
     bool set_param_to_effect();
 
     static constexpr int LAYER { 8 };
+    static constexpr int FADE_LAYER { 7 };
 
 private:
     std::shared_ptr<IDirect3DDevice9> d3dx_device_ { };

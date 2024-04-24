@@ -35,7 +35,6 @@ seq_novel::seq_novel(
 
     init_lua();
 
-
     int i { 0 };
     int ret = lua_resume(coroutine_, 0, 0, &i);
 }
@@ -61,10 +60,9 @@ seq_type seq_novel::update(
         bool tex_animation_all_finished = true;
         for (int i = 0; i < depth_buf_shadow::LAYER; ++i)
         {
-//            if (!early_->is_tex_animation_finished(constants::EARLY_BODY, i))
-            if (!dynamic_tex_->is_tex_animation_finished(i))
+            if (!dynamic_tex_->is_tex_anim_finished(i))
             {
-           //     tex_animation_all_finished = false;
+                tex_animation_all_finished = false;
                 break;
             }
         }
@@ -95,15 +93,6 @@ seq_type seq_novel::update(
         dynamic_tex_->clear(5);
         dynamic_tex_->clear(6);
         dynamic_tex_->clear(7);
-
-//        early_->clear_dynamic_texture(constants::EARLY_BODY, 0);
-//        early_->clear_dynamic_texture(constants::EARLY_BODY, 1);
-//        early_->clear_dynamic_texture(constants::EARLY_BODY, 2);
-//        early_->clear_dynamic_texture(constants::EARLY_BODY, 3);
-//        early_->clear_dynamic_texture(constants::EARLY_BODY, 4);
-//        early_->clear_dynamic_texture(constants::EARLY_BODY, 5);
-//        early_->clear_dynamic_texture(constants::EARLY_BODY, 6);
-//        early_->clear_dynamic_texture(constants::EARLY_BODY, 7);
 
         init_lua();
         int i { 0 };
@@ -165,8 +154,6 @@ void seq_novel::init_lua()
 int seq_novel::glue_draw_background(lua_State *L)
 {
     const char *filename = lua_tostring(L, -1);
-//    early_->set_dynamic_texture(
-//        constants::EARLY_BODY, filename, 0, abstract_mesh::combine_type::NORMAL);
     dynamic_tex_->set_tex(0, filename);
     return 0;
 }
@@ -220,22 +207,18 @@ int seq_novel::glue_remove_portrait(lua_State *L)
 }
 int seq_novel::glue_fade_in(lua_State *)
 {
-    early_->set_fade_in(constants::EARLY_BODY);
+    dynamic_tex_->set_fade_in();
     return 0;
 }
 int seq_novel::glue_fade_out(lua_State *)
 {
-    early_->set_fade_out(constants::EARLY_BODY);
+    dynamic_tex_->set_fade_out();
     return 0;
 }
 int seq_novel::glue_draw_message_window(lua_State *L)
 {
     dynamic_tex_->set_tex(1, "image/message_window.png");
     dynamic_tex_->set_opacity(1, 0.9f);
-//    early_->set_dynamic_texture(
-//        constants::EARLY_BODY, "image/message_window.png", 1,
-//        abstract_mesh::combine_type::NORMAL);
-//    early_->set_dynamic_texture_opacity(constants::EARLY_BODY, 2, 0.9f);
     return 0;
 }
 int seq_novel::glue_draw_text(lua_State *L)
@@ -265,30 +248,21 @@ void seq_novel::redraw_portrait()
         if (it == portrait_order_.cend())
         {
             dynamic_tex_->clear(layer);
-//            early_->clear_dynamic_texture(constants::EARLY_BODY, layer);
             break;
         }
         dynamic_tex_->set_tex(layer, (*it)->filename_);
-//        early_->set_dynamic_texture(
-//            constants::EARLY_BODY, (*it)->filename_, layer, abstract_mesh::combine_type::NORMAL);
 
         if ((*it)->position_ == "center")
         {
-//            early_->set_dynamic_texture_position(
-//                constants::EARLY_BODY, layer, D3DXVECTOR2{-0.12f, 0.0f});
             dynamic_tex_->set_pos(layer, D3DXVECTOR2 { -0.12f, 0.0f });
         }
         else if ((*it)->position_ == "left")
         {
-//            early_->set_dynamic_texture_position(
-//                constants::EARLY_BODY, layer, D3DXVECTOR2{0.1f, 0.0f});
             dynamic_tex_->set_pos(layer, D3DXVECTOR2 { 0.1f, 0.0f });
         }
         else if ((*it)->position_ == "right")
         {
             dynamic_tex_->set_pos(layer, D3DXVECTOR2 { -0.3f, 0.0f });
-//            early_->set_dynamic_texture_position(
-//                constants::EARLY_BODY, layer, D3DXVECTOR2{-0.3f, 0.0f});
         }
     }
 }

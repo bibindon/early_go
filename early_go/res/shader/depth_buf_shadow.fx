@@ -177,7 +177,7 @@ void DepthBufShadow_PS(
 //    out_col.r *= (1.0f - g_opacity[7]);
 //    out_col.g *= (1.0f - g_opacity[7]);
 //    out_col.b *= (1.0f - g_opacity[7]);
-//    out_col *= (1.0f - g_opacity[7]);
+    out_col *= (1.0f - g_opacity[7]);
 
     out_col.a = 1.0f;
 

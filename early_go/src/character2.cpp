@@ -214,7 +214,7 @@ std::string character2::create_animation_fullname(
 }
 void character2::set_action_step(const direction step_dir)
 {
-    current_action_.reset( new_crt step { *this, step_dir });
+    current_action_.reset(new_crt step { *this, step_dir });
 }
 void character2::set_action_rotate(const direction rotate_dir)
 {

@@ -570,12 +570,12 @@ void main_window::debug()
     }
     if (keyboard::is_down('Z'))
     {
-        shared_ptr<dynamic_tex> dtex = early_->get_dynamic_tex(constants::EARLY_BODY);
-        dtex->set_tex(0, "image/board2.png");
-        shared_ptr<dynamic_tex> dtex2 = early_->get_dynamic_tex(constants::EARLY_HAIR);
-        dtex2->set_tex(0, "image/board.png");
-        //shared_ptr<dynamic_tex> dtex2 = shadow_mesh_skin_->get_dynamic_tex();
-        //dtex2->set_tex(0, "image/board.png");
+//        shared_ptr<dynamic_tex> dtex = early_->get_dynamic_tex(constants::EARLY_BODY);
+//        dtex->set_tex(0, "image/board2.png");
+//        shared_ptr<dynamic_tex> dtex2 = early_->get_dynamic_tex(constants::EARLY_HAIR);
+//        dtex2->set_tex(0, "image/board.png");
+        shared_ptr<dynamic_tex> dtex2 = shadow_mesh_skin_->get_dynamic_tex();
+        dtex2->set_fade_in();
 
 //        early_->set_dynamic_texture(
 //            constants::EARLY_BODY, "image/back_ground.png", 0, abstract_mesh::combine_type::NORMAL);
@@ -583,6 +583,8 @@ void main_window::debug()
     }
     if (keyboard::is_down('U'))
     {
+        shared_ptr<dynamic_tex> dtex2 = shadow_mesh_skin_->get_dynamic_tex();
+        dtex2->set_fade_out();
         //  early_->set_dynamic_texture(constants::EARLY_BODY,
         //      "image/settings_window.png", 0, abstract_mesh::combine_type::NORMAL);
     }
@@ -605,7 +607,7 @@ void main_window::debug()
     }
     if (keyboard::is_down('C'))
     {
-        early_->set_fade_in(constants::EARLY_BODY);
+        //early_->set_fade_in(constants::EARLY_BODY);
         //meshes_lua_.at(0)->set_fade_in();
         //meshes_lua_.at(1)->set_fade_in();
         //meshes_lua_.at(3)->set_fade_in();
@@ -692,7 +694,7 @@ erto's book, Programming in Lua.\n\
 
     if (keyboard::is_down('V'))
     {
-        early_->set_fade_out(constants::EARLY_BODY);
+        //early_->set_fade_out(constants::EARLY_BODY);
         //meshes_lua_.at(0)->set_fade_out();
         //meshes_lua_.at(1)->set_fade_out();
         //meshes_lua_.at(3)->set_fade_out();
