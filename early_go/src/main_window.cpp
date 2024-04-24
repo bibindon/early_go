@@ -570,8 +570,11 @@ void main_window::debug()
     }
     if (keyboard::is_down('Z'))
     {
-        early_->set_dynamic_texture(
-            constants::EARLY_BODY, "image/back_ground.png", 0, abstract_mesh::combine_type::NORMAL);
+        shared_ptr<dynamic_tex> dtex = early_->get_dynamic_tex(constants::EARLY_BODY);
+        dtex->set_tex(0, "image/back_ground.png");
+
+//        early_->set_dynamic_texture(
+//            constants::EARLY_BODY, "image/back_ground.png", 0, abstract_mesh::combine_type::NORMAL);
         init_lua();
     }
     if (keyboard::is_down('U'))
@@ -591,7 +594,9 @@ void main_window::debug()
     }
     if (keyboard::is_down('T'))
     {
-        early_->clear_dynamic_texture(constants::EARLY_BODY, 1);
+        shared_ptr<dynamic_tex> dtex = early_->get_dynamic_tex(constants::EARLY_BODY);
+        dtex->clear(0);
+        //early_->clear_dynamic_texture(constants::EARLY_BODY, 1);
 
     }
     if (keyboard::is_down('C'))
@@ -704,16 +709,16 @@ erto's book, Programming in Lua.\n\
 //            FW_NORMAL,
 //            SHIFTJIS_CHARSET,
 //            true);
-        early_->set_dynamic_message(
-            constants::EARLY_BODY, 1,
-            "ccccccccccccc", false,
-            {210, 270, 2048, 2048},
-            D3DCOLOR_ARGB(255, 255, 255, 255),
-            constants::FONT_NAME,
-            120,
-            FW_NORMAL,
-            SHIFTJIS_CHARSET,
-            true);
+//        early_->set_dynamic_message(
+//            constants::EARLY_BODY, 1,
+//            "ccccccccccccc", false,
+//            {210, 270, 2048, 2048},
+//            D3DCOLOR_ARGB(255, 255, 255, 255),
+//            constants::FONT_NAME,
+//            120,
+//            FW_NORMAL,
+//            SHIFTJIS_CHARSET,
+//            true);
     }
     if (keyboard::is_down('M'))
     {

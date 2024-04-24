@@ -5,6 +5,7 @@
 #include "stdafx.hpp"
 #include "character.hpp"
 #include "stage.hpp"
+#include "dynamic_tex.hpp"
 
 namespace early_go
 {
@@ -55,6 +56,10 @@ public:
     void set_action_attack();
     void cancel_action();
     operation::behavior_state get_action_state() { return action_state_; }
+
+    // dynamic textureŠÖ˜A
+    std::shared_ptr<dynamic_tex> get_dynamic_tex(const std::string& x_filename);
+
 private:
     //----------------------------------------------------------------
     // function
@@ -83,6 +88,7 @@ private:
     operation::behavior_state action_state_{};
 
     std::unordered_map<std::string, float> duration_map_;
+    std::shared_ptr<dynamic_tex> dynamic_tex_;
 };
 } // namespace early_go 
 

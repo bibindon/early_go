@@ -15,6 +15,7 @@ struct portrait
     std::string position_;
 };
 class sprite;
+class dynamic_tex;
 class seq_novel : public seq_interface
 {
 public:
@@ -40,6 +41,7 @@ private:
     static void redraw_portrait();
     
     static std::shared_ptr<player> early_;
+    static std::shared_ptr<dynamic_tex> dynamic_tex_;
     static std::deque<std::shared_ptr<portrait> > portrait_order_;
 
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
@@ -49,5 +51,6 @@ private:
 
     std::shared_ptr<sprite> black_image_;
     bool goto_battle_seq_ { false };
+
 };
 }

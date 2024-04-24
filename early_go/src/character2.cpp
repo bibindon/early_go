@@ -236,4 +236,8 @@ void character2::cancel_action()
         current_action_.reset();
     }
 }
+shared_ptr<dynamic_tex> character2::get_dynamic_tex(const std::string& x_filename)
+{
+    return dynamic_tex_;
+}
 }

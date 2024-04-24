@@ -6,6 +6,7 @@
 #include "se_player.hpp"
 #include "bgm_player.hpp"
 #include "player.hpp"
+#include "dynamic_tex.hpp"
 
 using std::make_shared;
 using std::remove_if;
@@ -15,6 +16,7 @@ using std::vector;
 namespace early_go
 {
 std::shared_ptr<player> seq_novel::early_;
+std::shared_ptr<dynamic_tex> seq_novel::dynamic_tex_;
 std::deque<std::shared_ptr<portrait> > seq_novel::portrait_order_;
 
 seq_novel::seq_novel(
@@ -26,6 +28,7 @@ seq_novel::seq_novel(
     _early->set_animation("Idle");
 
     early_ = _early;
+    dynamic_tex_ = early_->get_dynamic_tex(constants::EARLY_BODY);
 
     bgm_player::get_ton()->load("sound/novel.wav");
     bgm_player::get_ton()->play(30);
@@ -57,7 +60,8 @@ seq_type seq_novel::update(
         bool tex_animation_all_finished = true;
         for (int i = 0; i < 8; ++i)
         {
-            if (!early_->is_tex_animation_finished(constants::EARLY_BODY, i))
+//            if (!early_->is_tex_animation_finished(constants::EARLY_BODY, i))
+            if (!dynamic_tex_->is_tex_animation_finished(i))
             {
                 tex_animation_all_finished = false;
                 break;
@@ -82,14 +86,23 @@ seq_type seq_novel::update(
 
         portrait_order_.clear();
 
-        early_->clear_dynamic_texture(constants::EARLY_BODY, 0);
-        early_->clear_dynamic_texture(constants::EARLY_BODY, 1);
-        early_->clear_dynamic_texture(constants::EARLY_BODY, 2);
-        early_->clear_dynamic_texture(constants::EARLY_BODY, 3);
-        early_->clear_dynamic_texture(constants::EARLY_BODY, 4);
-        early_->clear_dynamic_texture(constants::EARLY_BODY, 5);
-        early_->clear_dynamic_texture(constants::EARLY_BODY, 6);
-        early_->clear_dynamic_texture(constants::EARLY_BODY, 7);
+        dynamic_tex_->clear(0);
+        dynamic_tex_->clear(1);
+        dynamic_tex_->clear(2);
+        dynamic_tex_->clear(3);
+        dynamic_tex_->clear(4);
+        dynamic_tex_->clear(5);
+        dynamic_tex_->clear(6);
+        dynamic_tex_->clear(7);
+
+//        early_->clear_dynamic_texture(constants::EARLY_BODY, 0);
+//        early_->clear_dynamic_texture(constants::EARLY_BODY, 1);
+//        early_->clear_dynamic_texture(constants::EARLY_BODY, 2);
+//        early_->clear_dynamic_texture(constants::EARLY_BODY, 3);
+//        early_->clear_dynamic_texture(constants::EARLY_BODY, 4);
+//        early_->clear_dynamic_texture(constants::EARLY_BODY, 5);
+//        early_->clear_dynamic_texture(constants::EARLY_BODY, 6);
+//        early_->clear_dynamic_texture(constants::EARLY_BODY, 7);
 
         init_lua();
         int i { 0 };
@@ -151,8 +164,9 @@ void seq_novel::init_lua()
 int seq_novel::glue_draw_background(lua_State *L)
 {
     const char *filename = lua_tostring(L, -1);
-    early_->set_dynamic_texture(
-        constants::EARLY_BODY, filename, 0, abstract_mesh::combine_type::NORMAL);
+//    early_->set_dynamic_texture(
+//        constants::EARLY_BODY, filename, 0, abstract_mesh::combine_type::NORMAL);
+    dynamic_tex_->set_tex(0, filename);
     return 0;
 }
 int seq_novel::glue_draw_portrait(lua_State *L)
@@ -215,25 +229,28 @@ int seq_novel::glue_fade_out(lua_State *)
 }
 int seq_novel::glue_draw_message_window(lua_State *L)
 {
-    early_->set_dynamic_texture(
-        constants::EARLY_BODY, "image/message_window.png", 1,
-        abstract_mesh::combine_type::NORMAL);
-    early_->set_dynamic_texture_opacity(constants::EARLY_BODY, 2, 0.9f);
+    dynamic_tex_->set_tex(1, "image/message_window.png");
+    dynamic_tex_->set_opacity(1, 0.9f);
+//    early_->set_dynamic_texture(
+//        constants::EARLY_BODY, "image/message_window.png", 1,
+//        abstract_mesh::combine_type::NORMAL);
+//    early_->set_dynamic_texture_opacity(constants::EARLY_BODY, 2, 0.9f);
     return 0;
 }
 int seq_novel::glue_draw_text(lua_State *L)
 {
     const char *message = lua_tostring(L, -1);
-    early_->set_dynamic_message(
-        constants::EARLY_BODY, 5,
-        message, true,
-        {200, 620, 1400, 800},
-        D3DCOLOR_ARGB(255, 255, 255, 255),
-        constants::FONT_NAME,
-        40,
-        FW_NORMAL,
-        SHIFTJIS_CHARSET,
-        true);
+//    TODO
+//    early_->set_dynamic_message(
+//        constants::EARLY_BODY, 5,
+//        message, true,
+//        {200, 620, 1400, 800},
+//        D3DCOLOR_ARGB(255, 255, 255, 255),
+//        constants::FONT_NAME,
+//        40,
+//        FW_NORMAL,
+//        SHIFTJIS_CHARSET,
+//        true);
     return 0;
 }
 void seq_novel::redraw_portrait()
@@ -246,26 +263,31 @@ void seq_novel::redraw_portrait()
     {
         if (it == portrait_order_.cend())
         {
-            early_->clear_dynamic_texture(constants::EARLY_BODY, layer);
+            dynamic_tex_->clear(layer);
+//            early_->clear_dynamic_texture(constants::EARLY_BODY, layer);
             break;
         }
-        early_->set_dynamic_texture(
-            constants::EARLY_BODY, (*it)->filename_, layer, abstract_mesh::combine_type::NORMAL);
+        dynamic_tex_->set_tex(layer, (*it)->filename_);
+//        early_->set_dynamic_texture(
+//            constants::EARLY_BODY, (*it)->filename_, layer, abstract_mesh::combine_type::NORMAL);
 
         if ((*it)->position_ == "center")
         {
-            early_->set_dynamic_texture_position(
-                constants::EARLY_BODY, layer, D3DXVECTOR2{-0.12f, 0.0f});
+//            early_->set_dynamic_texture_position(
+//                constants::EARLY_BODY, layer, D3DXVECTOR2{-0.12f, 0.0f});
+            dynamic_tex_->set_pos(layer, D3DXVECTOR2 { -0.12f, 0.0f });
         }
         else if ((*it)->position_ == "left")
         {
-            early_->set_dynamic_texture_position(
-                constants::EARLY_BODY, layer, D3DXVECTOR2{0.1f, 0.0f});
+//            early_->set_dynamic_texture_position(
+//                constants::EARLY_BODY, layer, D3DXVECTOR2{0.1f, 0.0f});
+            dynamic_tex_->set_pos(layer, D3DXVECTOR2 { 0.1f, 0.0f });
         }
         else if ((*it)->position_ == "right")
         {
-            early_->set_dynamic_texture_position(
-                constants::EARLY_BODY, layer, D3DXVECTOR2{-0.3f, 0.0f});
+            dynamic_tex_->set_pos(layer, D3DXVECTOR2 { -0.3f, 0.0f });
+//            early_->set_dynamic_texture_position(
+//                constants::EARLY_BODY, layer, D3DXVECTOR2{-0.3f, 0.0f});
         }
     }
 }
