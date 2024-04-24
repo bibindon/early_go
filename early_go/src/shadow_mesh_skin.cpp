@@ -57,6 +57,7 @@ shadow_mesh_skin::shadow_mesh_skin(
     depth_buf_shadow_ = _depth_buf_shadow;
     scale_ = scale;
     x_filename_ = x_filename;
+    dynamic_tex_.reset(new_crt dynamic_tex { d3d_device, _depth_buf_shadow });
 
     LPD3DXFRAME temp_root_frame { nullptr };
     LPD3DXANIMATIONCONTROLLER temp_animation_controller { nullptr };
@@ -306,6 +307,7 @@ void shadow_mesh_skin::render_mesh_container(const LPD3DXMESHCONTAINER mesh_cont
 
         DWORD bone_id = bone_combination[i].AttribId;
         depth_buf_shadow_->set_tex(mesh_container->texture_.at(bone_id));
+        dynamic_tex_->update();
 
         depth_buf_shadow_->set_param_to_effect();
         depth_buf_shadow_->begin_pass(1);

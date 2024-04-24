@@ -571,11 +571,15 @@ void main_window::debug()
     if (keyboard::is_down('Z'))
     {
         shared_ptr<dynamic_tex> dtex = early_->get_dynamic_tex(constants::EARLY_BODY);
-        dtex->set_tex(0, "image/back_ground.png");
+        dtex->set_tex(0, "image/board2.png");
+        shared_ptr<dynamic_tex> dtex2 = early_->get_dynamic_tex(constants::EARLY_HAIR);
+        dtex2->set_tex(0, "image/board.png");
+        //shared_ptr<dynamic_tex> dtex2 = shadow_mesh_skin_->get_dynamic_tex();
+        //dtex2->set_tex(0, "image/board.png");
 
 //        early_->set_dynamic_texture(
 //            constants::EARLY_BODY, "image/back_ground.png", 0, abstract_mesh::combine_type::NORMAL);
-        init_lua();
+//        init_lua();
     }
     if (keyboard::is_down('U'))
     {

@@ -2,6 +2,7 @@
 #include "stdafx.hpp"
 #include "z_tex.hpp"
 #include "depth_buf_shadow.hpp"
+#include "dynamic_tex.hpp"
 
 namespace early_go
 {
@@ -19,7 +20,7 @@ public:
         const std::string &,
         const D3DXVECTOR3 &,
         const D3DXVECTOR3 &,
-        const float );
+        const float);
     HRESULT allocate_bone_matrix(LPD3DXMESHCONTAINER mesh_container);
     HRESULT allocate_all_bone_matrices(LPD3DXFRAME frame);
 
@@ -34,6 +35,9 @@ public:
     void set_animation(const std::string &);
     void set_default_animation(const std::string &);
     void set_animation_config(const std::string &, const bool &, const float &);
+
+    std::shared_ptr<dynamic_tex> get_dynamic_tex() { return dynamic_tex_; }
+
 private:
 
     // A struct which deletes the root 'LPD3DXFRAME' object. The reason why the
@@ -70,6 +74,7 @@ private:
     int bone_num_;
 
     std::string x_filename_ { "" };
+    std::shared_ptr<dynamic_tex> dynamic_tex_;
 };
 } // namespace early_go 
 

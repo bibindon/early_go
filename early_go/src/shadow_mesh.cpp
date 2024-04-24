@@ -71,7 +71,7 @@ shadow_mesh::shadow_mesh(
 
     {
         // TODO
-        vector<char> buffer{util::get_image_resource("image/blank.png") };
+        vector<char> buffer { util::get_image_resource("image/blank.png") };
         LPDIRECT3DTEXTURE9 temp_texture{};
         if (FAILED ( D3DXCreateTextureFromFileInMemory(
                 d3d_device_.get(),

@@ -238,6 +238,6 @@ void character2::cancel_action()
 }
 shared_ptr<dynamic_tex> character2::get_dynamic_tex(const std::string& x_filename)
 {
-    return dynamic_tex_;
+    return mesh_map_skin_.at(x_filename)->get_dynamic_tex();
 }
 }
