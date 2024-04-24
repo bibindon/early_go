@@ -29,8 +29,8 @@ public:
 private:
     DWORD materials_count_ { 0 };
     std::shared_ptr<IDirect3DDevice9> d3d_device_ { };
-    std::vector<std::shared_ptr<IDirect3DTexture9>> textures_ { };
-    std::shared_ptr<IDirect3DTexture9> dynamic_textures_ { };
+    std::vector<std::shared_ptr<IDirect3DTexture9> > textures_ { };
+    std::array<std::shared_ptr<IDirect3DTexture9>, depth_buf_shadow::LAYER> dynamic_textures_ { };
     std::shared_ptr<ID3DXMesh> d3dx_mesh_ { };
     D3DXHANDLE texture_handle_ { nullptr };
     D3DXVECTOR3 pos_ { 0.0f, 0.0f, 0.0f };

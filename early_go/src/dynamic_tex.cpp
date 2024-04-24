@@ -13,22 +13,26 @@ dynamic_tex::dynamic_tex(
     d3d_device_ = d3d_device;
     depth_buf_shadow_ = _depth_buf_shadow;
     vector<char> buffer { util::get_image_resource("image/blank.png") };
-    LPDIRECT3DTEXTURE9 temp_texture{};
-    if (FAILED ( D3DXCreateTextureFromFileInMemory(
-            d3d_device_.get(),
-            &buffer[0],
-            static_cast<UINT>(buffer.size()),
-            &temp_texture)))
+    for (int i = 0; i < depth_buf_shadow::LAYER; ++i)
     {
-        THROW_WITH_TRACE("texture file is not found.");
-    }
-    else
-    {
-        dynamic_textures_.reset( temp_texture, custom_deleter { });
+        LPDIRECT3DTEXTURE9 temp_texture{};
+        if (FAILED ( D3DXCreateTextureFromFileInMemory(
+                d3d_device_.get(),
+                &buffer[0],
+                static_cast<UINT>(buffer.size()),
+                &temp_texture)))
+        {
+            THROW_WITH_TRACE("texture file is not found.");
+        }
+        else
+        {
+            shared_ptr<IDirect3DTexture9> temp { temp_texture, custom_deleter { } };
+            dynamic_textures_.at(i) = temp;
+        }
     }
 }
 void dynamic_tex::set_tex(
-    const int layer_number,
+    const int layer,
     const std::string& texture_filename)
 {
     vector<char> buffer { util::get_image_resource(texture_filename) };
@@ -43,16 +47,18 @@ void dynamic_tex::set_tex(
     }
     else
     {
-        dynamic_textures_.reset( temp_texture, custom_deleter { });
+        dynamic_textures_.at(layer).reset( temp_texture, custom_deleter { });
     }
 }
-void dynamic_tex::set_pos(const int layer_number, const D3DXVECTOR2& pos)
+void dynamic_tex::set_pos(const int layer, const D3DXVECTOR2& pos)
 {
+    depth_buf_shadow_->set_dynamic_pos(layer, pos);
 }
-void dynamic_tex::set_opacity(const int layer_number, const float alpha)
+void dynamic_tex::set_opacity(const int layer, const float alpha)
 {
+    depth_buf_shadow_->set_dynamic_opacity(layer, alpha);
 }
-void dynamic_tex::clear(const int layer_number)
+void dynamic_tex::clear(const int layer)
 {
     vector<char> buffer { util::get_image_resource("image/blank.png") };
     LPDIRECT3DTEXTURE9 temp_texture{};
@@ -66,16 +72,19 @@ void dynamic_tex::clear(const int layer_number)
     }
     else
     {
-        dynamic_textures_.reset( temp_texture, custom_deleter { });
+        dynamic_textures_.at(layer).reset( temp_texture, custom_deleter { });
     }
 }
-bool dynamic_tex::is_tex_animation_finished(const int layer_number)
+bool dynamic_tex::is_tex_animation_finished(const int layer)
 {
     return false;
 }
 void dynamic_tex::update()
 {
-    depth_buf_shadow_->set_dynamic_tex(dynamic_textures_);
+    for (int i = 0; i < depth_buf_shadow::LAYER; ++i)
+    {
+        depth_buf_shadow_->set_dynamic_tex(i, dynamic_textures_.at(i));
+    }
 }
 }
 

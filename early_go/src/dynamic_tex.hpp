@@ -20,7 +20,7 @@ public:
 private:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;
     std::shared_ptr<depth_buf_shadow> depth_buf_shadow_;
-    std::shared_ptr<IDirect3DTexture9> dynamic_textures_ { };
+    std::array<std::shared_ptr<IDirect3DTexture9>, depth_buf_shadow::LAYER> dynamic_textures_ { };
 };
 } // namespace early_go 
 

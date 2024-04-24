@@ -41,8 +41,19 @@ bool depth_buf_shadow::init(std::shared_ptr<IDirect3DDevice9> &d3dx_device)
     light_view_handle_ = effect_->GetParameterByName(nullptr, "matLightView");
     light_proj_handle_ = effect_->GetParameterByName(nullptr, "matLightProj");
     shadow_map_handle_ = effect_->GetParameterByName(nullptr, "texShadowMap");
-    g_mesh_tex_handle_ = effect_->GetParameterByName(nullptr, "g_mesh_texture");
-    g_tex_handle_ = effect_->GetParameterByName(nullptr, "g_texture_0");
+    mesh_tex_handle_ = effect_->GetParameterByName(nullptr, "g_mesh_texture");
+    tex_handles_.at(0) = effect_->GetParameterByName(nullptr, "g_texture_0");
+    tex_handles_.at(1) = effect_->GetParameterByName(nullptr, "g_texture_1");
+    tex_handles_.at(2) = effect_->GetParameterByName(nullptr, "g_texture_2");
+    tex_handles_.at(3) = effect_->GetParameterByName(nullptr, "g_texture_3");
+    tex_handles_.at(4) = effect_->GetParameterByName(nullptr, "g_texture_4");
+    tex_handles_.at(5) = effect_->GetParameterByName(nullptr, "g_texture_5");
+    tex_handles_.at(6) = effect_->GetParameterByName(nullptr, "g_texture_6");
+    tex_handles_.at(7) = effect_->GetParameterByName(nullptr, "g_texture_7");
+
+    tex_pos_handles_ = effect_->GetParameterByName(nullptr, "g_position");
+    tex_opacity_handles_ = effect_->GetParameterByName(nullptr, "g_opacity");
+
     technique_handle_ = effect_->GetTechniqueByName("DepthBufShadowTec");
 
     if (!mat_world_handle_ ||
@@ -59,24 +70,29 @@ bool depth_buf_shadow::init(std::shared_ptr<IDirect3DDevice9> &d3dx_device)
     d3dx_device_ = d3dx_device;
     return true;
 }
-bool depth_buf_shadow::set_shadow_map(std::shared_ptr<IDirect3DTexture9> &shadow_map_tex)
+void depth_buf_shadow::set_shadow_map(std::shared_ptr<IDirect3DTexture9> &shadow_map_tex)
 {
     if (shadow_map_tex == nullptr)
     {
-        return false;
+        return;
     }
     shadow_map_tex_ = shadow_map_tex;
-    return true;
 }
-bool depth_buf_shadow::set_tex(const std::shared_ptr<IDirect3DTexture9> &_tex)
+void depth_buf_shadow::set_tex(const std::shared_ptr<IDirect3DTexture9> &_tex)
 {
-    this->g_mesh_tex_ = _tex;
-    return true;
+    this->mesh_tex_ = _tex;
 }
-bool depth_buf_shadow::set_dynamic_tex(const std::shared_ptr<IDirect3DTexture9> &_tex)
+void depth_buf_shadow::set_dynamic_tex(const int layer, const std::shared_ptr<IDirect3DTexture9> &_tex)
 {
-    this->g_texture0_ = _tex;
-    return true;
+    textures_.at(layer) = _tex;
+}
+void depth_buf_shadow::set_dynamic_pos(const int layer, const D3DXVECTOR2& pos)
+{
+    tex_pos_.at(layer) = D3DXVECTOR4 { pos.x, pos.y, 0.f, 0.f };
+}
+void depth_buf_shadow::set_dynamic_opacity(const int layer, const float alpha)
+{
+    tex_opacities_.at(layer) = alpha;
 }
 void depth_buf_shadow::set_world_matrix(D3DXMATRIX *mat)
 {
@@ -155,8 +171,16 @@ bool depth_buf_shadow::set_param_to_effect()
     effect_->SetMatrix(light_proj_handle_, &light_mat_proj_);
     HRESULT result { 0 };
     result = effect_->SetTexture(shadow_map_handle_, shadow_map_tex_.get());
-    result = effect_->SetTexture(g_mesh_tex_handle_, g_mesh_tex_.get());
-    result = effect_->SetTexture(g_tex_handle_, g_texture0_.get());
+    result = effect_->SetTexture(mesh_tex_handle_, mesh_tex_.get());
+
+    effect_->SetVectorArray(tex_pos_handles_, &tex_pos_.at(0), LAYER);
+    effect_->SetFloatArray(tex_opacity_handles_, &tex_opacities_.at(0), LAYER);
+
+    for (int i = 0; i < LAYER; ++i)
+    {
+        effect_->SetTexture(tex_handles_.at(i), textures_.at(i).get());
+    }
+
     result = effect_->SetInt("current_bone_numbers", bone_num_);
     if (!skin_mat_arr_.empty())
     {

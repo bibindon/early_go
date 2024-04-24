@@ -25,11 +25,23 @@ sampler mesh_texture_sampler = sampler_state {
 };
 
 texture g_texture_0;
+texture g_texture_1;
+texture g_texture_2;
+texture g_texture_3;
+texture g_texture_4;
+texture g_texture_5;
+texture g_texture_6;
+texture g_texture_7;
 
-sampler texture_sampler[1] = {
-    sampler_state {
-        Texture = (g_texture_0);
-    }
+sampler texture_sampler[8] = {
+    sampler_state { Texture = (g_texture_0); },
+    sampler_state { Texture = (g_texture_1); },
+    sampler_state { Texture = (g_texture_2); },
+    sampler_state { Texture = (g_texture_3); },
+    sampler_state { Texture = (g_texture_4); },
+    sampler_state { Texture = (g_texture_5); },
+    sampler_state { Texture = (g_texture_6); },
+    sampler_state { Texture = (g_texture_7); }
 };
 
 float2 g_position[8] = {

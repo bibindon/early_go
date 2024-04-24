@@ -70,21 +70,25 @@ shadow_mesh::shadow_mesh(
     safe_release(material_buffer);
 
     {
-        // TODO
         vector<char> buffer { util::get_image_resource("image/blank.png") };
-        LPDIRECT3DTEXTURE9 temp_texture{};
-        if (FAILED ( D3DXCreateTextureFromFileInMemory(
-                d3d_device_.get(),
-                &buffer[0],
-                static_cast<UINT>(buffer.size()),
-                &temp_texture)))
+        for (int i = 0; i < depth_buf_shadow::LAYER; ++i)
         {
-            THROW_WITH_TRACE("texture file is not found.");
-        }
-        else
-        {
-            dynamic_textures_.reset( temp_texture, custom_deleter { });
-            depth_buf_shadow_->set_dynamic_tex(dynamic_textures_);
+            // TODO
+            LPDIRECT3DTEXTURE9 temp_texture{};
+            if (FAILED ( D3DXCreateTextureFromFileInMemory(
+                    d3d_device_.get(),
+                    &buffer[0],
+                    static_cast<UINT>(buffer.size()),
+                    &temp_texture)))
+            {
+                THROW_WITH_TRACE("texture file is not found.");
+            }
+            else
+            {
+                shared_ptr<IDirect3DTexture9> temp { temp_texture, custom_deleter { } };
+                dynamic_textures_.at(i) = temp;
+                depth_buf_shadow_->set_dynamic_tex(i, temp);
+            }
         }
     }
 }
@@ -122,7 +126,10 @@ void shadow_mesh::render()
     D3DXMatrixTranslation(&trans_mat2, pos_.x, pos_.y, pos_.z);
     world_mat = base_mat * trans_mat * rotate_mat * scale_mat * trans_mat2;
     depth_buf_shadow_->set_world_matrix(&world_mat);
-    depth_buf_shadow_->set_dynamic_tex(dynamic_textures_);
+    for (int i = 0; i < depth_buf_shadow::LAYER; ++i)
+    {
+        depth_buf_shadow_->set_dynamic_tex(i, dynamic_textures_.at(i));
+    }
     for (DWORD i { 0 }; i < materials_count_; i++)
     {
         depth_buf_shadow_->set_tex(textures_.at(i));
