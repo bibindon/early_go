@@ -75,7 +75,6 @@ public:
     direction get_direction() const;
     cv::Point3i get_grid_position() const;
     D3DXVECTOR3 get_position() const;
-    void set_camera(std::shared_ptr<camera> _camera);
 
     // todo private
     struct action
@@ -167,8 +166,6 @@ protected:
     D3DXVECTOR3 rotation_;
     direction direction_;
     float size_;
-
-    std::shared_ptr<camera> camera_;
 
     int health_;
     int max_health_;

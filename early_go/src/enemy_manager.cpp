@@ -27,7 +27,6 @@ void enemy_manager::add_enemy(
     enemy_map_.insert(std::make_pair(key, enemy { d3d_device_, position, direction, size }));
 
     enemy_map_.at(key).set_player(player_);
-    enemy_map_.at(key).set_camera(_camera);
     enemy_map_.at(key).set_position(position);
     enemy_map_.at(key).set_max_health(10);
     enemy_map_.at(key).set_health(9);
