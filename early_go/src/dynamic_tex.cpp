@@ -1,4 +1,5 @@
 #include "dynamic_tex.hpp"
+#include "text.hpp"
 
 using std::shared_ptr;
 using std::string;
@@ -87,6 +88,27 @@ bool dynamic_tex::is_tex_anim_finished(const int layer)
 {
     return anim_finished_.at(layer);
 }
+void dynamic_tex::set_message(const std::string& message)
+{
+    messages_.at(5) = message;
+    opacities_.at(5) = 1.f;
+    anim_finished_.at(5) = false;
+    anim_time_ = 0;
+
+    writer_ = new_crt message_writer {
+        d3d_device_,
+        dynamic_textures_.at(5),
+        message,
+        true,
+        {200, 620, 1400, 800},
+        D3DCOLOR_ARGB(255, 255, 255, 255),
+        constants::FONT_NAME,
+        40,
+        FW_NORMAL,
+        SHIFTJIS_CHARSET,
+        true
+    };
+}
 void dynamic_tex::set_fade_in()
 {
     fade_type_ = fade_type::FADE_IN;
@@ -99,7 +121,6 @@ void dynamic_tex::set_fade_out()
     fade_type_ = fade_type::FADE_OUT;
     opacities_.at(depth_buf_shadow::FADE_LAYER) = 0.0f;
     anim_finished_.at(depth_buf_shadow::FADE_LAYER) = false;
-    anim_time_ = 0;
 }
 void dynamic_tex::update()
 {
@@ -124,6 +145,11 @@ void dynamic_tex::update()
             anim_finished_.at(depth_buf_shadow::FADE_LAYER) = true;
             fade_type_ = fade_type::NONE;
         }
+    }
+    if (writer_ != nullptr)
+    {
+        bool finished = writer_->update();
+        anim_finished_.at(5) = finished;
     }
     for (int i = 0; i < depth_buf_shadow::LAYER; ++i)
     {

@@ -48,10 +48,10 @@ message_writer::message_writer(
     const cv::Rect rect,
     const DWORD color,
     const string &fontname,
-    const int &size,
-    const int &weight,
-    const BYTE &charset,
-    const bool &proportional)
+    const int size,
+    const int weight,
+    const BYTE charset,
+    const bool proportional)
     : message_writer{
         d3d_device,
         texture,
@@ -177,7 +177,7 @@ bool message_writer::update()
 
     if (is_message_animated_)
     {
-        for (int i{}; i < MESSAGE_SPEED; ++i)
+        for (int i { 0 }; i < MESSAGE_SPEED; ++i)
         {
             if (!write_character(locked_rect))
             {

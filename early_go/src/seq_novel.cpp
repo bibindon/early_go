@@ -217,24 +217,14 @@ int seq_novel::glue_fade_out(lua_State *)
 }
 int seq_novel::glue_draw_message_window(lua_State *L)
 {
-    dynamic_tex_->set_tex(1, "image/message_window.png");
+    dynamic_tex_->set_tex(4, "image/message_window.png");
     dynamic_tex_->set_opacity(1, 0.9f);
     return 0;
 }
 int seq_novel::glue_draw_text(lua_State *L)
 {
     const char *message = lua_tostring(L, -1);
-//    TODO
-//    early_->set_dynamic_message(
-//        constants::EARLY_BODY, 5,
-//        message, true,
-//        {200, 620, 1400, 800},
-//        D3DCOLOR_ARGB(255, 255, 255, 255),
-//        constants::FONT_NAME,
-//        40,
-//        FW_NORMAL,
-//        SHIFTJIS_CHARSET,
-//        true);
+    dynamic_tex_->set_message(message);
     return 0;
 }
 void seq_novel::redraw_portrait()
@@ -243,7 +233,7 @@ void seq_novel::redraw_portrait()
     // most back  == (layer 2)
 
     auto it { portrait_order_.cbegin() };
-    for (int layer = 4; layer >= 2; --layer, ++it)
+    for (int layer = 3; layer >= 1; --layer, ++it)
     {
         if (it == portrait_order_.cend())
         {

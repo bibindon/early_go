@@ -21,14 +21,14 @@ struct message_writer
         std::shared_ptr<IDirect3DDevice9>,
         std::shared_ptr<IDirect3DTexture9> &,
         const std::string,
-        const bool,
-        const cv::Rect,
-        const DWORD,
-        const std::string &,
-        const int &,
-        const int &,
-        const BYTE &,
-        const bool &);
+        const bool = false,
+        const cv::Rect = { 0, 0, constants::TEXTURE_PIXEL_SIZE - 1, constants::TEXTURE_PIXEL_SIZE - 1},
+        const DWORD = D3DCOLOR_ARGB(0xff, 0xff, 0xff, 0xff),
+        const std::string & = constants::FONT_NAME,
+        const int = 40,
+        const int = 0,
+        const BYTE = SHIFTJIS_CHARSET,
+        const bool = true);
     message_writer(
         std::shared_ptr<IDirect3DDevice9>,
         std::shared_ptr<IDirect3DTexture9> &,

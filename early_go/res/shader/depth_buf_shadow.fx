@@ -188,7 +188,7 @@ void DepthBufShadow_PS(
     color_result = tex2D(mesh_texture_sampler, in_texcoord.xy);
 
     float4 color_tex[8];
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 6; ++i)
     {
         color_tex[i] = tex2D(texture_sampler[i], in_texcoord.xy + g_position[i]);
 //        //color_tex[i].a *= g_opacity[i];
