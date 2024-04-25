@@ -34,14 +34,38 @@ texture g_texture_6;
 texture g_texture_7;
 
 sampler texture_sampler[8] = {
-    sampler_state { Texture = (g_texture_0); },
-    sampler_state { Texture = (g_texture_1); },
-    sampler_state { Texture = (g_texture_2); },
-    sampler_state { Texture = (g_texture_3); },
-    sampler_state { Texture = (g_texture_4); },
-    sampler_state { Texture = (g_texture_5); },
-    sampler_state { Texture = (g_texture_6); },
-    sampler_state { Texture = (g_texture_7); }
+    sampler_state
+    {
+        Texture = (g_texture_0);
+    },
+    sampler_state
+    {
+        Texture = (g_texture_1);
+    },
+    sampler_state
+    {
+        Texture = (g_texture_2);
+    },
+    sampler_state
+    {
+        Texture = (g_texture_3);
+    },
+    sampler_state
+    {
+        Texture = (g_texture_4);
+    },
+    sampler_state
+    {
+        Texture = (g_texture_5);
+    },
+    sampler_state
+    {
+        Texture = (g_texture_6);
+    },
+    sampler_state
+    {
+        Texture = (g_texture_7);
+    },
 };
 
 float2 g_position[8] = {
@@ -164,9 +188,9 @@ void DepthBufShadow_PS(
     color_result = tex2D(mesh_texture_sampler, in_texcoord.xy);
 
     float4 color_tex[8];
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < 5; ++i)
     {
-        color_tex[i] = tex2D(texture_sampler[0], in_texcoord.xy);
+        color_tex[i] = tex2D(texture_sampler[i], in_texcoord.xy + g_position[i]);
 //        //color_tex[i].a *= g_opacity[i];
         color_result = (1.0f-color_tex[i].a) * color_result + color_tex[i].a * color_tex[i];
     }
@@ -174,11 +198,7 @@ void DepthBufShadow_PS(
 //    out_col = color_result;
 
     // fade in/out
-//    out_col.r *= (1.0f - g_opacity[7]);
-//    out_col.g *= (1.0f - g_opacity[7]);
-//    out_col.b *= (1.0f - g_opacity[7]);
     out_col *= (1.0f - g_opacity[7]);
-
     out_col.a = 1.0f;
 
     // ライト目線によるZ値の再算出

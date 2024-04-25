@@ -120,7 +120,7 @@ void depth_buf_shadow::set_bone_num(const int bone_num)
 }
 void depth_buf_shadow::set_skin_mat_array(const std::vector<D3DXMATRIX>& skin_mat_arr)
 {
-    skin_mat_arr_ = std::vector<D3DXMATRIX>(skin_mat_arr);
+    skin_mat_array_ = std::vector<D3DXMATRIX>(skin_mat_arr);
 }
 HRESULT depth_buf_shadow::begin()
 {
@@ -182,18 +182,18 @@ bool depth_buf_shadow::set_param_to_effect()
     }
 
     result = effect_->SetInt("current_bone_numbers", bone_num_);
-    if (!skin_mat_arr_.empty())
+    if (!skin_mat_array_.empty())
     {
-        if (skin_mat_arr_.size() >= 26)
+        if (skin_mat_array_.size() >= 26)
         {
-            result = effect_->SetMatrixArray("g_world_matrix_array", &skin_mat_arr_[0], 26);
+            result = effect_->SetMatrixArray("g_world_matrix_array", &skin_mat_array_[0], 26);
         }
         else
         {
             result = effect_->SetMatrixArray(
                 "g_world_matrix_array",
-                &skin_mat_arr_[0],
-                static_cast<UINT>(skin_mat_arr_.size()));
+                &skin_mat_array_[0],
+                static_cast<UINT>(skin_mat_array_.size()));
         }
     }
     effect_->CommitChanges();

@@ -431,7 +431,7 @@ void main_window::debug()
         //hud_->delete_message("fps");
         //hud_->add_message("fps", std::to_string(fps), cv::Rect(30, 10, 64, 32));
         string fps_text { "fps: " + std::to_string(fps) };
-        text_d3dxfont_->set_param(fps_text, 0, 0, D3DCOLOR_ARGB(127, 200, 200, 200));
+        text_d3dxfont_->set_param(fps_text, 1000, 0, D3DCOLOR_ARGB(127, 200, 200, 200));
     }
 
     //  if (keyboard::is_hold('I')) {

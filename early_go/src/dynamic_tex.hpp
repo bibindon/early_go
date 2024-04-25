@@ -30,6 +30,7 @@ private:
     std::shared_ptr<depth_buf_shadow> depth_buf_shadow_;
     std::array<std::shared_ptr<IDirect3DTexture9>, depth_buf_shadow::LAYER> dynamic_textures_ { };
     std::array<bool, depth_buf_shadow::LAYER> anim_finished_ { };
+    std::array<D3DXVECTOR2, depth_buf_shadow::LAYER> pos_ { };
     std::array<float, depth_buf_shadow::LAYER> opacities_ { };
 
     fade_type fade_type_ { fade_type::NONE };

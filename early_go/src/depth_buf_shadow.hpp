@@ -64,6 +64,6 @@ private:
     D3DXHANDLE technique_handle_ { nullptr };
 
     int bone_num_ { 0 };
-    std::vector<D3DXMATRIX> skin_mat_arr_;
+    std::vector<D3DXMATRIX> skin_mat_array_;
 };
 }

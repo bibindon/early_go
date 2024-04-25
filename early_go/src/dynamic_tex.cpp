@@ -17,6 +17,7 @@ dynamic_tex::dynamic_tex(
     {
         anim_finished_.at(i) = true;
         opacities_.at(i) = 0.f;
+        pos_.at(i) = D3DXVECTOR2 { 0.f, 0.f };
     }
 
     vector<char> buffer { util::get_image_resource("image/blank.png") };
@@ -59,7 +60,7 @@ void dynamic_tex::set_tex(
 }
 void dynamic_tex::set_pos(const int layer, const D3DXVECTOR2& pos)
 {
-    depth_buf_shadow_->set_dynamic_pos(layer, pos);
+    pos_.at(layer) = pos;
 }
 void dynamic_tex::set_opacity(const int layer, const float alpha)
 {
@@ -116,8 +117,8 @@ void dynamic_tex::update()
     else if (fade_type_ == fade_type::FADE_OUT)
     {
         ++anim_time_;
-        opacities_.at(depth_buf_shadow::FADE_LAYER) += (0.016f/5);
-        if (anim_time_ >= 300)
+        opacities_.at(depth_buf_shadow::FADE_LAYER) += (1.f/60/4);
+        if (anim_time_ >= 60*4)
         {
             opacities_.at(depth_buf_shadow::FADE_LAYER) = 1.f;
             anim_finished_.at(depth_buf_shadow::FADE_LAYER) = true;
@@ -127,6 +128,7 @@ void dynamic_tex::update()
     for (int i = 0; i < depth_buf_shadow::LAYER; ++i)
     {
         depth_buf_shadow_->set_dynamic_opacity(i, opacities_.at(i));
+        depth_buf_shadow_->set_dynamic_pos(i, pos_.at(i));
         depth_buf_shadow_->set_dynamic_tex(i, dynamic_textures_.at(i));
     }
 }
