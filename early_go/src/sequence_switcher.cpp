@@ -36,7 +36,7 @@ void sequence_switcher::update(
         }
         else if (_seq_type_result == seq_type::BATTLE)
         {
-            sequence_.reset(new_crt seq_battle { d3d_device_, _camera });
+            sequence_.reset(new_crt seq_battle { d3d_device_, _camera, _early });
         }
         else if (_seq_type_result == seq_type::ENDING)
         {

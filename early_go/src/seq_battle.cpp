@@ -11,6 +11,7 @@
 #include "stage.hpp"
 #include "hud2.hpp"
 #include "enemy_manager.hpp"
+#include "enemy.hpp"
 
 using std::make_shared;
 using std::shared_ptr;
@@ -18,7 +19,10 @@ using std::shared_ptr;
 namespace early_go
 {
 seq_battle::seq_battle(
-    const shared_ptr<IDirect3DDevice9>& d3d_device, const shared_ptr<camera>& _camera)
+    const shared_ptr<IDirect3DDevice9>& d3d_device,
+    const shared_ptr<camera>& _camera,
+    const shared_ptr<player>& _player
+    )
     : d3d_device_ { d3d_device }
 {
     se_player::get_ton()->load("sound/damage01.wav");
@@ -30,20 +34,20 @@ seq_battle::seq_battle(
     stage_.reset(new_crt stage { });
 
     hud2_ = make_shared<hud2>(d3d_device_);
-    enemy_manager_ = make_shared<enemy_manager>(d3d_device_);
+    enemy_manager_ = make_shared<enemy_manager>(d3d_device_, _player);
 
     thread_ = std::thread {
         [&]()
         {
             enemy_manager_->add_enemy("suo", { -1, 0, 2 }, direction::BACK, 1.0f, _camera);
-            // enemy_manager_->add_enemy("suo2", { -10, 0, 2 }, direction::BACK, 1.0f, _camera);
-            // enemy_manager_->add_enemy("suo3", { -1, 0, 20 }, direction::BACK, 1.0f, _camera);
-            // enemy_manager_->add_enemy("suo4", { -13, 0, 12 }, direction::BACK, 1.0f, _camera);
-            // enemy_manager_->add_enemy("suo5", { 1, 0, 2 }, direction::BACK, 1.0f, _camera);
-            // enemy_manager_->add_enemy("suo6", { 11, 0, 5 }, direction::BACK, 1.0f, _camera);
-            // enemy_manager_->add_enemy("suo7", { 31, 0, 32 }, direction::BACK, 1.0f, _camera);
-            // enemy_manager_->add_enemy("suo8", { 20, 0, 0 }, direction::BACK, 1.0f, _camera);
-            // enemy_manager_->add_enemy("suo9", { 10, 0, 2 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo2", { -10, 0, 2 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo3", { -1, 0, 20 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo4", { -13, 0, 12 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo5", { 1, 0, 2 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo6", { 11, 0, 5 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo7", { 31, 0, 32 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo8", { 20, 0, 0 }, direction::BACK, 1.0f, _camera);
+            enemy_manager_->add_enemy("suo9", { 10, 0, 2 }, direction::BACK, 1.0f, _camera);
          }
     };
 }

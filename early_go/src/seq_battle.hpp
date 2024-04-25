@@ -17,7 +17,9 @@ class seq_battle : public seq_interface
 public:
     seq_battle(
         const std::shared_ptr<IDirect3DDevice9>& d3d_device,
-        const std::shared_ptr<camera>& _camera);
+        const std::shared_ptr<camera>& _camera,
+        const std::shared_ptr<player>& _player
+        );
     virtual seq_type update(
         const std::shared_ptr<player>& _early,
         const std::shared_ptr<camera>& _camera) override;

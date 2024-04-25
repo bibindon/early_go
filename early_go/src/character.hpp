@@ -152,7 +152,7 @@ public:
 
     bool is_tex_animation_finished(const std::string &x_filename, const int &layer_number);
 
-private:
+protected:
     void set_rotation(const D3DXVECTOR3 &);
     std::string create_animation_fullname(const std::string &, const std::string &);
     std::unordered_map<std::string, std::shared_ptr<abstract_mesh>> mesh_map_;

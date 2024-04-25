@@ -244,6 +244,7 @@ resource_importer.bat
     <ClCompile Include="src\character_factory.cpp" />
     <ClCompile Include="src\depth_buf_shadow.cpp" />
     <ClCompile Include="src\dynamic_tex.cpp" />
+    <ClCompile Include="src\enemy.cpp" />
     <ClCompile Include="src\enemy_manager.cpp" />
     <ClCompile Include="src\error_dialog.cpp" />
     <ClCompile Include="src\hud2.cpp" />
@@ -307,6 +308,7 @@ resource_importer.bat
     <ClInclude Include="src\character_factory.hpp" />
     <ClInclude Include="src\depth_buf_shadow.hpp" />
     <ClInclude Include="src\dynamic_tex.hpp" />
+    <ClInclude Include="src\enemy.hpp" />
     <ClInclude Include="src\enemy_manager.hpp" />
     <ClInclude Include="src\hud2.hpp" />
     <ClInclude Include="src\input.hpp" />

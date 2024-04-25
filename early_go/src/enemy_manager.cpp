@@ -1,6 +1,7 @@
 #include "enemy_manager.hpp"
 
 #include "character.hpp"
+#include "enemy.hpp"
 #include "camera.hpp"
 #include "animation_mesh.hpp"
 #include "skinned_animation_mesh.hpp"
@@ -11,17 +12,21 @@ using std::string;
 
 namespace early_go
 {
-enemy_manager::enemy_manager(const std::shared_ptr<IDirect3DDevice9>& d3d_device)
+enemy_manager::enemy_manager(
+    const std::shared_ptr<IDirect3DDevice9>& d3d_device,
+    const std::shared_ptr<player>& _player)
     : d3d_device_ { d3d_device }
 {
+    player_ = _player;
 }
 void enemy_manager::add_enemy(
     const string& key,
     const cv::Point3i& position, const direction& direction, const float& size,
     const std::shared_ptr<camera>& _camera)
 {
-    enemy_map_.insert(std::make_pair(key, character { d3d_device_, position, direction, size }));
+    enemy_map_.insert(std::make_pair(key, enemy { d3d_device_, position, direction, size }));
 
+    enemy_map_.at(key).set_player(player_);
     enemy_map_.at(key).set_camera(_camera);
     enemy_map_.at(key).set_position(position);
     enemy_map_.at(key).set_max_health(10);
@@ -43,16 +48,20 @@ void enemy_manager::add_enemy(
     enemy_map_.at(key).set_animation_config("Attack", false, 1.0f);
     enemy_map_.at(key).set_animation_config("Damaged", false, 1.0f);
 }
-character* enemy_manager::enemy(const std::string& key)
+enemy* enemy_manager::get_enemy(const std::string& key)
 {
     return &enemy_map_.at("suo");
 }
-std::unordered_map<string, character>* enemy_manager::enemy_map()
+std::unordered_map<string, enemy>* enemy_manager::enemy_map()
 {
     return &enemy_map_;
 }
 void enemy_manager::update()
 {
+    for (auto& enemy : enemy_map_)
+    {
+        enemy.second.update();
+    }
 }
 void enemy_manager::render(const shared_ptr<camera>& _camera)
 {

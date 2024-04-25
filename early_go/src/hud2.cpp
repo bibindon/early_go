@@ -4,6 +4,7 @@
 #include "text_d3dxfont.hpp"
 #include "camera.hpp"
 #include "enemy_manager.hpp"
+#include "enemy.hpp"
 
 using std::shared_ptr;
 using std::string;

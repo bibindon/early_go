@@ -7,6 +7,7 @@
 #include "input.hpp"
 #include "stage.hpp"
 #include "enemy_manager.hpp"
+#include "enemy.hpp"
 
 using std::shared_ptr;
 
@@ -29,7 +30,10 @@ void operation::update(
 {
     ++frame_counter_;
     int previous_push_elapse { frame_counter_ - current_behavior_->pushed_frame_ };
+
     _player->update(_stage);
+    _enemy_manager->update();
+
     if (keyboard::is_down('Q'))
     {
         PostQuitMessage(0);

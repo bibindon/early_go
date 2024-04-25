@@ -127,8 +127,8 @@ void dynamic_tex::update()
     if (fade_type_ == fade_type::FADE_IN)
     {
         ++anim_time_;
-        opacities_.at(depth_buf_shadow::FADE_LAYER) -= (0.016f/5);
-        if (anim_time_ >= 300)
+        opacities_.at(depth_buf_shadow::FADE_LAYER) -= (1.f/60/3);
+        if (anim_time_ >= 60*3)
         {
             opacities_.at(depth_buf_shadow::FADE_LAYER) = 0.f;
             anim_finished_.at(depth_buf_shadow::FADE_LAYER) = true;
@@ -138,8 +138,8 @@ void dynamic_tex::update()
     else if (fade_type_ == fade_type::FADE_OUT)
     {
         ++anim_time_;
-        opacities_.at(depth_buf_shadow::FADE_LAYER) += (1.f/60/4);
-        if (anim_time_ >= 60*4)
+        opacities_.at(depth_buf_shadow::FADE_LAYER) += (1.f/60/3);
+        if (anim_time_ >= 60*3)
         {
             opacities_.at(depth_buf_shadow::FADE_LAYER) = 1.f;
             anim_finished_.at(depth_buf_shadow::FADE_LAYER) = true;
