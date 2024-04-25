@@ -505,6 +505,11 @@ string abstract_mesh::get_mesh_name()
     return mesh_name_;
 }
 
+bool abstract_mesh::is_anim_playing()
+{
+    return animation_strategy_->is_playing();
+}
+
 abstract_mesh::dynamic_texture::texture_fader::texture_fader(
     const abstract_mesh::dynamic_texture::texture_fader::fade_type &fade_type)
     : count_{0},

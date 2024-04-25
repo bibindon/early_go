@@ -68,6 +68,7 @@ public:
     void set_fade_in();
     void set_fade_out();
     std::string get_mesh_name();
+    bool is_anim_playing();
 
 protected:
     std::shared_ptr<IDirect3DDevice9> d3d_device_;

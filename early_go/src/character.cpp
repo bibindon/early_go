@@ -266,6 +266,21 @@ void character::set_fade_out(const std::string &x_filename)
     }
 }
 
+bool character::is_anim_playing()
+{
+    // 一つでもアニメーション中だったらアニメーション中。
+    bool is_playing { false };
+    for (const auto &x : mesh_map_)
+    {
+        if (x.second->is_anim_playing())
+        {
+            is_playing = true;
+            break;
+        }
+    }
+    return is_playing;
+}
+
 void character::set_action_step(const direction step_dir)
 {
     current_action_.reset(); // call dtor.

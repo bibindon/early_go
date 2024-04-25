@@ -8,11 +8,13 @@ class animation_strategy
 {
 public:
     virtual void update() = 0;
-    virtual void set_animation(const std::string &) { };
-    virtual void set_default_animation(const std::string &) { };
-    virtual void set_animation_config(const std::string &, const bool &, const float &) { };
-    virtual ~animation_strategy() { };
+    virtual void set_animation(const std::string &) { }
+    virtual void set_default_animation(const std::string &) { }
+    virtual void set_animation_config(const std::string &, const bool &, const float &) { }
+    virtual ~animation_strategy() { }
+    virtual bool is_playing() { return false; }
 protected:
+    bool is_playing_ { false };
     std::vector<std::unique_ptr<ID3DXAnimationSet, custom_deleter> > animation_sets_;
     std::unique_ptr<ID3DXAnimationController, custom_deleter> animation_controller_;
 };
@@ -32,7 +34,6 @@ public:
     normal_animation(LPD3DXANIMATIONCONTROLLER controller)
         : default_animation_ { "" },
           animation_time_ { },
-          is_playing_ { false },
           playing_animation_ { "" }
     {
         animation_controller_.reset(controller);
@@ -110,11 +111,11 @@ public:
     {
         animation_configs_.emplace(animation_name, animation_config{loop, duration});
     }
+    virtual bool is_playing() override { return is_playing_;  }
 
 private:
     std::string default_animation_;
     float animation_time_;
-    bool is_playing_ { false };
     std::string playing_animation_;
 
     struct animation_config
