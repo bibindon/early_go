@@ -4,6 +4,8 @@
 
 namespace early_go
 {
+// 何のために作られたのか不明
+// Luaのコルーチンに対応させようとした？
 struct message_writer_for_thread
 {
     DWORD color_{};

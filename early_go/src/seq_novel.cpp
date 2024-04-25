@@ -229,8 +229,8 @@ int seq_novel::glue_draw_text(lua_State *L)
 }
 void seq_novel::redraw_portrait()
 {
-    // most front == (layer 4)
-    // most back  == (layer 2)
+    // most front == (layer 3)
+    // most back  == (layer 1)
 
     auto it { portrait_order_.cbegin() };
     for (int layer = 3; layer >= 1; --layer, ++it)
