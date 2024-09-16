@@ -1,13 +1,16 @@
-## ���@���L���[�v���t�@�C���̓��l�Q�[��
-### ����
+## ヴァルキリープロファイルの同人ゲーム
+
+開発の継続を断念した
+
+### メモ
 - Visual Studio 2019
-- C++��DirectX9�łł��Ă���B
-- SQLite��PowerShell�����������g��
-- Google Coding Style��̗̍p���Ă������c��snake case�B�኱������Ă���B
-- GitHub����_�E�����[�h����Ɖ��s�R�[�h��LF�ɂȂ��Ă��܂��r���h�ł��Ȃ����Ƃ�����B
-- resource_importer.ps1��System.Data.SQLite.dll���E�N���b�N���ăv���p�e�B���J���A
-  ���s��������Ƀ`�F�b�N����K�v����H
-- �R�����g�͉p��ŏ����悤�ɂ��Ă��������Ԑߖ�̂��ߎ��߂��B
+- C++とDirectX9でできている。
+- SQLiteとPowerShellを少しだけ使う
+- Google Coding Styleを昔採用していた名残でsnake case。若干後悔している。
+- GitHubからダウンロードすると改行コードがLFになってしまいビルドできないことがある。
+- resource_importer.ps1とSystem.Data.SQLite.dllを右クリックしてプロパティを開き、
+  実行を許可するにチェックする必要あり？
+- コメントは英語で書くようにしていたが時間節約のため辞めた。
 
 X: bibindon0814
 
